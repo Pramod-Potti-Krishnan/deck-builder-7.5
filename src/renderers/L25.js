@@ -56,15 +56,17 @@ function renderL25(content) {
         </div>
         ` : ''}
 
-        <!-- Middle Section: Empty (columns 7-24, 18 grids) -->
+        <!-- Middle Section: Empty (columns 7-31) -->
+      </div>
 
-        <!-- Right Section: Company Logo (columns 25-32, 8 grids - 2x larger) -->
-        ${content.company_logo ? `
-        <div class="footer-company-logo" style="grid-column: 25/32; padding: 8px 14px; font-size: 32px; display: flex; align-items: center; justify-content: center; height: 100%;">
+      <!-- Company Logo: 2×2 grid in bottom-right corner (rows 18-19, columns 31-32) -->
+      ${content.company_logo ? `
+      <div class="footer-company-logo" style="grid-row: 18/20; grid-column: 31/33; display: flex; align-items: center; justify-content: flex-end; padding: 10px;">
+        <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
           ${content.company_logo}
         </div>
-        ` : ''}
       </div>
+      ` : ''}
     </section>
   `;
 }

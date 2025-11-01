@@ -1,0 +1,59 @@
+{
+  "title": "v7.5-main Demo: AI in Healthcare",
+  "slides": [
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style=\"width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px;\"><h1 style=\"font-size: 96px; color: white; font-weight: 900; text-align: center; margin-bottom: 32px; text-shadow: 0 4px 12px rgba(0,0,0,0.3);\">AI in Healthcare</h1><p style=\"font-size: 42px; color: rgba(255,255,255,0.95); text-align: center; margin-bottom: 64px;\">Transforming Patient Care Through Innovation</p><div style=\"font-size: 32px; color: rgba(255,255,255,0.9); text-align: center;\">Dr. Sarah Chen, MD<br>Medical AI Research Institute<br><span style=\"font-size: 24px; margin-top: 16px; display: inline-block;\">January 2025</span></div></div>"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "Key Benefits of AI Implementation",
+        "subtitle": "Measurable Impact in 90 Days",
+        "rich_content": "<div style=\"display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 32px; height: 100%; align-items: center;\"><div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 48px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);\"><div style=\"font-size: 64px; font-weight: bold; color: white; margin-bottom: 24px;\">25%</div><h3 style=\"font-size: 28px; color: white; margin-bottom: 16px; font-weight: 600;\">Cost Savings</h3><p style=\"font-size: 18px; color: rgba(255,255,255,0.9); line-height: 1.6;\">Reduction in operational costs through AI automation and streamlined workflows</p></div><div style=\"background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 48px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);\"><div style=\"font-size: 64px; font-weight: bold; color: white; margin-bottom: 24px;\">40%</div><h3 style=\"font-size: 28px; color: white; margin-bottom: 16px; font-weight: 600;\">Efficiency Gain</h3><p style=\"font-size: 18px; color: rgba(255,255,255,0.9); line-height: 1.6;\">Faster patient processing with intelligent diagnostic systems</p></div><div style=\"background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 48px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);\"><div style=\"font-size: 64px; font-weight: bold; color: white; margin-bottom: 24px;\">95%</div><h3 style=\"font-size: 28px; color: white; margin-bottom: 16px; font-weight: 600;\">Accuracy</h3><p style=\"font-size: 18px; color: rgba(255,255,255,0.9); line-height: 1.6;\">Diagnostic accuracy rate with machine learning algorithms</p></div></div>",
+        "presentation_name": "AI in Healthcare Demo",
+        "company_logo": "<span style='font-weight: bold; color: #667eea;'>MedAI</span>"
+      }
+    },
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style=\"width: 100%; height: 100%; background: #1f2937; display: flex; align-items: center; justify-content: center;\"><h2 style=\"font-size: 72px; color: white; font-weight: 700; border-left: 8px solid #3b82f6; padding-left: 40px; line-height: 1.2;\">Implementation Roadmap<br><span style=\"font-size: 42px; color: #9ca3af; font-weight: 400;\">From Planning to Deployment</span></h2></div>"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "Three-Phase Implementation",
+        "subtitle": "Structured Approach for Success",
+        "rich_content": "<div style=\"display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 32px; height: 100%;\"><div style=\"padding: 24px;\"><h2 style=\"font-size: 36px; margin-bottom: 32px; color: #1f2937; font-weight: 700; border-bottom: 4px solid #3b82f6; padding-bottom: 16px;\">Key Deliverables</h2><ul style=\"font-size: 20px; line-height: 2; color: #374151; list-style: none; padding: 0;\"><li style=\"margin-bottom: 24px; padding-left: 40px; position: relative;\"><span style=\"position: absolute; left: 0; top: 0; color: #3b82f6; font-size: 28px;\">✓</span><strong style=\"color: #1f2937;\">AI Model Training</strong> - Custom models for your specialty</li><li style=\"margin-bottom: 24px; padding-left: 40px; position: relative;\"><span style=\"position: absolute; left: 0; top: 0; color: #3b82f6; font-size: 28px;\">✓</span><strong style=\"color: #1f2937;\">EHR Integration</strong> - Seamless data flow with existing systems</li><li style=\"margin-bottom: 24px; padding-left: 40px; position: relative;\"><span style=\"position: absolute; left: 0; top: 0; color: #3b82f6; font-size: 28px;\">✓</span><strong style=\"color: #1f2937;\">Staff Training</strong> - Comprehensive onboarding program</li></ul></div><div style=\"padding: 24px;\"><h2 style=\"font-size: 36px; margin-bottom: 32px; color: #1f2937; font-weight: 700; border-bottom: 4px solid #10b981; padding-bottom: 16px;\">Timeline</h2><ol style=\"font-size: 20px; line-height: 2; color: #374151; padding-left: 40px;\"><li style=\"margin-bottom: 24px;\"><strong style=\"color: #1f2937;\">Phase 1:</strong> Planning & Setup<br><span style=\"font-size: 16px; color: #6b7280;\">Duration: 2 weeks</span></li><li style=\"margin-bottom: 24px;\"><strong style=\"color: #1f2937;\">Phase 2:</strong> Integration & Training<br><span style=\"font-size: 16px; color: #6b7280;\">Duration: 4 weeks</span></li><li style=\"margin-bottom: 24px;\"><strong style=\"color: #1f2937;\">Phase 3:</strong> Go-Live & Support<br><span style=\"font-size: 16px; color: #6b7280;\">Duration: 2 weeks</span></li></ol></div></div>",
+        "presentation_name": "AI in Healthcare Demo",
+        "company_logo": "<span style='font-weight: bold; color: #667eea;'>MedAI</span>"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "Performance Comparison",
+        "subtitle": "Current State vs. AI-Powered Future",
+        "rich_content": "<div style=\"padding: 24px; height: 100%; overflow: auto;\"><table style=\"width: 100%; border-collapse: collapse; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);\"><thead><tr style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;\"><th style=\"padding: 20px; text-align: left; font-weight: 600;\">Metric</th><th style=\"padding: 20px; text-align: center; font-weight: 600;\">Current</th><th style=\"padding: 20px; text-align: center; font-weight: 600;\">With AI</th><th style=\"padding: 20px; text-align: center; font-weight: 600;\">Impact</th></tr></thead><tbody><tr style=\"border-bottom: 1px solid #e5e7eb; background: #f9fafb;\"><td style=\"padding: 20px; font-weight: 600; color: #1f2937;\">Diagnosis Time</td><td style=\"padding: 20px; text-align: center; color: #6b7280;\">45 min</td><td style=\"padding: 20px; text-align: center; color: #3b82f6; font-weight: 700;\">5 min</td><td style=\"padding: 20px; text-align: center; color: #10b981; font-weight: 700;\">89% faster</td></tr><tr style=\"border-bottom: 1px solid #e5e7eb;\"><td style=\"padding: 20px; font-weight: 600; color: #1f2937;\">Error Rate</td><td style=\"padding: 20px; text-align: center; color: #6b7280;\">12%</td><td style=\"padding: 20px; text-align: center; color: #3b82f6; font-weight: 700;\">1%</td><td style=\"padding: 20px; text-align: center; color: #10b981; font-weight: 700;\">92% reduction</td></tr><tr style=\"border-bottom: 1px solid #e5e7eb; background: #f9fafb;\"><td style=\"padding: 20px; font-weight: 600; color: #1f2937;\">Cost per Patient</td><td style=\"padding: 20px; text-align: center; color: #6b7280;\">$450</td><td style=\"padding: 20px; text-align: center; color: #3b82f6; font-weight: 700;\">$120</td><td style=\"padding: 20px; text-align: center; color: #10b981; font-weight: 700;\">73% savings</td></tr><tr style=\"border-bottom: 1px solid #e5e7eb;\"><td style=\"padding: 20px; font-weight: 600; color: #1f2937;\">Patient Satisfaction</td><td style=\"padding: 20px; text-align: center; color: #6b7280;\">72%</td><td style=\"padding: 20px; text-align: center; color: #3b82f6; font-weight: 700;\">94%</td><td style=\"padding: 20px; text-align: center; color: #10b981; font-weight: 700;\">+22 points</td></tr></tbody></table></div>",
+        "presentation_name": "AI in Healthcare Demo",
+        "company_logo": "<span style='font-weight: bold; color: #667eea;'>MedAI</span>"
+      }
+    },
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style=\"width: 100%; height: 100%; position: relative; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px;\"><h1 style=\"font-size: 96px; color: white; margin-bottom: 48px; text-align: center; font-weight: 900; line-height: 1.1; text-shadow: 0 4px 12px rgba(0,0,0,0.3);\">Transform Your Practice</h1><p style=\"font-size: 42px; color: rgba(255,255,255,0.95); text-align: center; max-width: 1400px; line-height: 1.5; margin-bottom: 64px; text-shadow: 0 2px 8px rgba(0,0,0,0.2);\">Join 500+ healthcare providers using AI to deliver better patient outcomes</p><div style=\"padding: 28px 64px; font-size: 32px; background: white; color: #667eea; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.3);\">Schedule a Demo Today</div><div style=\"position: absolute; bottom: 40px; right: 40px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 16px 32px; border-radius: 8px; color: white; font-size: 18px;\">Trusted by 500+ medical institutions</div></div>"
+      }
+    },
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style=\"width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px;\"><h1 style=\"font-size: 96px; color: white; font-weight: 900; margin-bottom: 48px; text-shadow: 0 4px 12px rgba(0,0,0,0.3);\">Thank You</h1><p style=\"font-size: 36px; color: rgba(255,255,255,0.95); text-align: center; margin-bottom: 24px;\">Questions? Let's discuss how AI can transform your practice</p><div style=\"font-size: 28px; color: rgba(255,255,255,0.8); text-align: center; margin-top: 64px;\">Medical AI Research Institute<br>contact@medicalai.org</div></div>"
+      }
+    }
+  ]
+}

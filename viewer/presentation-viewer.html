@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentation Viewer - v7.5-main</title>
+
+  <!-- Reveal.js Core -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
+
+  <!-- v7.5 Styles -->
+  <link rel="stylesheet" href="/src/styles/core/reset.css">
+  <link rel="stylesheet" href="/src/styles/core/grid-system.css">
+  <link rel="stylesheet" href="/src/styles/core/borders.css">
+  <link rel="stylesheet" href="/src/styles/content-area.css">
+
+  <style>
+    /* Minimal additional styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    }
+
+    .reveal {
+      background: #ffffff;
+    }
+
+    /* System indicator badge */
+    #system-indicator {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: rgba(59, 130, 246, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 10000;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Help text */
+    #help-text {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #help-text.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- System Indicator -->
+  <div id="system-indicator">v7.5-main: 2-Layout System</div>
+
+  <!-- Help Text -->
+  <div id="help-text">
+    Press 'G' for grid overlay | 'B' for borders | 'C' for content area debug | '?' for help
+  </div>
+
+  <!-- Reveal.js Container -->
+  <div class="reveal">
+    <div class="slides" id="slides-container">
+      <!-- Slides will be injected here -->
+    </div>
+  </div>
+
+  <!-- Reveal.js Core -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+
+  <!-- v7.5 Utilities -->
+  <script src="/src/utils/format_ownership.js"></script>
+  <script src="/src/core/reveal-config.js"></script>
+
+  <!-- v7.5 Renderers (only 2!) -->
+  <script src="/src/renderers/L25.js"></script>
+  <script src="/src/renderers/L29.js"></script>
+
+  <!-- Presentation Rendering Script -->
+  <script>
+    // Presentation data (injected by server)
+    const PRESENTATION_DATA = null;
+
+    // Renderer registry (only 2 layouts)
+    const RENDERERS = {
+      'L25': window.renderL25,
+      'L29': window.renderL29
+    };
+
+    /**
+     * Render presentation from data
+     */
+    function renderPresentation(data) {
+      if (!data || !data.slides) {
+        console.error('Invalid presentation data');
+        return;
+      }
+
+      const slidesContainer = document.getElementById('slides-container');
+      slidesContainer.innerHTML = '';
+
+      // Update document title
+      document.title = data.title || 'Presentation';
+
+      // Render each slide
+      data.slides.forEach((slide, index) => {
+        const layout = slide.layout;
+        const content = slide.content;
+
+        // Get renderer
+        const renderer = RENDERERS[layout];
+        if (!renderer) {
+          console.error(`No renderer found for layout: ${layout}`);
+          slidesContainer.innerHTML += `
+            <section class="error-slide">
+              <div style="color: red; text-align: center; padding: 40px;">
+                <h2>Error: Unknown Layout</h2>
+                <p>Layout '${layout}' is not supported in v7.5-main</p>
+                <p>Valid layouts: L01-Shell, L25, L29</p>
+              </div>
+            </section>
+          `;
+          return;
+        }
+
+        // Render slide
+        try {
+          const slideHTML = renderer(content);
+          slidesContainer.innerHTML += slideHTML;
+        } catch (error) {
+          console.error(`Error rendering slide ${index + 1}:`, error);
+          slidesContainer.innerHTML += `
+            <section class="error-slide">
+              <div style="color: red; text-align: center; padding: 40px;">
+                <h2>Rendering Error</h2>
+                <p>Failed to render slide ${index + 1} (${layout})</p>
+                <p>${error.message}</p>
+              </div>
+            </section>
+          `;
+        }
+      });
+
+      // Initialize Reveal.js
+      if (typeof initReveal === 'function') {
+        initReveal();
+      } else {
+        // Fallback if reveal-config.js not loaded
+        Reveal.initialize({
+          width: 1920,
+          height: 1080,
+          margin: 0,
+          minScale: 0.1,
+          maxScale: 3.0,
+          center: true,
+          controls: true,
+          progress: true,
+          slideNumber: 'c/t',
+          hash: true,
+          history: true
+        });
+      }
+
+      console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
+    }
+
+    /**
+     * Toggle content area debug mode
+     */
+    function toggleContentAreaDebug() {
+      document.body.classList.toggle('debug-content-areas');
+      const isActive = document.body.classList.contains('debug-content-areas');
+      console.log(`Content area debug: ${isActive ? 'ON' : 'OFF'}`);
+    }
+
+    /**
+     * Show help text briefly
+     */
+    function showHelpText() {
+      const helpText = document.getElementById('help-text');
+      helpText.classList.add('show');
+      setTimeout(() => {
+        helpText.classList.remove('show');
+      }, 3000);
+    }
+
+    // Add keyboard shortcut for content area debug
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'c' || e.key === 'C') {
+        toggleContentAreaDebug();
+      }
+      if (e.key === '?') {
+        showHelpText();
+      }
+    });
+
+    // Render presentation on load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (PRESENTATION_DATA) {
+        renderPresentation(PRESENTATION_DATA);
+      } else {
+        document.getElementById('slides-container').innerHTML = `
+          <section>
+            <div style="text-align: center; padding: 60px; color: #6b7280;">
+              <h1 style="font-size: 48px; color: #1f2937;">No Presentation Data</h1>
+              <p style="font-size: 24px; margin-top: 24px;">No presentation data was provided</p>
+              <p style="font-size: 18px; margin-top: 16px; color: #9ca3af;">Use the API to create a presentation</p>
+            </div>
+          </section>
+        `;
+        if (typeof initReveal === 'function') {
+          initReveal();
+        }
+      }
+
+      // Show help text on first load
+      setTimeout(showHelpText, 1000);
+    });
+  </script>
+</body>
+</html>

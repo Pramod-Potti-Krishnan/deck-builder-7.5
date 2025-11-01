@@ -1,0 +1,126 @@
+/**
+ * RevealJS Reset Styles
+ *
+ * Typography and element resets for consistent styling.
+ * Positioning and scaling are handled by Reveal.js natively.
+ *
+ * V7.1 Update: Removed aggressive viewport forcing to enable Reveal.js scaling.
+ */
+
+/* ===== Reset Default Text Styles ===== */
+.reveal .slides section * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Reset headings */
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  margin: 0;
+  padding: 0;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  text-shadow: none;
+  /* Enable text wrapping for long titles */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* Reset paragraphs */
+.reveal p {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+}
+
+/* Reset lists */
+.reveal ul,
+.reveal ol {
+  margin: 0;
+  padding: 0;
+  list-style-position: inside;
+}
+
+.reveal li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset links */
+.reveal a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.reveal a:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* ===== Disable RevealJS Controls (we'll add custom ones) ===== */
+.reveal .controls {
+  display: block !important;
+  bottom: 20px;
+  right: 20px;
+}
+
+.reveal .progress {
+  display: block !important;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.reveal .progress span {
+  background: #2563eb;
+}
+
+/* ===== Slide Number ===== */
+.reveal .slide-number {
+  font-size: 12px;
+  color: #6b7280;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  .reveal .slides section {
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+
+  .reveal .controls,
+  .reveal .progress,
+  .reveal .slide-number {
+    display: none !important;
+  }
+}
+
+/* ===== Accessibility ===== */
+.reveal .slides section:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

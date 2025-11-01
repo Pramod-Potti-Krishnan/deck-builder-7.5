@@ -1,0 +1,176 @@
+/**
+ * Content Area Isolation for Text Service HTML
+ *
+ * Ensures Text Service can style content freely without interference
+ * from Layout Builder styles, while maintaining grid positioning.
+ */
+
+/* ==================== Rich Content Area (L25) ==================== */
+
+.rich-content-area {
+  /* Reset all inherited styles */
+  all: initial;
+
+  /* Restore essential display properties */
+  display: block;
+  box-sizing: border-box;
+
+  /* Restore grid positioning (set via inline styles) */
+  grid-row: var(--grid-row, auto);
+  grid-column: var(--grid-column, auto);
+
+  /* Content area dimensions */
+  max-width: 1800px;
+  max-height: 720px;
+
+  /* Allow vertical scrolling if content exceeds height */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+
+  /* Base typography (can be overridden by Text Service) */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+/* Allow Text Service full styling control within content area */
+.rich-content-area * {
+  box-sizing: border-box;
+}
+
+/* Custom scrollbar styling for rich content area */
+.rich-content-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rich-content-area::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.rich-content-area::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.rich-content-area::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==================== Hero Content Area (L29) ==================== */
+
+.hero-content-area {
+  /* Reset all inherited styles */
+  all: initial;
+
+  /* Restore essential display properties */
+  display: block;
+  box-sizing: border-box;
+
+  /* Restore grid positioning (set via inline styles) */
+  grid-row: var(--grid-row, auto);
+  grid-column: var(--grid-column, auto);
+
+  /* Full slide dimensions */
+  width: 100%;
+  height: 100%;
+
+  /* No scrolling - content must fit */
+  overflow: hidden;
+
+  /* Base typography (can be overridden by Text Service) */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+/* Allow Text Service full styling control within hero area */
+.hero-content-area * {
+  box-sizing: border-box;
+}
+
+/* ==================== Common Text Service Utilities ==================== */
+
+/* Remove default margins from common HTML elements within content areas */
+.rich-content-area > *:first-child,
+.hero-content-area > *:first-child {
+  margin-top: 0;
+}
+
+.rich-content-area > *:last-child,
+.hero-content-area > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure images are responsive within content areas */
+.rich-content-area img,
+.hero-content-area img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ==================== Debug Mode ==================== */
+
+/* Show content area boundaries in debug mode */
+body.debug-content-areas .rich-content-area {
+  outline: 2px dashed #3b82f6;
+  outline-offset: -2px;
+}
+
+body.debug-content-areas .hero-content-area {
+  outline: 2px dashed #10b981;
+  outline-offset: -2px;
+}
+
+body.debug-content-areas .rich-content-area::before {
+  content: 'Rich Content Area (1800×720px)';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+body.debug-content-areas .hero-content-area::before {
+  content: 'Hero Content Area (1920×1080px)';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* ==================== Responsive Design (Future) ==================== */
+
+/* For smaller viewports, adjust content area constraints */
+@media (max-width: 1366px) {
+  .rich-content-area {
+    /* Content area scales proportionally */
+    max-width: 100%;
+  }
+}
+
+@media print {
+  /* Ensure content areas print correctly */
+  .rich-content-area,
+  .hero-content-area {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+}

@@ -49,18 +49,18 @@ function renderL25(content) {
 
       <!-- Footer with 3 sections -->
       <div class="footer-container" style="grid-row: 18/19; grid-column: 1/33; display: grid; grid-template-columns: repeat(32, 1fr); align-items: center;">
-        <!-- Left Section: Presentation Name (columns 2-6, 5 grids) -->
+        <!-- Left Section: Presentation Name (columns 2-7, 6 grids) -->
         ${content.presentation_name ? `
         <div class="footer-presentation-name" style="grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
           ${content.presentation_name}
         </div>
         ` : ''}
 
-        <!-- Middle Section: Empty (columns 7-28, 22 grids) -->
+        <!-- Middle Section: Empty (columns 7-24, 18 grids) -->
 
-        <!-- Right Section: Company Logo (columns 29-31, 3 grids) -->
+        <!-- Right Section: Company Logo (columns 25-32, 8 grids - 2x larger) -->
         ${content.company_logo ? `
-        <div class="footer-company-logo" style="grid-column: 29/32; padding: 8px 14px; font-size: 18px; display: flex; align-items: center; justify-content: center; height: 100%;">
+        <div class="footer-company-logo" style="grid-column: 25/32; padding: 8px 14px; font-size: 32px; display: flex; align-items: center; justify-content: center; height: 100%;">
           ${content.company_logo}
         </div>
         ` : ''}

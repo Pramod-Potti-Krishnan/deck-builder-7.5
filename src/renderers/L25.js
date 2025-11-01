@@ -59,9 +59,9 @@ function renderL25(content) {
         <!-- Middle Section: Empty (columns 7-31) -->
       </div>
 
-      <!-- Company Logo: 2×2 grid in bottom-right corner (rows 18-19, columns 31-32) -->
+      <!-- Company Logo: 2×2 grid in bottom-right corner (rows 18-19, columns 30-32) -->
       ${content.company_logo ? `
-      <div class="footer-company-logo" style="grid-row: 18/20; grid-column: 31/33; display: flex; align-items: center; justify-content: flex-end; padding: 10px;">
+      <div class="footer-company-logo" style="grid-row: 18/20; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
         <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
           ${content.company_logo}
         </div>

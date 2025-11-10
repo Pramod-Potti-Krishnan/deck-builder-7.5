@@ -7,14 +7,17 @@ Layouts: L25, L29
 
 import os
 import json
+import io
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
-from models import Presentation, PresentationResponse
+from models import Presentation, PresentationResponse, PDFDownloadOptions, PPTXDownloadOptions
 from storage import storage
+from converters.pdf_converter import PDFConverter
+from converters.pptx_converter import PPTXConverter
 
 
 app = FastAPI(
@@ -56,6 +59,8 @@ async def root():
             "view_presentation": "GET /p/{id}",
             "list_presentations": "GET /api/presentations",
             "delete_presentation": "DELETE /api/presentations/{id}",
+            "download_pdf": "GET /api/presentations/{id}/download/pdf",
+            "download_pptx": "GET /api/presentations/{id}/download/pptx",
             "api_tester": "GET /tester",
             "docs": "/docs"
         }
@@ -177,6 +182,131 @@ async def delete_presentation(presentation_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting presentation: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/download/pdf")
+async def download_pdf(
+    presentation_id: str,
+    landscape: bool = True,
+    print_background: bool = True,
+    quality: str = "high"
+):
+    """
+    Download presentation as PDF.
+
+    Args:
+        presentation_id: The UUID of the presentation
+        landscape: Use landscape orientation (default: True for 16:9 slides)
+        print_background: Include background graphics (default: True)
+        quality: Quality setting - 'high', 'medium', or 'low' (default: 'high')
+
+    Returns:
+        PDF file download
+    """
+    try:
+        # Verify presentation exists
+        presentation = storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Initialize PDF converter
+        converter = PDFConverter()
+
+        # Generate PDF
+        pdf_bytes = await converter.generate_pdf(
+            presentation_id=presentation_id,
+            landscape=landscape,
+            print_background=print_background,
+            quality=quality
+        )
+
+        # Get presentation title for filename
+        title = presentation.get("title", "presentation")
+        # Sanitize filename
+        safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_title = safe_title.replace(' ', '_')
+        filename = f"{safe_title}.pdf"
+
+        # Return PDF as streaming response
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"'
+            }
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating PDF: {str(e)}"
+        )
+
+
+@app.get("/api/presentations/{presentation_id}/download/pptx")
+async def download_pptx(
+    presentation_id: str,
+    aspect_ratio: str = "16:9",
+    quality: str = "high"
+):
+    """
+    Download presentation as PPTX (PowerPoint).
+
+    Args:
+        presentation_id: The UUID of the presentation
+        aspect_ratio: Aspect ratio - '16:9' or '4:3' (default: '16:9')
+        quality: Quality setting - 'high', 'medium', or 'low' (default: 'high')
+
+    Returns:
+        PPTX file download
+    """
+    try:
+        # Verify presentation exists
+        presentation = storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Get slide count
+        slide_count = len(presentation.get("slides", []))
+        if slide_count == 0:
+            raise HTTPException(status_code=400, detail="Presentation has no slides")
+
+        # Initialize PPTX converter
+        converter = PPTXConverter()
+
+        # Generate PPTX
+        pptx_bytes = await converter.generate_pptx(
+            presentation_id=presentation_id,
+            slide_count=slide_count,
+            aspect_ratio=aspect_ratio,
+            quality=quality
+        )
+
+        # Get presentation title for filename
+        title = presentation.get("title", "presentation")
+        # Sanitize filename
+        safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_title = safe_title.replace(' ', '_')
+        filename = f"{safe_title}.pptx"
+
+        # Return PPTX as streaming response
+        return StreamingResponse(
+            io.BytesIO(pptx_bytes),
+            media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"'
+            }
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating PPTX: {str(e)}"
+        )
 
 
 @app.get("/p/{presentation_id}", response_class=HTMLResponse)

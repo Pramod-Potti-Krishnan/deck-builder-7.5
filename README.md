@@ -39,14 +39,22 @@ Previous versions (v7.2-small) had:
 ```bash
 cd /path/to/v7.5-main
 
-# Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
+
+# Install Playwright browsers (required for PDF/PPTX download)
+playwright install chromium
 
 # Start server
 python server.py
 ```
 
 Server runs on **http://localhost:8504**
+
+**Dependencies**:
+- Python 3.10+
+- FastAPI, Uvicorn, Pydantic (for API server)
+- Playwright, python-pptx, Pillow (for PDF/PPTX export)
 
 ### Create Your First Presentation
 
@@ -226,6 +234,54 @@ Response:
 }
 ```
 
+### Download Presentation as PDF
+```
+GET /api/presentations/{id}/download/pdf?landscape=true&quality=high
+
+Parameters:
+- landscape (boolean, default: true): Use landscape orientation
+- print_background (boolean, default: true): Include backgrounds and gradients
+- quality (string, default: "high"): Quality level - "high", "medium", or "low"
+
+Response: PDF file download
+```
+
+**Example**:
+```bash
+# Download as PDF
+curl "http://localhost:8504/api/presentations/{id}/download/pdf?quality=high" \
+  -o presentation.pdf
+
+# Or use a browser:
+# http://localhost:8504/api/presentations/{id}/download/pdf
+```
+
+### Download Presentation as PPTX
+```
+GET /api/presentations/{id}/download/pptx?aspect_ratio=16:9&quality=high
+
+Parameters:
+- aspect_ratio (string, default: "16:9"): Aspect ratio - "16:9" or "4:3"
+- quality (string, default: "high"): Image quality - "high", "medium", or "low"
+
+Response: PPTX file download
+```
+
+**Example**:
+```bash
+# Download as PowerPoint
+curl "http://localhost:8504/api/presentations/{id}/download/pptx?quality=high" \
+  -o presentation.pptx
+
+# Or use a browser:
+# http://localhost:8504/api/presentations/{id}/download/pptx
+```
+
+**Quality Settings**:
+- **high**: Full resolution (1920×1080) - Best quality, larger file size
+- **medium**: 75% resolution (1440×810) - Good balance
+- **low**: 50% resolution (960×540) - Smallest file size
+
 ---
 
 ## For Text Service Developers
@@ -282,26 +338,35 @@ When viewing presentations:
 
 ```
 v7.5-main/
-├── server.py               # FastAPI server (port 8504)
-├── models.py               # 3 Pydantic models
-├── storage.py              # JSON file storage
-├── requirements.txt        # Python dependencies
+├── server.py                      # FastAPI server (port 8504)
+├── models.py                      # Pydantic models (including download options)
+├── storage.py                     # JSON file storage
+├── requirements.txt               # Python dependencies
+├── test_downloads_manual.py       # Manual download testing script
+├── converters/                    # Download/export converters
+│   ├── __init__.py
+│   ├── base.py                   # Base converter with screenshot capture
+│   ├── pdf_converter.py          # PDF generation using Playwright
+│   └── pptx_converter.py         # PPTX generation using python-pptx
+├── tests/                         # Test suites
+│   ├── __init__.py
+│   └── conftest.py               # Pytest configuration and fixtures
 ├── src/
 │   ├── renderers/
-│   │   ├── L01_Shell.js   # Structural layout renderer
-│   │   ├── L25.js         # Main content renderer
-│   │   └── L29.js         # Hero full-bleed renderer
+│   │   ├── L01_Shell.js          # Structural layout renderer
+│   │   ├── L25.js                # Main content renderer
+│   │   └── L29.js                # Hero full-bleed renderer
 │   ├── styles/
-│   │   ├── core/          # Grid system, reset, borders
-│   │   └── content-area.css  # Text Service isolation
+│   │   ├── core/                 # Grid system, reset, borders
+│   │   └── content-area.css      # Text Service isolation
 │   ├── utils/
-│   │   └── format_ownership.js  # Format ownership utility
+│   │   └── format_ownership.js   # Format ownership utility
 │   └── core/
-│       └── reveal-config.js  # Reveal.js configuration
+│       └── reveal-config.js      # Reveal.js configuration
 ├── viewer/
 │   └── presentation-viewer.html  # Reveal.js viewer
 ├── storage/
-│   └── presentations/     # JSON presentation files
+│   └── presentations/            # JSON presentation files
 └── docs/
     ├── CONTENT_GENERATION_GUIDE.md  # For Text Service devs
     └── ARCHITECTURE.md              # System architecture
@@ -335,6 +400,39 @@ curl http://localhost:8504/api/presentations/{id}
 2. Navigate to: `http://localhost:8504/docs` (FastAPI auto-docs)
 3. Test endpoints interactively
 4. View presentations at `/p/{id}`
+
+### Test Download Endpoints
+```bash
+# Run comprehensive download test
+python3 test_downloads_manual.py
+```
+
+This script will:
+1. Create a test presentation with 4 slides
+2. Download it as PDF and PPTX
+3. Validate file formats
+4. Test error handling
+5. Save outputs to `test_output/` directory
+
+**Manual download testing**:
+```bash
+# 1. Create a presentation and get its ID
+PRES_ID=$(curl -X POST http://localhost:8504/api/presentations \
+  -H "Content-Type: application/json" \
+  -d @test-presentation.json | jq -r '.id')
+
+# 2. Download as PDF
+curl "http://localhost:8504/api/presentations/$PRES_ID/download/pdf" \
+  -o my_presentation.pdf
+
+# 3. Download as PPTX
+curl "http://localhost:8504/api/presentations/$PRES_ID/download/pptx" \
+  -o my_presentation.pptx
+
+# 4. Open files to verify
+open my_presentation.pdf
+open my_presentation.pptx
+```
 
 ---
 

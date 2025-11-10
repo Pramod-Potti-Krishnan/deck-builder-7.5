@@ -123,3 +123,43 @@ class PresentationResponse(BaseModel):
     id: str = Field(..., description="Presentation UUID")
     url: str = Field(..., description="Presentation viewer URL")
     message: str = Field(..., description="Success message")
+
+
+# ==================== Download Models ====================
+
+class DownloadFormat(str):
+    """Available download formats."""
+    PDF = "pdf"
+    PPTX = "pptx"
+
+
+class PDFDownloadOptions(BaseModel):
+    """Options for PDF download."""
+    landscape: bool = Field(
+        default=True,
+        description="Use landscape orientation (default: True for 16:9 slides)"
+    )
+    print_background: bool = Field(
+        default=True,
+        description="Include background graphics and colors"
+    )
+    quality: Literal["high", "medium", "low"] = Field(
+        default="high",
+        description="PDF quality setting"
+    )
+
+
+class PPTXDownloadOptions(BaseModel):
+    """Options for PPTX download."""
+    aspect_ratio: Literal["16:9", "4:3"] = Field(
+        default="16:9",
+        description="PowerPoint slide aspect ratio"
+    )
+    quality: Literal["high", "medium", "low"] = Field(
+        default="high",
+        description="Image quality for slides (affects file size)"
+    )
+    include_notes: bool = Field(
+        default=False,
+        description="Include speaker notes (if available)"
+    )

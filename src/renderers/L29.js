@@ -32,7 +32,13 @@ function renderL29(content) {
       <!-- Full Slide: 1920px × 1080px -->
       <!-- Text Service has complete creative control -->
       <div class="hero-content-area"
-           style="grid-row: 1/19; grid-column: 1/33; overflow: hidden; width: 100%; height: 100%;"
+           style="grid-row: 1/19; grid-column: 1/33;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                  align-items: center;
+                  text-align: center;
+                  width: 100%; height: 100%;"
            data-format-owner="text_service"
            data-content-width="1920px"
            data-content-height="1080px">

@@ -56,6 +56,27 @@ Server runs on **http://localhost:8504**
 - FastAPI, Uvicorn, Pydantic (for API server)
 - Playwright, python-pptx, Pillow (for PDF/PPTX export)
 
+### Docker Deployment (Recommended for Production)
+
+For Railway, Render, or other cloud platforms:
+
+```bash
+# Build Docker image
+docker build -t v75-main .
+
+# Run locally with Docker
+docker run -p 8504:8009 -e PORT=8009 v75-main
+
+# Or use docker-compose
+docker-compose up
+```
+
+**Advantages**:
+- ✅ Playwright browsers pre-installed
+- ✅ No permission issues
+- ✅ Consistent across environments
+- ✅ Optimized for Railway deployment
+
 ### Create Your First Presentation
 
 ```bash

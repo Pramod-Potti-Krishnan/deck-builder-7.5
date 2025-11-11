@@ -7,6 +7,7 @@ including browser automation with Playwright for capturing slide screenshots.
 
 import asyncio
 import logging
+import os
 from typing import List, Optional
 from pathlib import Path
 from playwright.async_api import async_playwright, Browser, Page, ViewportSize
@@ -21,13 +22,17 @@ class BaseConverter:
     SLIDE_WIDTH = 1920
     SLIDE_HEIGHT = 1080
 
-    def __init__(self, base_url: str = "http://localhost:8504"):
+    def __init__(self, base_url: str = None):
         """
         Initialize the base converter.
 
         Args:
-            base_url: Base URL where the presentation server is running
+            base_url: Base URL where the presentation server is running.
+                     If None, will use http://localhost:{PORT} from environment.
         """
+        if base_url is None:
+            port = os.getenv("PORT", "8009")
+            base_url = f"http://localhost:{port}"
         self.base_url = base_url
         self._browser: Optional[Browser] = None
         self._page: Optional[Page] = None

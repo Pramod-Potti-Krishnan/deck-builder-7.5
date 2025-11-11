@@ -13,6 +13,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install Playwright browsers (CRITICAL: Required for PDF/PPTX generation)
 RUN playwright install --with-deps chromium
 
+# Copy entrypoint script first
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Copy application code
 COPY . .
 
@@ -23,5 +27,5 @@ ENV PORT=8009
 # Expose port (Railway will override with $PORT)
 EXPOSE 8009
 
-# Start command - Use $PORT which Railway sets, or defaults to 8009 from ENV above
-CMD sh -c "uvicorn server:app --host 0.0.0.0 --port $PORT"
+# Use entrypoint script to handle PORT variable properly
+ENTRYPOINT ["/app/entrypoint.sh"]

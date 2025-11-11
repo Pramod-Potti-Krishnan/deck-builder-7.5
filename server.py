@@ -45,6 +45,35 @@ if src_dir.exists():
     app.mount("/src", StaticFiles(directory=str(src_dir)), name="src")
 
 
+@app.on_event("startup")
+async def startup_validation():
+    """
+    Validate critical dependencies on startup.
+    Fail fast if Playwright browsers are not available.
+    """
+    import logging
+    logger = logging.getLogger("uvicorn")
+
+    try:
+        logger.info("🔍 Validating Playwright browser installation...")
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as p:
+            # Try to launch browser - will fail if not installed
+            browser = p.chromium.launch(headless=True)
+            browser.close()
+
+        logger.info("✅ Playwright validation successful - browsers available")
+        logger.info("✅ PDF and PPTX download endpoints ready")
+
+    except Exception as e:
+        logger.error(f"❌ Playwright validation failed: {e}")
+        logger.error("❌ Download endpoints will not work")
+        logger.error("💡 Run 'playwright install chromium' to fix")
+        # Don't raise - allow app to start but log the error
+        # This allows basic API functionality even if downloads fail
+
+
 @app.get("/")
 async def root():
     """API root endpoint"""

@@ -1,4 +1,4 @@
-# Use official Playwright Python base image (includes all dependencies and browsers)
+# Use official Playwright Python base image (includes framework, browsers installed separately)
 FROM mcr.microsoft.com/playwright/python:v1.48.0-noble
 
 # Set working directory
@@ -9,6 +9,9 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Playwright browsers (CRITICAL: Required for PDF/PPTX generation)
+RUN playwright install --with-deps chromium
 
 # Copy application code
 COPY . .

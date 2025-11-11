@@ -23,5 +23,5 @@ ENV PORT=8009
 # Expose port (Railway will override with $PORT)
 EXPOSE 8009
 
-# Start command - Railway will set $PORT automatically
-CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8009}"]
+# Start command - Use $PORT which Railway sets, or defaults to 8009 from ENV above
+CMD sh -c "uvicorn server:app --host 0.0.0.0 --port $PORT"

@@ -1,0 +1,61 @@
+{
+  "title": "Logo Positioning Test",
+  "slides": [
+    {
+      "layout": "L01",
+      "content": {
+        "slide_title": "L01: Centered Chart Layout",
+        "element_1": "Testing logo position consistency",
+        "element_3": "Body text below the chart area",
+        "element_4": "<div style='background: #e5e7eb; padding: 40px; text-align: center; border-radius: 8px;'>Chart Placeholder</div>",
+        "presentation_name": "Logo Positioning Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L02",
+      "content": {
+        "slide_title": "L02: Diagram with Text Right",
+        "element_1": "Testing logo position consistency",
+        "element_2": "Body text on the right side of the diagram",
+        "element_3": "<div style='background: #e5e7eb; padding: 60px; text-align: center; border-radius: 8px;'>Diagram Placeholder</div>",
+        "presentation_name": "Logo Positioning Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L03",
+      "content": {
+        "slide_title": "L03: Two Charts in Columns",
+        "element_1": "Testing logo position consistency",
+        "element_2": "<div style='background: #e5e7eb; padding: 40px; text-align: center; border-radius: 8px;'>Chart 2</div>",
+        "element_3": "Left chart description text",
+        "element_4": "<div style='background: #e5e7eb; padding: 40px; text-align: center; border-radius: 8px;'>Chart 1</div>",
+        "element_5": "Right chart description text",
+        "presentation_name": "Logo Positioning Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "L25: Main Content Shell",
+        "subtitle": "Testing logo position consistency",
+        "rich_content": "<div style='padding: 20px;'><p style='font-size: 20px; line-height: 1.6;'>This is the rich content area with full creative control by text_service.</p></div>",
+        "presentation_name": "Logo Positioning Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L27",
+      "content": {
+        "slide_title": "L27: Image Left with Content Right",
+        "element_1": "Testing logo position consistency (reference layout)",
+        "image_url": "<div style='background: #e5e7eb; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px;'>Image Area</div>",
+        "main_content": "<p style='font-size: 20px; line-height: 1.6;'>Main content area on the right side of the image.</p>",
+        "presentation_name": "Logo Positioning Test",
+        "company_logo": "🏢"
+      }
+    }
+  ]
+}

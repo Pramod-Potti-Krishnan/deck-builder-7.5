@@ -1,0 +1,51 @@
+{
+  "title": "Content Area Borders Demo",
+  "slides": [
+    {
+      "layout": "L01",
+      "content": {
+        "slide_title": "L01: Centered Chart Layout",
+        "element_1": "Testing border toggle with 'B' key",
+        "element_3": "Body text below the chart area - Press 'B' to see borders",
+        "element_4": "<div style='background: #dbeafe; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: #1e40af; border-radius: 8px;'>Chart Area<br><span style='font-size: 16px; font-weight: 400;'>(Blue border when B is pressed)</span></div>",
+        "presentation_name": "Border Demo",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L02",
+      "content": {
+        "slide_title": "L02: Diagram with Text Right",
+        "element_1": "Testing border toggle functionality",
+        "element_2": "Body text on the right side - This area will show a green border when you press 'B'",
+        "element_3": "<div style='background: #f3e8ff; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: #6b21a8; border-radius: 8px;'>Diagram Area<br><span style='font-size: 16px; font-weight: 400;'>(Purple border when B is pressed)</span></div>",
+        "presentation_name": "Border Demo",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L03",
+      "content": {
+        "slide_title": "L03: Two Charts in Columns",
+        "element_1": "Multiple content areas demonstration",
+        "element_2": "<div style='background: #dbeafe; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; color: #1e40af; border-radius: 8px;'>Chart 2<br><span style='font-size: 14px; font-weight: 400;'>(Blue border)</span></div>",
+        "element_3": "Left chart description - Green border when B pressed",
+        "element_4": "<div style='background: #dbeafe; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; color: #1e40af; border-radius: 8px;'>Chart 1<br><span style='font-size: 14px; font-weight: 400;'>(Blue border)</span></div>",
+        "element_5": "Right chart description - Green border when B pressed",
+        "presentation_name": "Border Demo",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L27",
+      "content": {
+        "slide_title": "L27: Image Left with Content Right",
+        "element_1": "Full-height image area demonstration",
+        "image_url": "<div style='background: #fee2e2; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; color: #991b1b;'>Image Area<br><span style='font-size: 18px; font-weight: 400;'>(Red border when B is pressed)</span></div>",
+        "main_content": "<p style='font-size: 20px; line-height: 1.6;'>Main content area on the right side of the image. This demonstrates the image container with full background color fill.</p>",
+        "presentation_name": "Border Demo",
+        "company_logo": "🏢"
+      }
+    }
+  ]
+}

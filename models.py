@@ -1,13 +1,17 @@
 """
-Pydantic models for v7.5-main: Simplified 2-Layout Architecture
+Pydantic models for v7.5-main: 6-Layout Architecture
 
-Only 2 layouts:
+Layouts:
+- L01: Centered Chart with Text Below
+- L02: Left Diagram with Text on Right
+- L03: Two Charts in Columns with Text Below
 - L25: Main Content Shell (rich content area)
-- L29: Full-Bleed Slides (title/section/ending/hero - full creative control)
+- L27: Image Left with Content Right
+- L29: Full-Bleed Slides (hero/section slides)
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional, Union, Literal
+from typing import Optional, Union, Literal, Dict, Any
 
 
 # ==================== L25: Main Content Shell ====================
@@ -86,17 +90,32 @@ class L29Content(BaseModel):
     )
 
 
+# ==================== Flexible Content Model ====================
+
+class FlexibleContent(BaseModel):
+    """
+    Flexible content model for L01, L02, L03, L27 layouts.
+    Accepts any dictionary of string keys to string values.
+    """
+    class Config:
+        extra = "allow"  # Allow additional fields
+
+    def model_dump(self, **kwargs):
+        """Override to return all fields including extra ones."""
+        return {**self.__dict__, **self.__pydantic_extra__}
+
+
 # ==================== Slide Model ====================
 
 class Slide(BaseModel):
     """Individual slide with layout and content."""
-    layout: Literal["L25", "L29"] = Field(
+    layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
         ...,
         description="Layout identifier"
     )
-    content: Union[L25Content, L29Content] = Field(
+    content: Union[L25Content, L29Content, Dict[str, Any]] = Field(
         ...,
-        description="Layout-specific content"
+        description="Layout-specific content (structured for L25/L29, flexible dict for others)"
     )
 
 

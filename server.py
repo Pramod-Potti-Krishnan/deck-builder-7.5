@@ -1,8 +1,8 @@
 """
-FastAPI server for v7.5-main: Simplified 2-Layout Architecture
+FastAPI server for v7.5-main: Simplified 6-Layout Architecture
 
 Port: 8504
-Layouts: L25, L29
+Layouts: L01, L02, L03, L25, L27, L29
 """
 
 import os
@@ -19,7 +19,7 @@ from storage import storage
 
 app = FastAPI(
     title="v7.5-main: Simplified Layout Builder API",
-    description="2-layout system with Text Service creative control",
+    description="6-layout system with Text Service creative control",
     version="7.5.0"
 )
 
@@ -48,7 +48,7 @@ async def root():
     return {
         "message": "v7.5-main: Simplified Layout Builder API",
         "version": "7.5.0",
-        "layouts": ["L25", "L29"],
+        "layouts": ["L01", "L02", "L03", "L25", "L27", "L29"],
         "philosophy": "Text Service owns content creation, Layout Builder provides structure",
         "endpoints": {
             "create_presentation": "POST /api/presentations",
@@ -106,7 +106,7 @@ async def create_presentation(request: Presentation):
         presentation_data = request.model_dump()
 
         # Validate layouts
-        valid_layouts = ["L01-Shell", "L25", "L29"]
+        valid_layouts = ["L01", "L02", "L03", "L25", "L27", "L29"]
         for slide in presentation_data["slides"]:
             if slide["layout"] not in valid_layouts:
                 raise HTTPException(

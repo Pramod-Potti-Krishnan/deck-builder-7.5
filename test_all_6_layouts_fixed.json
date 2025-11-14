@@ -1,0 +1,68 @@
+{
+  "title": "Complete 6-Layout Feature Test",
+  "slides": [
+    {
+      "layout": "L01",
+      "content": {
+        "slide_title": "L01: Centered Chart or Diagram",
+        "element_1": "Subtitle explaining the chart below",
+        "element_4": "<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px;'><div style='color: white; font-size: 32px; font-weight: bold;'>Chart Placeholder</div></div>",
+        "element_3": "Body text below the chart. This layout centers a large chart or diagram with descriptive text underneath. Press 'B' to see borders, 'G' for grid overlay.",
+        "presentation_name": "6-Layout Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L02",
+      "content": {
+        "slide_title": "L02: Diagram Left with Text Right",
+        "element_1": "Two-column layout for visual + explanation",
+        "element_3": "<div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px;'><div style='color: white; font-size: 32px; font-weight: bold;'>Diagram Area</div></div>",
+        "element_2": "This layout places a diagram on the left side with explanatory text on the right. Perfect for process flows, architecture diagrams, or any visual that needs detailed explanation. The diagram takes up about 2/3 of the space while text occupies 1/3.",
+        "presentation_name": "6-Layout Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L03",
+      "content": {
+        "slide_title": "L03: Two Charts in Columns",
+        "element_1": "Side-by-side comparison layout",
+        "element_4": "<div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px;'><div style='color: white; font-size: 28px; font-weight: bold;'>Chart 1</div></div>",
+        "element_2": "<div style='background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px;'><div style='color: white; font-size: 28px; font-weight: bold;'>Chart 2</div></div>",
+        "element_3": "Description for the left chart. This text appears below Chart 1 and explains the data or trends shown.",
+        "element_5": "Description for the right chart. This text appears below Chart 2 and provides context for the visualization.",
+        "presentation_name": "6-Layout Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "L25: Text-Heavy Content Slide",
+        "subtitle": "Optimized for detailed written content",
+        "rich_content": "<h3>Section 1: Key Points</h3><ul><li>First important point with detailed explanation</li><li>Second key insight that needs more space to explain thoroughly</li><li>Third consideration that requires careful attention</li></ul><h3>Section 2: Additional Details</h3><p>This layout is designed for text-heavy slides where you need to present multiple paragraphs, lists, or detailed explanations. It provides ample space for rich content while maintaining readability. Press 'B' to see the green border around this content area.</p>",
+        "presentation_name": "6-Layout Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L27",
+      "content": {
+        "slide_title": "L27: Image Left with Content Right",
+        "element_1": "Full-height image with text content",
+        "image_url": "<div style='background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); height: 100%; width: 100%; display: flex; align-items: center; justify-content: center;'><div style='color: white; font-size: 36px; font-weight: bold; text-align: center;'>Image<br/>Area</div></div>",
+        "main_content": "This layout features a full-height image on the left (spanning the entire vertical space) with content on the right side. It's perfect for product photos, people portraits, or any imagery that benefits from maximum vertical space. The text area on the right provides room for titles, descriptions, and supporting information.",
+        "presentation_name": "6-Layout Test",
+        "company_logo": "🏢"
+      }
+    },
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style='height: 100%; width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px;'><h1 style='color: white; font-size: 72px; font-weight: bold; margin: 0; text-align: center;'>L29: Hero Slide</h1><p style='color: rgba(255,255,255,0.9); font-size: 32px; margin-top: 32px; text-align: center; max-width: 800px;'>Large impactful title slide with centered content</p><p style='color: rgba(255,255,255,0.8); font-size: 24px; margin-top: 24px; text-align: center; max-width: 900px;'>This is the hero/title slide layout designed for maximum impact. It centers all content and uses larger typography to make a bold statement. Perfect for section breaks, key messages, or opening slides. Press 'B' to see the orange border.</p></div>",
+        "presentation_name": "6-Layout Test"
+      }
+    }
+  ]
+}

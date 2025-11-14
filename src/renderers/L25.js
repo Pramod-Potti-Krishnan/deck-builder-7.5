@@ -30,9 +30,9 @@ function renderL25(content) {
       </div>
 
       <!-- Subtitle (layout_builder formats) -->
-      ${content.subtitle ? `
+      ${(content.subtitle || content.element_1) ? `
       <div class="subtitle" style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
-        ${content.subtitle}
+        ${content.subtitle || content.element_1}
       </div>
       ` : ''}
 
@@ -59,9 +59,9 @@ function renderL25(content) {
         <!-- Middle Section: Empty (columns 7-31) -->
       </div>
 
-      <!-- Company Logo: 2×2 grid in bottom-right corner (rows 18-19, columns 30-32) -->
+      <!-- Company Logo: 2×2 grid in bottom-right corner (matching L27) -->
       ${content.company_logo ? `
-      <div class="footer-company-logo" style="grid-row: 18/20; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
+      <div class="footer-company-logo" style="grid-row: 17/19; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
         <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
           ${content.company_logo}
         </div>

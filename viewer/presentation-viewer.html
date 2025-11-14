@@ -27,21 +27,6 @@
       background: #ffffff;
     }
 
-    /* System indicator badge */
-    #system-indicator {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      background: rgba(59, 130, 246, 0.9);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 10000;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
     /* Help text */
     #help-text {
       position: fixed;
@@ -64,9 +49,6 @@
   </style>
 </head>
 <body>
-  <!-- System Indicator -->
-  <div id="system-indicator">v7.5-main: 2-Layout System</div>
-
   <!-- Help Text -->
   <div id="help-text">
     Press 'G' for grid overlay | 'B' for borders | 'C' for content area debug | '?' for help
@@ -86,8 +68,12 @@
   <script src="/src/utils/format_ownership.js"></script>
   <script src="/src/core/reveal-config.js"></script>
 
-  <!-- v7.5 Renderers (only 2!) -->
+  <!-- v7.5 Renderers (6 layouts) -->
+  <script src="/src/renderers/L01.js"></script>
+  <script src="/src/renderers/L02.js"></script>
+  <script src="/src/renderers/L03.js"></script>
   <script src="/src/renderers/L25.js"></script>
+  <script src="/src/renderers/L27.js"></script>
   <script src="/src/renderers/L29.js"></script>
 
   <!-- Presentation Rendering Script -->
@@ -95,9 +81,13 @@
     // Presentation data (injected by server)
     const PRESENTATION_DATA = null;
 
-    // Renderer registry (only 2 layouts)
+    // Renderer registry (6 layouts)
     const RENDERERS = {
+      'L01': window.renderL01,
+      'L02': window.renderL02,
+      'L03': window.renderL03,
       'L25': window.renderL25,
+      'L27': window.renderL27,
       'L29': window.renderL29
     };
 
@@ -130,7 +120,7 @@
               <div style="color: red; text-align: center; padding: 40px;">
                 <h2>Error: Unknown Layout</h2>
                 <p>Layout '${layout}' is not supported in v7.5-main</p>
-                <p>Valid layouts: L01-Shell, L25, L29</p>
+                <p>Valid layouts: L01, L02, L03, L25, L27, L29</p>
               </div>
             </section>
           `;
@@ -179,15 +169,6 @@
     }
 
     /**
-     * Toggle content area debug mode
-     */
-    function toggleContentAreaDebug() {
-      document.body.classList.toggle('debug-content-areas');
-      const isActive = document.body.classList.contains('debug-content-areas');
-      console.log(`Content area debug: ${isActive ? 'ON' : 'OFF'}`);
-    }
-
-    /**
      * Show help text briefly
      */
     function showHelpText() {
@@ -198,11 +179,8 @@
       }, 3000);
     }
 
-    // Add keyboard shortcut for content area debug
+    // Add keyboard shortcuts (Note: 'B' and 'C' are handled by RevealJS config)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'c' || e.key === 'C') {
-        toggleContentAreaDebug();
-      }
       if (e.key === '?') {
         showHelpText();
       }

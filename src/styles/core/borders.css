@@ -17,7 +17,7 @@
   overflow: hidden;
 }
 
-/* ===== Text Elements (Light Gray Border) ===== */
+/* ===== Text Elements (No default borders - show only with 'B' toggle) ===== */
 .body-text,
 .main-text-content,
 .explanation-text,
@@ -26,7 +26,7 @@
 .key-points,
 .item-1-content,
 .item-2-content {
-  border: 1px solid #e5e7eb;
+  border: none;
   border-radius: 6px;
   background: #ffffff;
   padding: 12px 16px;
@@ -37,10 +37,11 @@
 }
 
 /* Bullet points and numbered items (require larger line-height per metadata) */
+/* No default borders - show only with 'B' toggle */
 .bullet-points,
 .numbered-items,
 .column-content {
-  border: 1px solid #e5e7eb;
+  border: none;
   border-radius: 6px;
   background: #ffffff;
   padding: 12px 16px;
@@ -71,7 +72,7 @@
 /* Slide title and subtitle - no default borders (show only with 'B' toggle) */
 .slide-title,
 .subtitle {
-  border: none !important;
+  border: none;
   background: transparent;
   color: #1a1a1a;
   font-weight: 600;
@@ -79,14 +80,14 @@
 
 /* Rich content area - no default border (show only with 'B' toggle) */
 .rich-content-area {
-  border: none !important;
+  border: none;
 }
 
-/* Footer sections - no default borders (show only with 'B' toggle) */
+/* Footer sections - no default borders (never show borders, even with 'B' toggle) */
 .footer-container,
 .footer-presentation-name,
 .footer-company-logo {
-  border: none !important;
+  border: none;
   background: transparent;
 }
 
@@ -501,4 +502,86 @@
   font-size: 14px;
   font-weight: 500;
   opacity: 0.7;
+}
+
+/* ===== Content Area Borders (visible when 'B' pressed) ===== */
+/* Border toggle is activated via JavaScript adding 'show-borders' class to body */
+/* Dotted line borders matching layout builder style */
+/* Using outline instead of border to avoid content shifting */
+body.show-borders .chart-container,
+body.show-borders .diagram-container,
+body.show-borders .image-container,
+body.show-borders .body-primary,
+body.show-borders .text-content,
+body.show-borders .rich-content-area,
+body.show-borders .hero-content-area {
+  outline: 2px dotted #ff0000 !important;
+  outline-offset: -2px !important;
+}
+
+/* Chart containers - Blue dotted outline */
+body.show-borders .chart-container {
+  outline: 2px dotted #3b82f6 !important;
+  outline-offset: -2px !important;
+}
+
+/* Diagram containers - Purple dotted outline */
+body.show-borders .diagram-container {
+  outline: 2px dotted #8b5cf6 !important;
+  outline-offset: -2px !important;
+}
+
+/* Image containers - Red dotted outline */
+body.show-borders .image-container {
+  outline: 2px dotted #ef4444 !important;
+  outline-offset: -2px !important;
+}
+
+/* Text/Body containers - Green dotted outline */
+body.show-borders .body-primary,
+body.show-borders .text-content {
+  outline: 2px dotted #10b981 !important;
+  outline-offset: -2px !important;
+}
+
+/* Rich content areas (L25) - Green dotted outline */
+body.show-borders .rich-content-area {
+  outline: 2px dotted #10b981 !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero content areas (L29) - Orange dotted outline */
+body.show-borders .hero-content-area {
+  outline: 2px dotted #f97316 !important;
+  outline-offset: -2px !important;
+}
+
+/* Title and subtitle borders when 'B' pressed - Light purple dotted outline */
+body.show-borders .slide-title,
+body.show-borders .subtitle {
+  outline: 2px dotted #a78bfa !important;
+  outline-offset: -2px !important;
+}
+
+/* Text content elements when 'B' pressed - Light gray dotted outline */
+body.show-borders .body-text,
+body.show-borders .main-text-content,
+body.show-borders .explanation-text,
+body.show-borders .supporting-text,
+body.show-borders .text-content,
+body.show-borders .key-points,
+body.show-borders .bullet-points,
+body.show-borders .numbered-items,
+body.show-borders .column-content,
+body.show-borders .item-1-content,
+body.show-borders .item-2-content {
+  outline: 2px dotted #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Footer elements show borders when 'B' is pressed - Yellow dotted outline */
+body.show-borders .footer-presentation-name,
+body.show-borders .footer-company-logo {
+  outline: 2px dotted #fbbf24 !important;
+  outline-offset: -2px !important;
 }

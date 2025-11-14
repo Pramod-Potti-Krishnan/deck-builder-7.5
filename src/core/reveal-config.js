@@ -38,8 +38,8 @@ function toggleGridOverlay() {
  * Toggle border highlighting
  */
 function toggleBorderHighlight() {
-  document.body.classList.toggle('highlight-borders');
-  const isHighlighted = document.body.classList.contains('highlight-borders');
+  document.body.classList.toggle('show-borders');
+  const isHighlighted = document.body.classList.contains('show-borders');
   console.log(`Border highlight: ${isHighlighted ? 'ON' : 'OFF'}`);
 }
 
@@ -56,28 +56,24 @@ function toggleControlsPanel() {
 }
 
 /**
- * Toggle overlay badges (system indicator, completion badge, help text)
+ * Toggle help text overlay
  */
-function toggleOverlays() {
-  const systemIndicator = document.getElementById('system-indicator');
-  const completionBadge = document.getElementById('completion-badge');
+function toggleHelpText() {
   const helpText = document.getElementById('help-text');
-
-  if (systemIndicator) systemIndicator.classList.toggle('overlay-hidden');
-  if (completionBadge) completionBadge.classList.toggle('overlay-hidden');
-  if (helpText) helpText.classList.toggle('overlay-hidden');
-
-  const isHidden = systemIndicator ? systemIndicator.classList.contains('overlay-hidden') : true;
-  console.log(`Overlays: ${isHidden ? 'HIDDEN' : 'VISIBLE'}`);
+  if (helpText) {
+    helpText.classList.toggle('show');
+    const isVisible = helpText.classList.contains('show');
+    console.log(`Help text: ${isVisible ? 'VISIBLE' : 'HIDDEN'}`);
+  }
 }
 
 // ===== REVEAL.JS CONFIGURATION =====
 
 const RevealConfig = {
   // ===== Viewport Settings (CRITICAL) =====
-  // Reference dimensions at 16:9 ratio (Full HD)
-  width: 1920,
-  height: 1080,
+  // Use percentage-based dimensions to fill entire viewport
+  width: '100%',
+  height: '100%',
   margin: 0,
 
   // Enable RevealJS scaling for responsive display
@@ -110,7 +106,7 @@ const RevealConfig = {
     71: () => { toggleGridOverlay(); },  // 'G' - Toggle grid overlay
     66: () => { toggleBorderHighlight(); }, // 'B' - Toggle border highlight
     67: () => { toggleControlsPanel(); },   // 'C' - Toggle controls panel
-    16: () => { toggleOverlays(); },        // 'Shift' - Toggle overlay badges
+    72: () => { toggleHelpText(); },        // 'H' - Toggle help text
   },
 
   // ===== Behavior =====
@@ -182,10 +178,10 @@ function initReveal() {
 
   // Log initialization
   console.log('✅ Reveal.js initialized with custom config');
-  console.log('   - Base dimensions: 1920 x 1080 (16:9 ratio)');
+  console.log('   - Base dimensions: 100% x 100% (full viewport)');
   console.log('   - Scaling: enabled (0.1 - 3.0)');
   console.log('   - Responsive: automatic scaling to viewport');
-  console.log('   - Keyboard shortcuts: G=Grid, B=Borders, C=Controls');
+  console.log('   - Keyboard shortcuts: G=Grid, B=Borders, C=Controls, H=Help');
 
   // Add event listeners
   Reveal.on('ready', onRevealReady);
@@ -264,7 +260,7 @@ if (typeof window !== 'undefined') {
   window.toggleGridOverlay = toggleGridOverlay;
   window.toggleBorderHighlight = toggleBorderHighlight;
   window.toggleControlsPanel = toggleControlsPanel;
-  window.toggleOverlays = toggleOverlays;
+  window.toggleHelpText = toggleHelpText;
   window.getCurrentSlideInfo = getCurrentSlideInfo;
   window.goToSlide = goToSlide;
 }
@@ -277,7 +273,7 @@ if (typeof module !== 'undefined' && module.exports) {
     toggleGridOverlay,
     toggleBorderHighlight,
     toggleControlsPanel,
-    toggleOverlays,
+    toggleHelpText,
     getCurrentSlideInfo,
     goToSlide
   };

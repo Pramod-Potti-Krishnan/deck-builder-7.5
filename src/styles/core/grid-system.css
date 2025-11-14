@@ -123,21 +123,21 @@
 
 /* ===== Border Highlight Mode ===== */
 /* Show borders only on structural elements when 'B' is pressed */
-body.highlight-borders .slide-title,
-body.highlight-borders .subtitle,
-body.highlight-borders .rich-content-area,
-body.highlight-borders .footer-presentation-name,
-body.highlight-borders .footer-company-logo {
+body.show-borders .slide-title,
+body.show-borders .subtitle,
+body.show-borders .rich-content-area,
+body.show-borders .footer-presentation-name,
+body.show-borders .footer-company-logo {
   outline: 2px dotted #9ca3af !important;
   outline-offset: -2px;
 }
 
 /* Optional: Show element labels (comment out if too cluttered) */
-body.highlight-borders .slide-title::after,
-body.highlight-borders .subtitle::after,
-body.highlight-borders .rich-content-area::after,
-body.highlight-borders .footer-presentation-name::after,
-body.highlight-borders .footer-company-logo::after {
+body.show-borders .slide-title::after,
+body.show-borders .subtitle::after,
+body.show-borders .rich-content-area::after,
+body.show-borders .footer-presentation-name::after,
+body.show-borders .footer-company-logo::after {
   content: attr(class);
   position: absolute;
   top: 2px;

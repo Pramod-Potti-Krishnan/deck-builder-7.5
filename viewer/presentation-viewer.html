@@ -130,7 +130,33 @@
         // Render slide
         try {
           const slideHTML = renderer(content);
-          slidesContainer.innerHTML += slideHTML;
+
+          // Create temporary container to parse HTML
+          const tempContainer = document.createElement('div');
+          tempContainer.innerHTML = slideHTML;
+
+          // Extract all script tags before inserting HTML
+          const scripts = tempContainer.querySelectorAll('script');
+
+          // Insert the HTML (scripts won't execute via innerHTML)
+          slidesContainer.innerHTML += tempContainer.innerHTML;
+
+          // Manually execute each script by creating new script elements
+          scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+
+            // Copy all attributes (src, type, async, defer, etc.)
+            Array.from(oldScript.attributes).forEach(attr => {
+              newScript.setAttribute(attr.name, attr.value);
+            });
+
+            // Copy script content (for inline scripts)
+            newScript.textContent = oldScript.textContent;
+
+            // Append to document body - this triggers execution
+            document.body.appendChild(newScript);
+          });
+
         } catch (error) {
           console.error(`Error rendering slide ${index + 1}:`, error);
           slidesContainer.innerHTML += `
@@ -145,27 +171,29 @@
         }
       });
 
-      // Initialize Reveal.js
-      if (typeof initReveal === 'function') {
-        initReveal();
-      } else {
-        // Fallback if reveal-config.js not loaded
-        Reveal.initialize({
-          width: 1920,
-          height: 1080,
-          margin: 0,
-          minScale: 0.1,
-          maxScale: 3.0,
-          center: true,
-          controls: true,
-          progress: true,
-          slideNumber: 'c/t',
-          hash: true,
-          history: true
-        });
-      }
+      // Initialize Reveal.js AFTER scripts have time to execute
+      setTimeout(() => {
+        if (typeof initReveal === 'function') {
+          initReveal();
+        } else {
+          // Fallback if reveal-config.js not loaded
+          Reveal.initialize({
+            width: 1920,
+            height: 1080,
+            margin: 0,
+            minScale: 0.1,
+            maxScale: 3.0,
+            center: true,
+            controls: true,
+            progress: true,
+            slideNumber: 'c/t',
+            hash: true,
+            history: true
+          });
+        }
 
-      console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
+        console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
+      }, 300);  // Give scripts 300ms to execute
     }
 
     /**

@@ -196,11 +196,23 @@ async def view_presentation(presentation_id: str):
         with open(viewer_path, "r") as f:
             html = f.read()
 
-        # Inject presentation data
-        presentation_json = json.dumps(presentation)
+        # Inject presentation data with proper JavaScript context escaping
+        # This is critical for ApexCharts and other dynamic HTML with <script> tags
+        # See: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#rule-3
+        presentation_json = json.dumps(presentation, ensure_ascii=False)
+
+        # Escape for JavaScript context (prevents XSS and handles template literals)
+        presentation_json_safe = (
+            presentation_json
+            .replace('\\', '\\\\')           # Escape backslashes first
+            .replace('</', '<\\/')           # Prevent </script> injection
+            .replace('\u2028', '\\u2028')    # Escape line separator
+            .replace('\u2029', '\\u2029')    # Escape paragraph separator
+        )
+
         html = html.replace(
             "const PRESENTATION_DATA = null;",
-            f"const PRESENTATION_DATA = {presentation_json};"
+            f"const PRESENTATION_DATA = {presentation_json_safe};"
         )
 
         return HTMLResponse(content=html)

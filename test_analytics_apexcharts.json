@@ -1,0 +1,32 @@
+{
+  "title": "Analytics ApexCharts Integration Test - CORRECTED",
+  "slides": [
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style='width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center;'><h1 style='font-size: 96px; color: white; font-weight: 900;'>ApexCharts Test</h1><p style='font-size: 42px; color: rgba(255,255,255,0.9); margin-top: 32px;'>CORRECTED Implementation</p></div>"
+      }
+    },
+    {
+      "layout": "L01",
+      "content": {
+        "slide_title": "Sales Chart with Template Literals",
+        "element_1": "Testing script tags and template literal syntax",
+        "element_4": "<div id='chart-sales' style='width: 100%; height: 100%;'></div>\n<script>\n(function() {\n  var data = { values: [30, 40, 35, 50], labels: [`Q1`, `Q2`, `Q3`, `Q4`] };\n  var chartEl = document.getElementById('chart-sales');\n  if (chartEl) {\n    chartEl.innerHTML = `<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px;'><div style='color: white; font-size: 32px; font-weight: bold; text-align: center;'>Sales Chart<br/><span style='font-size: 18px;'>Template Test: \\${data.values[0]}</span></div></div>`;\n  }\n})();\n</script>",
+        "element_3": "Chart HTML with template literals renders correctly without double-escaping.",
+        "presentation_name": "ApexCharts Test",
+        "company_logo": "📊"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "Fix Summary",
+        "subtitle": "What Changed",
+        "rich_content": "<div style='padding: 40px; font-size: 20px; line-height: 1.8;'><h3 style='color: #1f2937; margin-bottom: 20px;'>✅ CORRECTED Implementation</h3><ul><li><strong>REMOVED:</strong> Double-escaping of backslashes (Line 207 in broken version)</li><li><strong>KEPT:</strong> Script tag prevention (<code>&lt;/</code> → <code>&lt;\\/</code>)</li><li><strong>KEPT:</strong> Unicode separator escaping (\\u2028, \\u2029)</li><li><strong>RESULT:</strong> json.dumps() handles backslashes correctly, no double-escaping</li></ul><div style='background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; margin-top: 32px; border-radius: 4px;'><strong style='color: #065f46;'>Key Insight:</strong> json.dumps() already escapes backslashes properly. We only need to escape <code>&lt;/</code> and Unicode separators that would break JavaScript parsing.</div></div>",
+        "presentation_name": "ApexCharts Test",
+        "company_logo": "📊"
+      }
+    }
+  ]
+}

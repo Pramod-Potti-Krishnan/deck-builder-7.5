@@ -17,7 +17,7 @@ function renderL02(content) {
       </div>
 
       <!-- Left: Diagram Container -->
-      <div class="diagram-container" style="grid-row: 5/17; grid-column: 2/23;">
+      <div class="diagram-container" style="grid-row: 5/17; grid-column: 2/23; overflow: visible; display: block; height: 100%;">
         ${content.element_3 || ''}
       </div>
 

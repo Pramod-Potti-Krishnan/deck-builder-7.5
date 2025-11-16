@@ -92,6 +92,8 @@ Large centered visual (chart OR diagram) with title, subtitle, and descriptive t
 ### Purpose
 Diagram or process flow on left (2/3 width) with detailed explanatory text on right (1/3 width).
 
+**v7.5.1 Enhancement**: Full HTML support for both element_3 (diagram/chart) and element_2 (observations/explanation). Auto-detects content type and applies appropriate rendering.
+
 ### Layout Structure
 ```
 ┌────────────────────────────────────────────────────┐
@@ -99,10 +101,10 @@ Diagram or process flow on left (2/3 width) with detailed explanatory text on ri
 │ Row 3:  element_1 (subtitle, full width)          │
 │                                                    │
 │         element_3              │  element_2        │
-│         (DIAGRAM or CHART)     │  (explanation)    │
-│         21 grids wide          │  8 grids wide     │
+│         (DIAGRAM or CHART)     │  (observations)   │
+│         21 grids wide          │  9 grids wide     │
 │         × 12 grids tall        │  × 12 grids tall  │
-│         (1260px × 720px)       │                   │
+│         (1260px × 720px)       │  (540px × 720px)  │
 │                                                    │
 │ Row 18: footer                                     │
 └────────────────────────────────────────────────────┘
@@ -114,12 +116,14 @@ Diagram or process flow on left (2/3 width) with detailed explanatory text on ri
 |---------|---------------|---------------|------------|------|
 | Title | `slide_title` | Row 2, Cols 2-32 | 30 grids wide × 1 grid tall | Text |
 | Subtitle | `element_1` | Row 3, Cols 2-32 | 30 grids wide × 1 grid tall | Text |
-| Diagram/Chart | `element_3` | Rows 5-17, Cols 2-23 | 21 grids wide × 12 grids tall (1260×720px) | HTML/Diagram/Chart |
-| Explanation | `element_2` | Rows 5-17, Cols 24-32 | 8 grids wide × 12 grids tall | Text |
+| Diagram/Chart | `element_3` | Rows 5-17, Cols 2-23 | 21 grids wide × 12 grids tall (1260×720px) | **HTML/Text** |
+| Observations/Explanation | `element_2` | Rows 5-17, Cols 23-32 | 9 grids wide × 12 grids tall (540×720px) | **HTML/Text** |
 | Footer Name | `presentation_name` | Row 18, Cols 2-7 | 6 grids wide × 1 grid tall | Text |
 | Company Logo | `company_logo` | Rows 17-19, Cols 30-32 | 2 grids wide × 2 grids tall | Image/Emoji |
 
 ### Content Fields
+
+**Option 1: Plain Text** (backward compatible)
 ```json
 {
   "layout": "L02",
@@ -134,11 +138,35 @@ Diagram or process flow on left (2/3 width) with detailed explanatory text on ri
 }
 ```
 
+**Option 2: HTML Content** (recommended for Analytics/rich formatting)
+```json
+{
+  "layout": "L02",
+  "content": {
+    "slide_title": "Quarterly Revenue Growth",
+    "element_1": "FY 2024 Performance",
+    "element_3": "<div class='chart-container' style='width: 1260px; height: 720px;'><canvas id='chart'></canvas><script>/* Chart.js code */</script></div>",
+    "element_2": "<div style='padding: 32px; background: #f8f9fa; border-radius: 8px;'><h3 style='font-size: 20px; margin-bottom: 16px; color: #1f2937;'>Key Insights</h3><p style='font-size: 16px; line-height: 1.6; color: #374151;'>The line chart illustrates quarterly revenue growth...</p></div>",
+    "presentation_name": "Analytics Demo",
+    "company_logo": "🏢"
+  }
+}
+```
+
+**Important Notes**:
+- **HTML Auto-Detection**: Renderer automatically detects HTML (checks for `<` character)
+- **Plain Text Styling**: If plain text is provided, Layout Builder applies default typography
+- **HTML Rendering**: If HTML is provided, it renders as-is without additional styling wrapper
+- **Dimensions**: Analytics Service should use 1260×720px for element_3, 540×720px for element_2
+- **Overflow**: element_3 uses `overflow: hidden`, element_2 uses `overflow: auto` for scrolling
+
 ### Use Cases
 - Architecture diagrams with explanation
 - System flow diagrams with details
 - Process flows with step descriptions
 - Technical diagrams requiring detailed text
+- **Analytics charts with observations** (new in v7.5.1)
+- Data visualizations with key insights
 - **Charts and diagrams are mutually interchangeable**
 
 ---

@@ -1,0 +1,403 @@
+/**
+ * Edit Mode Styles for v7.5-main
+ *
+ * Visual styling for content editing interface
+ */
+
+/* ==================== Edit Mode Toggle Button ==================== */
+
+#toggle-edit-mode {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+#toggle-edit-mode:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+#toggle-edit-mode.active {
+  background: #ef4444;
+}
+
+#toggle-edit-mode.active:hover {
+  background: #dc2626;
+}
+
+/* ==================== Edit Controls Panel ==================== */
+
+#edit-controls {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  display: none;
+  gap: 12px;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+#edit-controls button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#save-btn {
+  background: #10b981;
+  color: white;
+}
+
+#save-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+#cancel-btn {
+  background: #6b7280;
+  color: white;
+}
+
+#cancel-btn:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+#view-history-btn {
+  background: #8b5cf6;
+  color: white;
+}
+
+#view-history-btn:hover {
+  background: #7c3aed;
+  transform: translateY(-1px);
+}
+
+/* ==================== Editable Content Styles ==================== */
+
+.editable {
+  outline: 2px dashed transparent;
+  outline-offset: 4px;
+  transition: all 0.2s ease;
+  cursor: text;
+  position: relative;
+}
+
+.editable:hover {
+  outline-color: #3b82f6;
+  outline-style: dashed;
+}
+
+.editable:focus {
+  outline-color: #3b82f6;
+  outline-style: solid;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Placeholder for empty editable elements */
+.editable:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Show edit cursor on hover */
+body[data-mode="edit"] .editable {
+  cursor: text;
+}
+
+/* ==================== Notification System ==================== */
+
+#edit-notification {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #1f2937;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  z-index: 10001;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 500px;
+  text-align: center;
+}
+
+#edit-notification.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Notification types */
+#edit-notification.success {
+  background: #10b981;
+}
+
+#edit-notification.error {
+  background: #ef4444;
+}
+
+#edit-notification.warning {
+  background: #f59e0b;
+}
+
+#edit-notification.info {
+  background: #3b82f6;
+}
+
+/* ==================== Version History Modal ==================== */
+
+#version-history-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.version-history-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.version-history-header {
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.version-history-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #1f2937;
+}
+
+.version-history-header button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.version-history-header button:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.version-list {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.version-item {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.version-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.version-info {
+  flex: 1;
+}
+
+.version-info strong {
+  display: block;
+  font-size: 16px;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.version-date {
+  font-size: 13px;
+  color: #6b7280;
+  margin-right: 12px;
+}
+
+.version-creator {
+  font-size: 13px;
+  color: #8b5cf6;
+  font-weight: 500;
+}
+
+.version-summary {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.restore-btn {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.restore-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* ==================== Edit Mode Badge ==================== */
+
+body[data-mode="edit"]::before {
+  content: "✏️ EDIT MODE ACTIVE";
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ef4444;
+  color: white;
+  padding: 8px 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 9999;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* ==================== Keyboard Shortcuts Help ==================== */
+
+.edit-shortcuts {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(31, 41, 55, 0.9);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body[data-mode="edit"] .edit-shortcuts {
+  opacity: 1;
+}
+
+.edit-shortcuts div {
+  margin: 4px 0;
+}
+
+.edit-shortcuts kbd {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+/* ==================== Responsive Adjustments ==================== */
+
+@media (max-width: 768px) {
+  #toggle-edit-mode {
+    top: 10px;
+    right: 10px;
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  #edit-controls {
+    top: 60px;
+    right: 10px;
+    min-width: 160px;
+  }
+
+  .version-history-modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .version-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .restore-btn {
+    width: 100%;
+  }
+}

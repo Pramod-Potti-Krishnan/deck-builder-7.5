@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/src/styles/core/grid-system.css">
   <link rel="stylesheet" href="/src/styles/core/borders.css">
   <link rel="stylesheet" href="/src/styles/content-area.css">
+  <link rel="stylesheet" href="/src/styles/edit-mode.css">
 
   <style>
     /* Minimal additional styling */
@@ -54,6 +55,23 @@
     Press 'G' for grid overlay | 'B' for borders | 'C' for content area debug | '?' for help
   </div>
 
+  <!-- Edit Mode UI -->
+  <button id="toggle-edit-mode" onclick="toggleEditMode()">✏️ Edit Mode</button>
+
+  <div id="edit-controls">
+    <button id="save-btn" onclick="saveAllChanges()">💾 Save Changes</button>
+    <button id="cancel-btn" onclick="cancelEdits()">❌ Cancel</button>
+    <button id="view-history-btn" onclick="showVersionHistory()">📜 Version History</button>
+  </div>
+
+  <div id="edit-notification"></div>
+
+  <div class="edit-shortcuts">
+    <div><kbd>E</kbd> Toggle Edit Mode</div>
+    <div><kbd>Ctrl+S</kbd> Save Changes</div>
+    <div><kbd>ESC</kbd> Cancel</div>
+  </div>
+
   <!-- Reveal.js Container -->
   <div class="reveal">
     <div class="slides" id="slides-container">
@@ -85,6 +103,7 @@
 
   <!-- v7.5 Utilities -->
   <script src="/src/utils/format_ownership.js"></script>
+  <script src="/src/utils/edit-mode.js"></script>
   <script src="/src/core/reveal-config.js"></script>
 
   <!-- v7.5 Renderers (6 layouts) -->

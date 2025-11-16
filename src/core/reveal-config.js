@@ -1,15 +1,17 @@
 /**
  * RevealJS Configuration
  *
- * Forces full viewport coverage and disables default RevealJS scaling.
- * Prevents V5's viewport cramping issues.
+ * Uses fixed 1920×1080px base for consistent grid layout rendering.
+ * Required for L02 and other layouts with fixed pixel dimensions.
  *
  * Critical Settings:
- * - width/height: 100vw/100vh (full viewport)
+ * - width/height: 1920×1080 (fixed base dimensions)
  * - margin: 0 (no margins)
- * - minScale/maxScale: 1 (disable scaling)
- * - center: false (no auto-centering)
- * - disableLayout: true (prevent RevealJS layout interference)
+ * - minScale/maxScale: 1.0 (disable scaling)
+ * - center: true (center presentation in viewport)
+ *
+ * v7.5.1: Changed from percentage-based to fixed dimensions
+ * Reason: Grid system assumes 1920×1080 base for element sizing
  */
 
 // ===== HELPER FUNCTIONS (must be defined before RevealConfig) =====
@@ -71,16 +73,18 @@ function toggleHelpText() {
 
 const RevealConfig = {
   // ===== Viewport Settings (CRITICAL) =====
-  // Use percentage-based dimensions to fill entire viewport
-  width: '100%',
-  height: '100%',
+  // Use fixed 1920×1080px base for grid system compatibility
+  // Grid layouts (L02, etc.) depend on these exact dimensions
+  width: 1920,
+  height: 1080,
   margin: 0,
 
-  // Enable RevealJS scaling for responsive display
-  minScale: 0.1,
-  maxScale: 3.0,
+  // Disable RevealJS scaling to maintain fixed grid dimensions
+  // v7.5.1: Changed from 0.1-3.0 to 1.0-1.0 (no scaling)
+  minScale: 1.0,
+  maxScale: 1.0,
 
-  // Enable auto-centering for scaled slides
+  // Center presentation in viewport
   center: true,
 
   // ===== Layout Control =====
@@ -189,9 +193,9 @@ function initReveal() {
 
   // Log initialization
   console.log('✅ Reveal.js initialized with custom config');
-  console.log('   - Base dimensions: 100% x 100% (full viewport)');
-  console.log('   - Scaling: enabled (0.1 - 3.0)');
-  console.log('   - Responsive: automatic scaling to viewport');
+  console.log('   - Base dimensions: 1920×1080px (fixed)');
+  console.log('   - Scaling: disabled (1.0 - 1.0)');
+  console.log('   - Grid system: Fixed pixel layout for L02/L25/etc.');
   console.log('   - Keyboard shortcuts: G=Grid, B=Borders, C=Controls, H=Help');
 
   // Add event listeners

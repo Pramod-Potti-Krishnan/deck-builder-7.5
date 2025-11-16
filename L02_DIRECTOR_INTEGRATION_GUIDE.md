@@ -46,6 +46,22 @@ Layout Builder v7.5.1 now supports **full HTML rendering** for L02 layout's `ele
 | `element_3` | 1260px | 720px | Rows 5-17, Cols 2-23 (21 grids) |
 | `element_2` | 540px | 720px | Rows 5-17, Cols 23-32 (9 grids) |
 
+### Viewport Requirements (CRITICAL)
+
+**v7.5.1 Update**: Layout Builder uses **fixed 1920×1080px base dimensions** in Reveal.js.
+
+**Why This Matters**:
+- Grid system calculations assume 1920×1080px base
+- Element dimensions (1260px, 540px) are **fixed pixel values**
+- Responsive scaling was **removed** to prevent content overflow
+- All layouts (L02, L25, etc.) depend on this fixed viewport
+
+**For Analytics Service**:
+- Use exact dimensions: **1260×720px** for element_3, **540×720px** for element_2
+- Set explicit `width` and `height` in inline styles
+- Set `position: relative` on chart containers for proper rendering
+- Use `maintainAspectRatio: false` for Chart.js charts
+
 ---
 
 ## Content Format Options

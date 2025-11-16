@@ -13,7 +13,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
-from models import Presentation, PresentationResponse
+from models import (
+    Presentation,
+    PresentationResponse,
+    SlideContentUpdate,
+    PresentationMetadataUpdate,
+    VersionHistoryResponse,
+    VersionMetadata,
+    RestoreVersionRequest
+)
 from storage import storage
 
 
@@ -46,13 +54,18 @@ if src_dir.exists():
 async def root():
     """API root endpoint"""
     return {
-        "message": "v7.5-main: Simplified Layout Builder API",
+        "message": "v7.5-main: Simplified Layout Builder API with Content Editing",
         "version": "7.5.0",
         "layouts": ["L01", "L02", "L03", "L25", "L27", "L29"],
         "philosophy": "Text Service owns content creation, Layout Builder provides structure",
+        "features": ["Content editing", "Version history", "Undo/restore capabilities"],
         "endpoints": {
             "create_presentation": "POST /api/presentations",
             "get_presentation_data": "GET /api/presentations/{id}",
+            "update_presentation_metadata": "PUT /api/presentations/{id}",
+            "update_slide_content": "PUT /api/presentations/{id}/slides/{slide_index}",
+            "get_version_history": "GET /api/presentations/{id}/versions",
+            "restore_version": "POST /api/presentations/{id}/restore/{version_id}",
             "view_presentation": "GET /p/{id}",
             "list_presentations": "GET /api/presentations",
             "delete_presentation": "DELETE /api/presentations/{id}",
@@ -177,6 +190,214 @@ async def delete_presentation(presentation_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting presentation: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}")
+async def update_presentation_metadata(
+    presentation_id: str,
+    update: PresentationMetadataUpdate,
+    created_by: str = "user",
+    change_summary: str = "Updated presentation metadata"
+):
+    """
+    Update presentation metadata (title, etc.)
+
+    Creates a version backup before updating.
+
+    Query Parameters:
+    - created_by: Who is making the update (default: "user")
+    - change_summary: Description of changes (default: "Updated presentation metadata")
+    """
+    try:
+        # Get update data (only non-None fields)
+        updates = update.model_dump(exclude_unset=True)
+
+        if not updates:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        # Update with version tracking
+        updated = storage.update(
+            presentation_id,
+            updates,
+            created_by=created_by,
+            change_summary=change_summary,
+            create_version=True
+        )
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Presentation updated successfully",
+            "presentation": updated
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating presentation: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}")
+async def update_slide_content(
+    presentation_id: str,
+    slide_index: int,
+    update: SlideContentUpdate,
+    created_by: str = "user",
+    change_summary: str = "Updated slide content"
+):
+    """
+    Update content of a specific slide
+
+    Creates a version backup before updating.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+    - slide_index: Zero-based slide index
+
+    Query Parameters:
+    - created_by: Who is making the update (default: "user")
+    - change_summary: Description of changes (default: "Updated slide content")
+
+    Request Body: SlideContentUpdate with optional fields to update
+    """
+    try:
+        # Load presentation
+        presentation = storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation["slides"]):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
+            )
+
+        # Get update data (only non-None fields)
+        updates = update.model_dump(exclude_unset=True)
+
+        if not updates:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        # Update slide content
+        presentation["slides"][slide_index]["content"].update(updates)
+
+        # Save with version tracking
+        updated = storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=change_summary or f"Updated slide {slide_index + 1}",
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide {slide_index + 1} updated successfully",
+            "slide": updated["slides"][slide_index]
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating slide: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/versions", response_model=VersionHistoryResponse)
+async def get_version_history(presentation_id: str):
+    """
+    Get version history for a presentation
+
+    Returns list of all versions with metadata.
+    """
+    try:
+        # Check if presentation exists
+        presentation = storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Get version history
+        history = storage.get_version_history(presentation_id)
+
+        if not history:
+            # No versions yet - return empty history
+            return VersionHistoryResponse(
+                presentation_id=presentation_id,
+                current_version_id=presentation.get("version_id", "current"),
+                versions=[]
+            )
+
+        # Convert to response model
+        versions = [
+            VersionMetadata(
+                version_id=v["version_id"],
+                created_at=v["created_at"],
+                created_by=v["created_by"],
+                change_summary=v.get("change_summary"),
+                presentation_id=presentation_id
+            )
+            for v in history.get("versions", [])
+        ]
+
+        return VersionHistoryResponse(
+            presentation_id=presentation_id,
+            current_version_id=presentation.get("version_id", "current"),
+            versions=versions
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving version history: {str(e)}")
+
+
+@app.post("/api/presentations/{presentation_id}/restore/{version_id}")
+async def restore_version(
+    presentation_id: str,
+    version_id: str,
+    request: RestoreVersionRequest = RestoreVersionRequest(create_backup=True)
+):
+    """
+    Restore a presentation to a specific version
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+    - version_id: Version ID to restore
+
+    Request Body:
+    - create_backup: Whether to backup current state before restoring (default: true)
+    """
+    try:
+        # Check if presentation exists
+        presentation = storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Restore version
+        restored = storage.restore_version(
+            presentation_id,
+            version_id,
+            create_backup=request.create_backup
+        )
+
+        if not restored:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Version {version_id} not found for presentation {presentation_id}"
+            )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Presentation restored to version {version_id}",
+            "presentation": restored
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error restoring version: {str(e)}")
 
 
 @app.get("/p/{presentation_id}", response_class=HTMLResponse)

@@ -1,34 +1,38 @@
-# v7.5-main: Simplified Layout Builder
+# v7.5-main: 6-Layout System
 
 **Version**: 7.5.0
 **Port**: 8504
+**Layouts**: L01, L02, L03, L25, L27, L29
 **Philosophy**: Text Service owns content creation, Layout Builder provides structure
 
 ---
 
 ## Overview
 
-v7.5-main represents a **radical simplification** of the presentation layout system. Instead of managing 24+ complex layouts, we now have just **2 layouts** that give Text Service full creative control over content areas.
+v7.5-main provides a **comprehensive 6-layout system** optimized for presentations with data visualization, diagrams, text content, and title slides.
 
-### The Problem We Solved
+### The v7.5 System
 
-Previous versions (v7.2-small) had:
-- 24 layouts with rigid structures
-- Format conflicts between Text Service and Layout Builder
-- Complex maintenance (24+ renderer files)
-- Limited creative freedom for Text Service
+**6 Production Layouts**:
+1. **L01**: Centered Chart or Diagram (1800×600px) with descriptive text
+2. **L02**: Diagram Left (1260×720px) with Text Right - 2/3 + 1/3 split
+3. **L03**: Two Charts Side-by-Side (840×540px each) for comparison
+4. **L25**: Text-Heavy Content (1800×720px) with rich HTML area
+5. **L27**: Full-Height Image Left (720×1080px) with Text Right
+6. **L29**: Full-Bleed Hero Slides (1920×1080px) - title/section/ending
 
-### The v7.5 Solution
+**Layout Categories**:
+- **Title Slides**: L29
+- **Text Slides**: L25, L27
+- **Analytic Slides**: L01, L02, L03
+- **Diagram Slides**: L01, L02, L25
 
-**Only 2 layouts**:
-1. **L25**: Main content shell (1800×720px creative area)
-2. **L29**: Full-bleed slides (1920×1080px) - for title/section/ending/hero
-
-**Result**:
-- Text Service has full creative control
-- No format conflicts (clear ownership)
-- Easy maintenance (2 renderer files)
-- Unlimited layout possibilities within content areas
+**Key Features**:
+- Text Service has full creative control over content areas
+- No format conflicts (clear ownership model)
+- Grid system: 18 rows × 32 columns
+- Full viewport display (edge-to-edge)
+- Border toggle system for debugging ('B' key)
 
 ---
 

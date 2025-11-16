@@ -142,3 +142,92 @@ class PresentationResponse(BaseModel):
     id: str = Field(..., description="Presentation UUID")
     url: str = Field(..., description="Presentation viewer URL")
     message: str = Field(..., description="Success message")
+
+
+# ==================== Content Update Models ====================
+
+class SlideContentUpdate(BaseModel):
+    """
+    Model for updating slide content.
+    All fields are optional - only provided fields will be updated.
+    """
+    slide_title: Optional[str] = Field(
+        None,
+        max_length=80,
+        description="Updated slide title"
+    )
+    subtitle: Optional[str] = Field(
+        None,
+        max_length=120,
+        description="Updated subtitle"
+    )
+    rich_content: Optional[str] = Field(
+        None,
+        description="Updated rich HTML content"
+    )
+    hero_content: Optional[str] = Field(
+        None,
+        description="Updated hero content (for L29)"
+    )
+    # Support for other layout-specific fields
+    element_1: Optional[str] = Field(None, description="Layout-specific element 1")
+    element_2: Optional[str] = Field(None, description="Layout-specific element 2")
+    element_3: Optional[str] = Field(None, description="Layout-specific element 3")
+    element_4: Optional[str] = Field(None, description="Layout-specific element 4")
+    element_5: Optional[str] = Field(None, description="Layout-specific element 5")
+    presentation_name: Optional[str] = Field(None, description="Presentation name")
+    company_logo: Optional[str] = Field(None, description="Company logo")
+
+
+class PresentationMetadataUpdate(BaseModel):
+    """Model for updating presentation metadata."""
+    title: Optional[str] = Field(
+        None,
+        max_length=200,
+        description="Updated presentation title"
+    )
+
+
+class BatchSlideUpdate(BaseModel):
+    """Model for batch updating multiple slides."""
+    slides: list[SlideContentUpdate] = Field(
+        ...,
+        description="List of slide content updates (index matches slide position)"
+    )
+    updated_by: str = Field(
+        default="user",
+        description="Who made the update: 'user', 'director_agent', etc."
+    )
+    change_summary: Optional[str] = Field(
+        None,
+        description="Brief description of changes made"
+    )
+
+
+# ==================== Version History Models ====================
+
+class VersionMetadata(BaseModel):
+    """Metadata for a presentation version."""
+    version_id: str = Field(..., description="Unique version identifier")
+    created_at: str = Field(..., description="ISO timestamp of version creation")
+    created_by: str = Field(..., description="Who created this version: 'user', 'director_agent', etc.")
+    change_summary: Optional[str] = Field(
+        None,
+        description="Brief description of changes in this version"
+    )
+    presentation_id: str = Field(..., description="Parent presentation ID")
+
+
+class VersionHistoryResponse(BaseModel):
+    """Response containing version history."""
+    presentation_id: str = Field(..., description="Presentation ID")
+    current_version_id: str = Field(..., description="Currently active version")
+    versions: list[VersionMetadata] = Field(..., description="List of all versions")
+
+
+class RestoreVersionRequest(BaseModel):
+    """Request to restore a specific version."""
+    create_backup: bool = Field(
+        default=True,
+        description="Whether to create a backup of current state before restore"
+    )

@@ -7,11 +7,13 @@
  * Critical Settings:
  * - width/height: 1920×1080 (fixed base dimensions)
  * - margin: 0 (no margins)
- * - minScale/maxScale: 1.0 (disable scaling)
+ * - minScale: 0.1 (allow downscaling to fit smaller viewports)
+ * - maxScale: 1.0 (prevent upscaling beyond 1920×1080)
  * - center: true (center presentation in viewport)
  *
  * v7.5.1: Changed from percentage-based to fixed dimensions
  * Reason: Grid system assumes 1920×1080 base for element sizing
+ * Allows downscaling so content fits in viewports smaller than 1920×1080
  */
 
 // ===== HELPER FUNCTIONS (must be defined before RevealConfig) =====
@@ -79,9 +81,9 @@ const RevealConfig = {
   height: 1080,
   margin: 0,
 
-  // Disable RevealJS scaling to maintain fixed grid dimensions
-  // v7.5.1: Changed from 0.1-3.0 to 1.0-1.0 (no scaling)
-  minScale: 1.0,
+  // Allow downscaling to fit smaller viewports, prevent upscaling
+  // v7.5.1: minScale allows fitting in smaller screens, maxScale prevents enlargement
+  minScale: 0.1,
   maxScale: 1.0,
 
   // Center presentation in viewport
@@ -194,7 +196,7 @@ function initReveal() {
   // Log initialization
   console.log('✅ Reveal.js initialized with custom config');
   console.log('   - Base dimensions: 1920×1080px (fixed)');
-  console.log('   - Scaling: disabled (1.0 - 1.0)');
+  console.log('   - Scaling: down-only (0.1 - 1.0) - fits smaller viewports');
   console.log('   - Grid system: Fixed pixel layout for L02/L25/etc.');
   console.log('   - Keyboard shortcuts: G=Grid, B=Borders, C=Controls, H=Help');
 

@@ -67,6 +67,10 @@
   <!-- ApexCharts Library (for Analytics charts) -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.0/dist/apexcharts.min.js"></script>
 
+  <!-- Chart.js + RevealChart Plugin (for Analytics charts) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js-plugins@latest/chart/plugin.js"></script>
+
   <!-- v7.5 Utilities -->
   <script src="/src/utils/format_ownership.js"></script>
   <script src="/src/core/reveal-config.js"></script>
@@ -141,8 +145,12 @@
           // Extract all script tags before inserting HTML
           const scripts = tempContainer.querySelectorAll('script');
 
-          // Insert the HTML (scripts won't execute via innerHTML)
-          slidesContainer.innerHTML += tempContainer.innerHTML;
+          // Insert the HTML while preserving previous DOM elements
+          // Using appendChild instead of innerHTML += to avoid destroying previous slides
+          const sections = tempContainer.querySelectorAll('section');
+          sections.forEach(section => {
+            slidesContainer.appendChild(section);
+          });
 
           // Manually execute each script by creating new script elements
           scripts.forEach(oldScript => {

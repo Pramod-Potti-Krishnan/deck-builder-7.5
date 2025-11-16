@@ -159,7 +159,18 @@ const RevealConfig = {
   pdfPageHeightOffset: -1,
 
   // ===== Plugins =====
-  plugins: []
+  plugins: [RevealChart],
+
+  // ===== Chart.js Configuration =====
+  chart: {
+    defaults: {
+      color: 'lightgray',
+      font: {
+        family: 'Inter, system-ui, sans-serif',
+        size: 14
+      }
+    }
+  }
 };
 
 // ===== INITIALIZATION FUNCTIONS =====

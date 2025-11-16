@@ -17,7 +17,7 @@ function renderL01(content) {
       </div>
 
       <!-- Chart/Diagram Container -->
-      <div class="chart-container" style="grid-row: 5/15; grid-column: 2/32; overflow: visible; display: block; height: 100%;">
+      <div class="chart-container" style="grid-row: 5/15; grid-column: 2/32;">
         ${content.element_4 || ''}
       </div>
 

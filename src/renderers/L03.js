@@ -17,12 +17,12 @@ function renderL03(content) {
       </div>
 
       <!-- Left Chart -->
-      <div class="chart-container" style="grid-row: 5/14; grid-column: 2/16; overflow: visible; display: block; height: 100%;">
+      <div class="chart-container" style="grid-row: 5/14; grid-column: 2/16;">
         ${content.element_4 || ''}
       </div>
 
       <!-- Right Chart -->
-      <div class="chart-container" style="grid-row: 5/14; grid-column: 17/31; overflow: visible; display: block; height: 100%;">
+      <div class="chart-container" style="grid-row: 5/14; grid-column: 17/31;">
         ${content.element_2 || ''}
       </div>
 

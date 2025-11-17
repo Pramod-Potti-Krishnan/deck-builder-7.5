@@ -344,6 +344,9 @@ class HybridPresentationStorage:
                 self.supabase = SupabasePresentationStorage()
                 logger.info("Supabase storage initialized successfully")
             except Exception as e:
+                print(f"❌ SUPABASE INIT ERROR: {type(e).__name__}: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 logger.warning(
                     "Supabase initialization failed, falling back to filesystem",
                     error=str(e)

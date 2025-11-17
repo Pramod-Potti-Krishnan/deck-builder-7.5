@@ -1,7 +1,8 @@
 # L02 Layout - Director Integration Guide
 
-**Version**: v7.5.1
+**Version**: v7.5.1 (Updated)
 **Date**: November 16, 2025
+**Last Updated**: November 16, 2025 (overflow behavior clarification)
 **Purpose**: Guide for Director Agent to properly format L02 slide content
 
 ---
@@ -45,6 +46,23 @@ Layout Builder v7.5.1 now supports **full HTML rendering** for L02 layout's `ele
 |-------|-------|--------|---------------|
 | `element_3` | 1260px | 720px | Rows 5-17, Cols 2-23 (21 grids) |
 | `element_2` | 540px | 720px | Rows 5-17, Cols 23-32 (9 grids) |
+
+### Container Overflow Behavior (v7.5.1+)
+
+**element_3 (Chart/Diagram Container)**:
+- `overflow: visible` - Charts can extend beyond container (tooltips, legends visible)
+- `display: block` - Proper block-level rendering
+- No default borders (only debug borders with 'B' key toggle)
+
+**element_2 (Observations/Text Container)**:
+- `overflow: auto` - Long text content scrolls vertically
+- Scrollbar appears automatically when content exceeds 720px height
+- Ideal for detailed observations and analysis text
+
+**Why This Matters**:
+- Charts with tooltips or legends that extend beyond bounds will render correctly
+- Text content that's too long won't overflow the slide - it scrolls instead
+- No permanent borders by default - Layout Builder focuses on content, not decoration
 
 ### Viewport Requirements (CRITICAL)
 

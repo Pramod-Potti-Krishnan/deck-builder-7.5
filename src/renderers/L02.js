@@ -41,7 +41,7 @@ function renderL02(content) {
       </div>
 
       <!-- Left: Diagram/Chart Container (1260px × 720px) -->
-      <div class="diagram-container" style="grid-row: 5/17; grid-column: 2/23; width: 100%; height: 100%; overflow: hidden;">
+      <div class="diagram-container" style="grid-row: 5/17; grid-column: 2/23; width: 100%; height: 100%; overflow: visible; display: block;">
         ${element3Content}
       </div>
 

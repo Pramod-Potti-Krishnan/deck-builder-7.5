@@ -128,7 +128,7 @@ async def create_presentation(request: Presentation):
                 )
 
         # Save to storage
-        presentation_id = storage.save(presentation_data)
+        presentation_id = await storage.save(presentation_data)
 
         # Build response
         return PresentationResponse(
@@ -148,7 +148,7 @@ async def create_presentation(request: Presentation):
 async def get_presentation_data(presentation_id: str):
     """Get presentation data by ID"""
     try:
-        presentation = storage.load(presentation_id)
+        presentation = await storage.load(presentation_id)
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 
@@ -164,7 +164,7 @@ async def get_presentation_data(presentation_id: str):
 async def list_presentations():
     """List all presentations"""
     try:
-        presentations = storage.list_all()
+        presentations = await storage.list_all()
         return JSONResponse(content={
             "count": len(presentations),
             "presentations": presentations
@@ -177,7 +177,7 @@ async def list_presentations():
 async def delete_presentation(presentation_id: str):
     """Delete a presentation by ID"""
     try:
-        success = storage.delete(presentation_id)
+        success = await storage.delete(presentation_id)
         if not success:
             raise HTTPException(status_code=404, detail="Presentation not found")
 
@@ -216,7 +216,7 @@ async def update_presentation_metadata(
             raise HTTPException(status_code=400, detail="No fields to update")
 
         # Update with version tracking
-        updated = storage.update(
+        updated = await storage.update(
             presentation_id,
             updates,
             created_by=created_by,
@@ -264,7 +264,7 @@ async def update_slide_content(
     """
     try:
         # Load presentation
-        presentation = storage.load(presentation_id)
+        presentation = await storage.load(presentation_id)
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 
@@ -285,7 +285,7 @@ async def update_slide_content(
         presentation["slides"][slide_index]["content"].update(updates)
 
         # Save with version tracking
-        updated = storage.update(
+        updated = await storage.update(
             presentation_id,
             {"slides": presentation["slides"]},
             created_by=created_by,
@@ -314,12 +314,12 @@ async def get_version_history(presentation_id: str):
     """
     try:
         # Check if presentation exists
-        presentation = storage.load(presentation_id)
+        presentation = await storage.load(presentation_id)
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 
         # Get version history
-        history = storage.get_version_history(presentation_id)
+        history = await storage.get_version_history(presentation_id)
 
         if not history:
             # No versions yet - return empty history
@@ -371,12 +371,12 @@ async def restore_version(
     """
     try:
         # Check if presentation exists
-        presentation = storage.load(presentation_id)
+        presentation = await storage.load(presentation_id)
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 
         # Restore version
-        restored = storage.restore_version(
+        restored = await storage.restore_version(
             presentation_id,
             version_id,
             create_backup=request.create_backup
@@ -405,7 +405,7 @@ async def view_presentation(presentation_id: str):
     """View a presentation in the browser"""
     try:
         # Get presentation data
-        presentation = storage.load(presentation_id)
+        presentation = await storage.load(presentation_id)
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 

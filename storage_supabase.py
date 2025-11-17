@@ -150,8 +150,8 @@ class SupabasePresentationStorage:
         """Verify Supabase connection and table existence"""
         try:
             # Test PostgreSQL connection
-            result = self.client.table("presentations").select("id").limit(1).execute()
-            logger.info("PostgreSQL connection verified", table="presentations")
+            result = self.client.table("ls_presentations").select("id").limit(1).execute()
+            logger.info("PostgreSQL connection verified", table="ls_presentations")
 
             # Test Storage bucket access
             self.client.storage.from_(self.bucket).list()
@@ -188,7 +188,7 @@ class SupabasePresentationStorage:
             presentation_data["created_at"] = datetime.utcnow().isoformat()
 
             # 1. Save to PostgreSQL (primary storage)
-            self.client.table("presentations").insert({
+            self.client.table("ls_presentations").insert({
                 "id": presentation_id,
                 "title": presentation_data.get("title", "Untitled"),
                 "slides": presentation_data.get("slides", []),
@@ -248,7 +248,7 @@ class SupabasePresentationStorage:
                     return cached
 
             # Tier 1: Load from PostgreSQL
-            result = self.client.table("presentations").select("*").eq("id", presentation_id).execute()
+            result = self.client.table("ls_presentations").select("*").eq("id", presentation_id).execute()
 
             if not result.data or len(result.data) == 0:
                 logger.warning("Presentation not found", presentation_id=presentation_id)
@@ -302,7 +302,7 @@ class SupabasePresentationStorage:
         """
         try:
             # Delete from PostgreSQL (cascade deletes versions)
-            result = self.client.table("presentations").delete().eq("id", presentation_id).execute()
+            result = self.client.table("ls_presentations").delete().eq("id", presentation_id).execute()
 
             if not result.data or len(result.data) == 0:
                 logger.warning("Delete failed - not found", presentation_id=presentation_id)
@@ -338,7 +338,7 @@ class SupabasePresentationStorage:
             List of presentation UUIDs
         """
         try:
-            result = self.client.table("presentations").select("id").execute()
+            result = self.client.table("ls_presentations").select("id").execute()
             ids = [row["id"] for row in result.data]
             logger.info("Listed presentations", count=len(ids))
             return ids
@@ -376,8 +376,8 @@ class SupabasePresentationStorage:
         version_id = self._generate_version_id()
 
         try:
-            # Save to presentation_versions table
-            self.client.table("presentation_versions").insert({
+            # Save to ls_presentation_versions table
+            self.client.table("ls_presentation_versions").insert({
                 "presentation_id": presentation_id,
                 "version_id": version_id,
                 "version_data": presentation_data,
@@ -450,7 +450,7 @@ class SupabasePresentationStorage:
             current["updated_by"] = created_by
 
             # Update PostgreSQL
-            self.client.table("presentations").update({
+            self.client.table("ls_presentations").update({
                 "title": current.get("title"),
                 "slides": current.get("slides"),
                 "updated_at": current["updated_at"],
@@ -494,7 +494,7 @@ class SupabasePresentationStorage:
             Version history with metadata list
         """
         try:
-            result = self.client.table("presentation_versions").select(
+            result = self.client.table("ls_presentation_versions").select(
                 "version_id, created_at, created_by, change_summary"
             ).eq("presentation_id", presentation_id).order("created_at", desc=True).execute()
 
@@ -531,7 +531,7 @@ class SupabasePresentationStorage:
             Version data or None if not found
         """
         try:
-            result = self.client.table("presentation_versions").select("version_data").eq(
+            result = self.client.table("ls_presentation_versions").select("version_data").eq(
                 "presentation_id", presentation_id
             ).eq("version_id", version_id).execute()
 
@@ -598,7 +598,7 @@ class SupabasePresentationStorage:
             restored["restored_from"] = version_id
 
             # Update PostgreSQL
-            self.client.table("presentations").update({
+            self.client.table("ls_presentations").update({
                 "title": restored.get("title"),
                 "slides": restored.get("slides"),
                 "updated_at": restored["updated_at"],

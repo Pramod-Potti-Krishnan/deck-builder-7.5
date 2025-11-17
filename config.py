@@ -57,10 +57,11 @@ class Settings(BaseSettings):
     Used for: Server-side operations, bypasses RLS
     """
 
-    SUPABASE_BUCKET: str = "presentation-data"
+    SUPABASE_BUCKET: str = "ls-presentation-data"
     """
-    Supabase Storage bucket name for presentations
+    Supabase Storage bucket name for Layout Service presentations
     Must match bucket created in Supabase dashboard
+    Prefix: ls- (Layout Service) for multi-service Supabase projects
     """
 
     # ==================== Feature Flags ====================

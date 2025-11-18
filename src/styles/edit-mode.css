@@ -2,6 +2,7 @@
  * Edit Mode Styles for v7.5-main
  *
  * Visual styling for content editing interface
+ * Updated: 2025-01-18 - Hide UI by default for iframe embedding
  */
 
 /* ==================== Edit Mode Toggle Button ==================== */
@@ -21,6 +22,7 @@
   z-index: 10000;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   transition: all 0.2s ease;
+  display: none; /* Hidden by default for iframe embedding */
 }
 
 #toggle-edit-mode:hover {
@@ -352,10 +354,23 @@ body[data-mode="edit"]::before {
   z-index: 9998;
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none; /* Don't block navigation arrows */
+  display: none; /* Hidden by default for iframe embedding */
 }
 
 body[data-mode="edit"] .edit-shortcuts {
   opacity: 1;
+  pointer-events: auto; /* Enable clicks in edit mode */
+}
+
+/* Optional: Show edit UI when parent enables it */
+body[data-show-edit-ui="true"] #toggle-edit-mode,
+body[data-show-edit-ui="true"] #edit-controls {
+  display: block;
+}
+
+body[data-show-edit-ui="true"][data-mode="edit"] .edit-shortcuts {
+  display: block;
 }
 
 .edit-shortcuts div {

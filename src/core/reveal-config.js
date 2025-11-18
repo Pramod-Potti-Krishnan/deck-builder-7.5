@@ -270,6 +270,24 @@ function goToSlide(index) {
   Reveal.slide(index - 1); // Convert 1-based to 0-based
 }
 
+/**
+ * Toggle overview mode (grid view of all slides)
+ * Called by ESC key or from parent window
+ */
+function toggleOverview() {
+  if (typeof Reveal !== 'undefined') {
+    Reveal.toggleOverview();
+    console.log(`Overview mode: ${Reveal.isOverview() ? 'ON' : 'OFF'}`);
+  }
+}
+
+/**
+ * Check if overview mode is active
+ */
+function isOverviewActive() {
+  return typeof Reveal !== 'undefined' ? Reveal.isOverview() : false;
+}
+
 // Make functions globally available
 if (typeof window !== 'undefined') {
   window.RevealConfig = RevealConfig;
@@ -280,6 +298,8 @@ if (typeof window !== 'undefined') {
   window.toggleHelpText = toggleHelpText;
   window.getCurrentSlideInfo = getCurrentSlideInfo;
   window.goToSlide = goToSlide;
+  window.toggleOverview = toggleOverview; // Expose for parent window
+  window.isOverviewActive = isOverviewActive; // Expose for parent window
 }
 
 // Export for module systems
@@ -292,6 +312,8 @@ if (typeof module !== 'undefined' && module.exports) {
     toggleControlsPanel,
     toggleHelpText,
     getCurrentSlideInfo,
-    goToSlide
+    goToSlide,
+    toggleOverview,
+    isOverviewActive
   };
 }

@@ -90,11 +90,25 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
+  <!-- Chart.js Extended Chart Type Plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-box-and-violin-plot@3.0.0/dist/chartjs-chart-box-and-violin-plot.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.0/dist/chartjs-chart-financial.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.11.0/dist/chartjs-chart-sankey.min.js"></script>
+
   <!-- Register Datalabels Plugin with Chart.js -->
   <script>
     if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
       Chart.register(ChartDataLabels);
       console.log('✅ ChartDataLabels plugin registered globally');
+      console.log('✅ Chart.js extended plugins loaded:', {
+        treemap: typeof TreemapController !== 'undefined',
+        matrix: typeof MatrixController !== 'undefined',
+        boxplot: typeof BoxPlotController !== 'undefined',
+        financial: typeof CandlestickController !== 'undefined',
+        sankey: typeof SankeyController !== 'undefined'
+      });
     } else {
       console.error('❌ ERROR: Chart.js or ChartDataLabels not loaded');
     }

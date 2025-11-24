@@ -39,65 +39,65 @@
   background: #dc2626;
 }
 
-/* ==================== Edit Controls Panel ==================== */
+/* ==================== Edit Controls Panel - Sleek Icon Buttons ==================== */
 
 #edit-controls {
   position: fixed;
-  top: 70px;
+  top: 20px;
   right: 20px;
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 10000;
   display: none;
-  gap: 12px;
+  gap: 8px;
   flex-direction: column;
-  min-width: 200px;
+  align-items: flex-end;
 }
 
 #edit-controls button {
-  padding: 10px 16px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 50%;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+#edit-controls button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 #save-btn {
-  background: #10b981;
+  background: rgba(16, 185, 129, 0.95);
   color: white;
 }
 
 #save-btn:hover {
   background: #059669;
-  transform: translateY(-1px);
 }
 
 #cancel-btn {
-  background: #6b7280;
+  background: rgba(107, 114, 128, 0.95);
   color: white;
 }
 
 #cancel-btn:hover {
   background: #4b5563;
-  transform: translateY(-1px);
 }
 
 #view-history-btn {
-  background: #8b5cf6;
+  background: rgba(139, 92, 246, 0.95);
   color: white;
 }
 
 #view-history-btn:hover {
   background: #7c3aed;
-  transform: translateY(-1px);
 }
 
 /* ==================== Editable Content Styles ==================== */
@@ -320,24 +320,25 @@ body[data-mode="edit"] .editable {
   transform: translateY(-1px);
 }
 
-/* ==================== Edit Mode Badge ==================== */
+/* ==================== Edit Mode Badge - Subtle Indicator ==================== */
 
 body[data-mode="edit"]::before {
-  content: "✏️ EDIT MODE ACTIVE";
+  content: "✏️";
   position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ef4444;
+  top: 20px;
+  left: 20px;
+  background: rgba(239, 68, 68, 0.9);
   color: white;
-  padding: 8px 24px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   z-index: 9999;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 /* ==================== Keyboard Shortcuts Help ==================== */
@@ -396,9 +397,23 @@ body[data-show-edit-ui="true"][data-mode="edit"] .edit-shortcuts {
   }
 
   #edit-controls {
-    top: 60px;
+    top: 10px;
     right: 10px;
-    min-width: 160px;
+    gap: 6px;
+  }
+
+  #edit-controls button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  body[data-mode="edit"]::before {
+    top: 10px;
+    left: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
   }
 
   .version-history-modal {

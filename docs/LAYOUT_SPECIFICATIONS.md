@@ -29,6 +29,70 @@
 
 ---
 
+## Slide Background Support
+
+**NEW FEATURE**: All layouts now support optional slide backgrounds.
+
+### Background Color
+
+- **Field**: `background_color` (optional)
+- **Format**: Hex color code (e.g., `#FF5733`, `#1a1a1a`, `#f0f9ff`)
+- **Applies to**: Entire slide area (full 1920×1080px)
+- **Default**: White background if not specified
+
+### Background Image
+
+- **Field**: `background_image` (optional)
+- **Format**: URL or data URI (base64)
+  - HTTP/HTTPS URLs: `https://example.com/image.jpg`
+  - Data URIs: `data:image/png;base64,iVBORw0KGgo...`
+- **Rendering**:
+  - `background-size: cover` (fills entire slide)
+  - `background-position: center` (centered alignment)
+  - `background-repeat: no-repeat` (no tiling)
+- **Applies to**: Entire slide area (full 1920×1080px)
+
+### Priority and Fallback Behavior
+
+When both `background_color` and `background_image` are provided:
+1. **Image displays first** (primary background)
+2. **Color acts as fallback** (shown if image fails to load or has transparency)
+3. If neither is provided, default white background is used
+
+### Example Usage
+
+```json
+{
+  "layout": "L25",
+  "background_color": "#f0f9ff",
+  "background_image": "https://example.com/background.jpg",
+  "content": {
+    "slide_title": "Presentation Title",
+    "rich_content": "<div>Your content here</div>"
+  }
+}
+```
+
+### Supported Layouts
+
+All 6 layouts support backgrounds:
+- ✅ **L01** - Chart/Diagram with background
+- ✅ **L02** - Two-column with background
+- ✅ **L03** - Dual charts with background
+- ✅ **L25** - Main content with background
+- ✅ **L27** - Image + content with background
+- ✅ **L29** - Full-bleed hero with background
+
+### Best Practices
+
+1. **Text Readability**: Ensure sufficient contrast between background and text
+2. **Image Size**: Use images sized for 1920×1080 or larger for best quality
+3. **File Size**: For data URIs, keep images under 1MB for optimal performance
+4. **Fallback Color**: Always provide a fallback color when using images
+5. **Content Visibility**: Test that all content elements are visible on the background
+
+---
+
 ## L01: Centered Chart or Diagram
 
 ### Purpose

@@ -3,9 +3,24 @@
  * Typography matches L25 best practices
  */
 
-function renderL03(content) {
+function renderL03(content, slide = {}) {
+  // Extract background settings from slide object
+  const backgroundColor = slide?.background_color || '';
+  const backgroundImage = slide?.background_image || '';
+
+  // Build background style
+  let backgroundStyle = '';
+  if (backgroundImage) {
+    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
+    if (backgroundColor) {
+      backgroundStyle += ` background-color: ${backgroundColor};`; // Fallback color
+    }
+  } else if (backgroundColor) {
+    backgroundStyle = `background-color: ${backgroundColor};`;
+  }
+
   return `
-    <section data-layout="L03" class="content-slide grid-container">
+    <section data-layout="L03" class="content-slide grid-container" style="${backgroundStyle}">
       <!-- Title (42px bold, matching L25) -->
       <div class="slide-title" style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
         ${content.slide_title || ''}

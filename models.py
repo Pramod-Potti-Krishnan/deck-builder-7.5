@@ -117,6 +117,14 @@ class Slide(BaseModel):
         ...,
         description="Layout-specific content (structured for L25/L29, flexible dict for others)"
     )
+    background_color: Optional[str] = Field(
+        None,
+        description="Slide background color in hex format (e.g., #FF5733, #1a1a1a)"
+    )
+    background_image: Optional[str] = Field(
+        None,
+        description="Slide background image URL or data URI (base64). Uses background-size: cover."
+    )
 
 
 # ==================== Presentation Model ====================
@@ -177,6 +185,9 @@ class SlideContentUpdate(BaseModel):
     element_5: Optional[str] = Field(None, description="Layout-specific element 5")
     presentation_name: Optional[str] = Field(None, description="Presentation name")
     company_logo: Optional[str] = Field(None, description="Company logo")
+    # Background customization fields
+    background_color: Optional[str] = Field(None, description="Slide background color (hex format)")
+    background_image: Optional[str] = Field(None, description="Slide background image URL or data URI")
 
 
 class PresentationMetadataUpdate(BaseModel):

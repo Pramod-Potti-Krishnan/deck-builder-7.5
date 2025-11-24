@@ -3,9 +3,24 @@
  * Typography matches L25 best practices
  */
 
-function renderL27(content) {
+function renderL27(content, slide = {}) {
+  // Extract background settings from slide object
+  const backgroundColor = slide?.background_color || '';
+  const backgroundImage = slide?.background_image || '';
+
+  // Build background style
+  let backgroundStyle = '';
+  if (backgroundImage) {
+    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
+    if (backgroundColor) {
+      backgroundStyle += ` background-color: ${backgroundColor};`; // Fallback color
+    }
+  } else if (backgroundColor) {
+    backgroundStyle = `background-color: ${backgroundColor};`;
+  }
+
   return `
-    <section data-layout="L27" class="content-slide grid-container">
+    <section data-layout="L27" class="content-slide grid-container" style="${backgroundStyle}">
       <!-- Left: Full-height Image (columns 1-12) -->
       <div class="image-container" style="grid-row: 1/19; grid-column: 1/12;">
         ${content.image_url || ''}

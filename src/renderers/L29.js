@@ -20,14 +20,29 @@
  * - Video backgrounds with text overlays
  */
 
-function renderL29(content) {
+function renderL29(content, slide = {}) {
+  // Extract background settings from slide object
+  const backgroundColor = slide?.background_color || '';
+  const backgroundImage = slide?.background_image || '';
+
+  // Build background style
+  let backgroundStyle = '';
+  if (backgroundImage) {
+    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
+    if (backgroundColor) {
+      backgroundStyle += ` background-color: ${backgroundColor};`; // Fallback color
+    }
+  } else if (backgroundColor) {
+    backgroundStyle = `background-color: ${backgroundColor};`;
+  }
+
   // Use FormatOwnership utility if available, otherwise render as-is
   const heroHTML = window.FormatOwnership
     ? window.FormatOwnership.renderWithOwnership(content.hero_content, content, 'hero_content')
     : content.hero_content;
 
   return `
-    <section data-layout="L29" class="hero-slide grid-container">
+    <section data-layout="L29" class="hero-slide grid-container" style="${backgroundStyle}">
       <!-- Hero Content Area (full-bleed) -->
       <!-- Full Slide: 1920px × 1080px -->
       <!-- Text Service has complete creative control -->

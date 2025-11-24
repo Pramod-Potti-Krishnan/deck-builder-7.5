@@ -1,0 +1,113 @@
+{
+  "title": "Background Features Test Suite",
+  "slides": [
+    {
+      "layout": "L29",
+      "background_color": "#1a1a2e",
+      "content": {
+        "hero_content": "<div style='display: flex; align-items: center; justify-content: center; height: 100%; color: white; font-size: 64px; font-weight: bold; text-align: center;'>L29: Background Color Only<br/><span style='font-size: 32px;'>#1a1a2e</span></div>"
+      }
+    },
+    {
+      "layout": "L29",
+      "background_image": "https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&h=1080&fit=crop",
+      "content": {
+        "hero_content": "<div style='display: flex; align-items: center; justify-content: center; height: 100%; color: white; font-size: 64px; font-weight: bold; text-align: center; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);'>L29: Background Image Only<br/><span style='font-size: 32px;'>Unsplash Image (URL)</span></div>"
+      }
+    },
+    {
+      "layout": "L29",
+      "background_image": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&h=1080&fit=crop",
+      "background_color": "#0f4c75",
+      "content": {
+        "hero_content": "<div style='display: flex; align-items: center; justify-content: center; height: 100%; color: white; font-size: 64px; font-weight: bold; text-align: center; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);'>L29: Image + Color Fallback<br/><span style='font-size: 32px;'>Image priority, color as fallback</span></div>"
+      }
+    },
+    {
+      "layout": "L29",
+      "content": {
+        "hero_content": "<div style='display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 64px; font-weight: bold; text-align: center;'>L29: No Background<br/><span style='font-size: 32px;'>Default white (backward compatibility)</span></div>"
+      }
+    },
+    {
+      "layout": "L25",
+      "background_color": "#f0f9ff",
+      "content": {
+        "slide_title": "L25: Light Blue Background",
+        "subtitle": "Testing background color on main content layout",
+        "rich_content": "<div style='padding: 20px; font-size: 24px; line-height: 1.8;'><h3>Background Color Test</h3><ul><li>Layout: L25 (Main Content Shell)</li><li>Background: #f0f9ff (light blue)</li><li>All content areas visible</li><li>Text remains readable</li></ul></div>",
+        "presentation_name": "Background Tests",
+        "company_logo": "🎨"
+      }
+    },
+    {
+      "layout": "L25",
+      "background_image": "https://images.unsplash.com/photo-1557683304-673a23048d34?w=1920&h=1080&fit=crop&blend=000000&blend-mode=normal&blend-alpha=20",
+      "background_color": "#1f2937",
+      "content": {
+        "slide_title": "L25: Background Image + Fallback",
+        "subtitle": "Image with semi-transparent overlay",
+        "rich_content": "<div style='padding: 20px; font-size: 24px; line-height: 1.8; color: white;'><h3 style='color: white;'>Image Background Test</h3><ul><li>Layout: L25 with background image</li><li>Fallback color: #1f2937</li><li>Content overlays image</li><li>Readability maintained with text color</li></ul></div>",
+        "presentation_name": "Background Tests",
+        "company_logo": "🖼️"
+      }
+    },
+    {
+      "layout": "L01",
+      "background_color": "#fff7ed",
+      "content": {
+        "slide_title": "L01: Chart Layout with Background",
+        "element_1": "Orange tint background (#fff7ed)",
+        "element_3": "This layout demonstrates background color support on centered chart/diagram layouts",
+        "element_4": "<div style='background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'><h2 style='text-align: center; color: #ea580c;'>Chart Placeholder</h2><p style='text-align: center;'>Chart would render here with white background for contrast</p></div>",
+        "presentation_name": "Background Tests"
+      }
+    },
+    {
+      "layout": "L02",
+      "background_color": "#f3f4f6",
+      "content": {
+        "slide_title": "L02: Two-Column with Background",
+        "element_1": "Gray background (#f3f4f6)",
+        "element_2": "<div style='background: white; padding: 20px; border-radius: 8px; height: 100%;'><h4>Observations</h4><ul><li>Background applies to full slide</li><li>Content boxes can have contrasting backgrounds</li><li>Clean separation maintained</li></ul></div>",
+        "element_3": "<div style='background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%; display: flex; align-items: center; justify-content: center;'><h2 style='color: #6366f1; text-align: center;'>Diagram Area</h2></div>",
+        "presentation_name": "Background Tests"
+      }
+    },
+    {
+      "layout": "L03",
+      "background_color": "#fef3c7",
+      "content": {
+        "slide_title": "L03: Dual Charts with Background",
+        "element_1": "Warm yellow background (#fef3c7)",
+        "element_2": "<div style='background: white; padding: 30px; border-radius: 8px; height: 100%; display: flex; align-items: center; justify-content: center;'><h3 style='color: #f59e0b;'>Chart 2</h3></div>",
+        "element_3": "Left chart analysis with background color support",
+        "element_4": "<div style='background: white; padding: 30px; border-radius: 8px; height: 100%; display: flex; align-items: center; justify-content: center;'><h3 style='color: #f59e0b;'>Chart 1</h3></div>",
+        "element_5": "Right chart analysis showing contrast",
+        "presentation_name": "Background Tests"
+      }
+    },
+    {
+      "layout": "L27",
+      "background_color": "#e0e7ff",
+      "content": {
+        "slide_title": "L27: Image + Content with Background",
+        "element_1": "Indigo tint background (#e0e7ff)",
+        "image_url": "<img src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=720&h=1080&fit=crop' style='width: 100%; height: 100%; object-fit: cover;' />",
+        "main_content": "<div style='background: rgba(255,255,255,0.95); padding: 30px; border-radius: 12px; height: 90%; overflow-y: auto;'><h4>Content with Background</h4><p>This layout shows how background colors work with mixed content types:</p><ul><li>Full-height image on left</li><li>Text content on right</li><li>Background color fills entire slide</li><li>Semi-transparent content boxes maintain readability</li></ul></div>",
+        "presentation_name": "Background Tests",
+        "company_logo": "📊"
+      }
+    },
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "Backward Compatibility Test",
+        "subtitle": "No background fields provided",
+        "rich_content": "<div style='padding: 20px; font-size: 24px; line-height: 1.8;'><h3>✅ Backward Compatibility Verified</h3><ul><li>Slides without background_color: white default</li><li>Slides without background_image: no image</li><li>All existing presentations work unchanged</li><li>No database migration required</li><li>Optional fields with sensible defaults</li></ul><div style='margin-top: 30px; padding: 20px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 4px;'><strong>Result:</strong> Existing functionality preserved 100%</div></div>",
+        "presentation_name": "Background Tests",
+        "company_logo": "✅"
+      }
+    }
+  ]
+}

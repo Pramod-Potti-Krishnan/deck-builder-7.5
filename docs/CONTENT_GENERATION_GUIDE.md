@@ -136,6 +136,147 @@ No title, no subtitle, no footer
 
 ---
 
+## Background Customization
+
+**NEW FEATURE**: All slides now support optional backgrounds (color and/or image).
+
+### When to Use Backgrounds
+
+**Background Color**:
+- Brand-aligned slides matching corporate colors
+- Section dividers with thematic colors
+- Visual hierarchy and categorization
+- Improved readability with subtle tints
+
+**Background Image**:
+- Hero slides (L29) with impactful imagery
+- Branded backdrops for title slides
+- Thematic backgrounds for section breaks
+- Full-bleed visuals for engagement
+
+### Adding Backgrounds to Slides
+
+#### Background Color Only
+
+```json
+{
+  "layout": "L25",
+  "background_color": "#f0f9ff",
+  "content": {
+    "slide_title": "Revenue Growth Strategy",
+    "subtitle": "Q4 2024 Results",
+    "rich_content": "<div>Your HTML content here</div>"
+  }
+}
+```
+
+#### Background Image Only
+
+```json
+{
+  "layout": "L29",
+  "background_image": "https://images.example.com/hero-background.jpg",
+  "content": {
+    "hero_content": "<div style='color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);'>Hero Content</div>"
+  }
+}
+```
+
+#### Both (Image with Color Fallback)
+
+```json
+{
+  "layout": "L29",
+  "background_image": "https://images.example.com/background.jpg",
+  "background_color": "#1a1a2e",
+  "content": {
+    "hero_content": "<div>Content with safe fallback color</div>"
+  }
+}
+```
+
+### Background Best Practices
+
+1. **Contrast for Readability**
+   - Use light backgrounds (#f0f9ff, #fef3c7) with dark text
+   - Use dark backgrounds (#1a1a2e, #0f4c75) with light text
+   - Add text shadows for text over images: `text-shadow: 2px 2px 8px rgba(0,0,0,0.8);`
+
+2. **Image Specifications**
+   - **Resolution**: 1920×1080 or higher for crisp display
+   - **Format**: JPG for photos, PNG for graphics with transparency
+   - **Size**: Keep under 1MB for fast loading
+   - **Positioning**: Images use `background-size: cover` (fills entire slide)
+
+3. **Color Selection**
+   - Use hex format: `#FF5733` (6 digits) or `#f8f9fa` (case insensitive)
+   - Stick to brand colors for consistency
+   - Test contrast ratios for accessibility (WCAG AA: 4.5:1 minimum)
+
+4. **Fallback Strategy**
+   - Always provide `background_color` when using `background_image`
+   - Fallback color shows if image fails to load or during loading
+   - Choose fallback color that matches image dominant color
+
+### Content Visibility on Backgrounds
+
+When generating HTML content for slides with backgrounds:
+
+**For Light Backgrounds** (#f0f9ff, #fff7ed, etc.):
+```html
+<div style="color: #1f2937; /* Dark text for readability */">
+  <h2 style="color: #111827;">Dark headings on light background</h2>
+  <p>Body text remains readable</p>
+</div>
+```
+
+**For Dark Backgrounds** (#1a1a2e, #0f4c75, etc.):
+```html
+<div style="color: #f9fafb; /* Light text for readability */">
+  <h2 style="color: #ffffff;">White headings on dark background</h2>
+  <p>Light body text for contrast</p>
+</div>
+```
+
+**For Image Backgrounds**:
+```html
+<div style="
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.3);
+  padding: 20px;
+  border-radius: 8px;
+">
+  <h2>Text with shadow and semi-transparent background</h2>
+  <p>Ensures readability over any image</p>
+</div>
+```
+
+### Director Service Integration
+
+When generating slides, the Director Service can specify backgrounds:
+
+```python
+# Example: Director Service generating slide with background
+slide = {
+    "layout": "L25",
+    "background_color": "#f0f9ff",  # Light blue for brand consistency
+    "content": {
+        "slide_title": "Market Analysis",
+        "subtitle": "Q4 2024",
+        "rich_content": text_service.generate_html(data)
+    }
+}
+```
+
+**Decision Flow for Director Service**:
+1. Title/Hero slides → Use `background_image` for impact
+2. Section dividers → Use `background_color` matching theme
+3. Data/Analytics slides → Light `background_color` (#f8f9fa, #f0f9ff)
+4. Standard content → No background (white default) or subtle tint
+
+---
+
 ## HTML Generation Patterns
 
 ### Pattern 1: Card-Based Layout (L25)

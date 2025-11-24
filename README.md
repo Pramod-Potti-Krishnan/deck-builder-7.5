@@ -91,6 +91,68 @@ View at: **http://localhost:8504/p/abc123...**
 
 ---
 
+## Background Customization (NEW)
+
+All layouts now support optional slide backgrounds - both colors and images!
+
+### Background Color Example
+
+```bash
+curl -X POST http://localhost:8504/api/presentations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Presentation with Backgrounds",
+    "slides": [
+      {
+        "layout": "L25",
+        "background_color": "#f0f9ff",
+        "content": {
+          "slide_title": "Slide with Light Blue Background",
+          "subtitle": "Using hex color codes",
+          "rich_content": "<div style=\"padding: 40px; font-size: 24px;\"><p>This slide has a light blue background (#f0f9ff) for better visual appeal.</p></div>"
+        }
+      }
+    ]
+  }'
+```
+
+### Background Image Example
+
+```bash
+curl -X POST http://localhost:8504/api/presentations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Hero with Background Image",
+    "slides": [
+      {
+        "layout": "L29",
+        "background_image": "https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&h=1080&fit=crop",
+        "background_color": "#1a1a2e",
+        "content": {
+          "hero_content": "<div style=\"display: flex; align-items: center; justify-content: center; height: 100%; color: white; font-size: 72px; font-weight: bold; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);\">Hero Slide with Background Image</div>"
+        }
+      }
+    ]
+  }'
+```
+
+### Background Features
+
+- **background_color**: Hex color code (e.g., `#FF5733`, `#f0f9ff`)
+- **background_image**: URL or data URI (base64)
+- **Priority**: Image displays, color acts as fallback
+- **Applies to**: All 6 layouts (L01, L02, L03, L25, L27, L29)
+- **Rendering**: `background-size: cover` for images (fills entire slide)
+
+### Best Practices
+
+1. **Always provide fallback color** when using images
+2. **Ensure text contrast** - use light text on dark backgrounds and vice versa
+3. **Image size**: Use 1920×1080 or higher resolution images
+4. **File size**: Keep images under 1MB for optimal performance
+
+---
+
 ## The 2 Layouts
 
 ### L29: Full-Bleed Slides

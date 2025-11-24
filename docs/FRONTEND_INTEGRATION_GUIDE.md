@@ -426,6 +426,171 @@ interface OverviewAPI {
 
 ---
 
+## Director Service Integration - Background Fields (NEW)
+
+**NEW FEATURE**: All slides now support `background_color` and `background_image` fields.
+
+### API Schema Updates
+
+When the Director Service sends presentation data to the Layout Builder, it can now include optional background fields:
+
+```typescript
+interface Slide {
+  layout: "L01" | "L02" | "L03" | "L25" | "L27" | "L29";
+  content: object;  // Layout-specific content
+  background_color?: string;   // NEW: Hex color (e.g., "#f0f9ff")
+  background_image?: string;   // NEW: URL or data URI
+}
+```
+
+### Usage Examples for Director Service
+
+#### Example 1: Title Slide with Background Image
+
+```javascript
+{
+  "layout": "L29",
+  "background_image": "https://cdn.example.com/hero-image.jpg",
+  "background_color": "#1a1a2e",  // Fallback if image fails
+  "content": {
+    "hero_content": "<div style='color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);'>Welcome to Our Presentation</div>"
+  }
+}
+```
+
+#### Example 2: Content Slide with Brand Color Background
+
+```javascript
+{
+  "layout": "L25",
+  "background_color": "#f0f9ff",  // Light blue brand color
+  "content": {
+    "slide_title": "Market Analysis",
+    "subtitle": "Q4 2024 Results",
+    "rich_content": "<div>Your content here</div>"
+  }
+}
+```
+
+#### Example 3: Slide without Background (Backward Compatible)
+
+```javascript
+{
+  "layout": "L25",
+  // No background fields - defaults to white
+  "content": {
+    "slide_title": "Standard Slide",
+    "rich_content": "<div>Content</div>"
+  }
+}
+```
+
+### Background Field Specifications
+
+| Field | Type | Format | Required | Default |
+|-------|------|--------|----------|---------|
+| `background_color` | string | Hex (#RRGGBB) | No | None (white) |
+| `background_image` | string | URL or data URI | No | None |
+
+### Priority and Behavior
+
+1. **Both provided**: Image displays, color acts as fallback
+2. **Color only**: Solid color background
+3. **Image only**: Image with white fallback
+4. **Neither**: Default white background
+
+### Director Service Decision Logic
+
+Recommended logic for when Director Service should add backgrounds:
+
+```python
+def should_add_background(slide_type, layout, theme):
+    """
+    Determine if and what background to add based on slide context.
+    """
+    # Hero/Title slides - use impactful images
+    if layout == "L29" and slide_type in ["title", "section_divider", "ending"]:
+        return {
+            "background_image": theme.get_hero_image(),
+            "background_color": theme.primary_color  # Fallback
+        }
+
+    # Analytics slides - subtle branded color
+    elif layout in ["L01", "L02", "L03"] and theme.brand_colors_enabled:
+        return {
+            "background_color": theme.light_accent_color  # e.g., #f0f9ff
+        }
+
+    # Text-heavy slides - optional light tint
+    elif layout == "L25" and theme.use_backgrounds:
+        return {
+            "background_color": theme.subtle_background  # e.g., #f8f9fa
+        }
+
+    # Default: no background
+    else:
+        return {}
+```
+
+### Validation Rules
+
+The Layout Builder validates background fields:
+
+- **background_color**: Must be valid hex format (`#` followed by 6 hex digits)
+- **background_image**: Must be valid URL or data URI
+- Both fields are optional
+- Invalid values are ignored (slide falls back to white)
+
+### Example: Complete Director API Call
+
+```bash
+curl -X POST https://web-production-f0d13.up.railway.app/api/presentations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Q4 Business Review",
+    "slides": [
+      {
+        "layout": "L29",
+        "background_image": "https://cdn.example.com/q4-hero.jpg",
+        "background_color": "#1a1a2e",
+        "content": {
+          "hero_content": "<div>...</div>"
+        }
+      },
+      {
+        "layout": "L25",
+        "background_color": "#f0f9ff",
+        "content": {
+          "slide_title": "Revenue Growth",
+          "rich_content": "<div>...</div>"
+        }
+      }
+    ]
+  }'
+```
+
+### Best Practices for Director Service
+
+1. **Always provide fallback color** when using `background_image`
+2. **Use brand-aligned colors** for consistency across presentations
+3. **Limit image backgrounds** to key slides (title, hero, sections)
+4. **Test contrast ratios** to ensure text readability
+5. **Keep images optimized** (1920×1080, under 1MB)
+6. **Use data URIs sparingly** (for small images/logos only)
+
+### Testing Background Integration
+
+Test file available at: `tests/test_background_features.json`
+
+```bash
+# Load test presentation with various background configurations
+curl -X POST http://localhost:8504/api/presentations \
+  -H "Content-Type: application/json" \
+  -d @tests/test_background_features.json
+```
+
+---
+
 ## Version History
 
 ### v7.5.1 (January 18, 2025)

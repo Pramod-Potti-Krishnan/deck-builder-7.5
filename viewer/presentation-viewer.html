@@ -271,6 +271,146 @@
       }
     });
 
+    /**
+     * postMessage Bridge for Cross-Origin Communication
+     * Allows parent window from different origin to control the presentation
+     *
+     * Security: Validates message origin before executing commands
+     */
+    window.addEventListener('message', (event) => {
+      // Security: Validate origin
+      // Allow localhost (development) and production domains
+      const allowedOriginPattern = /^https?:\/\/(localhost:\d+|127\.0\.0\.1:\d+|.*\.up\.railway\.app|.*\.vercel\.app|.*\.netlify\.app)$/;
+
+      if (!allowedOriginPattern.test(event.origin)) {
+        console.warn('⚠️ Rejected postMessage from unauthorized origin:', event.origin);
+        return;
+      }
+
+      const { action, params } = event.data || {};
+
+      if (!action) {
+        console.warn('⚠️ postMessage received without action:', event.data);
+        return;
+      }
+
+      console.log(`📨 postMessage received: ${action}`, params);
+
+      let result = { success: false, action };
+
+      try {
+        switch (action) {
+          // Navigation functions
+          case 'nextSlide':
+            if (typeof Reveal !== 'undefined') {
+              Reveal.next();
+              result.success = true;
+            }
+            break;
+
+          case 'prevSlide':
+            if (typeof Reveal !== 'undefined') {
+              Reveal.prev();
+              result.success = true;
+            }
+            break;
+
+          case 'goToSlide':
+            if (typeof Reveal !== 'undefined' && params?.index !== undefined) {
+              Reveal.slide(params.index);
+              result.success = true;
+              result.slideIndex = params.index;
+            }
+            break;
+
+          case 'getCurrentSlideInfo':
+            if (typeof getCurrentSlideInfo === 'function') {
+              result.success = true;
+              result.data = getCurrentSlideInfo();
+            }
+            break;
+
+          // Edit mode functions
+          case 'toggleEditMode':
+            if (typeof toggleEditMode === 'function') {
+              toggleEditMode();
+              result.success = true;
+              result.isEditing = document.body.getAttribute('data-mode') === 'edit';
+            }
+            break;
+
+          case 'saveAllChanges':
+            if (typeof saveAllChanges === 'function') {
+              saveAllChanges();
+              result.success = true;
+            }
+            break;
+
+          case 'cancelEdits':
+            if (typeof cancelEdits === 'function') {
+              cancelEdits();
+              result.success = true;
+            }
+            break;
+
+          case 'showVersionHistory':
+            if (typeof showVersionHistory === 'function') {
+              showVersionHistory();
+              result.success = true;
+            }
+            break;
+
+          // Overview mode functions
+          case 'toggleOverview':
+            if (typeof toggleOverview === 'function') {
+              toggleOverview();
+              result.success = true;
+              result.isOverview = isOverviewActive();
+            } else if (typeof Reveal !== 'undefined') {
+              Reveal.toggleOverview();
+              result.success = true;
+            }
+            break;
+
+          case 'isOverviewActive':
+            if (typeof isOverviewActive === 'function') {
+              result.success = true;
+              result.data = isOverviewActive();
+            }
+            break;
+
+          // Debug functions
+          case 'toggleGridOverlay':
+            if (typeof toggleGridOverlay === 'function') {
+              toggleGridOverlay();
+              result.success = true;
+            }
+            break;
+
+          case 'toggleBorderHighlight':
+            if (typeof toggleBorderHighlight === 'function') {
+              toggleBorderHighlight();
+              result.success = true;
+            }
+            break;
+
+          default:
+            console.warn(`⚠️ Unknown action: ${action}`);
+            result.error = `Unknown action: ${action}`;
+        }
+      } catch (error) {
+        console.error(`❌ Error executing action ${action}:`, error);
+        result.success = false;
+        result.error = error.message;
+      }
+
+      // Send response back to parent
+      event.source.postMessage(result, event.origin);
+      console.log(`📤 postMessage response sent:`, result);
+    });
+
+    console.log('✅ postMessage bridge initialized - ready for cross-origin commands');
+
     // Render presentation on load
     window.addEventListener('DOMContentLoaded', () => {
       if (PRESENTATION_DATA) {

@@ -368,12 +368,103 @@ console.log(typeof iframeWindow.Reveal); // Should be "object"
 console.log(typeof iframeWindow.toggleOverview); // Should be "function"
 ```
 
-### Cross-Origin Issues
+### Cross-Origin Issues - postMessage Required
 
-If embedding from a different domain, ensure CORS headers are set:
+⚠️ **IMPORTANT**: When embedding from a different domain (cross-origin), you **CANNOT** use direct `iframe.contentWindow` access due to browser Same-Origin Policy.
+
+**Why Direct Access Fails**:
+```javascript
+// ❌ DOES NOT WORK cross-origin
+const iframeWindow = iframe.contentWindow;
+iframeWindow.Reveal.next();  // ❌ SecurityError: Blocked cross-origin access
 ```
-Access-Control-Allow-Origin: *
-X-Frame-Options: ALLOWALL
+
+**The Solution: postMessage API**
+
+The viewer now includes a postMessage bridge for cross-origin communication. Use `postMessage` to send commands:
+
+```javascript
+// ✅ WORKS cross-origin
+const iframe = document.getElementById('presentation-iframe');
+
+// Send command via postMessage
+iframe.contentWindow.postMessage(
+  { action: 'nextSlide' },
+  'https://web-production-f0d13.up.railway.app'
+);
+
+// Listen for response
+window.addEventListener('message', (event) => {
+  if (event.data.action === 'nextSlide' && event.data.success) {
+    console.log('✅ Slide navigated');
+  }
+});
+```
+
+**Available Actions**:
+- `nextSlide` - Navigate to next slide
+- `prevSlide` - Navigate to previous slide
+- `goToSlide` - Navigate to specific slide (params: {index: number})
+- `getCurrentSlideInfo` - Get current slide information
+- `toggleEditMode` - Toggle edit mode on/off
+- `saveAllChanges` - Save all edits
+- `cancelEdits` - Cancel edits
+- `toggleOverview` - Toggle overview mode
+- `isOverviewActive` - Check if overview is active
+
+**Complete Cross-Origin Example**:
+
+```javascript
+const iframe = document.getElementById('presentation-iframe');
+const targetOrigin = 'https://web-production-f0d13.up.railway.app';
+
+// Helper function to send commands
+function sendCommand(action, params = {}) {
+  return new Promise((resolve) => {
+    const handler = (event) => {
+      if (event.data.action === action) {
+        window.removeEventListener('message', handler);
+        resolve(event.data);
+      }
+    };
+    window.addEventListener('message', handler);
+    iframe.contentWindow.postMessage({ action, params }, targetOrigin);
+  });
+}
+
+// Usage examples
+async function navigateNext() {
+  const result = await sendCommand('nextSlide');
+  if (result.success) {
+    console.log('✅ Next slide');
+  }
+}
+
+async function getSlideInfo() {
+  const result = await sendCommand('getCurrentSlideInfo');
+  if (result.success) {
+    console.log(`Slide ${result.data.index} / ${result.data.total}`);
+  }
+}
+
+async function toggleEdit() {
+  const result = await sendCommand('toggleEditMode');
+  if (result.success) {
+    console.log(`Edit mode: ${result.isEditing ? 'ON' : 'OFF'}`);
+  }
+}
+```
+
+**Security Notes**:
+- The viewer validates message origins before executing commands
+- Allowed origins: localhost, Railway, Vercel, Netlify domains
+- Unauthorized origins are rejected with console warnings
+
+**Same-Origin Deployment**:
+If both frontend and viewer are on the same domain, direct access works:
+```javascript
+// ✅ Works when same origin (e.g., both on localhost:3002)
+iframeWindow.Reveal.next();
 ```
 
 ---

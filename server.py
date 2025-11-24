@@ -436,7 +436,14 @@ async def view_presentation(presentation_id: str):
             f"const PRESENTATION_DATA = {presentation_json_safe};"
         )
 
-        return HTMLResponse(content=html)
+        # Add headers to allow iframe embedding from any origin
+        return HTMLResponse(
+            content=html,
+            headers={
+                "Content-Security-Policy": "frame-ancestors *",  # Allow embedding in any iframe
+                "X-Frame-Options": "ALLOWALL",  # Legacy header for older browsers
+            }
+        )
 
     except HTTPException:
         raise

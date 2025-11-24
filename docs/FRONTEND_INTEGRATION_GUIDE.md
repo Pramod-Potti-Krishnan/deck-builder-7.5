@@ -457,7 +457,7 @@ async function toggleEdit() {
 
 **Security Notes**:
 - The viewer validates message origins before executing commands
-- Allowed origins: localhost, Railway, Vercel, Netlify domains
+- Allowed origins: localhost, Railway, Vercel, Netlify domains, deckster.xyz (production)
 - Unauthorized origins are rejected with console warnings
 
 **Same-Origin Deployment**:

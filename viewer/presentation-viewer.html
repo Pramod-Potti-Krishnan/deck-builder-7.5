@@ -279,8 +279,8 @@
      */
     window.addEventListener('message', (event) => {
       // Security: Validate origin
-      // Allow localhost (development) and production domains
-      const allowedOriginPattern = /^https?:\/\/(localhost:\d+|127\.0\.0\.1:\d+|.*\.up\.railway\.app|.*\.vercel\.app|.*\.netlify\.app)$/;
+      // Allow localhost (development), cloud platforms, and production frontend (deckster.xyz)
+      const allowedOriginPattern = /^https?:\/\/(localhost:\d+|127\.0\.0\.1:\d+|.*\.up\.railway\.app|.*\.vercel\.app|.*\.netlify\.app|(www\.)?deckster\.xyz)$/;
 
       if (!allowedOriginPattern.test(event.origin)) {
         console.warn('⚠️ Rejected postMessage from unauthorized origin:', event.origin);

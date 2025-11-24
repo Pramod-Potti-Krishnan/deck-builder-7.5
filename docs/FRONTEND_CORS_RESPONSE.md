@@ -226,6 +226,8 @@ The viewer validates message origins before executing commands. Only these origi
 - ✅ `*.up.railway.app` (Railway deployments)
 - ✅ `*.vercel.app` (Vercel deployments)
 - ✅ `*.netlify.app` (Netlify deployments)
+- ✅ `deckster.xyz` (production frontend)
+- ✅ `www.deckster.xyz` (production frontend with www)
 
 Unauthorized origins are rejected with console warnings.
 

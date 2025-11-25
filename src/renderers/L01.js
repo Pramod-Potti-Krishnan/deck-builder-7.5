@@ -3,7 +3,7 @@
  * Typography matches L25 best practices
  */
 
-function renderL01(content, slide = {}) {
+function renderL01(content, slide = {}, slideIndex = 0) {
   // Extract background settings from slide object
   const backgroundColor = slide?.background_color || '';
   const backgroundImage = slide?.background_image || '';
@@ -22,22 +22,38 @@ function renderL01(content, slide = {}) {
   return `
     <section data-layout="L01" class="content-slide grid-container" style="${backgroundStyle}">
       <!-- Title (42px bold, matching L25) -->
-      <div class="slide-title" style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
+      <div class="slide-title"
+           data-section-id="slide-${slideIndex}-section-title"
+           data-section-type="title"
+           data-slide-index="${slideIndex}"
+           style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
         ${content.slide_title || ''}
       </div>
 
       <!-- Subtitle (24px, matching L25) -->
-      <div class="subtitle" style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
+      <div class="subtitle"
+           data-section-id="slide-${slideIndex}-section-subtitle"
+           data-section-type="subtitle"
+           data-slide-index="${slideIndex}"
+           style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
         ${content.element_1 || ''}
       </div>
 
       <!-- Chart/Diagram Container -->
-      <div class="chart-container" style="grid-row: 5/15; grid-column: 2/32;">
+      <div class="chart-container"
+           data-section-id="slide-${slideIndex}-section-chart"
+           data-section-type="chart"
+           data-slide-index="${slideIndex}"
+           style="grid-row: 5/15; grid-column: 2/32;">
         ${content.element_4 || ''}
       </div>
 
       <!-- Body Text Below Chart -->
-      <div class="body-primary" style="grid-row: 15/17; grid-column: 2/32; font-size: 20px; color: #374151; line-height: 1.6;">
+      <div class="body-primary"
+           data-section-id="slide-${slideIndex}-section-body"
+           data-section-type="body"
+           data-slide-index="${slideIndex}"
+           style="grid-row: 15/17; grid-column: 2/32; font-size: 20px; color: #374151; line-height: 1.6;">
         ${content.element_3 || ''}
       </div>
 

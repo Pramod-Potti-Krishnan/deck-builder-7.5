@@ -16,7 +16,7 @@
  * - rich_content: text_service (receives HTML, renders as-is)
  */
 
-function renderL25(content, slide = {}) {
+function renderL25(content, slide = {}, slideIndex = 0) {
   // Extract background settings from slide object
   const backgroundColor = slide?.background_color || '';
   const backgroundImage = slide?.background_image || '';
@@ -40,13 +40,21 @@ function renderL25(content, slide = {}) {
   return `
     <section data-layout="L25" class="content-slide grid-container" style="${backgroundStyle}">
       <!-- Title (layout_builder formats) -->
-      <div class="slide-title" style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
+      <div class="slide-title"
+           data-section-id="slide-${slideIndex}-section-title"
+           data-section-type="title"
+           data-slide-index="${slideIndex}"
+           style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
         ${content.slide_title}
       </div>
 
       <!-- Subtitle (layout_builder formats) -->
       ${(content.subtitle || content.element_1) ? `
-      <div class="subtitle" style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
+      <div class="subtitle"
+           data-section-id="slide-${slideIndex}-section-subtitle"
+           data-section-type="subtitle"
+           data-slide-index="${slideIndex}"
+           style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
         ${content.subtitle || content.element_1}
       </div>
       ` : ''}
@@ -55,6 +63,9 @@ function renderL25(content, slide = {}) {
       <!-- Content Area: 1800px wide × 720px tall -->
       <!-- Text Service has full creative control -->
       <div class="rich-content-area"
+           data-section-id="slide-${slideIndex}-section-content"
+           data-section-type="content"
+           data-slide-index="${slideIndex}"
            style="grid-row: 5/17; grid-column: 2/32; overflow-y: auto; overflow-x: hidden;"
            data-format-owner="text_service"
            data-content-width="1800px"

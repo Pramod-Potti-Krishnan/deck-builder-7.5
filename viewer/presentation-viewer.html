@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="/src/styles/core/borders.css?v=20251116">
   <link rel="stylesheet" href="/src/styles/content-area.css?v=20251116">
   <link rel="stylesheet" href="/src/styles/edit-mode.css?v=20251116">
+  <link rel="stylesheet" href="/src/styles/review-mode.css?v=20250124">
+  <link rel="stylesheet" href="/src/styles/regeneration-panel.css?v=20250124">
 
   <style>
     /* Minimal additional styling */
@@ -72,6 +74,30 @@
     <div><kbd>ESC</kbd> Cancel</div>
   </div>
 
+  <!-- Review Mode Toggle Button -->
+  <button id="toggle-review-mode" onclick="toggleReviewMode()">📋 Review Mode</button>
+
+  <!-- Selection Indicator -->
+  <div id="selection-indicator" class="selection-indicator"></div>
+
+  <!-- AI Regeneration Panel -->
+  <div id="regeneration-panel">
+    <h3>🤖 AI Regeneration</h3>
+    <div class="input-group">
+      <input
+        type="text"
+        id="ai-instruction-input"
+        placeholder="Enter instruction (e.g., Make it more engaging with examples)"
+      />
+      <button id="regenerate-btn" onclick="regenerateSelectedSections()">
+        Regenerate with AI
+      </button>
+      <button id="cancel-selection-btn" onclick="clearSelection()">
+        Cancel
+      </button>
+    </div>
+  </div>
+
   <!-- Reveal.js Container -->
   <div class="reveal">
     <div class="slides" id="slides-container">
@@ -119,7 +145,11 @@
   <!-- v7.5 Utilities -->
   <script src="/src/utils/format_ownership.js"></script>
   <script src="/src/utils/edit-mode.js"></script>
+  <script src="/src/utils/review-mode.js"></script>
   <script src="/src/core/reveal-config.js"></script>
+
+  <!-- Review Mode & AI Regeneration Components -->
+  <script src="/src/components/regeneration-panel.js"></script>
 
   <!-- v7.5 Renderers (6 layouts) -->
   <script src="/src/renderers/L01.js"></script>

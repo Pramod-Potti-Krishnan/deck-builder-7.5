@@ -1,0 +1,235 @@
+/**
+ * Review Mode for Section Selection
+ * Enables visual selection of slide sections for AI regeneration
+ *
+ * Part of Phase 2: World-Class Editor with AI-Powered Regeneration
+ */
+
+let reviewModeActive = false;
+const selectedSections = new Set();
+
+/**
+ * Enter Review Mode - makes sections selectable
+ */
+function enterReviewMode() {
+  reviewModeActive = true;
+  document.body.dataset.mode = 'review';
+
+  console.log('📋 Entering Review Mode...');
+
+  // Find all sections with section IDs
+  const sections = document.querySelectorAll('[data-section-id]');
+  console.log(`Found ${sections.length} selectable sections`);
+
+  // Make sections selectable
+  sections.forEach(section => {
+    section.classList.add('selectable');
+    section.addEventListener('click', handleSectionClick);
+  });
+
+  // Show selection indicator
+  showSelectionIndicator();
+
+  if (typeof showNotification === 'function') {
+    showNotification('📋 Review Mode Active - Click sections to select', 'info');
+  }
+}
+
+/**
+ * Exit Review Mode - restore normal view
+ */
+function exitReviewMode() {
+  reviewModeActive = false;
+  document.body.dataset.mode = 'view';
+
+  console.log('👁️ Exiting Review Mode...');
+
+  // Remove selectable state
+  const sections = document.querySelectorAll('[data-section-id]');
+  sections.forEach(section => {
+    section.classList.remove('selectable', 'selected');
+    section.removeEventListener('click', handleSectionClick);
+  });
+
+  // Clear selection
+  clearSelection();
+  hideSelectionIndicator();
+
+  if (typeof showNotification === 'function') {
+    showNotification('Review Mode Exited', 'info');
+  }
+}
+
+/**
+ * Toggle Review Mode on/off
+ */
+function toggleReviewMode() {
+  if (reviewModeActive) {
+    exitReviewMode();
+  } else {
+    enterReviewMode();
+  }
+
+  // Update toggle button state
+  const toggleBtn = document.getElementById('toggle-review-mode');
+  if (toggleBtn) {
+    toggleBtn.classList.toggle('active', reviewModeActive);
+  }
+}
+
+/**
+ * Handle section click in review mode
+ */
+function handleSectionClick(event) {
+  if (!reviewModeActive) return;
+
+  event.stopPropagation();
+  const sectionId = event.currentTarget.dataset.sectionId;
+
+  if (event.ctrlKey || event.metaKey) {
+    // Multi-select with Ctrl/Cmd
+    toggleSectionSelection(sectionId);
+  } else {
+    // Single select - clear others first
+    clearSelection();
+    selectSection(sectionId);
+  }
+}
+
+/**
+ * Select a section
+ */
+function selectSection(sectionId) {
+  selectedSections.add(sectionId);
+  const element = document.querySelector(`[data-section-id="${sectionId}"]`);
+  if (element) {
+    element.classList.add('selected');
+  }
+  updateSelectionIndicator();
+  updateRegenerationPanel();
+
+  console.log(`✅ Selected: ${sectionId}`);
+}
+
+/**
+ * Deselect a section
+ */
+function deselectSection(sectionId) {
+  selectedSections.delete(sectionId);
+  const element = document.querySelector(`[data-section-id="${sectionId}"]`);
+  if (element) {
+    element.classList.remove('selected');
+  }
+  updateSelectionIndicator();
+  updateRegenerationPanel();
+
+  console.log(`❌ Deselected: ${sectionId}`);
+}
+
+/**
+ * Toggle section selection
+ */
+function toggleSectionSelection(sectionId) {
+  if (selectedSections.has(sectionId)) {
+    deselectSection(sectionId);
+  } else {
+    selectSection(sectionId);
+  }
+}
+
+/**
+ * Clear all selections
+ */
+function clearSelection() {
+  selectedSections.forEach(sectionId => {
+    const element = document.querySelector(`[data-section-id="${sectionId}"]`);
+    if (element) {
+      element.classList.remove('selected');
+    }
+  });
+  selectedSections.clear();
+  updateSelectionIndicator();
+  updateRegenerationPanel();
+
+  console.log('🧹 Selection cleared');
+}
+
+/**
+ * Get selected sections with metadata
+ */
+function getSelectedSections() {
+  const sections = [];
+
+  selectedSections.forEach(sectionId => {
+    const element = document.querySelector(`[data-section-id="${sectionId}"]`);
+    if (element) {
+      sections.push({
+        sectionId: element.dataset.sectionId,
+        sectionType: element.dataset.sectionType,
+        slideIndex: parseInt(element.dataset.slideIndex),
+        content: element.innerHTML,
+        layout: element.closest('[data-layout]')?.dataset.layout || 'unknown'
+      });
+    }
+  });
+
+  return sections;
+}
+
+/**
+ * Show selection indicator (floating badge)
+ */
+function showSelectionIndicator() {
+  let indicator = document.getElementById('selection-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'selection-indicator';
+    indicator.className = 'selection-indicator';
+    document.body.appendChild(indicator);
+  }
+  updateSelectionIndicator();
+}
+
+/**
+ * Update selection indicator count
+ */
+function updateSelectionIndicator() {
+  const indicator = document.getElementById('selection-indicator');
+  if (indicator) {
+    const count = selectedSections.size;
+    indicator.textContent = `${count} section${count !== 1 ? 's' : ''} selected`;
+    indicator.style.display = count > 0 ? 'block' : 'none';
+  }
+}
+
+/**
+ * Hide selection indicator
+ */
+function hideSelectionIndicator() {
+  const indicator = document.getElementById('selection-indicator');
+  if (indicator) {
+    indicator.style.display = 'none';
+  }
+}
+
+/**
+ * Show/hide regeneration panel based on selection
+ */
+function updateRegenerationPanel() {
+  const panel = document.getElementById('regeneration-panel');
+  if (panel) {
+    panel.style.display = selectedSections.size > 0 ? 'block' : 'none';
+  }
+}
+
+// Export functions for global access
+if (typeof window !== 'undefined') {
+  window.enterReviewMode = enterReviewMode;
+  window.exitReviewMode = exitReviewMode;
+  window.toggleReviewMode = toggleReviewMode;
+  window.getSelectedSections = getSelectedSections;
+  window.clearSelection = clearSelection;
+  window.reviewModeActive = () => reviewModeActive;
+}
+
+console.log('✅ Review Mode module loaded');

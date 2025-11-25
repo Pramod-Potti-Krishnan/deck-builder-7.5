@@ -242,3 +242,58 @@ class RestoreVersionRequest(BaseModel):
         default=True,
         description="Whether to create a backup of current state before restore"
     )
+
+
+# ==================== Section Regeneration Models (Phase 2: World-Class Editor) ====================
+
+class SectionRegenerationRequest(BaseModel):
+    """
+    Request model for AI-powered section regeneration.
+
+    This is part of Phase 2: World-Class Editor with AI-Powered Regeneration.
+    Users can select specific sections within slides and request AI to regenerate
+    them with custom instructions.
+    """
+    slide_index: int = Field(
+        ...,
+        ge=0,
+        description="Zero-based index of the slide containing the section"
+    )
+    section_id: str = Field(
+        ...,
+        description="Unique section ID (e.g., 'slide-0-section-title')"
+    )
+    section_type: str = Field(
+        ...,
+        description="Type of section (title, subtitle, body, chart, diagram, image, text, content, hero)"
+    )
+    user_instruction: str = Field(
+        ...,
+        min_length=1,
+        max_length=500,
+        description="User's instruction for how to regenerate the section"
+    )
+    current_content: str = Field(
+        ...,
+        description="Current HTML content of the section"
+    )
+    layout: str = Field(
+        ...,
+        description="Layout type of the slide (L01, L02, L03, L25, L27, L29)"
+    )
+
+
+class SectionRegenerationResponse(BaseModel):
+    """
+    Response model for section regeneration.
+    Contains the updated section content and metadata.
+    """
+    success: bool = Field(..., description="Whether regeneration succeeded")
+    updated_content: str = Field(..., description="New HTML content for the section")
+    section_id: str = Field(..., description="ID of the regenerated section")
+    section_type: str = Field(..., description="Type of section that was regenerated")
+    message: Optional[str] = Field(None, description="Success or error message")
+    regeneration_metadata: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Additional metadata about the regeneration (e.g., AI model used, processing time)"
+    )

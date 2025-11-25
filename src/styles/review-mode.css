@@ -1,0 +1,113 @@
+/**
+ * Review Mode Styles for Section Selection
+ * Part of Phase 2: World-Class Editor with AI-Powered Regeneration
+ */
+
+/* Review Mode Indicator */
+body[data-mode="review"]::after {
+  content: "📋 REVIEW MODE - Click sections to select";
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #3b82f6;
+  color: white;
+  padding: 8px 24px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 9999;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Selectable Sections */
+.selectable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.selectable:hover {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 4px;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Selected Sections */
+.selectable.selected {
+  outline: 3px solid #3b82f6;
+  outline-offset: 4px;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Selection Indicator Badge */
+.selection-indicator {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: #3b82f6;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  display: none;
+}
+
+/* Review Mode Toggle Button */
+#toggle-review-mode {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 12px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+#toggle-review-mode:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+#toggle-review-mode.active {
+  background: #10b981;
+}
+
+#toggle-review-mode.active:hover {
+  background: #059669;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #toggle-review-mode {
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .selection-indicator {
+    top: 50px;
+    right: 10px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  body[data-mode="review"]::after {
+    font-size: 10px;
+    padding: 6px 16px;
+  }
+}

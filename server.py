@@ -20,7 +20,9 @@ from models import (
     PresentationMetadataUpdate,
     VersionHistoryResponse,
     VersionMetadata,
-    RestoreVersionRequest
+    RestoreVersionRequest,
+    SectionRegenerationRequest,
+    SectionRegenerationResponse
 )
 from storage import storage
 
@@ -64,6 +66,7 @@ async def root():
             "get_presentation_data": "GET /api/presentations/{id}",
             "update_presentation_metadata": "PUT /api/presentations/{id}",
             "update_slide_content": "PUT /api/presentations/{id}/slides/{slide_index}",
+            "regenerate_section": "POST /api/presentations/{id}/regenerate-section",
             "get_version_history": "GET /api/presentations/{id}/versions",
             "restore_version": "POST /api/presentations/{id}/restore/{version_id}",
             "view_presentation": "GET /p/{id}",
@@ -398,6 +401,91 @@ async def restore_version(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error restoring version: {str(e)}")
+
+
+@app.post("/api/presentations/{presentation_id}/regenerate-section", response_model=SectionRegenerationResponse)
+async def regenerate_section(
+    presentation_id: str,
+    request: SectionRegenerationRequest
+):
+    """
+    Regenerate a specific section within a slide using AI.
+
+    Part of Phase 2: World-Class Editor with AI-Powered Regeneration.
+
+    This endpoint allows users to select specific sections within slides
+    and request AI to regenerate them with custom instructions.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Request Body:
+    - slide_index: Zero-based slide index
+    - section_id: Unique section ID (e.g., 'slide-0-section-title')
+    - section_type: Type of section (title, subtitle, body, etc.)
+    - user_instruction: How to regenerate the section
+    - current_content: Current HTML content of the section
+    - layout: Layout type (L01, L02, L03, L25, L27, L29)
+
+    Returns:
+    - success: Whether regeneration succeeded
+    - updated_content: New HTML content for the section
+    - section_id: ID of the regenerated section
+    - message: Success or error message
+
+    Note: Phase 2 uses mock AI regeneration for testing.
+          Phase 3 will integrate with Director Service for real AI regeneration.
+    """
+    try:
+        # Validate presentation exists
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if request.slide_index < 0 or request.slide_index >= len(presentation["slides"]):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide index {request.slide_index}. Presentation has {len(presentation['slides'])} slides"
+            )
+
+        # Phase 2: Mock AI Regeneration (for testing without Director Service)
+        # In Phase 3, this will call Director Service API
+        import time
+        processing_start = time.time()
+
+        # Mock regeneration: Add AI-enhanced indicator to demonstrate functionality
+        mock_enhanced_content = f"""<div class="ai-enhanced">
+{request.current_content}
+<div style="font-size: 11px; color: #10b981; margin-top: 8px; font-style: italic;">
+✨ Enhanced with AI: "{request.user_instruction}"
+</div>
+</div>"""
+
+        processing_time = time.time() - processing_start
+
+        # Return regenerated content
+        return SectionRegenerationResponse(
+            success=True,
+            updated_content=mock_enhanced_content,
+            section_id=request.section_id,
+            section_type=request.section_type,
+            message=f"Section regenerated successfully (mock)",
+            regeneration_metadata={
+                "processing_time_ms": round(processing_time * 1000, 2),
+                "ai_model": "mock-v1 (Phase 2 testing)",
+                "user_instruction": request.user_instruction,
+                "layout": request.layout
+            }
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error regenerating section: {str(e)}"
+        )
 
 
 @app.get("/p/{presentation_id}", response_class=HTMLResponse)

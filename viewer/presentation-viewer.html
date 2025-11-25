@@ -182,7 +182,7 @@
 
         // Render slide
         try {
-          const slideHTML = renderer(content, slide);
+          const slideHTML = renderer(content, slide, index);
 
           // Create temporary container to parse HTML
           const tempContainer = document.createElement('div');

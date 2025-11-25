@@ -20,7 +20,7 @@
  * - Video backgrounds with text overlays
  */
 
-function renderL29(content, slide = {}) {
+function renderL29(content, slide = {}, slideIndex = 0) {
   // Extract background settings from slide object
   const backgroundColor = slide?.background_color || '';
   const backgroundImage = slide?.background_image || '';
@@ -47,6 +47,9 @@ function renderL29(content, slide = {}) {
       <!-- Full Slide: 1920px × 1080px -->
       <!-- Text Service has complete creative control -->
       <div class="hero-content-area"
+           data-section-id="slide-${slideIndex}-section-hero"
+           data-section-type="hero"
+           data-slide-index="${slideIndex}"
            style="grid-row: 1/19; grid-column: 1/33; overflow: hidden; width: 100%; height: 100%;"
            data-format-owner="text_service"
            data-content-width="1920px"

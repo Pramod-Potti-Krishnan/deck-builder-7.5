@@ -240,10 +240,65 @@ curl -X POST https://web-production-f0d13.up.railway.app/api/presentations/{id}/
 </script>
 ```
 
+### **4. Review Mode with AI Regeneration**
+
+```javascript
+// Enable review mode
+iframe.contentWindow.postMessage({
+  action: 'enterReviewMode'
+}, 'https://web-production-f0d13.up.railway.app');
+
+// User clicks sections in the presentation...
+
+// Get selected sections for AI regeneration
+iframe.contentWindow.postMessage({
+  action: 'getSelectedSections'
+}, 'https://web-production-f0d13.up.railway.app');
+
+// Listen for selected sections
+window.addEventListener('message', (event) => {
+  if (event.origin === 'https://web-production-f0d13.up.railway.app') {
+    if (event.data.action === 'getSelectedSections' && event.data.success) {
+      const sections = event.data.data;
+      console.log('Selected sections:', sections);
+
+      // Send to Director Service for AI regeneration
+      sections.forEach(section => {
+        regenerateWithAI({
+          slide_index: section.slideIndex,
+          section_id: section.sectionId,
+          section_type: section.sectionType,
+          current_content: section.content,
+          layout: section.layout,
+          user_instruction: "Make it more engaging"
+        });
+      });
+    }
+  }
+});
+
+// Clear selection
+iframe.contentWindow.postMessage({
+  action: 'clearSelection'
+}, 'https://web-production-f0d13.up.railway.app');
+
+// Exit review mode
+iframe.contentWindow.postMessage({
+  action: 'exitReviewMode'
+}, 'https://web-production-f0d13.up.railway.app');
+```
+
 **Available Commands**:
-- `nextSlide`, `prevSlide`, `goToSlide`
-- `toggleEditMode`, `saveAllChanges`, `cancelEdits`
-- `toggleOverview`, `getCurrentSlideInfo`
+
+**Navigation**: `nextSlide`, `prevSlide`, `goToSlide`, `getCurrentSlideInfo`
+
+**Edit Mode**: `toggleEditMode`, `saveAllChanges`, `cancelEdits`, `showVersionHistory`
+
+**Review Mode (AI)**: `toggleReviewMode`, `enterReviewMode`, `exitReviewMode`, `getSelectedSections`, `clearSelection`
+
+**Overview**: `toggleOverview`, `isOverviewActive`
+
+**Debug**: `toggleGridOverlay`, `toggleBorderHighlight`
 
 ---
 

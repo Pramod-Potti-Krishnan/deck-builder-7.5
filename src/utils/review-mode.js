@@ -9,6 +9,69 @@ let reviewModeActive = false;
 const selectedSections = new Set();
 
 /**
+ * Initialize Review Mode - register keyboard shortcuts
+ * Called automatically when DOM is ready
+ */
+function initReviewMode() {
+  console.log('✅ Review mode initialized');
+
+  // Register keyboard shortcuts
+  document.addEventListener('keydown', handleKeyboardShortcut);
+}
+
+/**
+ * Handle keyboard shortcuts for review mode
+ */
+function handleKeyboardShortcut(event) {
+  // Ignore if user is typing in an input field
+  if (event.target.matches('input, textarea, [contenteditable="true"]')) {
+    return;
+  }
+
+  // R key - Toggle review mode
+  if (event.key === 'r' || event.key === 'R') {
+    event.preventDefault();
+    toggleReviewMode();
+  }
+
+  // ESC key - Exit review mode and clear selection
+  if (event.key === 'Escape' && reviewModeActive) {
+    event.preventDefault();
+    exitReviewMode();
+  }
+
+  // Delete/Backspace key - Clear selection (keep review mode active)
+  if ((event.key === 'Delete' || event.key === 'Backspace') && reviewModeActive && selectedSections.size > 0) {
+    event.preventDefault();
+    clearSelection();
+  }
+}
+
+/**
+ * Attach event listeners to sections
+ * Extracted as separate function with retry logic for DOM timing
+ */
+function attachSectionListeners() {
+  const sections = document.querySelectorAll('[data-section-id]');
+  console.log(`Found ${sections.length} selectable sections`);
+
+  if (sections.length === 0) {
+    console.warn('⚠️ No sections found yet, retrying in 500ms...');
+    // Retry after delay if sections haven't rendered yet
+    setTimeout(attachSectionListeners, 500);
+    return;
+  }
+
+  // Make sections selectable
+  sections.forEach(section => {
+    section.classList.add('selectable');
+    section.addEventListener('click', handleSectionClick);
+  });
+
+  console.log('✅ Section listeners attached');
+}
+
+/**
  * Enter Review Mode - makes sections selectable
  */
 function enterReviewMode() {
@@ -17,21 +80,20 @@ function enterReviewMode() {
 
   console.log('📋 Entering Review Mode...');
 
-  // Find all sections with section IDs
-  const sections = document.querySelectorAll('[data-section-id]');
-  console.log(`Found ${sections.length} selectable sections`);
-
-  // Make sections selectable
-  sections.forEach(section => {
-    section.classList.add('selectable');
-    section.addEventListener('click', handleSectionClick);
-  });
+  // Wait for Reveal.js to be ready before attaching listeners
+  if (typeof Reveal !== 'undefined' && Reveal.isReady && Reveal.isReady()) {
+    attachSectionListeners();
+  } else {
+    // Fallback: attach after delay if Reveal not ready
+    console.log('Waiting for Reveal.js to be ready...');
+    setTimeout(attachSectionListeners, 500);
+  }
 
   // Show selection indicator
   showSelectionIndicator();
 
   if (typeof showNotification === 'function') {
-    showNotification('📋 Review Mode Active - Click sections to select', 'info');
+    showNotification('📋 Review Mode Active (R) - Click sections to select', 'info');
   }
 }
 
@@ -68,12 +130,6 @@ function toggleReviewMode() {
     exitReviewMode();
   } else {
     enterReviewMode();
-  }
-
-  // Update toggle button state
-  const toggleBtn = document.getElementById('toggle-review-mode');
-  if (toggleBtn) {
-    toggleBtn.classList.toggle('active', reviewModeActive);
   }
 }
 
@@ -230,6 +286,14 @@ if (typeof window !== 'undefined') {
   window.getSelectedSections = getSelectedSections;
   window.clearSelection = clearSelection;
   window.reviewModeActive = () => reviewModeActive;
+}
+
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initReviewMode);
+} else {
+  // DOM already loaded, initialize immediately
+  initReviewMode();
 }
 
 console.log('✅ Review Mode module loaded');

@@ -75,6 +75,91 @@ iframeWindow.cancelEdits();
 iframeWindow.showVersionHistory();
 ```
 
+### Review Mode Functions (AI-Powered Section Regeneration)
+
+Review mode allows users to visually select slide sections for AI-powered regeneration. Introduced in Phase 2 as part of the world-class editor features.
+
+#### Toggle Review Mode
+```javascript
+// Toggle review mode on/off (or press 'R' key)
+iframeWindow.toggleReviewMode();
+
+// Check if currently in review mode
+const isReviewing = iframeWindow.document.body.getAttribute('data-mode') === 'review';
+```
+
+#### Enter Review Mode
+```javascript
+// Explicitly enter review mode
+iframeWindow.enterReviewMode();
+// Visual indicator appears, sections become selectable
+```
+
+#### Exit Review Mode
+```javascript
+// Explicitly exit review mode
+iframeWindow.exitReviewMode();
+// Clears selection and returns to normal view
+```
+
+#### Get Selected Sections
+```javascript
+// Get array of selected sections with metadata
+const selectedSections = iframeWindow.getSelectedSections();
+console.log(selectedSections);
+// [
+//   {
+//     sectionId: "slide-0-section-title",
+//     sectionType: "title",
+//     slideIndex: 0,
+//     content: "<div>Current content</div>",
+//     layout: "L25"
+//   }
+// ]
+```
+
+#### Clear Selection
+```javascript
+// Clear all selected sections (keeps review mode active)
+iframeWindow.clearSelection();
+```
+
+**Review Mode Keyboard Shortcuts**:
+- **R** - Toggle review mode on/off
+- **ESC** - Exit review mode and clear selection
+- **Delete/Backspace** - Clear selection (keep review mode active)
+- **Ctrl/Cmd+Click** - Multi-select sections
+
+**Use Case**: Frontend AI Regeneration Panel
+```javascript
+// Frontend button to enable section selection
+document.getElementById('select-sections-btn').addEventListener('click', () => {
+  iframeWindow.enterReviewMode();
+});
+
+// Get selected sections and send to AI service
+document.getElementById('regenerate-btn').addEventListener('click', () => {
+  const sections = iframeWindow.getSelectedSections();
+
+  if (sections.length === 0) {
+    alert('Please select sections first');
+    return;
+  }
+
+  // Send to Director Service for AI regeneration
+  sections.forEach(section => {
+    regenerateSection({
+      slide_index: section.slideIndex,
+      section_id: section.sectionId,
+      section_type: section.sectionType,
+      current_content: section.content,
+      layout: section.layout,
+      user_instruction: "Make it more engaging"
+    });
+  });
+});
+```
+
 ### Navigation Functions
 
 #### Next/Previous Slide
@@ -236,7 +321,9 @@ iframeWindow.document.body.setAttribute('data-show-edit-ui', 'false');
     <button id="next-btn">Next ➡️</button>
     <button id="overview-btn">📊 Overview</button>
     <button id="edit-btn">✏️ Edit</button>
+    <button id="review-btn">📋 Review</button>
     <button id="save-btn" style="display: none;">💾 Save</button>
+    <button id="regenerate-btn" style="display: none;">🤖 Regenerate</button>
     <div id="slide-info">Slide 1 / 10</div>
   </div>
 
@@ -297,6 +384,37 @@ iframeWindow.document.body.setAttribute('data-show-edit-ui', 'false');
       }
     });
 
+    // Toggle review mode
+    document.getElementById('review-btn').addEventListener('click', () => {
+      if (iframeWindow) {
+        iframeWindow.toggleReviewMode();
+
+        // Show/hide regenerate button
+        const isReviewing = iframeWindow.document.body.getAttribute('data-mode') === 'review';
+        document.getElementById('regenerate-btn').style.display = isReviewing ? 'block' : 'none';
+        document.getElementById('review-btn').textContent = isReviewing ? '❌ Exit Review' : '📋 Review';
+      }
+    });
+
+    // Regenerate selected sections
+    document.getElementById('regenerate-btn').addEventListener('click', () => {
+      if (iframeWindow) {
+        const sections = iframeWindow.getSelectedSections();
+
+        if (sections.length === 0) {
+          alert('Please select sections first by clicking on them');
+          return;
+        }
+
+        // Send to AI regeneration API
+        console.log('Regenerating sections:', sections);
+        // TODO: Call Director Service API for each section
+        sections.forEach(section => {
+          console.log(`Regenerate ${section.sectionType} on slide ${section.slideIndex}`);
+        });
+      }
+    });
+
     // Update slide info
     function updateSlideInfo() {
       if (iframeWindow && iframeWindow.getCurrentSlideInfo) {
@@ -327,9 +445,11 @@ The presentation viewer has built-in keyboard shortcuts:
 |-----|--------|
 | **Arrow Left/Right** | Previous/Next slide |
 | **Arrow Up/Down** | Previous/Next slide |
-| **ESC** | Toggle overview mode |
+| **ESC** | Toggle overview mode (or exit review mode) |
 | **E** | Toggle edit mode |
+| **R** | Toggle review mode (AI section selection) |
 | **Ctrl+S** | Save changes (in edit mode) |
+| **Delete/Backspace** | Clear selection (in review mode) |
 | **G** | Toggle grid overlay (debug) |
 | **B** | Toggle border highlighting (debug) |
 | **H** | Toggle help text |
@@ -402,15 +522,33 @@ window.addEventListener('message', (event) => {
 ```
 
 **Available Actions**:
+
+**Navigation**:
 - `nextSlide` - Navigate to next slide
 - `prevSlide` - Navigate to previous slide
 - `goToSlide` - Navigate to specific slide (params: {index: number})
 - `getCurrentSlideInfo` - Get current slide information
+
+**Edit Mode**:
 - `toggleEditMode` - Toggle edit mode on/off
 - `saveAllChanges` - Save all edits
 - `cancelEdits` - Cancel edits
+- `showVersionHistory` - Show version history modal
+
+**Review Mode** (AI Section Selection):
+- `toggleReviewMode` - Toggle review mode on/off
+- `enterReviewMode` - Explicitly enter review mode
+- `exitReviewMode` - Explicitly exit review mode
+- `getSelectedSections` - Get array of selected sections with metadata
+- `clearSelection` - Clear all selected sections
+
+**Overview Mode**:
 - `toggleOverview` - Toggle overview mode
 - `isOverviewActive` - Check if overview is active
+
+**Debug**:
+- `toggleGridOverlay` - Toggle grid overlay
+- `toggleBorderHighlight` - Toggle border highlighting
 
 **Complete Cross-Origin Example**:
 
@@ -451,6 +589,30 @@ async function toggleEdit() {
   const result = await sendCommand('toggleEditMode');
   if (result.success) {
     console.log(`Edit mode: ${result.isEditing ? 'ON' : 'OFF'}`);
+  }
+}
+
+// Review mode examples
+async function toggleReview() {
+  const result = await sendCommand('toggleReviewMode');
+  if (result.success) {
+    console.log(`Review mode: ${result.isReviewing ? 'ON' : 'OFF'}`);
+  }
+}
+
+async function getSelectedSections() {
+  const result = await sendCommand('getSelectedSections');
+  if (result.success) {
+    console.log('Selected sections:', result.data);
+    // result.data is array of section objects with metadata
+    return result.data;
+  }
+}
+
+async function clearSelection() {
+  const result = await sendCommand('clearSelection');
+  if (result.success) {
+    console.log('✅ Selection cleared');
   }
 }
 ```

@@ -179,6 +179,41 @@ const updateSlideCounter = async () => {
     console.error('Failed to get slide info:', error);
   }
 };
+
+// Toggle review mode (AI section selection)
+const handleToggleReview = async () => {
+  try {
+    const result = await sendCommand(iframeRef.current, 'toggleReviewMode');
+    const isReviewing = result.isReviewing;
+    console.log('📋 Review mode:', isReviewing ? 'ON' : 'OFF');
+    // Update your UI to show/hide regenerate button
+  } catch (error) {
+    console.error('Failed to toggle review:', error);
+  }
+};
+
+// Get selected sections for AI regeneration
+const handleGetSelectedSections = async () => {
+  try {
+    const result = await sendCommand(iframeRef.current, 'getSelectedSections');
+    const sections = result.data;
+    console.log('Selected sections:', sections);
+    // sections is array of: { sectionId, sectionType, slideIndex, content, layout }
+    return sections;
+  } catch (error) {
+    console.error('Failed to get selections:', error);
+  }
+};
+
+// Clear section selections
+const handleClearSelection = async () => {
+  try {
+    await sendCommand(iframeRef.current, 'clearSelection');
+    console.log('🧹 Selection cleared');
+  } catch (error) {
+    console.error('Failed to clear selection:', error);
+  }
+};
 ```
 
 ### Step 3: Update Slide Counter Polling
@@ -203,17 +238,42 @@ useEffect(() => {
 
 All commands from your original implementation are supported:
 
+### Navigation Commands
 | Command | Description | Parameters | Response |
 |---------|-------------|------------|----------|
 | `nextSlide` | Navigate to next slide | None | `{ success: true }` |
 | `prevSlide` | Navigate to previous slide | None | `{ success: true }` |
 | `goToSlide` | Go to specific slide | `{ index: number }` | `{ success: true, slideIndex: number }` |
 | `getCurrentSlideInfo` | Get current slide info | None | `{ success: true, data: { index, total, layoutId } }` |
+
+### Edit Mode Commands
+| Command | Description | Parameters | Response |
+|---------|-------------|------------|----------|
 | `toggleEditMode` | Toggle edit mode | None | `{ success: true, isEditing: boolean }` |
 | `saveAllChanges` | Save all edits | None | `{ success: true }` |
 | `cancelEdits` | Cancel edits | None | `{ success: true }` |
+| `showVersionHistory` | Show version history modal | None | `{ success: true }` |
+
+### Review Mode Commands (AI Section Selection)
+| Command | Description | Parameters | Response |
+|---------|-------------|------------|----------|
+| `toggleReviewMode` | Toggle review mode | None | `{ success: true, isReviewing: boolean }` |
+| `enterReviewMode` | Enter review mode | None | `{ success: true, isReviewing: true }` |
+| `exitReviewMode` | Exit review mode | None | `{ success: true, isReviewing: false }` |
+| `getSelectedSections` | Get selected sections | None | `{ success: true, data: [section objects] }` |
+| `clearSelection` | Clear all selections | None | `{ success: true }` |
+
+### Overview Mode Commands
+| Command | Description | Parameters | Response |
+|---------|-------------|------------|----------|
 | `toggleOverview` | Toggle grid view | None | `{ success: true, isOverview: boolean }` |
 | `isOverviewActive` | Check if overview active | None | `{ success: true, data: boolean }` |
+
+### Debug Commands
+| Command | Description | Parameters | Response |
+|---------|-------------|------------|----------|
+| `toggleGridOverlay` | Toggle grid overlay | None | `{ success: true }` |
+| `toggleBorderHighlight` | Toggle border highlighting | None | `{ success: true }` |
 
 ---
 
@@ -260,9 +320,12 @@ Open browser DevTools console in the iframe:
 - [ ] Update "Grid/Overview" button handler
 - [ ] Update "Edit" button handler
 - [ ] Update "Save" button handler (if visible)
+- [ ] Update "Review" button handler (AI section selection)
+- [ ] Update "Regenerate" button handler (get selected sections)
 - [ ] Update slide counter polling logic
 - [ ] Test all buttons work correctly
 - [ ] Verify slide counter updates
+- [ ] Test review mode and section selection
 - [ ] Check browser console for errors
 
 ---

@@ -387,22 +387,33 @@ Instead of regenerating entire slides, users can now:
 #### How It Works:
 
 **1. Enter Review Mode**:
-- Click "📋 Review Mode" button (top-left)
+- Press **R** key to toggle review mode (or use frontend API)
+- Blue indicator banner appears at top
 - Sections become selectable with visual highlighting
+- **Frontend API**: `iframe.contentWindow.postMessage({ action: 'enterReviewMode' }, origin)`
 
 **2. Select Sections**:
 - Click any section to select it (gets blue outline)
 - **Ctrl/Cmd+Click** for multi-select
 - Selection counter shows how many sections selected
+- **Delete/Backspace** to clear selection
+- **ESC** to exit review mode
 
 **3. Enter AI Instructions**:
 - Type instruction in floating panel: "Make this more engaging with examples"
 - Click "Regenerate with AI"
+- Frontend can retrieve selections via API: `getSelectedSections`
 
 **4. AI Updates Content**:
 - Each section regenerates individually
 - Smooth fade-in animation
 - Green highlight shows what changed
+
+#### Keyboard Shortcuts:
+- **R** - Toggle review mode on/off
+- **ESC** - Exit review mode and clear selection
+- **Delete/Backspace** - Clear selection (keeps review mode active)
+- **Ctrl/Cmd+Click** - Multi-select sections
 
 #### Section Types:
 

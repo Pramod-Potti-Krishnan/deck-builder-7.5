@@ -54,7 +54,7 @@
 <body>
   <!-- Help Text -->
   <div id="help-text">
-    Press 'G' for grid overlay | 'B' for borders | 'C' for content area debug | '?' for help
+    Press 'R' for review mode | 'E' for edit mode | 'G' for grid | 'B' for borders | '?' for help
   </div>
 
   <!-- Edit Mode UI -->
@@ -73,9 +73,6 @@
     <div><kbd>Ctrl+S</kbd> Save Changes</div>
     <div><kbd>ESC</kbd> Cancel</div>
   </div>
-
-  <!-- Review Mode Toggle Button -->
-  <button id="toggle-review-mode" onclick="toggleReviewMode()">📋 Review Mode</button>
 
   <!-- Selection Indicator -->
   <div id="selection-indicator" class="selection-indicator"></div>
@@ -420,6 +417,45 @@
           case 'toggleBorderHighlight':
             if (typeof toggleBorderHighlight === 'function') {
               toggleBorderHighlight();
+              result.success = true;
+            }
+            break;
+
+          // Review mode functions
+          case 'toggleReviewMode':
+            if (typeof toggleReviewMode === 'function') {
+              toggleReviewMode();
+              result.success = true;
+              result.isReviewing = document.body.getAttribute('data-mode') === 'review';
+            }
+            break;
+
+          case 'enterReviewMode':
+            if (typeof enterReviewMode === 'function') {
+              enterReviewMode();
+              result.success = true;
+              result.isReviewing = true;
+            }
+            break;
+
+          case 'exitReviewMode':
+            if (typeof exitReviewMode === 'function') {
+              exitReviewMode();
+              result.success = true;
+              result.isReviewing = false;
+            }
+            break;
+
+          case 'getSelectedSections':
+            if (typeof getSelectedSections === 'function') {
+              result.success = true;
+              result.data = getSelectedSections();
+            }
+            break;
+
+          case 'clearSelection':
+            if (typeof clearSelection === 'function') {
+              clearSelection();
               result.success = true;
             }
             break;

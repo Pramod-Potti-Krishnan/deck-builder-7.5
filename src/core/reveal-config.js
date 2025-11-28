@@ -211,7 +211,7 @@ function initReveal() {
 function onRevealReady(event) {
   console.log('✅ Reveal.js ready');
   console.log(`   - Total slides: ${Reveal.getTotalSlides()}`);
-  console.log(`   - Current slide: ${event.indexh + 1}`);
+  console.log(`   - Current slide: ${event.indexh}`);
 
   // Verify viewport size
   const slideElement = document.querySelector('.reveal .slides section');
@@ -234,14 +234,14 @@ function onRevealReady(event) {
  * Called when slide changes
  */
 function onSlideChanged(event) {
-  console.log(`Slide changed: ${event.indexh + 1} / ${Reveal.getTotalSlides()}`);
+  console.log(`Slide changed: ${event.indexh} / ${Reveal.getTotalSlides()}`);
 
-  // Update slide number in footer if it exists
+  // Update slide number in footer if it exists (0-based display)
   const footer = document.querySelector('.footer');
   if (footer) {
     const slideNumber = footer.querySelector('.slide-number');
     if (slideNumber) {
-      slideNumber.textContent = `${event.indexh + 1} / ${Reveal.getTotalSlides()}`;
+      slideNumber.textContent = `${event.indexh} / ${Reveal.getTotalSlides()}`;
     }
   }
 }
@@ -256,18 +256,17 @@ function getCurrentSlideInfo() {
   const currentSlide = Reveal.getCurrentSlide();
 
   return {
-    index: indices.h + 1,
+    index: indices.h,  // 0-based (frontend adds 1 for display)
     total: Reveal.getTotalSlides(),
-    element: currentSlide,
-    layoutId: currentSlide.dataset.layout || 'unknown'
+    layoutId: currentSlide ? currentSlide.dataset.layout : 'unknown'
   };
 }
 
 /**
- * Navigate to specific slide
+ * Navigate to specific slide (0-based index)
  */
 function goToSlide(index) {
-  Reveal.slide(index - 1); // Convert 1-based to 0-based
+  Reveal.slide(index);  // Now expects 0-based index
 }
 
 /**

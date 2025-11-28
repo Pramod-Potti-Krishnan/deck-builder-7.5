@@ -343,8 +343,12 @@
             break;
 
           case 'goToSlide':
-            if (typeof Reveal !== 'undefined' && params?.index !== undefined) {
-              Reveal.slide(params.index);
+            if (typeof goToSlide === 'function' && params?.index !== undefined) {
+              goToSlide(params.index);  // Now expects 0-based index
+              result.success = true;
+              result.slideIndex = params.index;
+            } else if (typeof Reveal !== 'undefined' && params?.index !== undefined) {
+              Reveal.slide(params.index);  // Fallback: direct call with 0-based index
               result.success = true;
               result.slideIndex = params.index;
             }

@@ -173,8 +173,8 @@ const handleSaveChanges = async () => {
 const updateSlideCounter = async () => {
   try {
     const result = await sendCommand(iframeRef.current, 'getCurrentSlideInfo');
-    const { index, total } = result.data;
-    setSlideInfo(`${index} / ${total}`);
+    const { index, total } = result.data;  // index is 0-based
+    setSlideInfo(`${index + 1} / ${total}`);  // Add 1 for 1-based display
   } catch (error) {
     console.error('Failed to get slide info:', error);
   }
@@ -243,8 +243,8 @@ All commands from your original implementation are supported:
 |---------|-------------|------------|----------|
 | `nextSlide` | Navigate to next slide | None | `{ success: true }` |
 | `prevSlide` | Navigate to previous slide | None | `{ success: true }` |
-| `goToSlide` | Go to specific slide | `{ index: number }` | `{ success: true, slideIndex: number }` |
-| `getCurrentSlideInfo` | Get current slide info | None | `{ success: true, data: { index, total, layoutId } }` |
+| `goToSlide` | Go to specific slide | `{ index: number }` (0-based) | `{ success: true, slideIndex: number }` |
+| `getCurrentSlideInfo` | Get current slide info | None | `{ success: true, data: { index, total, layoutId } }` (index is 0-based) |
 
 ### Edit Mode Commands
 | Command | Description | Parameters | Response |

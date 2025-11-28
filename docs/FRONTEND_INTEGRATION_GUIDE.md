@@ -170,8 +170,8 @@ iframeWindow.Reveal.next();
 // Previous slide
 iframeWindow.Reveal.prev();
 
-// Navigate to specific slide (1-based index)
-iframeWindow.goToSlide(5);
+// Navigate to specific slide (0-based index)
+iframeWindow.goToSlide(4);  // Goes to 5th slide
 ```
 
 #### Get Current Slide Info
@@ -179,11 +179,11 @@ iframeWindow.goToSlide(5);
 const slideInfo = iframeWindow.getCurrentSlideInfo();
 console.log(slideInfo);
 // {
-//   index: 3,
+//   index: 2,        // 0-based (3rd slide)
 //   total: 10,
-//   element: <section>,
 //   layoutId: "L02"
 // }
+// Note: Frontend should display as "Slide ${index + 1} / ${total}" for 1-based user display
 ```
 
 ### Overview Mode (Grid View)
@@ -648,11 +648,10 @@ interface EditModeAPI {
 
 ```typescript
 interface NavigationAPI {
-  goToSlide(index: number): void;
+  goToSlide(index: number): void;  // 0-based index
   getCurrentSlideInfo(): {
-    index: number;
+    index: number;    // 0-based index (frontend adds 1 for display)
     total: number;
-    element: HTMLElement;
     layoutId: string;
   };
 }

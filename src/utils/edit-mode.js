@@ -6,12 +6,15 @@
  * - Save/Cancel functionality
  * - Version history integration
  * - Visual editing indicators
+ * - Rich text formatting toolbar
+ * - Auto-save with debounce
  */
 
 // State management
 let isEditMode = false;
 let originalContent = null;
 let presentationId = null;
+let inputListeners = []; // Track input listeners for cleanup
 
 /**
  * Initialize edit mode system
@@ -68,6 +71,19 @@ function enterEditMode() {
   // Make text fields editable
   enableContentEditing();
 
+  // Initialize text toolbar
+  if (typeof initTextToolbar === 'function') {
+    initTextToolbar();
+  }
+
+  // Initialize auto-save
+  if (typeof initAutoSave === 'function') {
+    initAutoSave();
+  }
+
+  // Set up change tracking for auto-save
+  setupChangeTracking();
+
   // Update UI
   updateEditModeUI();
 
@@ -88,6 +104,19 @@ function exitEditMode() {
 
   // Disable editing
   disableContentEditing();
+
+  // Hide text toolbar
+  if (typeof hideToolbar === 'function') {
+    hideToolbar();
+  }
+
+  // Clear pending auto-save changes
+  if (typeof clearPendingChanges === 'function') {
+    clearPendingChanges();
+  }
+
+  // Remove change tracking listeners
+  removeChangeTracking();
 
   // Update UI
   updateEditModeUI();
@@ -144,6 +173,59 @@ function disableContentEditing() {
     delete el.dataset.slideIndex;
     delete el.dataset.placeholder;
   });
+}
+
+/**
+ * Set up change tracking for auto-save
+ * Attaches input listeners to editable elements
+ */
+function setupChangeTracking() {
+  const editableElements = document.querySelectorAll('[contenteditable="true"]');
+
+  editableElements.forEach(el => {
+    const listener = () => {
+      // Get slide index from the element or its parent slide
+      const slideIndex = el.dataset.slideIndex ||
+        el.closest('section')?.dataset.slideIndex ||
+        getCurrentSlideIndex();
+
+      // Determine field type from element class or data attribute
+      let field = 'content';
+      if (el.classList.contains('slide-title')) field = 'slide_title';
+      else if (el.classList.contains('subtitle')) field = 'subtitle';
+      else if (el.classList.contains('rich-content-area')) field = 'rich_content';
+      else if (el.classList.contains('hero-content-area')) field = 'hero_content';
+
+      // Notify auto-save system of change
+      if (typeof markContentChanged === 'function') {
+        markContentChanged(parseInt(slideIndex) || 0, field);
+      }
+    };
+
+    el.addEventListener('input', listener);
+    inputListeners.push({ element: el, listener });
+  });
+}
+
+/**
+ * Remove change tracking listeners
+ */
+function removeChangeTracking() {
+  inputListeners.forEach(({ element, listener }) => {
+    element.removeEventListener('input', listener);
+  });
+  inputListeners = [];
+}
+
+/**
+ * Get current slide index from Reveal.js
+ */
+function getCurrentSlideIndex() {
+  if (typeof Reveal !== 'undefined' && Reveal.isReady()) {
+    const indices = Reveal.getIndices();
+    return indices.h || 0;
+  }
+  return 0;
 }
 
 /**
@@ -466,11 +548,15 @@ async function restoreVersion(versionId) {
 if (typeof window !== 'undefined') {
   window.initEditMode = initEditMode;
   window.toggleEditMode = toggleEditMode;
+  window.enterEditMode = enterEditMode;
+  window.exitEditMode = exitEditMode;
   window.saveAllChanges = saveAllChanges;
   window.cancelEdits = cancelEdits;
   window.showVersionHistory = showVersionHistory;
   window.closeVersionHistory = closeVersionHistory;
   window.restoreVersionConfirm = restoreVersionConfirm;
+  window.isInEditMode = () => isEditMode;
+  window.getCurrentSlideIndex = getCurrentSlideIndex;
 }
 
 // Auto-initialize when DOM is ready

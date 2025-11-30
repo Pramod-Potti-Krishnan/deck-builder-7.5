@@ -1,0 +1,184 @@
+/**
+ * Auto-Save Status Indicator Styles
+ *
+ * Visual indicator showing save state:
+ * - Saved (green)
+ * - Unsaved (yellow)
+ * - Saving (blue, animated)
+ * - Error (red)
+ */
+
+/* Status Indicator Container */
+#auto-save-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: none; /* Hidden by default, shown in edit mode */
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #1f2937;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+/* Status Icon */
+.status-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+/* Status Text */
+.status-text {
+  color: #d1d5db;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+/* ==================== Status States ==================== */
+
+/* Saved State - Green */
+#auto-save-indicator.status-saved .status-icon {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+#auto-save-indicator.status-saved .status-text {
+  color: #6ee7b7;
+}
+
+/* Unsaved State - Yellow/Amber */
+#auto-save-indicator.status-unsaved .status-icon {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  animation: pulse-unsaved 1.5s ease-in-out infinite;
+}
+
+#auto-save-indicator.status-unsaved .status-text {
+  color: #fcd34d;
+}
+
+@keyframes pulse-unsaved {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Saving State - Blue with spinner */
+#auto-save-indicator.status-saving .status-icon {
+  background: transparent;
+  border: 2px solid #3b82f6;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+#auto-save-indicator.status-saving .status-text {
+  color: #93c5fd;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State - Red */
+#auto-save-indicator.status-error {
+  background: #7f1d1d;
+}
+
+#auto-save-indicator.status-error .status-icon {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+  animation: pulse-error 0.5s ease-in-out 3;
+}
+
+#auto-save-indicator.status-error .status-text {
+  color: #fca5a5;
+}
+
+@keyframes pulse-error {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+/* ==================== Interactive States ==================== */
+
+#auto-save-indicator:hover {
+  background: #374151;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Clickable when in error state */
+#auto-save-indicator.status-error {
+  cursor: pointer;
+}
+
+#auto-save-indicator.status-error:hover {
+  background: #991b1b;
+}
+
+#auto-save-indicator.status-error:active {
+  transform: translateY(0);
+}
+
+/* ==================== Entry Animation ==================== */
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#auto-save-indicator[style*="display: flex"] {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* ==================== Responsive Adjustments ==================== */
+
+@media (max-width: 768px) {
+  #auto-save-indicator {
+    bottom: 80px; /* Above mobile navigation if any */
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .status-icon {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* ==================== Print Mode ==================== */
+
+@media print {
+  #auto-save-indicator {
+    display: none !important;
+  }
+}

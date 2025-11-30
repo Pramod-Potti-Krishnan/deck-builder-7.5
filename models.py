@@ -297,3 +297,84 @@ class SectionRegenerationResponse(BaseModel):
         None,
         description="Additional metadata about the regeneration (e.g., AI model used, processing time)"
     )
+
+
+# ==================== Slide CRUD Operations Models ====================
+
+class AddSlideRequest(BaseModel):
+    """
+    Request model for adding a new slide to a presentation.
+
+    The slide will be inserted at the specified position, or appended
+    at the end if no position is provided.
+    """
+    layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
+        ...,
+        description="Layout type for the new slide"
+    )
+    position: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Position to insert the slide (0-based). If not provided, appends at end."
+    )
+    content: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Initial content for the slide. Uses layout defaults if not provided."
+    )
+    background_color: Optional[str] = Field(
+        None,
+        description="Background color in hex format (e.g., #FF5733)"
+    )
+    background_image: Optional[str] = Field(
+        None,
+        description="Background image URL or data URI"
+    )
+
+
+class ReorderSlidesRequest(BaseModel):
+    """
+    Request model for reordering slides within a presentation.
+
+    Moves a slide from one position to another, shifting other slides
+    accordingly.
+    """
+    from_index: int = Field(
+        ...,
+        ge=0,
+        description="Current position of the slide to move (0-based)"
+    )
+    to_index: int = Field(
+        ...,
+        ge=0,
+        description="New position for the slide (0-based)"
+    )
+
+
+class ChangeLayoutRequest(BaseModel):
+    """
+    Request model for changing a slide's layout type.
+
+    Optionally preserves compatible content fields when switching layouts.
+    """
+    new_layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
+        ...,
+        description="New layout type for the slide"
+    )
+    preserve_content: bool = Field(
+        True,
+        description="Attempt to preserve compatible content fields when changing layouts"
+    )
+    content_mapping: Optional[Dict[str, str]] = Field(
+        None,
+        description="Manual field mapping from old to new layout: {'old_field': 'new_field'}"
+    )
+
+
+class DuplicateSlideRequest(BaseModel):
+    """
+    Request model for duplicating a slide.
+    """
+    insert_after: bool = Field(
+        True,
+        description="If True, insert duplicate after source slide. If False, insert before."
+    )

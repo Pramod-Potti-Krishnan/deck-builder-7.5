@@ -17,6 +17,8 @@
   <link rel="stylesheet" href="/src/styles/edit-mode.css?v=20251116">
   <link rel="stylesheet" href="/src/styles/review-mode.css?v=20250124">
   <link rel="stylesheet" href="/src/styles/regeneration-panel.css?v=20250124">
+  <link rel="stylesheet" href="/src/styles/text-toolbar.css?v=20251130">
+  <link rel="stylesheet" href="/src/styles/auto-save.css?v=20251130">
 
   <style>
     /* Minimal additional styling */
@@ -95,6 +97,76 @@
     </div>
   </div>
 
+  <!-- Rich Text Floating Toolbar -->
+  <div id="text-toolbar" class="text-toolbar hidden">
+    <!-- Inline Formatting -->
+    <div class="toolbar-group">
+      <button data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+      <button data-command="strikeThrough" title="Strikethrough"><s>S</s></button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Font Size -->
+    <div class="toolbar-group">
+      <select id="font-size-select" title="Font Size">
+        <option value="">Size</option>
+        <option value="1">10px</option>
+        <option value="2">12px</option>
+        <option value="3">14px</option>
+        <option value="4">16px</option>
+        <option value="5">20px</option>
+        <option value="6">24px</option>
+        <option value="7">32px</option>
+      </select>
+    </div>
+
+    <!-- Font Family -->
+    <div class="toolbar-group">
+      <select id="font-family-select" title="Font Family">
+        <option value="">Font</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Courier New', monospace">Courier</option>
+        <option value="'Times New Roman', serif">Times</option>
+        <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">System</option>
+      </select>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Colors -->
+    <div class="toolbar-group">
+      <input type="color" id="text-color" title="Text Color" value="#000000">
+      <input type="color" id="highlight-color" title="Highlight" value="#ffff00">
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Alignment -->
+    <div class="toolbar-group">
+      <button data-command="justifyLeft" title="Align Left">⬅</button>
+      <button data-command="justifyCenter" title="Center">⬌</button>
+      <button data-command="justifyRight" title="Align Right">➡</button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Lists -->
+    <div class="toolbar-group">
+      <button data-command="insertUnorderedList" title="Bullet List">•</button>
+      <button data-command="insertOrderedList" title="Numbered List">1.</button>
+    </div>
+  </div>
+
+  <!-- Auto-Save Status Indicator -->
+  <div id="auto-save-indicator" class="auto-save-indicator hidden">
+    <span class="status-dot"></span>
+    <span class="status-text">Saved</span>
+  </div>
+
   <!-- Reveal.js Container -->
   <div class="reveal">
     <div class="slides" id="slides-container">
@@ -150,6 +222,10 @@
 
   <!-- Review Mode & AI Regeneration Components -->
   <script src="/src/components/regeneration-panel.js"></script>
+
+  <!-- Text Formatting & Auto-Save Components -->
+  <script src="/src/utils/text-toolbar.js"></script>
+  <script src="/src/utils/auto-save.js"></script>
 
   <!-- v7.5 Renderers (6 layouts) -->
   <script src="/src/renderers/L01.js"></script>
@@ -301,13 +377,193 @@
       }
     });
 
+    // ==================== Slide CRUD Handler Functions ====================
+
+    /**
+     * Get presentation ID from current URL
+     */
+    function getPresentationId() {
+      const path = window.location.pathname;
+      const match = path.match(/\/p\/([^\/]+)/);
+      return match ? match[1] : null;
+    }
+
+    /**
+     * Get base API URL
+     */
+    function getApiBaseUrl() {
+      return window.location.origin;
+    }
+
+    /**
+     * Handle adding a new slide
+     */
+    async function handleAddSlide(params) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, error: 'No presentation ID found' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            layout: params.layout,
+            position: params.position,
+            content: params.content,
+            background_color: params.background_color,
+            background_image: params.background_image
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to show new slide
+          window.location.reload();
+          return { success: true, action: 'addSlide', ...data };
+        } else {
+          return { success: false, action: 'addSlide', error: data.detail || 'Failed to add slide' };
+        }
+      } catch (error) {
+        return { success: false, action: 'addSlide', error: error.message };
+      }
+    }
+
+    /**
+     * Handle deleting a slide
+     */
+    async function handleDeleteSlide(slideIndex) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, error: 'No presentation ID found' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/${slideIndex}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to reflect deletion
+          window.location.reload();
+          return { success: true, action: 'deleteSlide', ...data };
+        } else {
+          return { success: false, action: 'deleteSlide', error: data.detail || 'Failed to delete slide' };
+        }
+      } catch (error) {
+        return { success: false, action: 'deleteSlide', error: error.message };
+      }
+    }
+
+    /**
+     * Handle reordering slides
+     */
+    async function handleReorderSlides(fromIndex, toIndex) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, error: 'No presentation ID found' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/reorder`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from_index: fromIndex,
+            to_index: toIndex
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to reflect new order
+          window.location.reload();
+          return { success: true, action: 'reorderSlides', ...data };
+        } else {
+          return { success: false, action: 'reorderSlides', error: data.detail || 'Failed to reorder slides' };
+        }
+      } catch (error) {
+        return { success: false, action: 'reorderSlides', error: error.message };
+      }
+    }
+
+    /**
+     * Handle duplicating a slide
+     */
+    async function handleDuplicateSlide(slideIndex, insertAfter = true) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, error: 'No presentation ID found' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/${slideIndex}/duplicate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            insert_after: insertAfter
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to show duplicated slide
+          window.location.reload();
+          return { success: true, action: 'duplicateSlide', ...data };
+        } else {
+          return { success: false, action: 'duplicateSlide', error: data.detail || 'Failed to duplicate slide' };
+        }
+      } catch (error) {
+        return { success: false, action: 'duplicateSlide', error: error.message };
+      }
+    }
+
+    /**
+     * Handle changing slide layout
+     */
+    async function handleChangeLayout(slideIndex, newLayout, preserveContent = true) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, error: 'No presentation ID found' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/${slideIndex}/layout`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            new_layout: newLayout,
+            preserve_content: preserveContent
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to show new layout
+          window.location.reload();
+          return { success: true, action: 'changeSlideLayout', ...data };
+        } else {
+          return { success: false, action: 'changeSlideLayout', error: data.detail || 'Failed to change layout' };
+        }
+      } catch (error) {
+        return { success: false, action: 'changeSlideLayout', error: error.message };
+      }
+    }
+
     /**
      * postMessage Bridge for Cross-Origin Communication
      * Allows parent window from different origin to control the presentation
      *
      * Security: Validates message origin before executing commands
      */
-    window.addEventListener('message', (event) => {
+    window.addEventListener('message', async (event) => {
       // Security: Validate origin
       // Allow localhost (development), cloud platforms, and production frontend (deckster.xyz)
       const allowedOriginPattern = /^https?:\/\/(localhost:\d+|127\.0\.0\.1:\d+|.*\.up\.railway\.app|.*\.vercel\.app|.*\.netlify\.app|(www\.)?deckster\.xyz)$/;
@@ -464,6 +720,110 @@
             if (typeof clearSelection === 'function') {
               clearSelection();
               result.success = true;
+            }
+            break;
+
+          // ==================== Slide CRUD Operations ====================
+
+          case 'addSlide':
+            if (params?.layout) {
+              result = await handleAddSlide(params);
+            } else {
+              result.error = 'layout parameter is required';
+            }
+            break;
+
+          case 'deleteSlide':
+            if (params?.index !== undefined) {
+              result = await handleDeleteSlide(params.index);
+            } else {
+              result.error = 'index parameter is required';
+            }
+            break;
+
+          case 'reorderSlides':
+            if (params?.from_index !== undefined && params?.to_index !== undefined) {
+              result = await handleReorderSlides(params.from_index, params.to_index);
+            } else {
+              result.error = 'from_index and to_index parameters are required';
+            }
+            break;
+
+          case 'duplicateSlide':
+            if (params?.index !== undefined) {
+              result = await handleDuplicateSlide(params.index, params.insert_after);
+            } else {
+              result.error = 'index parameter is required';
+            }
+            break;
+
+          case 'changeSlideLayout':
+            if (params?.index !== undefined && params?.new_layout) {
+              result = await handleChangeLayout(params.index, params.new_layout, params.preserve_content);
+            } else {
+              result.error = 'index and new_layout parameters are required';
+            }
+            break;
+
+          case 'getSlideLayouts':
+            result.success = true;
+            result.data = {
+              layouts: ['L01', 'L02', 'L03', 'L25', 'L27', 'L29'],
+              descriptions: {
+                'L01': 'Centered Chart with Text Below',
+                'L02': 'Left Diagram with Text on Right',
+                'L03': 'Two Charts in Columns',
+                'L25': 'Main Content Shell',
+                'L27': 'Image Left with Content Right',
+                'L29': 'Full-Bleed Hero Slide'
+              }
+            };
+            break;
+
+          case 'getSlideCount':
+            if (PRESENTATION_DATA && PRESENTATION_DATA.slides) {
+              result.success = true;
+              result.data = { count: PRESENTATION_DATA.slides.length };
+            } else {
+              result.error = 'No presentation loaded';
+            }
+            break;
+
+          case 'getSlideInfo':
+            if (params?.index !== undefined && PRESENTATION_DATA && PRESENTATION_DATA.slides) {
+              const idx = params.index;
+              if (idx >= 0 && idx < PRESENTATION_DATA.slides.length) {
+                result.success = true;
+                result.data = {
+                  index: idx,
+                  layout: PRESENTATION_DATA.slides[idx].layout,
+                  content: PRESENTATION_DATA.slides[idx].content
+                };
+              } else {
+                result.error = `Invalid slide index ${idx}`;
+              }
+            } else {
+              result.error = 'index parameter is required';
+            }
+            break;
+
+          case 'forceSave':
+            if (typeof forceSaveNow === 'function') {
+              await forceSaveNow();
+              result.success = true;
+            } else if (typeof saveAllChanges === 'function') {
+              saveAllChanges();
+              result.success = true;
+            }
+            break;
+
+          case 'getPendingChanges':
+            if (typeof getPendingChangesCount === 'function') {
+              result.success = true;
+              result.data = { count: getPendingChangesCount() };
+            } else {
+              result.success = true;
+              result.data = { count: 0 };
             }
             break;
 

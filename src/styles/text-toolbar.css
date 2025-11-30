@@ -1,0 +1,192 @@
+/**
+ * Text Toolbar Styles
+ *
+ * Floating toolbar for rich text formatting
+ */
+
+/* Toolbar Container */
+.text-toolbar {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #1f2937;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.text-toolbar.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Toolbar Groups */
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Toolbar Divider */
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: #374151;
+  margin: 0 6px;
+}
+
+/* Toolbar Buttons */
+.text-toolbar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.text-toolbar button:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.text-toolbar button.active {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.text-toolbar button:active {
+  transform: scale(0.95);
+}
+
+/* Bold button */
+.text-toolbar button[data-command="bold"] b {
+  font-weight: 900;
+}
+
+/* Italic button */
+.text-toolbar button[data-command="italic"] i {
+  font-style: italic;
+}
+
+/* Underline button */
+.text-toolbar button[data-command="underline"] u {
+  text-decoration: underline;
+}
+
+/* Strikethrough button */
+.text-toolbar button[data-command="strikeThrough"] s {
+  text-decoration: line-through;
+}
+
+/* Select Dropdowns */
+.text-toolbar select {
+  height: 32px;
+  padding: 4px 8px;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 4px;
+  color: #d1d5db;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  min-width: 60px;
+}
+
+.text-toolbar select:hover {
+  background: #4b5563;
+  border-color: #6b7280;
+}
+
+.text-toolbar select:focus {
+  border-color: #3b82f6;
+}
+
+.text-toolbar select option {
+  background: #1f2937;
+  color: #d1d5db;
+}
+
+/* Color Pickers */
+.text-toolbar input[type="color"] {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid #4b5563;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.text-toolbar input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.text-toolbar input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px;
+}
+
+.text-toolbar input[type="color"]:hover {
+  border-color: #6b7280;
+}
+
+/* Alignment Buttons */
+.text-toolbar button[data-command^="justify"] {
+  font-size: 12px;
+}
+
+/* List Buttons */
+.text-toolbar button[data-command="insertUnorderedList"],
+.text-toolbar button[data-command="insertOrderedList"] {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .text-toolbar {
+    flex-wrap: wrap;
+    max-width: 90vw;
+    padding: 6px 8px;
+  }
+
+  .toolbar-divider {
+    display: none;
+  }
+
+  .toolbar-group {
+    margin: 2px 0;
+  }
+}
+
+/* Animation for showing toolbar */
+@keyframes toolbar-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.text-toolbar:not(.hidden) {
+  animation: toolbar-appear 0.15s ease-out;
+}

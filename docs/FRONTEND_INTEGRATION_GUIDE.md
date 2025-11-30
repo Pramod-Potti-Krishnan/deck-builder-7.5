@@ -843,7 +843,318 @@ curl -X POST http://localhost:8504/api/presentations \
 
 ---
 
+## Slide CRUD Operations (NEW in v7.5.2)
+
+The presentation viewer now supports full slide management via postMessage:
+
+### Add Slide
+
+```javascript
+// Add a new slide at a specific position
+iframe.contentWindow.postMessage({
+  action: 'addSlide',
+  params: {
+    layout: 'L25',     // L01, L02, L03, L25, L27, L29
+    position: 2,       // Optional: 0-based index. If omitted, appends at end
+    content: {         // Optional: Custom content. Uses defaults if omitted
+      slide_title: 'New Slide',
+      subtitle: 'Custom subtitle',
+      rich_content: '<p>Your content here</p>'
+    }
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'addSlide', success: true, data: { slideIndex: 2, slideCount: 6 } }
+```
+
+### Delete Slide
+
+```javascript
+// Delete slide at index
+iframe.contentWindow.postMessage({
+  action: 'deleteSlide',
+  params: { slideIndex: 3 }
+}, targetOrigin);
+
+// Response
+// { action: 'deleteSlide', success: true, data: { deletedIndex: 3, slideCount: 5 } }
+```
+
+### Reorder Slides
+
+```javascript
+// Move slide from one position to another
+iframe.contentWindow.postMessage({
+  action: 'reorderSlides',
+  params: {
+    fromIndex: 0,  // Current position
+    toIndex: 3     // New position
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'reorderSlides', success: true, data: { slideOrder: ['L25','L29','L25','L01'] } }
+```
+
+### Duplicate Slide
+
+```javascript
+// Duplicate slide at index
+iframe.contentWindow.postMessage({
+  action: 'duplicateSlide',
+  params: {
+    slideIndex: 2,
+    insertAfter: true  // Optional: Insert after source (default: true)
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'duplicateSlide', success: true, data: { newSlideIndex: 3, slideCount: 7 } }
+```
+
+### Change Slide Layout
+
+```javascript
+// Change layout of existing slide
+iframe.contentWindow.postMessage({
+  action: 'changeSlideLayout',
+  params: {
+    slideIndex: 1,
+    newLayout: 'L29',
+    preserveContent: true  // Optional: Try to map content (default: true)
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'changeSlideLayout', success: true, data: { previousLayout: 'L25', newLayout: 'L29' } }
+```
+
+### Get Available Layouts
+
+```javascript
+// Get list of available layout templates
+iframe.contentWindow.postMessage({
+  action: 'getSlideLayouts'
+}, targetOrigin);
+
+// Response
+// { action: 'getSlideLayouts', success: true, data: [
+//   { id: 'L01', name: 'Centered Chart', icon: '📊' },
+//   { id: 'L02', name: 'Diagram Left', icon: '🔲' },
+//   { id: 'L25', name: 'Content Shell', icon: '📝' },
+//   { id: 'L29', name: 'Full-Bleed Hero', icon: '🎯' }
+// ]}
+```
+
+### Get Slide Info
+
+```javascript
+// Get detailed info about a specific slide
+iframe.contentWindow.postMessage({
+  action: 'getSlideInfo',
+  params: { slideIndex: 0 }
+}, targetOrigin);
+
+// Response
+// { action: 'getSlideInfo', success: true, data: {
+//   layout: 'L25',
+//   title: 'Welcome Slide',
+//   hasBackgroundImage: false,
+//   backgroundColor: null
+// }}
+```
+
+---
+
+## Rich Text Formatting (NEW in v7.5.2)
+
+When in edit mode, selecting text displays a floating toolbar with formatting options.
+
+### Available Formatting Options
+
+| Feature | Button | Keyboard Shortcut |
+|---------|--------|-------------------|
+| **Bold** | B | Ctrl/Cmd + B |
+| **Italic** | I | Ctrl/Cmd + I |
+| **Underline** | U | Ctrl/Cmd + U |
+| **Strikethrough** | S | - |
+| **Font Size** | Dropdown (8-48px) | - |
+| **Font Family** | Dropdown | - |
+| **Text Color** | Color picker | - |
+| **Highlight Color** | Color picker | - |
+| **Align Left** | ◀ | - |
+| **Align Center** | ▮ | - |
+| **Align Right** | ▶ | - |
+| **Bullet List** | • | - |
+| **Numbered List** | 1. | - |
+
+### Toolbar Behavior
+
+- Toolbar appears automatically when text is selected in edit mode
+- Positioned above the selection (or below if near viewport top)
+- Stays visible while formatting, hides when clicking elsewhere
+- All formatting uses native `document.execCommand()` for compatibility
+
+---
+
+## Auto-Save System (NEW in v7.5.2)
+
+Content is automatically saved with debouncing to prevent excessive API calls.
+
+### Configuration
+
+- **Debounce Delay**: 2500ms (2.5 seconds of inactivity)
+- **Retry Attempts**: 3 attempts with 1 second delay
+- **Change Tracking**: Per-slide tracking of modified fields
+
+### Status Indicator
+
+The bottom-right corner shows save status:
+
+| Status | Indicator | Description |
+|--------|-----------|-------------|
+| **Saved** | 🟢 Green | All changes saved |
+| **Unsaved** | 🟡 Yellow (pulsing) | Pending changes |
+| **Saving** | 🔵 Blue (spinner) | Save in progress |
+| **Error** | 🔴 Red | Save failed (click to retry) |
+
+### PostMessage Commands
+
+```javascript
+// Force immediate save
+iframe.contentWindow.postMessage({ action: 'forceSave' }, targetOrigin);
+
+// Check for pending changes
+iframe.contentWindow.postMessage({ action: 'getPendingChanges' }, targetOrigin);
+// Response: { hasPending: true, slideCount: 2, slides: [0, 3] }
+```
+
+### Browser Warnings
+
+If there are unsaved changes and the user tries to leave the page, a browser warning will appear asking for confirmation.
+
+---
+
+## Complete CRUD Example
+
+```javascript
+const iframe = document.getElementById('presentation-iframe');
+const targetOrigin = 'https://web-production-f0d13.up.railway.app';
+
+// Helper for postMessage commands
+function sendCommand(action, params = {}) {
+  return new Promise((resolve) => {
+    const handler = (event) => {
+      if (event.data.action === action) {
+        window.removeEventListener('message', handler);
+        resolve(event.data);
+      }
+    };
+    window.addEventListener('message', handler);
+    iframe.contentWindow.postMessage({ action, params }, targetOrigin);
+  });
+}
+
+// Example: Create a slide at position 2 with custom content
+async function addCustomSlide() {
+  const result = await sendCommand('addSlide', {
+    layout: 'L25',
+    position: 2,
+    content: {
+      slide_title: 'New Analysis',
+      subtitle: 'Key Findings',
+      rich_content: '<ul><li>Point 1</li><li>Point 2</li></ul>'
+    }
+  });
+
+  if (result.success) {
+    console.log(`Added slide at index ${result.data.slideIndex}`);
+    // Navigate to new slide
+    await sendCommand('goToSlide', { index: result.data.slideIndex });
+  }
+}
+
+// Example: Duplicate current slide and change its layout
+async function duplicateAsHero() {
+  const slideInfo = await sendCommand('getCurrentSlideInfo');
+  const currentIndex = slideInfo.data.index;
+
+  // Duplicate
+  const dupResult = await sendCommand('duplicateSlide', {
+    slideIndex: currentIndex,
+    insertAfter: true
+  });
+
+  // Change layout to hero
+  if (dupResult.success) {
+    await sendCommand('changeSlideLayout', {
+      slideIndex: dupResult.data.newSlideIndex,
+      newLayout: 'L29'
+    });
+  }
+}
+
+// Example: Delete slide with confirmation
+async function deleteCurrentSlide() {
+  const slideInfo = await sendCommand('getCurrentSlideInfo');
+
+  if (slideInfo.data.total <= 1) {
+    alert('Cannot delete the last slide');
+    return;
+  }
+
+  if (confirm(`Delete slide ${slideInfo.data.index + 1}?`)) {
+    const result = await sendCommand('deleteSlide', {
+      slideIndex: slideInfo.data.index
+    });
+
+    if (result.success) {
+      console.log(`Deleted. ${result.data.slideCount} slides remaining`);
+    }
+  }
+}
+```
+
+---
+
+## API Endpoints Reference (v7.5.2)
+
+### REST API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/presentations` | Create new presentation |
+| GET | `/api/presentations/{id}` | Get presentation data |
+| PUT | `/api/presentations/{id}` | Update presentation metadata |
+| DELETE | `/api/presentations/{id}` | Delete presentation |
+| PUT | `/api/presentations/{id}/slides/{index}` | Update slide content |
+| POST | `/api/presentations/{id}/slides` | Add new slide |
+| DELETE | `/api/presentations/{id}/slides/{index}` | Delete slide |
+| PUT | `/api/presentations/{id}/slides/reorder` | Reorder slides |
+| POST | `/api/presentations/{id}/slides/{index}/duplicate` | Duplicate slide |
+| PUT | `/api/presentations/{id}/slides/{index}/layout` | Change slide layout |
+| GET | `/api/presentations/{id}/versions` | Get version history |
+| POST | `/api/presentations/{id}/restore/{versionId}` | Restore version |
+| POST | `/api/presentations/{id}/regenerate-section` | AI section regeneration |
+
+### Swagger Documentation
+
+Full API documentation available at: `/docs`
+
+---
+
 ## Version History
+
+### v7.5.2 (November 30, 2025)
+- ✅ Slide CRUD operations (add, delete, reorder, duplicate, change layout)
+- ✅ Rich text formatting toolbar with full styling options
+- ✅ Auto-save with debounce (2.5 second delay)
+- ✅ Save status indicator with visual feedback
+- ✅ Layout templates with default content
+- ✅ PostMessage handlers for all CRUD operations
+- ✅ Keyboard shortcuts for text formatting (Ctrl+B/I/U)
+- ✅ Browser warning for unsaved changes
 
 ### v7.5.1 (January 18, 2025)
 - ✅ Hidden edit UI by default for iframe embedding

@@ -22,9 +22,93 @@ from models import (
     VersionMetadata,
     RestoreVersionRequest,
     SectionRegenerationRequest,
-    SectionRegenerationResponse
+    SectionRegenerationResponse,
+    AddSlideRequest,
+    ReorderSlidesRequest,
+    ChangeLayoutRequest,
+    DuplicateSlideRequest
 )
 from storage import storage
+import copy
+
+
+# ==================== Helper Functions ====================
+
+def get_default_content(layout: str) -> dict:
+    """
+    Get default content template for a layout type.
+
+    These defaults provide a starting point for new slides.
+    """
+    defaults = {
+        "L01": {
+            "slide_title": "Chart Title",
+            "element_1": "Subtitle",
+            "element_4": "<div style='width:100%;height:400px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Chart placeholder</span></div>",
+            "element_3": "Add descriptive text here"
+        },
+        "L02": {
+            "slide_title": "Diagram Title",
+            "element_1": "Diagram Label",
+            "element_4": "<div style='width:100%;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Diagram placeholder</span></div>",
+            "element_2": "<ul><li>Key point one</li><li>Key point two</li><li>Key point three</li></ul>"
+        },
+        "L03": {
+            "slide_title": "Comparison View",
+            "element_1": "Left Chart Title",
+            "element_4": "<div style='width:100%;height:350px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Chart 1</span></div>",
+            "element_2": "Right Chart Title",
+            "element_5": "<div style='width:100%;height:350px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Chart 2</span></div>",
+            "element_3": "Analysis and insights"
+        },
+        "L25": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle goes here",
+            "rich_content": "<div style='padding: 20px;'><h2 style='color: #1f2937; margin-bottom: 16px;'>Content Heading</h2><p style='color: #374151; line-height: 1.6;'>Add your content here. This layout provides a large content area for rich text, lists, and formatted content.</p><ul style='margin-top: 16px; color: #374151;'><li>First point</li><li>Second point</li><li>Third point</li></ul></div>"
+        },
+        "L27": {
+            "slide_title": "Image & Content",
+            "element_1": "<div style='width:100%;height:600px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);border-radius:8px;'><span style='color:white;font-size:24px;'>Image placeholder</span></div>",
+            "element_2": "<h3 style='color:#1f2937;margin-bottom:12px;'>Description</h3><p style='color:#374151;line-height:1.6;'>Add descriptive content about the image on the left.</p>"
+        },
+        "L29": {
+            "hero_content": "<div style='width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'><h1 style='color:white;font-size:64px;font-weight:bold;text-shadow:2px 2px 8px rgba(0,0,0,0.3);margin-bottom:24px;'>Hero Title</h1><p style='color:rgba(255,255,255,0.8);font-size:24px;'>Subtitle or tagline goes here</p></div>"
+        }
+    }
+    return defaults.get(layout, defaults["L25"])
+
+
+def map_content_to_layout(old_content: dict, old_layout: str, new_layout: str) -> dict:
+    """
+    Attempt to map content from one layout to another.
+
+    Preserves compatible fields when switching between layouts.
+    """
+    result = {}
+
+    # Title mapping - most layouts have slide_title
+    if "slide_title" in old_content:
+        result["slide_title"] = old_content["slide_title"]
+
+    # Subtitle mapping for L25
+    if "subtitle" in old_content and new_layout == "L25":
+        result["subtitle"] = old_content["subtitle"]
+
+    # Content mapping between L25 and L29
+    if "rich_content" in old_content and new_layout == "L29":
+        # Wrap rich_content in hero container
+        result["hero_content"] = f"<div style='padding:40px;'>{old_content['rich_content']}</div>"
+    elif "hero_content" in old_content and new_layout == "L25":
+        # Use hero_content as rich_content
+        result["rich_content"] = old_content["hero_content"]
+
+    # Preserve element fields for flexible layouts
+    for i in range(1, 6):
+        field = f"element_{i}"
+        if field in old_content and new_layout in ["L01", "L02", "L03", "L27"]:
+            result[field] = old_content[field]
+
+    return result
 
 
 app = FastAPI(
@@ -66,6 +150,11 @@ async def root():
             "get_presentation_data": "GET /api/presentations/{id}",
             "update_presentation_metadata": "PUT /api/presentations/{id}",
             "update_slide_content": "PUT /api/presentations/{id}/slides/{slide_index}",
+            "add_slide": "POST /api/presentations/{id}/slides",
+            "delete_slide": "DELETE /api/presentations/{id}/slides/{slide_index}",
+            "reorder_slides": "PUT /api/presentations/{id}/slides/reorder",
+            "duplicate_slide": "POST /api/presentations/{id}/slides/{slide_index}/duplicate",
+            "change_slide_layout": "PUT /api/presentations/{id}/slides/{slide_index}/layout",
             "regenerate_section": "POST /api/presentations/{id}/regenerate-section",
             "get_version_history": "GET /api/presentations/{id}/versions",
             "restore_version": "POST /api/presentations/{id}/restore/{version_id}",
@@ -241,6 +330,87 @@ async def update_presentation_metadata(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating presentation: {str(e)}")
 
+
+# ==================== Reorder Slides (must come before {slide_index} routes) ====================
+
+@app.put("/api/presentations/{presentation_id}/slides/reorder")
+async def reorder_slides(
+    presentation_id: str,
+    request: ReorderSlidesRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Move a slide from one position to another.
+
+    Creates a version backup before reordering.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+
+    Request Body:
+    - from_index: Current position of the slide (0-based)
+    - to_index: New position for the slide (0-based)
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        slides = presentation["slides"]
+        slide_count = len(slides)
+
+        # Validate indices
+        if request.from_index < 0 or request.from_index >= slide_count:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid from_index {request.from_index}. Valid range: 0-{slide_count - 1}"
+            )
+        if request.to_index < 0 or request.to_index >= slide_count:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid to_index {request.to_index}. Valid range: 0-{slide_count - 1}"
+            )
+
+        # No change needed if same position
+        if request.from_index == request.to_index:
+            return JSONResponse(content={
+                "success": True,
+                "message": "Slide is already at the requested position",
+                "slide_order": [s["layout"] for s in slides]
+            })
+
+        # Move the slide
+        slide = slides.pop(request.from_index)
+        slides.insert(request.to_index, slide)
+
+        # Save with version tracking
+        summary = change_summary or f"Moved slide from position {request.from_index + 1} to {request.to_index + 1}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": slides},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide moved from position {request.from_index + 1} to {request.to_index + 1}",
+            "slide_order": [s["layout"] for s in updated["slides"]]
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reordering slides: {str(e)}")
+
+
+# ==================== Update Slide Content ====================
 
 @app.put("/api/presentations/{presentation_id}/slides/{slide_index}")
 async def update_slide_content(
@@ -486,6 +656,331 @@ async def regenerate_section(
             status_code=500,
             detail=f"Error regenerating section: {str(e)}"
         )
+
+
+# ==================== Slide CRUD Operations ====================
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}")
+async def delete_slide(
+    presentation_id: str,
+    slide_index: int,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Delete a slide at a specific index.
+
+    Creates a version backup before deleting.
+    Cannot delete the last remaining slide.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+    - slide_index: Zero-based slide index to delete
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation["slides"]):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
+            )
+
+        # Prevent deleting the last slide
+        if len(presentation["slides"]) <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete the only slide. A presentation must have at least one slide."
+            )
+
+        # Remove the slide
+        deleted_slide = presentation["slides"].pop(slide_index)
+
+        # Save with version tracking
+        summary = change_summary or f"Deleted slide {slide_index + 1}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide {slide_index + 1} deleted successfully",
+            "slide_count": len(updated["slides"]),
+            "deleted_slide": deleted_slide
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting slide: {str(e)}")
+
+
+@app.post("/api/presentations/{presentation_id}/slides")
+async def add_slide(
+    presentation_id: str,
+    request: AddSlideRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Add a new slide to a presentation.
+
+    Creates a version backup before adding.
+    The slide is inserted at the specified position, or appended at the end.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+
+    Request Body:
+    - layout: Layout type (L01, L02, L03, L25, L27, L29)
+    - position: Where to insert (optional, defaults to end)
+    - content: Initial content (optional, uses defaults)
+    - background_color: Background color (optional)
+    - background_image: Background image (optional)
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate layout
+        valid_layouts = ["L01", "L02", "L03", "L25", "L27", "L29"]
+        if request.layout not in valid_layouts:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid layout '{request.layout}'. Valid layouts: {valid_layouts}"
+            )
+
+        # Create new slide with default or provided content
+        content = request.content if request.content else get_default_content(request.layout)
+        new_slide = {
+            "layout": request.layout,
+            "content": content
+        }
+
+        # Add optional background fields
+        if request.background_color:
+            new_slide["background_color"] = request.background_color
+        if request.background_image:
+            new_slide["background_image"] = request.background_image
+
+        # Determine insert position
+        position = request.position
+        if position is None or position >= len(presentation["slides"]):
+            position = len(presentation["slides"])
+            presentation["slides"].append(new_slide)
+        else:
+            position = max(0, position)
+            presentation["slides"].insert(position, new_slide)
+
+        # Save with version tracking
+        summary = change_summary or f"Added {request.layout} slide at position {position + 1}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide added at position {position + 1}",
+            "slide_index": position,
+            "slide": new_slide,
+            "slide_count": len(updated["slides"])
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error adding slide: {str(e)}")
+
+
+# ==================== Duplicate Slide ====================
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/duplicate")
+async def duplicate_slide(
+    presentation_id: str,
+    slide_index: int,
+    request: DuplicateSlideRequest = DuplicateSlideRequest(),
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Duplicate a slide.
+
+    Creates a version backup before duplicating.
+    The duplicate is inserted after the source slide by default.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+    - slide_index: Index of slide to duplicate (0-based)
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+
+    Request Body:
+    - insert_after: If True, insert after source. If False, insert before. (default: True)
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation["slides"]):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
+            )
+
+        # Deep copy the slide
+        duplicated = copy.deepcopy(presentation["slides"][slide_index])
+
+        # Determine insert position
+        new_index = slide_index + 1 if request.insert_after else slide_index
+        presentation["slides"].insert(new_index, duplicated)
+
+        # Save with version tracking
+        summary = change_summary or f"Duplicated slide {slide_index + 1}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide {slide_index + 1} duplicated at position {new_index + 1}",
+            "new_slide_index": new_index,
+            "slide": duplicated,
+            "slide_count": len(updated["slides"])
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error duplicating slide: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/layout")
+async def change_slide_layout(
+    presentation_id: str,
+    slide_index: int,
+    request: ChangeLayoutRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Change the layout of a slide.
+
+    Creates a version backup before changing.
+    Optionally preserves compatible content fields.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+    - slide_index: Index of slide to modify (0-based)
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+
+    Request Body:
+    - new_layout: New layout type (L01, L02, L03, L25, L27, L29)
+    - preserve_content: Attempt to preserve compatible fields (default: True)
+    - content_mapping: Manual field mapping {'old_field': 'new_field'}
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation["slides"]):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
+            )
+
+        # Validate new layout
+        valid_layouts = ["L01", "L02", "L03", "L25", "L27", "L29"]
+        if request.new_layout not in valid_layouts:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid layout '{request.new_layout}'. Valid layouts: {valid_layouts}"
+            )
+
+        old_layout = presentation["slides"][slide_index]["layout"]
+        old_content = presentation["slides"][slide_index]["content"]
+
+        # No change needed if same layout
+        if old_layout == request.new_layout:
+            return JSONResponse(content={
+                "success": True,
+                "message": f"Slide is already using layout {request.new_layout}",
+                "slide": presentation["slides"][slide_index]
+            })
+
+        # Map content if preserving
+        new_content = {}
+        if request.preserve_content:
+            new_content = map_content_to_layout(old_content, old_layout, request.new_layout)
+
+        # Apply manual content mapping if provided
+        if request.content_mapping:
+            for old_field, new_field in request.content_mapping.items():
+                if old_field in old_content:
+                    new_content[new_field] = old_content[old_field]
+
+        # Merge with defaults for any missing required fields
+        default_content = get_default_content(request.new_layout)
+        for key, value in default_content.items():
+            if key not in new_content:
+                new_content[key] = value
+
+        # Update the slide
+        presentation["slides"][slide_index]["layout"] = request.new_layout
+        presentation["slides"][slide_index]["content"] = new_content
+
+        # Save with version tracking
+        summary = change_summary or f"Changed slide {slide_index + 1} from {old_layout} to {request.new_layout}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide layout changed from {old_layout} to {request.new_layout}",
+            "slide": updated["slides"][slide_index]
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error changing slide layout: {str(e)}")
 
 
 @app.get("/p/{presentation_id}", response_class=HTMLResponse)

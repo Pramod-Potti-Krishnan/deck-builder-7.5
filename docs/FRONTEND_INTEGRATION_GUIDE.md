@@ -874,7 +874,7 @@ iframe.contentWindow.postMessage({
 // Delete slide at index
 iframe.contentWindow.postMessage({
   action: 'deleteSlide',
-  params: { slideIndex: 3 }
+  params: { index: 3 }  // 0-based slide index
 }, targetOrigin);
 
 // Response
@@ -888,8 +888,8 @@ iframe.contentWindow.postMessage({
 iframe.contentWindow.postMessage({
   action: 'reorderSlides',
   params: {
-    fromIndex: 0,  // Current position
-    toIndex: 3     // New position
+    from_index: 0,  // Current position (0-based)
+    to_index: 3     // New position (0-based)
   }
 }, targetOrigin);
 
@@ -904,8 +904,8 @@ iframe.contentWindow.postMessage({
 iframe.contentWindow.postMessage({
   action: 'duplicateSlide',
   params: {
-    slideIndex: 2,
-    insertAfter: true  // Optional: Insert after source (default: true)
+    index: 2,           // 0-based slide index
+    insert_after: true  // Optional: Insert after source (default: true)
   }
 }, targetOrigin);
 
@@ -920,9 +920,9 @@ iframe.contentWindow.postMessage({
 iframe.contentWindow.postMessage({
   action: 'changeSlideLayout',
   params: {
-    slideIndex: 1,
-    newLayout: 'L29',
-    preserveContent: true  // Optional: Try to map content (default: true)
+    index: 1,              // 0-based slide index
+    new_layout: 'L29',     // Target layout
+    preserve_content: true // Optional: Try to map content (default: true)
   }
 }, targetOrigin);
 
@@ -1082,15 +1082,15 @@ async function duplicateAsHero() {
 
   // Duplicate
   const dupResult = await sendCommand('duplicateSlide', {
-    slideIndex: currentIndex,
-    insertAfter: true
+    index: currentIndex,
+    insert_after: true
   });
 
   // Change layout to hero
   if (dupResult.success) {
     await sendCommand('changeSlideLayout', {
-      slideIndex: dupResult.data.newSlideIndex,
-      newLayout: 'L29'
+      index: dupResult.data.newSlideIndex,
+      new_layout: 'L29'
     });
   }
 }
@@ -1106,7 +1106,7 @@ async function deleteCurrentSlide() {
 
   if (confirm(`Delete slide ${slideInfo.data.index + 1}?`)) {
     const result = await sendCommand('deleteSlide', {
-      slideIndex: slideInfo.data.index
+      index: slideInfo.data.index
     });
 
     if (result.success) {

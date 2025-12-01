@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/src/styles/regeneration-panel.css?v=20250124">
   <link rel="stylesheet" href="/src/styles/text-toolbar.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/auto-save.css?v=20251130">
+  <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251201">
 
   <style>
     /* Minimal additional styling */
@@ -226,6 +227,11 @@
   <!-- Text Formatting & Auto-Save Components -->
   <script src="/src/utils/text-toolbar.js"></script>
   <script src="/src/utils/auto-save.js"></script>
+
+  <!-- World-Class Editor APIs (v7.5.3) -->
+  <script src="/src/utils/format-api.js"></script>
+  <script src="/src/utils/drag-drop.js"></script>
+  <script src="/src/utils/element-manager.js"></script>
 
   <!-- v7.5 Renderers (6 layouts) -->
   <script src="/src/renderers/L01.js"></script>
@@ -558,6 +564,66 @@
     }
 
     /**
+     * Get selection info for postMessage response
+     * Returns information about current text selection, element selection, or review mode sections
+     */
+    function getSelectionInfoForPostMessage() {
+      const info = {
+        type: 'none',
+        slideIndex: typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0
+      };
+
+      // Check for text selection
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        const section = container.nodeType === Node.TEXT_NODE
+          ? container.parentElement?.closest('[data-section-id]')
+          : container.closest('[data-section-id]');
+
+        info.type = 'text';
+        info.text = selection.toString();
+        info.sectionId = section?.dataset?.sectionId || null;
+        info.sectionType = section?.dataset?.sectionType || null;
+        info.slideIndex = section ? parseInt(section.dataset.slideIndex) || 0 : info.slideIndex;
+
+        // Get formatting state
+        if (typeof window.FormatAPI?.getFormatState === 'function') {
+          info.formatting = window.FormatAPI.getFormatState();
+        }
+
+        return info;
+      }
+
+      // Check for element selection
+      if (typeof window.ElementManager?.getSelectedElement === 'function') {
+        const selectedElement = window.ElementManager.getSelectedElement();
+        if (selectedElement) {
+          info.type = 'element';
+          info.elementId = selectedElement.id;
+          info.elementType = selectedElement.type;
+          info.slideIndex = selectedElement.slideIndex;
+          info.position = selectedElement.position;
+          return info;
+        }
+      }
+
+      // Check for review mode section selection
+      if (typeof getSelectedSections === 'function') {
+        const sections = getSelectedSections();
+        if (sections && sections.length > 0) {
+          info.type = 'sections';
+          info.count = sections.length;
+          info.sections = sections;
+          return info;
+        }
+      }
+
+      return info;
+    }
+
+    /**
      * postMessage Bridge for Cross-Origin Communication
      * Allows parent window from different origin to control the presentation
      *
@@ -824,6 +890,108 @@
             } else {
               result.success = true;
               result.data = { count: 0 };
+            }
+            break;
+
+          // ===== World-Class Editor APIs (v7.5.3) =====
+
+          // Format text (apply bold, italic, underline, etc.)
+          case 'formatText':
+            if (typeof window.FormatAPI?.formatText === 'function') {
+              result = { ...result, ...window.FormatAPI.formatText(params) };
+            } else {
+              result.error = 'FormatAPI not available';
+            }
+            break;
+
+          // Get selection info (text, element, or sections)
+          case 'getSelectionInfo':
+            result.success = true;
+            result.data = getSelectionInfoForPostMessage();
+            break;
+
+          // Update section content (for AI-generated content injection)
+          case 'updateSectionContent':
+            if (params?.sectionId && params?.content !== undefined) {
+              const section = document.querySelector(`[data-section-id="${params.sectionId}"]`);
+              if (section) {
+                // Optional animation
+                if (params.animate !== false) {
+                  section.style.transition = 'opacity 0.3s ease';
+                  section.style.opacity = '0.3';
+                  setTimeout(() => {
+                    section.innerHTML = params.content;
+                    section.style.opacity = '1';
+                  }, 300);
+                } else {
+                  section.innerHTML = params.content;
+                }
+                // Trigger auto-save
+                if (typeof markContentChanged === 'function') {
+                  const slideIndex = parseInt(section.dataset.slideIndex) || 0;
+                  markContentChanged(slideIndex, 'content');
+                }
+                result.success = true;
+                result.sectionId = params.sectionId;
+              } else {
+                result.error = `Section not found: ${params.sectionId}`;
+              }
+            } else {
+              result.error = 'sectionId and content parameters required';
+            }
+            break;
+
+          // Insert shape
+          case 'insertShape':
+            if (typeof window.ElementManager?.insertShape === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertShape(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Insert table
+          case 'insertTable':
+            if (typeof window.ElementManager?.insertTable === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertTable(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Insert chart
+          case 'insertChart':
+            if (typeof window.ElementManager?.insertChart === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertChart(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Insert image
+          case 'insertImage':
+            if (typeof window.ElementManager?.insertImage === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertImage(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Delete element
+          case 'deleteElement':
+            if (typeof window.ElementManager?.deleteElement === 'function' && params?.elementId) {
+              const deleteResult = window.ElementManager.deleteElement(params.elementId);
+              result = { ...result, ...deleteResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
             }
             break;
 

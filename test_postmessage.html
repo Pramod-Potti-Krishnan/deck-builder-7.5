@@ -139,6 +139,39 @@
         <button onclick="sendCmd('toggleBorderHighlight')">🔲 Toggle Borders</button>
       </div>
 
+      <h3>Text Formatting API (v7.5.3)</h3>
+      <div class="button-group">
+        <button onclick="sendCmd('getSelectionInfo')">📋 Get Selection Info</button>
+        <button onclick="sendCmd('formatText', {bold: 'toggle'})">B Toggle Bold</button>
+        <button onclick="sendCmd('formatText', {italic: 'toggle'})">I Toggle Italic</button>
+        <button onclick="sendCmd('formatText', {underline: 'toggle'})">U Toggle Underline</button>
+        <button onclick="sendCmd('formatText', {color: '#ef4444'})">🔴 Red Text</button>
+        <button onclick="sendCmd('formatText', {color: '#3b82f6'})">🔵 Blue Text</button>
+        <button onclick="sendCmd('formatText', {fontSize: '24px'})">📏 Large Font</button>
+        <button onclick="sendCmd('formatText', {alignment: 'center'})">⬛ Center</button>
+        <button onclick="sendCmd('formatText', {listType: 'bullet'})">• Bullet List</button>
+      </div>
+      <div class="button-group">
+        <button onclick="sendCmd('updateSectionContent', {slideIndex: 0, sectionId: 'slide-0-section-title', content: '<h1 style=&quot;color:#1e40af&quot;>Updated Title!</h1>'})">📝 Update Title Section</button>
+      </div>
+
+      <h3>Dynamic Elements API (v7.5.3)</h3>
+      <div class="button-group">
+        <button onclick="insertTestShape()">⬛ Insert Rectangle</button>
+        <button onclick="insertTestCircle()">⚪ Insert Circle</button>
+        <button onclick="insertTestTable()">📊 Insert Table</button>
+        <button onclick="insertTestChart()">📈 Insert Chart</button>
+        <button onclick="insertTestImage()">🖼️ Insert Image</button>
+        <button onclick="deleteLastElement()">🗑️ Delete Last Element</button>
+      </div>
+
+      <h3>Review Mode (AI Selection)</h3>
+      <div class="button-group">
+        <button onclick="sendCmd('toggleReviewMode')">📋 Toggle Review Mode</button>
+        <button onclick="sendCmd('getSelectedSections')">📌 Get Selected Sections</button>
+        <button onclick="sendCmd('clearSelection')">❌ Clear Selection</button>
+      </div>
+
       <h3>Test Log</h3>
       <div class="log" id="log"></div>
     </div>
@@ -183,7 +216,110 @@
       log('🎉 Iframe loaded - ready to test!', 'success');
     });
 
-    log('🚀 Test page initialized', 'info');
+    // Track inserted elements for deletion
+    let insertedElements = [];
+
+    // Helper functions for Dynamic Elements API tests
+    function insertTestShape() {
+      sendCmd('insertShape', {
+        slideIndex: 0,
+        type: 'rectangle',
+        gridRow: '5/10',
+        gridColumn: '3/15',
+        fill: '#3b82f6',
+        stroke: '#1e40af',
+        strokeWidth: 2
+      });
+    }
+
+    function insertTestCircle() {
+      sendCmd('insertShape', {
+        slideIndex: 0,
+        type: 'circle',
+        gridRow: '6/12',
+        gridColumn: '20/28',
+        fill: '#10b981',
+        stroke: '#059669',
+        strokeWidth: 2
+      });
+    }
+
+    function insertTestTable() {
+      sendCmd('insertTable', {
+        slideIndex: 0,
+        gridRow: '10/16',
+        gridColumn: '2/18',
+        tableHtml: `<table>
+          <thead>
+            <tr><th>Metric</th><th>Q3</th><th>Q4</th><th>Change</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Revenue</td><td>$1.2M</td><td>$1.5M</td><td>+25%</td></tr>
+            <tr><td>Users</td><td>50K</td><td>75K</td><td>+50%</td></tr>
+            <tr><td>NPS</td><td>72</td><td>85</td><td>+13</td></tr>
+          </tbody>
+        </table>`
+      });
+    }
+
+    function insertTestChart() {
+      sendCmd('insertChart', {
+        slideIndex: 0,
+        gridRow: '3/15',
+        gridColumn: '18/32',
+        chartConfig: {
+          type: 'bar',
+          data: {
+            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+            datasets: [{
+              label: 'Revenue ($M)',
+              data: [12, 19, 15, 25],
+              backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: true, position: 'top' },
+              title: { display: true, text: 'Quarterly Revenue' }
+            }
+          }
+        }
+      });
+    }
+
+    function insertTestImage() {
+      sendCmd('insertImage', {
+        slideIndex: 0,
+        gridRow: '2/9',
+        gridColumn: '22/31',
+        imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600',
+        alt: 'Team collaboration'
+      });
+    }
+
+    function deleteLastElement() {
+      if (insertedElements.length > 0) {
+        const lastId = insertedElements.pop();
+        sendCmd('deleteElement', { elementId: lastId });
+      } else {
+        log('⚠️ No tracked elements to delete', 'error');
+      }
+    }
+
+    // Track inserted elements from responses
+    const originalHandler = window.onmessage;
+    window.addEventListener('message', (event) => {
+      if (event.origin !== VIEWER_ORIGIN) return;
+      const { action, success, data } = event.data;
+      if (success && data && data.elementId) {
+        insertedElements.push(data.elementId);
+        log(`📎 Tracking element: ${data.elementId}`, 'info');
+      }
+    });
+
+    log('🚀 Test page initialized (v7.5.3 with Dynamic Elements)', 'info');
   </script>
 </body>
 </html>

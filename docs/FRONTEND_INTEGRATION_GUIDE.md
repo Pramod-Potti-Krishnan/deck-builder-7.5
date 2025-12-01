@@ -1,7 +1,7 @@
 # Frontend Integration Guide - v7.5-main Presentation Viewer
 
-**Date**: January 18, 2025
-**Version**: 7.5.1
+**Date**: December 1, 2025
+**Version**: 7.5.3
 **Purpose**: Guide for embedding reveal.js presentations in frontend applications
 
 ---
@@ -1036,6 +1036,385 @@ If there are unsaved changes and the user tries to leave the page, a browser war
 
 ---
 
+## Text Formatting API (NEW in v7.5.3)
+
+Programmatic text formatting via postMessage, complementing the toolbar UI.
+
+### Format Text
+
+Apply formatting to selected text or an entire section:
+
+```javascript
+// Format current selection
+iframe.contentWindow.postMessage({
+  action: 'formatText',
+  params: {
+    bold: true,              // true | false | 'toggle'
+    italic: true,
+    underline: false,
+    strikethrough: false,
+    fontSize: '24px',        // '8px' to '48px' or execCommand sizes '1'-'7'
+    fontFamily: 'Inter',     // Any valid font family
+    color: '#1e40af',        // Hex color for text
+    backgroundColor: '#fef3c7', // Hex color for highlight
+    alignment: 'center',     // 'left' | 'center' | 'right' | 'justify'
+    listType: 'bullet'       // 'bullet' | 'numbered' | 'none'
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'formatText', success: true, applied: ['bold', 'italic', 'fontSize', 'color'] }
+```
+
+### Format Entire Section
+
+Apply formatting to all content in a specific section:
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'formatText',
+  params: {
+    sectionId: 'slide-0-section-title',  // Target section by ID
+    applyToAll: true,                     // Apply to entire section content
+    bold: true,
+    color: '#1e40af'
+  }
+}, targetOrigin);
+```
+
+### Get Selection Info
+
+Get information about the current text selection:
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'getSelectionInfo'
+}, targetOrigin);
+
+// Response
+// {
+//   action: 'getSelectionInfo',
+//   success: true,
+//   data: {
+//     hasSelection: true,
+//     selectedText: 'Hello World',
+//     sectionId: 'slide-0-section-title',
+//     slideIndex: 0,
+//     formatting: {
+//       bold: true,
+//       italic: false,
+//       underline: false,
+//       strikethrough: false,
+//       fontSize: '3',
+//       fontFamily: 'Inter',
+//       color: 'rgb(30, 64, 175)',
+//       backgroundColor: '',
+//       alignment: { left: true, center: false, right: false, justify: false },
+//       bulletList: false,
+//       numberedList: false
+//     }
+//   }
+// }
+```
+
+### Update Section Content
+
+Replace the HTML content of a specific section:
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'updateSectionContent',
+  params: {
+    slideIndex: 0,
+    sectionId: 'slide-0-section-title',
+    content: '<h1 style="color: #1e40af;">New Title</h1>'
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'updateSectionContent', success: true }
+```
+
+---
+
+## Dynamic Elements API (NEW in v7.5.3)
+
+Insert and manage shapes, tables, charts, and images with drag-and-drop repositioning.
+
+### Grid System
+
+All elements are positioned on a **32×18 grid** (based on 1920×1080 resolution):
+- **Columns**: 1-32 (each column is 60px at base resolution)
+- **Rows**: 1-18 (each row is 60px at base resolution)
+- Grid positions use CSS grid syntax: `"start/end"` (e.g., `"5/12"` spans columns/rows 5 through 11)
+
+### Insert Shape
+
+Insert SVG shapes (rectangles, circles, arrows, etc.):
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'insertShape',
+  params: {
+    slideIndex: 0,
+    type: 'rectangle',        // 'rectangle' | 'circle' | 'arrow' | 'line' | 'triangle' | custom SVG
+    gridRow: '5/10',          // Grid row position (1-18)
+    gridColumn: '3/15',       // Grid column position (1-32)
+    fill: '#3b82f6',          // Fill color (hex)
+    stroke: '#1e40af',        // Stroke color (hex)
+    strokeWidth: 2,           // Stroke width in pixels
+    svgContent: '<svg>...</svg>'  // Optional: Custom SVG (overrides type)
+  }
+}, targetOrigin);
+
+// Response
+// {
+//   action: 'insertShape',
+//   success: true,
+//   data: {
+//     elementId: 'shape-1701388800000-abc123',
+//     type: 'shape',
+//     slideIndex: 0,
+//     position: { gridRow: '5/10', gridColumn: '3/15' }
+//   }
+// }
+```
+
+### Insert Table
+
+Insert HTML tables (typically from Text Service):
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'insertTable',
+  params: {
+    slideIndex: 0,
+    gridRow: '4/14',
+    gridColumn: '2/31',
+    tableHtml: `
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Q3</th><th>Q4</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Revenue</td><td>$1.2M</td><td>$1.5M</td></tr>
+          <tr><td>Growth</td><td>12%</td><td>25%</td></tr>
+        </tbody>
+      </table>
+    `
+  }
+}, targetOrigin);
+
+// Response
+// {
+//   action: 'insertTable',
+//   success: true,
+//   data: {
+//     elementId: 'table-1701388800000-xyz789',
+//     type: 'table',
+//     slideIndex: 0,
+//     position: { gridRow: '4/14', gridColumn: '2/31' }
+//   }
+// }
+```
+
+### Insert Chart
+
+Insert Chart.js charts (typically from Analytics Service):
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'insertChart',
+  params: {
+    slideIndex: 0,
+    gridRow: '3/16',
+    gridColumn: '2/20',
+    chartConfig: {
+      type: 'bar',
+      data: {
+        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+        datasets: [{
+          label: 'Revenue',
+          data: [12, 19, 15, 25],
+          backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, position: 'top' }
+        }
+      }
+    }
+  }
+}, targetOrigin);
+
+// Response
+// {
+//   action: 'insertChart',
+//   success: true,
+//   data: {
+//     elementId: 'chart-1701388800000-def456',
+//     type: 'chart',
+//     slideIndex: 0,
+//     chartType: 'bar',
+//     position: { gridRow: '3/16', gridColumn: '2/20' }
+//   }
+// }
+```
+
+**Supported Chart Types** (via Analytics Service):
+- `bar`, `line`, `pie`, `doughnut`, `radar`, `polarArea`
+- `scatter`, `bubble`, `area`, `combo`
+- `treemap`, `heatmap`, `funnel`, `waterfall`, `sankey`
+
+### Insert Image
+
+Insert images (typically from Image Service):
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'insertImage',
+  params: {
+    slideIndex: 0,
+    gridRow: '2/17',
+    gridColumn: '18/32',
+    imageUrl: 'https://images.unsplash.com/photo-xxxxx',
+    alt: 'Team collaboration photo'
+  }
+}, targetOrigin);
+
+// Response
+// {
+//   action: 'insertImage',
+//   success: true,
+//   data: {
+//     elementId: 'image-1701388800000-ghi012',
+//     type: 'image',
+//     slideIndex: 0,
+//     position: { gridRow: '2/17', gridColumn: '18/32' }
+//   }
+// }
+```
+
+### Delete Element
+
+Remove a dynamic element by ID:
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'deleteElement',
+  params: {
+    elementId: 'chart-1701388800000-def456'
+  }
+}, targetOrigin);
+
+// Response
+// { action: 'deleteElement', success: true }
+```
+
+### Element Drag-and-Drop
+
+All inserted elements are automatically draggable in edit mode:
+- **Mouse drag**: Click and drag to reposition
+- **Arrow keys**: Nudge selected element by 1 grid cell
+- **Delete/Backspace**: Remove selected element
+- **Grid snapping**: Elements snap to the 32×18 grid
+
+### Element Selection
+
+Elements can be selected by clicking in edit mode:
+- Selected elements show a blue border
+- Only one element can be selected at a time
+- Click outside to deselect
+
+---
+
+## Service Integration Pattern (v7.5.3)
+
+The Layout Builder acts as an orchestration layer, receiving content from external services:
+
+### Text Service Integration
+
+```javascript
+// 1. Request content from Text Service
+const textResponse = await fetch('https://text-service/api/generate-section', {
+  method: 'POST',
+  body: JSON.stringify({
+    section_type: 'rich_content',
+    prompt: 'Create 3 bullet points about market trends',
+    theme: 'corporate-blue'
+  })
+});
+const { html } = await textResponse.json();
+
+// 2. Insert into Layout Builder
+iframe.contentWindow.postMessage({
+  action: 'updateSectionContent',
+  params: {
+    slideIndex: 0,
+    sectionId: 'slide-0-section-content',
+    content: html
+  }
+}, targetOrigin);
+```
+
+### Analytics Service Integration
+
+```javascript
+// 1. Request chart from Analytics Service
+const chartResponse = await fetch('https://analytics-service/api/charts/bar', {
+  method: 'POST',
+  body: JSON.stringify({
+    data: [12, 19, 15, 25],
+    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+    title: 'Quarterly Revenue'
+  })
+});
+const { chartConfig } = await chartResponse.json();
+
+// 2. Insert into Layout Builder
+iframe.contentWindow.postMessage({
+  action: 'insertChart',
+  params: {
+    slideIndex: 0,
+    gridRow: '3/16',
+    gridColumn: '2/20',
+    chartConfig: chartConfig
+  }
+}, targetOrigin);
+```
+
+### Image Service Integration
+
+```javascript
+// 1. Request image from Image Service
+const imageResponse = await fetch('https://image-service/api/generate', {
+  method: 'POST',
+  body: JSON.stringify({
+    prompt: 'Professional team collaboration',
+    aspect_ratio: '16:9',
+    style: 'photorealistic'
+  })
+});
+const { image_url } = await imageResponse.json();
+
+// 2. Insert into Layout Builder
+iframe.contentWindow.postMessage({
+  action: 'insertImage',
+  params: {
+    slideIndex: 0,
+    gridRow: '2/17',
+    gridColumn: '18/32',
+    imageUrl: image_url,
+    alt: 'Team collaboration'
+  }
+}, targetOrigin);
+```
+
+---
+
 ## Complete CRUD Example
 
 ```javascript
@@ -1146,6 +1525,24 @@ Full API documentation available at: `/docs`
 
 ## Version History
 
+### v7.5.3 (December 1, 2025)
+- ✅ **Text Formatting API** - Programmatic formatting via postMessage
+  - `formatText` - Apply bold, italic, underline, font size, color, alignment
+  - `getSelectionInfo` - Get current selection and formatting state
+  - `updateSectionContent` - Replace section HTML content
+- ✅ **Dynamic Elements API** - Insert and manage visual elements
+  - `insertShape` - Insert SVG shapes with grid positioning
+  - `insertTable` - Insert HTML tables with drag support
+  - `insertChart` - Insert Chart.js charts (15 types)
+  - `insertImage` - Insert images with aspect ratio support
+  - `deleteElement` - Remove dynamic elements
+- ✅ **Grid-Snapped Drag & Drop** - 32×18 grid system for element positioning
+- ✅ **Keyboard Navigation** - Arrow keys for nudging, Delete for removal
+- ✅ **Service Integration** - Orchestration layer for Text/Analytics/Image services
+- ✅ **FormatAPI Module** - `window.FormatAPI` for direct function access
+- ✅ **ElementManager Module** - `window.ElementManager` for element CRUD
+- ✅ **DragDrop Module** - `window.DragDrop` for position management
+
 ### v7.5.2 (November 30, 2025)
 - ✅ Slide CRUD operations (add, delete, reorder, duplicate, change layout)
 - ✅ Rich text formatting toolbar with full styling options
@@ -1178,5 +1575,5 @@ Full API documentation available at: `/docs`
 
 ---
 
-**Last Updated**: 2025-01-18
-**Version**: 7.5.1
+**Last Updated**: 2025-12-01
+**Version**: 7.5.3

@@ -81,10 +81,10 @@ const RevealConfig = {
   height: 1080,
   margin: 0,
 
-  // Allow downscaling to fit smaller viewports, prevent upscaling
-  // v7.5.1: minScale allows fitting in smaller screens, maxScale prevents enlargement
+  // Allow downscaling to fit smaller viewports and upscaling for fullscreen
+  // v7.5.2: maxScale increased to 3.0 to allow fullscreen without letterboxing
   minScale: 0.1,
-  maxScale: 1.0,
+  maxScale: 3.0,
 
   // Center presentation in viewport
   center: true,

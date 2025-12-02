@@ -50,9 +50,9 @@ function initEditMode() {
 /**
  * Toggle between View and Edit modes
  */
-function toggleEditMode() {
+async function toggleEditMode() {
   if (isEditMode) {
-    exitEditMode();
+    await exitEditMode();
   } else {
     enterEditMode();
   }
@@ -96,8 +96,16 @@ function enterEditMode() {
 /**
  * Exit Edit Mode (without saving)
  */
-function exitEditMode() {
+async function exitEditMode() {
   if (!isEditMode) return;
+
+  // Force save any pending changes before exiting
+  if (typeof forceSave === 'function' && typeof hasPendingChanges === 'function') {
+    if (hasPendingChanges()) {
+      console.log('Saving pending changes before exiting edit mode...');
+      await forceSave();
+    }
+  }
 
   isEditMode = false;
   document.body.dataset.mode = 'view';
@@ -135,14 +143,15 @@ function enableContentEditing() {
   const slides = document.querySelectorAll('.reveal .slides section');
 
   slides.forEach((slide, slideIndex) => {
-    // Make title, subtitle, and rich content editable
+    // Make title, subtitle, rich content, and text boxes editable
     const editableSelectors = [
       '.slide-title',
       '.subtitle',
       '.rich-content-area',
       '.hero-content-area',
       '.body-primary',
-      '.body-secondary'
+      '.body-secondary',
+      '.textbox-content'  // Text boxes must be editable in edit mode
     ];
 
     editableSelectors.forEach(selector => {

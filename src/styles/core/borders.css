@@ -585,3 +585,9 @@ body.show-borders .footer-company-logo {
   outline: 2px dotted #fbbf24 !important;
   outline-offset: -2px !important;
 }
+
+/* Inserted text boxes show borders when 'B' is pressed - Orange dotted outline */
+body.show-borders .inserted-textbox {
+  outline: 2px dotted #f59e0b !important;
+  outline-offset: -2px !important;
+}

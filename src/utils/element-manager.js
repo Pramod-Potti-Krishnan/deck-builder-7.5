@@ -631,9 +631,11 @@
     dragHandle.innerHTML = '<span style="color: white; font-size: 14px; line-height: 1; letter-spacing: 3px;">⋮⋮</span>';
 
     // Create editable content area
+    // Only enable contentEditable in edit mode
+    const isEditMode = document.body.dataset.mode === 'edit';
     const contentDiv = document.createElement('div');
     contentDiv.className = 'textbox-content';
-    contentDiv.setAttribute('contenteditable', 'true');  // Use attribute for better compatibility
+    contentDiv.setAttribute('contenteditable', isEditMode ? 'true' : 'false');  // Respect current mode
     contentDiv.dataset.placeholder = config.placeholder || 'Click to edit text';
     contentDiv.innerHTML = config.content || '';
     contentDiv.style.cssText = `

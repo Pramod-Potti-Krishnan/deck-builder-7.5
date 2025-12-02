@@ -4,6 +4,14 @@
  * Grey border, light blue drag handle, dark blue resize handles
  */
 
+/* ===== PARENT OVERFLOW FIX ===== */
+/* Ensure slides allow overflow for handles positioned outside textbox */
+.slide:has(.inserted-textbox),
+.slide-content:has(.inserted-textbox),
+[class*="slide"]:has(.inserted-textbox) {
+  overflow: visible !important;
+}
+
 /* ===== BASE TEXT BOX STYLES ===== */
 
 .inserted-textbox {
@@ -12,7 +20,7 @@
   border: 3px dashed #6b7280 !important;  /* Grey border - FORCED */
   border-radius: 6px;
   min-height: 80px;
-  overflow: visible;
+  overflow: visible !important;
   position: relative;
   box-sizing: border-box;
 }
@@ -90,7 +98,8 @@
   outline: none;
 }
 
-/* ===== RESIZE HANDLES (Dark Blue circles, 75% bigger, white arrows) ===== */
+/* ===== RESIZE HANDLES (Dark Blue SQUARES on border, 1.5x size) ===== */
+/* 28px * 1.5 = 42px for edge handles, positioned half in/half out */
 
 .inserted-textbox .resize-handle {
   position: absolute;
@@ -99,13 +108,13 @@
   opacity: 1 !important;
   visibility: visible !important;
   transition: all 0.15s ease;
-  z-index: 101;
+  z-index: 1001;  /* Above textbox z-index */
   pointer-events: auto;
   display: flex !important;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  border-radius: 50%;  /* Circle */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  border-radius: 4px;  /* SQUARE with slight rounding */
 }
 
 .inserted-textbox .resize-handle:hover {
@@ -115,17 +124,17 @@
 
 .inserted-textbox .resize-handle .resize-arrow {
   color: white !important;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   line-height: 1;
   user-select: none;
 }
 
-/* === Left handle (w) - 75% bigger === */
+/* === Left handle (w) - 42px square ON the border === */
 .resize-handle-w {
-  width: 28px;      /* 16 * 1.75 = 28 */
-  height: 28px;
-  left: 6px;
+  width: 42px;
+  height: 42px;
+  left: -21px;      /* Half outside */
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -135,11 +144,11 @@
   transform: translateY(-50%) scale(1.1);
 }
 
-/* === Right handle (e) - 75% bigger === */
+/* === Right handle (e) - 42px square ON the border === */
 .resize-handle-e {
-  width: 28px;
-  height: 28px;
-  right: 6px;
+  width: 42px;
+  height: 42px;
+  right: -21px;     /* Half outside */
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -149,11 +158,11 @@
   transform: translateY(-50%) scale(1.1);
 }
 
-/* === Bottom handle (s) - 75% bigger === */
+/* === Bottom handle (s) - 42px square ON the border === */
 .resize-handle-s {
-  width: 28px;
-  height: 28px;
-  bottom: 6px;
+  width: 42px;
+  height: 42px;
+  bottom: -21px;    /* Half outside */
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
@@ -163,12 +172,12 @@
   transform: translateX(-50%) scale(1.1);
 }
 
-/* === Bottom-right corner (se) - 75% bigger === */
+/* === Bottom-right corner (se) - 48px square ON the corner === */
 .resize-handle-se {
-  width: 32px;      /* 20 * 1.6 = 32 */
-  height: 32px;
-  right: 6px;
-  bottom: 6px;
+  width: 48px;
+  height: 48px;
+  right: -24px;     /* Half outside */
+  bottom: -24px;    /* Half outside */
   cursor: nwse-resize;
 }
 

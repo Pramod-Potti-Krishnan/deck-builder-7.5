@@ -669,12 +669,11 @@
       triggerAutoSave(slideIndex);
     });
 
-    // Prevent drag when clicking on text content - focus the content instead
-    contentDiv.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-    });
+    // NOTE: mousedown no longer stops propagation - drag-drop.js handles
+    // threshold-based detection to distinguish click-to-edit vs drag-to-move
 
-    // Click handler to ensure focus works AND trigger selection
+    // Click handler as fallback for focus/selection
+    // (drag-drop.js also handles this via handlePendingDragEnd)
     contentDiv.addEventListener('click', (e) => {
       e.stopPropagation();
       contentDiv.focus();

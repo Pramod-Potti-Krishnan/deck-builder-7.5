@@ -36,6 +36,14 @@
 .inserted-textbox.dragging {
   z-index: 11000;
   opacity: 0.9;
+  cursor: move !important;
+  user-select: none !important;
+}
+
+/* Prevent text selection during drag */
+.inserted-textbox.dragging .textbox-content {
+  pointer-events: none;
+  user-select: none !important;
 }
 
 /* ===== EDITING STATE ===== */

@@ -1,6 +1,6 @@
 # Text Box Cross-Origin API Reference
 
-**Version**: 1.0
+**Version**: 1.1
 **Last Updated**: 2025-12-01
 **For**: Frontend Team Integration
 
@@ -11,15 +11,17 @@ This document describes the complete postMessage API for managing text boxes in 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Basic Communication Pattern](#basic-communication-pattern)
-3. [Text Box CRUD Operations](#text-box-crud-operations)
-4. [Text Formatting](#text-formatting)
-5. [Box Styling](#box-styling)
-6. [Position & Size](#position--size)
-7. [State Management](#state-management)
-8. [AI Content Generation](#ai-content-generation)
-9. [Backend REST API](#backend-rest-api)
-10. [Examples](#examples)
+2. [Visual Design](#visual-design)
+3. [Basic Communication Pattern](#basic-communication-pattern)
+4. [Text Box CRUD Operations](#text-box-crud-operations)
+5. [Text Formatting](#text-formatting)
+6. [Box Styling](#box-styling)
+7. [Position & Size](#position--size)
+8. [State Management](#state-management)
+9. [AI Content Generation](#ai-content-generation)
+10. [Persistence & Restoration](#persistence--restoration)
+11. [Backend REST API](#backend-rest-api)
+12. [Examples](#examples)
 
 ---
 
@@ -27,14 +29,61 @@ This document describes the complete postMessage API for managing text boxes in 
 
 Text boxes are overlay elements that float above slide content with:
 - **Elevated z-index** (1000+) - always on top of layout content
-- **8-point resize handles** - 4 corners + 4 edges
+- **4-point resize handles** - left, right, bottom, and bottom-right corner
 - **Draggable** within the slide grid (32×18 grid system)
 - **Rich text editing** via contentEditable
 - **Full formatting control** via cross-origin postMessage API
 - **Auto-save** - changes are automatically persisted
+- **Auto-restore** - text boxes are restored with full interactivity on page load
 
 ### Default Style
-Text boxes are created with **transparent overlay** style (no background, no border) by default.
+- **Border**: Grey dashed (`#6b7280`) in edit mode, hidden in view mode
+- **Background**: Transparent
+- **Text color**: Dark grey (`#374151`)
+- **Font size**: 32px
+
+---
+
+## Visual Design
+
+### Edit Mode Appearance
+
+```
+                    ┌─────────────────────────────────────────────────────┐
+                    │           ┌──────────┐                              │
+                    │           │  ⋮⋮      │  ← Light blue drag handle    │
+                    │           └──────────┘    (62×26px pill)            │
+┌────┐              │                                                     │              ┌────┐
+│ ◀  │ ←───────────▶│         Click to edit text                         │◀────────────▶│ ▶  │
+└────┘  Left handle │                                                     │ Right handle └────┘
+        (42×42px)   │                                                     │  (42×42px)
+                    │                                                     │
+                    │  Grey dashed border (3px #6b7280)                   │
+                    │                                                     │
+                    └───────────────────────┬─────────────────────────────┘
+                                            │                        ┌────┐
+                                       ┌────┤                        │ ↘  │
+                                       │ ▼  │ Bottom handle          └────┘
+                                       └────┘ (42×42px)           Corner handle
+                                                                    (48×48px)
+```
+
+### Handle Specifications
+
+| Handle | Size | Position | Color | Shape |
+|--------|------|----------|-------|-------|
+| **Drag handle** | 62×26px | Top center, inside box | Light blue `#60a5fa` | Rounded pill |
+| **Left (w)** | 42×42px | Left edge, half in/half out | Dark blue `#1e40af` | Square |
+| **Right (e)** | 42×42px | Right edge, half in/half out | Dark blue `#1e40af` | Square |
+| **Bottom (s)** | 42×42px | Bottom edge, half in/half out | Dark blue `#1e40af` | Square |
+| **Bottom-right (se)** | 48×48px | Corner, half in/half out | Dark blue `#1e40af` | Square |
+
+### View Mode
+In view/present mode, text boxes are **completely transparent**:
+- No border
+- No handles
+- No shadow
+- Only the text content is visible
 
 ---
 
@@ -94,7 +143,9 @@ iframe.contentWindow.postMessage({
     content: '<p>Hello</p>',    // Optional, initial HTML content
     zIndex: 1001,               // Optional, defaults to auto-increment from 1000
     resizable: true,            // Optional, default true
-    draggable: true             // Optional, default true
+    draggable: true,            // Optional, default true
+    locked: false,              // Optional, default false
+    visible: true               // Optional, default true
   }
 }, '*');
 ```
@@ -106,6 +157,14 @@ iframe.contentWindow.postMessage({
   action: 'insertTextBox',
   elementId: 'textbox-a1b2c3d4e5f6',
   slideIndex: 0
+}
+```
+
+**Note:** When restoring text boxes, you can pass an `id` parameter to reuse the saved ID:
+```javascript
+params: {
+  id: 'textbox-existing-id',  // Reuse existing ID (for restoration)
+  // ... other params
 }
 ```
 
@@ -487,20 +546,20 @@ iframe.contentWindow.postMessage({
   formatting: {
     // Text properties
     fontFamily: 'Inter, system-ui, sans-serif',
-    fontSize: '18px',
+    fontSize: '32px',
     fontWeight: '400',
     fontStyle: 'normal',
     textDecoration: 'none',
-    color: 'rgb(31, 41, 55)',
+    color: 'rgb(55, 65, 81)',
     textAlign: 'left',
-    lineHeight: '1.6',
+    lineHeight: '1.5',
     letterSpacing: 'normal',
     // Box properties
     backgroundColor: 'transparent',
-    borderWidth: '0px',
-    borderColor: 'transparent',
-    borderStyle: 'none',
-    borderRadius: '0px',
+    borderWidth: '3px',
+    borderColor: 'rgb(107, 114, 128)',
+    borderStyle: 'dashed',
+    borderRadius: '6px',
     padding: '16px',
     opacity: '1',
     boxShadow: 'none'
@@ -614,6 +673,49 @@ iframe.contentWindow.postMessage({
   injected: true
 }
 ```
+
+---
+
+## Persistence & Restoration
+
+### How Text Boxes Are Saved
+
+Text boxes are automatically saved as part of the slide data:
+
+```javascript
+// Saved data structure (in slide.text_boxes array)
+{
+  id: 'textbox-a1b2c3d4e5f6',
+  position: {
+    grid_row: '5/10',
+    grid_column: '3/15'
+  },
+  content: '<p>Hello World</p>',
+  z_index: 1001,
+  style: {
+    background_color: 'transparent',
+    border_width: 0,
+    padding: 16,
+    opacity: 1
+  },
+  locked: false,
+  visible: true
+}
+```
+
+### How Text Boxes Are Restored
+
+When a presentation is loaded, text boxes are **automatically restored** with full interactivity:
+
+1. After slides are rendered, `restoreTextBoxes()` is called
+2. For each saved text box, `ElementManager.insertTextBox()` is called with:
+   - The original `id` (preserved)
+   - All position, content, and style properties
+   - `locked` and `visible` states
+3. Event handlers are re-attached (drag, resize, edit)
+4. Auto-save is skipped during restoration to avoid unnecessary saves
+
+**Result:** Text boxes work exactly the same after reload - draggable, resizable, and editable.
 
 ---
 
@@ -832,6 +934,27 @@ toolbar.setBackground('#f0f0f0');
 
 ---
 
+## CSS Classes
+
+| Class | Description |
+|-------|-------------|
+| `.inserted-textbox` | Base text box container |
+| `.element-selected` | Selected state (blue solid border) |
+| `.textbox-editing` | Editing state (green border) |
+| `.textbox-locked` | Locked state (no interaction) |
+| `.textbox-hidden` | Hidden state (display: none) |
+| `.dragging` | During drag operation |
+| `.resizing` | During resize operation |
+| `.textbox-content` | Inner editable content area |
+| `.textbox-drag-handle` | Top drag handle pill |
+| `.resize-handle` | Base resize handle class |
+| `.resize-handle-w` | Left resize handle |
+| `.resize-handle-e` | Right resize handle |
+| `.resize-handle-s` | Bottom resize handle |
+| `.resize-handle-se` | Bottom-right corner resize handle |
+
+---
+
 ## File Locations
 
 | File | Path | Description |
@@ -839,10 +962,10 @@ toolbar.setBackground('#f0f0f0');
 | Backend Models | `models.py` | TextBox, TextBoxPosition, TextBoxStyle Pydantic models |
 | Backend API | `server.py` | REST endpoints for text box CRUD |
 | Element Manager | `src/utils/element-manager.js` | insertTextBox, updateTextBoxContent, etc. |
-| Drag & Drop | `src/utils/drag-drop.js` | makeDraggable, makeResizable with 8-point handles |
+| Drag & Drop | `src/utils/drag-drop.js` | makeDraggable, makeResizable with 4-point handles |
 | Auto-Save | `src/utils/auto-save.js` | collectTextBoxes for persistence |
 | CSS Styles | `src/styles/textbox.css` | Selection, editing, resize handle styles |
-| PostMessage Bridge | `viewer/presentation-viewer.html` | All postMessage handlers |
+| PostMessage Bridge | `viewer/presentation-viewer.html` | All postMessage handlers + restoreTextBoxes() |
 
 ---
 
@@ -850,6 +973,24 @@ toolbar.setBackground('#f0f0f0');
 
 1. **Edit Mode Required**: Most operations only work when `body[data-mode="edit"]` is set
 2. **Auto-Save**: Changes trigger auto-save after 2.5 seconds of inactivity
-3. **Z-Index**: Text boxes start at z-index 1000, selected = 1500, dragging = 11000
-4. **Grid System**: 32 columns × 18 rows, base 1920×1080
-5. **AI Integration**: Currently mock; will integrate with Text Service at port 8000
+3. **Auto-Restore**: Text boxes are automatically restored with full interactivity on page load
+4. **Z-Index**: Text boxes start at z-index 1000, selected = 1500, dragging = 11000
+5. **Grid System**: 32 columns × 18 rows, base 1920×1080
+6. **AI Integration**: Currently mock; will integrate with Text Service at port 8000
+7. **Handle Design**: 4 resize handles (not 8) - left, right, bottom, bottom-right corner
+8. **Handle Position**: Resize handles are positioned ON the border (half inside, half outside)
+
+---
+
+## Changelog
+
+### Version 1.1 (2025-12-01)
+- Changed resize handles from 8-point to 4-point (w, e, s, se)
+- New handle design: dark blue squares on border
+- Drag handle: light blue pill at top inside the box
+- Added text box restoration on page load
+- Added `id` parameter to insertTextBox for restoration
+- Added `locked` and `visible` parameters
+- Added Persistence & Restoration section
+- Added CSS Classes section
+- Updated visual design documentation

@@ -1,6 +1,6 @@
 # Text Box Cross-Origin API Reference
 
-**Version**: 1.1
+**Version**: 1.2
 **Last Updated**: 2025-12-01
 **For**: Frontend Team Integration
 
@@ -421,6 +421,84 @@ iframe.contentWindow.postMessage({
 }, '*');
 ```
 
+### setTextBoxFontWeight
+
+Set font weight for the entire text box.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxFontWeight',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    fontWeight: '600'  // '400', '500', '600', '700', 'normal', 'bold'
+  }
+}, '*');
+```
+
+### setTextBoxVerticalAlignment
+
+Set vertical text alignment within the text box content area.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxVerticalAlignment',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    verticalAlignment: 'middle'  // 'top', 'middle', 'bottom'
+  }
+}, '*');
+```
+
+**Implementation:** Uses flexbox on `.textbox-content` with `justify-content: flex-start | center | flex-end`.
+
+### setTextBoxParagraphSpacing
+
+Set spacing before and after paragraphs.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxParagraphSpacing',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    marginTop: '10pt',      // Optional, spacing before paragraphs
+    marginBottom: '12pt'    // Optional, spacing after paragraphs
+  }
+}, '*');
+```
+
+**Implementation:** Uses CSS custom properties `--para-margin-top` and `--para-margin-bottom`.
+
+### setTextBoxColumns
+
+Set multi-column text layout.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxColumns',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    columns: 2,           // 1-4 columns
+    columnGap: '20px'     // Optional, default '20px'
+  }
+}, '*');
+```
+
+### setTextBoxIndents
+
+Set text indentation (first line, left margin, right margin).
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxIndents',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    firstIndent: '20pt',   // Optional, first line indent
+    leftIndent: '10pt',    // Optional, left margin
+    rightIndent: '10pt'    // Optional, right margin
+  }
+}, '*');
+```
+
 ---
 
 ## Box Styling
@@ -522,6 +600,83 @@ iframe.contentWindow.postMessage({
   params: {
     elementId: 'textbox-a1b2c3d4e5f6',
     boxShadow: 'none'
+  }
+}, '*');
+```
+
+### setTextBoxAutosize
+
+Enable/disable automatic text box sizing based on content.
+
+```javascript
+// Enable autosize (height adjusts to content)
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxAutosize',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    autosize: true
+  }
+}, '*');
+
+// Disable autosize (fixed height, content scrolls if overflow)
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxAutosize',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    autosize: false
+  }
+}, '*');
+```
+
+**Behavior:**
+- `autosize: true` - Sets `height: auto`, `minHeight: 60px`, `overflow: visible`
+- `autosize: false` - Resets height, sets `overflow: auto`
+
+### setTextBoxBorderPositions
+
+Control which sides of the text box have borders.
+
+```javascript
+// Only bottom border
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxBorderPositions',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    positions: ['bottom']
+  }
+}, '*');
+
+// Left and right borders
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxBorderPositions',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    positions: ['left', 'right']
+  }
+}, '*');
+
+// All borders
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxBorderPositions',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    positions: ['top', 'right', 'bottom', 'left']
+  }
+}, '*');
+```
+
+**Note:** Uses existing border width, style, and color from `data-borderWidth`, `data-borderStyle`, `data-borderColor` attributes (set by `setTextBoxBorder`). Defaults to `2px solid #6b7280`.
+
+### setTextBoxBorderOffset
+
+Set the space between content and border (additional padding when border is active).
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'setTextBoxBorderOffset',
+  params: {
+    elementId: 'textbox-a1b2c3d4e5f6',
+    offset: '6pt'  // e.g., '6pt', '10px', '0.5em'
   }
 }, '*');
 ```
@@ -983,6 +1138,18 @@ toolbar.setBackground('#f0f0f0');
 ---
 
 ## Changelog
+
+### Version 1.2 (2025-12-01)
+- Added 8 new formatting commands as requested by frontend team:
+  - `setTextBoxFontWeight` - Set font weight (400, 500, 600, 700, normal, bold)
+  - `setTextBoxVerticalAlignment` - Align content top/middle/bottom
+  - `setTextBoxParagraphSpacing` - Set paragraph margins via CSS custom properties
+  - `setTextBoxColumns` - Multi-column text layout (1-4 columns)
+  - `setTextBoxIndents` - First line, left, and right indentation
+  - `setTextBoxAutosize` - Auto-height based on content
+  - `setTextBoxBorderPositions` - Control individual border sides (top/right/bottom/left)
+  - `setTextBoxBorderOffset` - Space between content and border
+- Added CSS custom properties for paragraph spacing (`--para-margin-top`, `--para-margin-bottom`)
 
 ### Version 1.1 (2025-12-01)
 - Changed resize handles from 8-point to 4-point (w, e, s, se)

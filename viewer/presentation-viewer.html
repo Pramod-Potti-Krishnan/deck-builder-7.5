@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="/src/styles/text-toolbar.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/auto-save.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251201">
-  <link rel="stylesheet" href="/src/styles/textbox.css?v=20251201-squares">
+  <link rel="stylesheet" href="/src/styles/textbox.css?v=20251201-v1.2">
 
   <style>
     /* Minimal additional styling */
@@ -1488,6 +1488,178 @@
               }
             } else {
               result.error = 'elementId and visible parameters required';
+            }
+            break;
+
+          // ============================================
+          // NEW: Additional Text Box Formatting Commands
+          // ============================================
+
+          // Set font weight for text box content
+          case 'setTextBoxFontWeight':
+            if (params?.elementId && params?.fontWeight) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.fontWeight = params.fontWeight; // '400', '500', '600', '700', 'normal', 'bold'
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box or content element not found';
+              }
+            } else {
+              result.error = 'elementId and fontWeight parameters required';
+            }
+            break;
+
+          // Set vertical alignment for text box content
+          case 'setTextBoxVerticalAlignment':
+            if (params?.elementId && params?.verticalAlignment) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.display = 'flex';
+                contentEl.style.flexDirection = 'column';
+                contentEl.style.justifyContent =
+                  params.verticalAlignment === 'top' ? 'flex-start' :
+                  params.verticalAlignment === 'bottom' ? 'flex-end' : 'center';
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box or content element not found';
+              }
+            } else {
+              result.error = 'elementId and verticalAlignment parameters required';
+            }
+            break;
+
+          // Set multi-column layout for text box
+          case 'setTextBoxColumns':
+            if (params?.elementId && params?.columns !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.columnCount = params.columns; // 1-4
+                contentEl.style.columnGap = params.columnGap || '20px';
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box or content element not found';
+              }
+            } else {
+              result.error = 'elementId and columns parameters required';
+            }
+            break;
+
+          // Set text indentation (first line, left, right)
+          case 'setTextBoxIndents':
+            if (params?.elementId) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                if (params.firstIndent) contentEl.style.textIndent = params.firstIndent;
+                if (params.leftIndent) contentEl.style.paddingLeft = params.leftIndent;
+                if (params.rightIndent) contentEl.style.paddingRight = params.rightIndent;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box or content element not found';
+              }
+            } else {
+              result.error = 'elementId parameter required';
+            }
+            break;
+
+          // Set paragraph spacing (margin before/after paragraphs)
+          case 'setTextBoxParagraphSpacing':
+            if (params?.elementId) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.setProperty('--para-margin-top', params.marginTop || '0');
+                contentEl.style.setProperty('--para-margin-bottom', params.marginBottom || '0.5em');
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box or content element not found';
+              }
+            } else {
+              result.error = 'elementId parameter required';
+            }
+            break;
+
+          // Enable/disable autosize for text box
+          case 'setTextBoxAutosize':
+            if (params?.elementId && params?.autosize !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                if (params.autosize) {
+                  textBox.style.height = 'auto';
+                  textBox.style.minHeight = '60px';
+                  textBox.style.overflow = 'visible';
+                } else {
+                  textBox.style.height = '';
+                  textBox.style.minHeight = '';
+                  textBox.style.overflow = 'auto';
+                }
+                textBox.dataset.autosize = params.autosize;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and autosize parameters required';
+            }
+            break;
+
+          // Set which border sides are visible
+          case 'setTextBoxBorderPositions':
+            if (params?.elementId && params?.positions) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                // Get current border style or defaults
+                const width = textBox.dataset.borderWidth || '2px';
+                const style = textBox.dataset.borderStyle || 'solid';
+                const color = textBox.dataset.borderColor || '#6b7280';
+                const borderValue = `${width} ${style} ${color}`;
+
+                // Reset all borders
+                textBox.style.borderTop = 'none';
+                textBox.style.borderRight = 'none';
+                textBox.style.borderBottom = 'none';
+                textBox.style.borderLeft = 'none';
+
+                // Apply selected borders
+                if (params.positions.includes('top')) textBox.style.borderTop = borderValue;
+                if (params.positions.includes('right')) textBox.style.borderRight = borderValue;
+                if (params.positions.includes('bottom')) textBox.style.borderBottom = borderValue;
+                if (params.positions.includes('left')) textBox.style.borderLeft = borderValue;
+
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and positions parameters required';
+            }
+            break;
+
+          // Set border offset (space between content and border)
+          case 'setTextBoxBorderOffset':
+            if (params?.elementId && params?.offset !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                textBox.dataset.borderOffset = params.offset;
+                textBox.style.padding = params.offset;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and offset parameters required';
             }
             break;
 

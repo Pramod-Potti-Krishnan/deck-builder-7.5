@@ -85,6 +85,16 @@
   padding-top: 36px;  /* Space for drag handle */
   padding-left: 8px;
   padding-right: 8px;
+
+  /* CSS custom properties for paragraph spacing */
+  --para-margin-top: 0;
+  --para-margin-bottom: 0.5em;
+}
+
+/* Paragraph spacing via CSS custom properties */
+.textbox-content p {
+  margin-top: var(--para-margin-top);
+  margin-bottom: var(--para-margin-bottom);
 }
 
 .textbox-content:empty::before {

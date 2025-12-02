@@ -660,10 +660,12 @@
       e.stopPropagation();
     });
 
-    // Click handler to ensure focus works
+    // Click handler to ensure focus works AND trigger selection
     contentDiv.addEventListener('click', (e) => {
       e.stopPropagation();
       contentDiv.focus();
+      // Also select the text box (triggers postMessage to parent)
+      selectElement(id);
     });
 
     // Focus handling
@@ -847,6 +849,130 @@
   // ===== ELEMENT SELECTION =====
 
   /**
+   * Extract formatting information from a text box element
+   *
+   * @param {HTMLElement} element - Text box container element
+   * @returns {Object} Formatting properties
+   */
+  function extractTextBoxFormatting(element) {
+    const contentDiv = element.querySelector('.textbox-content');
+    if (!contentDiv) return null;
+
+    const computedStyle = window.getComputedStyle(contentDiv);
+    const containerStyle = window.getComputedStyle(element);
+
+    return {
+      fontFamily: computedStyle.fontFamily,
+      fontSize: parseInt(computedStyle.fontSize) || 32,
+      fontWeight: computedStyle.fontWeight,
+      fontStyle: computedStyle.fontStyle,
+      textDecoration: computedStyle.textDecoration,
+      color: computedStyle.color,
+      backgroundColor: containerStyle.backgroundColor,
+      textAlign: computedStyle.textAlign,
+      lineHeight: computedStyle.lineHeight,
+      padding: {
+        top: parseInt(containerStyle.paddingTop) || 0,
+        right: parseInt(containerStyle.paddingRight) || 0,
+        bottom: parseInt(containerStyle.paddingBottom) || 0,
+        left: parseInt(containerStyle.paddingLeft) || 0
+      },
+      border: {
+        width: parseInt(containerStyle.borderWidth) || 0,
+        color: containerStyle.borderColor,
+        style: containerStyle.borderStyle
+      },
+      borderRadius: {
+        topLeft: parseInt(containerStyle.borderTopLeftRadius) || 0,
+        topRight: parseInt(containerStyle.borderTopRightRadius) || 0,
+        bottomRight: parseInt(containerStyle.borderBottomRightRadius) || 0,
+        bottomLeft: parseInt(containerStyle.borderBottomLeftRadius) || 0
+      }
+    };
+  }
+
+  /**
+   * Extract properties from a generic element
+   *
+   * @param {HTMLElement} element - Element container
+   * @param {Object} data - Element data from registry
+   * @returns {Object} Element properties
+   */
+  function extractElementProperties(element, data) {
+    const rect = element.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(element);
+
+    return {
+      position: {
+        x: rect.left,
+        y: rect.top
+      },
+      size: {
+        width: rect.width,
+        height: rect.height
+      },
+      rotation: 0, // Future: extract from transform
+      locked: element.classList.contains('textbox-locked') || false,
+      zIndex: parseInt(computedStyle.zIndex) || data.zIndex
+    };
+  }
+
+  /**
+   * Emit postMessage to parent window for element selection
+   *
+   * @param {string} elementId - Selected element ID
+   * @param {Object} data - Element data from registry
+   * @param {HTMLElement} element - DOM element
+   */
+  function emitSelectionEvent(elementId, data, element) {
+    if (!window.parent || window.parent === window) return;
+
+    if (data.type === 'textbox') {
+      // Text box selected - emit textBoxSelected with formatting
+      const formatting = extractTextBoxFormatting(element);
+      window.parent.postMessage({
+        type: 'textBoxSelected',
+        elementId: elementId,
+        formatting: formatting
+      }, '*');
+      console.log('📤 postMessage: textBoxSelected', elementId);
+    } else {
+      // Other element types - emit elementSelected
+      const properties = extractElementProperties(element, data);
+      window.parent.postMessage({
+        type: 'elementSelected',
+        elementId: elementId,
+        elementType: data.type, // image, table, chart, shape
+        properties: properties
+      }, '*');
+      console.log('📤 postMessage: elementSelected', data.type, elementId);
+    }
+  }
+
+  /**
+   * Emit postMessage to parent window for element deselection
+   *
+   * @param {string} elementId - Deselected element ID (optional)
+   * @param {string} elementType - Element type (optional)
+   */
+  function emitDeselectionEvent(elementId, elementType) {
+    if (!window.parent || window.parent === window) return;
+
+    if (elementType === 'textbox') {
+      window.parent.postMessage({
+        type: 'textBoxDeselected'
+      }, '*');
+      console.log('📤 postMessage: textBoxDeselected');
+    } else if (elementId) {
+      window.parent.postMessage({
+        type: 'elementDeselected',
+        elementId: elementId
+      }, '*');
+      console.log('📤 postMessage: elementDeselected', elementId);
+    }
+  }
+
+  /**
    * Select an element
    *
    * @param {string} elementId - Element to select
@@ -863,7 +989,10 @@
       data.selected = true;
       selectedElementId = elementId;
 
-      // Notify about selection change
+      // Emit postMessage to parent (for frontend format toolbar)
+      emitSelectionEvent(elementId, data, element);
+
+      // Legacy callback (for local handlers)
       if (typeof window.onElementSelected === 'function') {
         window.onElementSelected(data);
       }
@@ -874,6 +1003,9 @@
    * Deselect all elements
    */
   function deselectAll() {
+    const previousId = selectedElementId;
+    let previousType = null;
+
     if (selectedElementId) {
       const element = document.getElementById(selectedElementId);
       const data = elementRegistry.get(selectedElementId);
@@ -883,9 +1015,15 @@
       }
       if (data) {
         data.selected = false;
+        previousType = data.type;
       }
     }
     selectedElementId = null;
+
+    // Emit deselection event to parent
+    if (previousId) {
+      emitDeselectionEvent(previousId, previousType);
+    }
   }
 
   /**
@@ -1039,7 +1177,7 @@
     }
   }
 
-  // ===== GLOBAL CLICK HANDLER =====
+  // ===== GLOBAL EVENT HANDLERS =====
 
   // Deselect elements when clicking outside
   document.addEventListener('click', (e) => {
@@ -1048,7 +1186,37 @@
     }
   });
 
+  // Deselect elements when pressing Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && selectedElementId) {
+      deselectAll();
+    }
+  });
+
   // ===== EXPOSE API =====
+
+  /**
+   * Emit updated formatting for currently selected text box
+   * Call this when formatting changes while a text box is selected
+   */
+  function emitFormattingUpdate() {
+    if (!selectedElementId) return;
+
+    const element = document.getElementById(selectedElementId);
+    const data = elementRegistry.get(selectedElementId);
+
+    if (element && data && data.type === 'textbox') {
+      const formatting = extractTextBoxFormatting(element);
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'textBoxSelected',
+          elementId: selectedElementId,
+          formatting: formatting
+        }, '*');
+        console.log('📤 postMessage: textBoxSelected (formatting update)', selectedElementId);
+      }
+    }
+  }
 
   window.ElementManager = {
     // Insert methods
@@ -1077,6 +1245,10 @@
     updateTextBoxContent: updateTextBoxContent,
     updateTextBoxStyle: updateTextBoxStyle,
     getTextBoxContent: getTextBoxContent,
+
+    // PostMessage events (for parent frame communication)
+    emitFormattingUpdate: emitFormattingUpdate,
+    extractTextBoxFormatting: extractTextBoxFormatting,
 
     // Registry access (for debugging)
     _registry: elementRegistry

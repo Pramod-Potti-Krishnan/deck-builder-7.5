@@ -60,34 +60,61 @@
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 47px;   /* 62px * 0.75 = ~47px (25% narrower) */
-  height: 26px;
-  background: rgba(96, 165, 250, 0.35) !important;  /* Light blue at 35% opacity (65% transparent) */
+  width: 44px;
+  height: 24px;
+  background: rgba(96, 165, 250, 0.35) !important;  /* Light blue, 65% transparent */
   cursor: move;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;  /* Distribute dots evenly across width */
-  border-radius: 6px;  /* Rounded rectangle */
+  justify-content: center;
+  border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
   transition: all 0.15s ease;
   z-index: 102;
   user-select: none;
 }
 
-/* 9-dot grid pattern (3 columns × 3 rows, spread across full width) */
+/* Clean 3×3 dot grid using CSS grid */
 .textbox-drag-handle::before {
   content: '';
-  width: calc(100% - 12px);  /* Full width minus padding */
-  height: 18px;
-  background-image:
-    radial-gradient(circle, white 2.5px, transparent 2.5px);
-  background-size: calc(100% / 3) 6px;  /* 3 columns, evenly spaced */
-  background-position: calc(100% / 6) 0;  /* Center dots in each column */
-  opacity: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 5px);
+  grid-template-rows: repeat(3, 5px);
+  gap: 3px;
+  width: 21px;   /* 3×5 + 2×3 = 21px */
+  height: 21px;
+}
+
+/* Each dot as a pseudo-element alternative: use box-shadow for 9 dots */
+.textbox-drag-handle::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  /* 3×3 grid of dots using box-shadow */
+  box-shadow:
+    /* Row 1 */
+    0 0 0 0 white,
+    8px 0 0 0 white,
+    16px 0 0 0 white,
+    /* Row 2 */
+    0 7px 0 0 white,
+    8px 7px 0 0 white,
+    16px 7px 0 0 white,
+    /* Row 3 */
+    0 14px 0 0 white,
+    8px 14px 0 0 white,
+    16px 14px 0 0 white;
+  /* Center the dot grid */
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% - 8px), calc(-50% - 7px));
 }
 
 .textbox-drag-handle:hover {
-  background: rgba(59, 130, 246, 0.45) !important;  /* Slightly more opaque on hover */
+  background: rgba(59, 130, 246, 0.45) !important;
   transform: translateX(-50%) scale(1.05);
 }
 

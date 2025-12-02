@@ -61,8 +61,11 @@
    * @param {MouseEvent} e - Mouse event
    */
   function handleDragStart(e) {
-    // Don't drag if clicking on interactive elements
-    if (e.target.closest('input, textarea, [contenteditable="true"], canvas, button')) {
+    // Don't drag if clicking on interactive elements (except textbox drag handles)
+    if (e.target.closest('[contenteditable="true"]') && !e.target.closest('.textbox-drag-handle')) {
+      return;
+    }
+    if (e.target.closest('input, textarea, canvas, button')) {
       return;
     }
 
@@ -92,7 +95,11 @@
    * @param {TouchEvent} e - Touch event
    */
   function handleTouchStart(e) {
-    if (e.target.closest('input, textarea, [contenteditable="true"], canvas, button')) {
+    // Don't drag if clicking on interactive elements (except textbox drag handles)
+    if (e.target.closest('[contenteditable="true"]') && !e.target.closest('.textbox-drag-handle')) {
+      return;
+    }
+    if (e.target.closest('input, textarea, canvas, button')) {
       return;
     }
 

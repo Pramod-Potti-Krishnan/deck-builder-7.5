@@ -617,6 +617,35 @@
       position: relative;
     `;
 
+    // Create drag handle bar at top (NOT contentEditable, so it can be dragged)
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'textbox-drag-handle';
+    const padding = style.padding || 16;
+    dragHandle.style.cssText = `
+      height: 24px;
+      background: transparent;
+      cursor: move;
+      border-bottom: 1px dashed transparent;
+      margin: -${padding}px -${padding}px 8px -${padding}px;
+      padding: 4px 8px;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+    // Add grip icon indicator
+    dragHandle.innerHTML = '<span style="color: #9ca3af; font-size: 10px; letter-spacing: 2px;">⋮⋮⋮</span>';
+
+    // Show handle on hover
+    dragHandle.addEventListener('mouseenter', () => {
+      dragHandle.style.background = 'rgba(59, 130, 246, 0.1)';
+      dragHandle.style.borderBottomColor = '#93c5fd';
+    });
+    dragHandle.addEventListener('mouseleave', () => {
+      dragHandle.style.background = 'transparent';
+      dragHandle.style.borderBottomColor = 'transparent';
+    });
+
     // Create editable content area
     const contentDiv = document.createElement('div');
     contentDiv.className = 'textbox-content';
@@ -625,12 +654,12 @@
     contentDiv.innerHTML = config.content || '';
     contentDiv.style.cssText = `
       width: 100%;
-      min-height: 100%;
+      min-height: calc(100% - 32px);
       outline: none;
       cursor: text;
       font-family: Inter, system-ui, -apple-system, sans-serif;
-      font-size: 18px;
-      line-height: 1.6;
+      font-size: 32px;
+      line-height: 1.5;
       color: #1f2937;
     `;
 
@@ -639,7 +668,7 @@
       triggerAutoSave(slideIndex);
     });
 
-    // Prevent drag when editing text
+    // Prevent drag when clicking on text content (but allow on drag handle)
     contentDiv.addEventListener('mousedown', (e) => {
       e.stopPropagation();
     });
@@ -652,6 +681,7 @@
       container.classList.remove('textbox-editing');
     });
 
+    container.appendChild(dragHandle);
     container.appendChild(contentDiv);
 
     // Add click handler for selection (on container border/padding)

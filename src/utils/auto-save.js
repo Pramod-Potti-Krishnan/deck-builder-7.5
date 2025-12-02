@@ -274,8 +274,7 @@
         textBox.content = contentEl.innerHTML;
       }
 
-      // Extract style from element
-      const computedStyle = window.getComputedStyle(el);
+      // Extract container styles (background, border, etc.)
       textBox.style = {
         background_color: el.style.backgroundColor || 'transparent',
         border_color: el.style.borderColor || 'transparent',
@@ -285,6 +284,30 @@
         opacity: parseFloat(el.style.opacity) || 1.0,
         box_shadow: el.style.boxShadow || null
       };
+
+      // Extract text formatting styles from content element
+      // These are set by postMessage commands (setTextBoxColor, setTextBoxFont, etc.)
+      if (contentEl) {
+        textBox.text_style = {
+          color: contentEl.style.color || null,
+          font_family: contentEl.style.fontFamily || null,
+          font_size: contentEl.style.fontSize || null,
+          font_weight: contentEl.style.fontWeight || null,
+          font_style: contentEl.style.fontStyle || null,
+          text_align: contentEl.style.textAlign || null,
+          line_height: contentEl.style.lineHeight || null,
+          letter_spacing: contentEl.style.letterSpacing || null,
+          text_decoration: contentEl.style.textDecoration || null
+        };
+        // Remove null values to keep payload clean
+        Object.keys(textBox.text_style).forEach(key => {
+          if (!textBox.text_style[key]) delete textBox.text_style[key];
+        });
+        // Only include text_style if it has values
+        if (Object.keys(textBox.text_style).length === 0) {
+          delete textBox.text_style;
+        }
+      }
 
       textBoxes.push(textBox);
     });

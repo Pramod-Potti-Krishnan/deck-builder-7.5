@@ -184,6 +184,52 @@ class TextBoxStyle(BaseModel):
     )
 
 
+class TextContentStyle(BaseModel):
+    """
+    Text formatting styles for text box content.
+
+    These styles are applied to the text content inside the text box,
+    separate from the container styles (background, border, etc.).
+    Set via postMessage commands from the frontend formatting panel.
+    """
+    color: Optional[str] = Field(
+        default=None,
+        description="Text color (hex or CSS color value)"
+    )
+    font_family: Optional[str] = Field(
+        default=None,
+        description="Font family (e.g., 'Inter, sans-serif')"
+    )
+    font_size: Optional[str] = Field(
+        default=None,
+        description="Font size with unit (e.g., '32px', '1.5rem')"
+    )
+    font_weight: Optional[str] = Field(
+        default=None,
+        description="Font weight (e.g., 'normal', 'bold', '600')"
+    )
+    font_style: Optional[str] = Field(
+        default=None,
+        description="Font style (e.g., 'normal', 'italic')"
+    )
+    text_align: Optional[str] = Field(
+        default=None,
+        description="Text alignment (left, center, right, justify)"
+    )
+    line_height: Optional[str] = Field(
+        default=None,
+        description="Line height (e.g., '1.5', '24px')"
+    )
+    letter_spacing: Optional[str] = Field(
+        default=None,
+        description="Letter spacing (e.g., '0.5px', '0.1em')"
+    )
+    text_decoration: Optional[str] = Field(
+        default=None,
+        description="Text decoration (e.g., 'none', 'underline')"
+    )
+
+
 class TextBox(BaseModel):
     """
     A text box element that can be placed on any slide.
@@ -210,7 +256,11 @@ class TextBox(BaseModel):
     )
     style: TextBoxStyle = Field(
         default_factory=TextBoxStyle,
-        description="Visual styling options"
+        description="Visual styling options (container: background, border, etc.)"
+    )
+    text_style: Optional[TextContentStyle] = Field(
+        default=None,
+        description="Text formatting styles (content: color, font, alignment, etc.)"
     )
     locked: bool = Field(
         default=False,

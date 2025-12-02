@@ -650,6 +650,20 @@
       pointer-events: auto;
     `;
 
+    // Apply saved text styles (from LHS formatting panel via postMessage)
+    // These override the defaults above when restoring from database
+    if (config.textStyle) {
+      if (config.textStyle.color) contentDiv.style.color = config.textStyle.color;
+      if (config.textStyle.font_family) contentDiv.style.fontFamily = config.textStyle.font_family;
+      if (config.textStyle.font_size) contentDiv.style.fontSize = config.textStyle.font_size;
+      if (config.textStyle.font_weight) contentDiv.style.fontWeight = config.textStyle.font_weight;
+      if (config.textStyle.font_style) contentDiv.style.fontStyle = config.textStyle.font_style;
+      if (config.textStyle.text_align) contentDiv.style.textAlign = config.textStyle.text_align;
+      if (config.textStyle.line_height) contentDiv.style.lineHeight = config.textStyle.line_height;
+      if (config.textStyle.letter_spacing) contentDiv.style.letterSpacing = config.textStyle.letter_spacing;
+      if (config.textStyle.text_decoration) contentDiv.style.textDecoration = config.textStyle.text_decoration;
+    }
+
     // Handle input for auto-save
     contentDiv.addEventListener('input', () => {
       triggerAutoSave(slideIndex);

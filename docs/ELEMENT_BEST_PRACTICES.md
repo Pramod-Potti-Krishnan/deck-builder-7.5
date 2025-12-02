@@ -144,18 +144,66 @@ function makeDraggable(elementId) {
 
 ### Key Learnings
 
-1. **Drag Handle Separation**: For elements with editable content, use a separate drag handle (pill/bar at top) so clicking content doesn't initiate drag.
+1. **Drag Handle Separation**: For elements with editable content, use a separate drag handle (pill/bar at top) for guaranteed drag initiation.
 
-2. **Stop Propagation**: Content areas must stop mousedown propagation to prevent drag when editing:
+2. **Threshold-Based Drag Detection (Click-to-Edit vs Drag-to-Move)**: Rather than blocking mousedown on content areas, use threshold detection to distinguish clicks from drags. This allows users to drag from anywhere on the element:
    ```javascript
-   contentDiv.addEventListener('mousedown', (e) => {
-     e.stopPropagation();
-   });
+   const DRAG_THRESHOLD = 5;  // pixels
+   let pendingDrag = null;
+
+   function handleMouseDown(e) {
+     // Enter pending state - don't start drag yet
+     pendingDrag = {
+       element: e.currentTarget,
+       startX: e.clientX,
+       startY: e.clientY
+     };
+     document.addEventListener('mousemove', handlePendingMove);
+     document.addEventListener('mouseup', handlePendingEnd);
+   }
+
+   function handlePendingMove(e) {
+     const deltaX = Math.abs(e.clientX - pendingDrag.startX);
+     const deltaY = Math.abs(e.clientY - pendingDrag.startY);
+     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+     if (distance >= DRAG_THRESHOLD) {
+       // It's a drag - start actual drag operation
+       window.getSelection()?.removeAllRanges();  // Clear text selection
+       startDrag(pendingDrag.element, pendingDrag.startX, pendingDrag.startY);
+       // Switch to drag listeners...
+     }
+   }
+
+   function handlePendingEnd(e) {
+     // It was a click (didn't move past threshold)
+     // Focus content for editing
+     contentEl.focus();
+     selectElement(elementId);
+     pendingDrag = null;
+   }
    ```
 
 3. **Grid-Based Positioning**: Use CSS Grid for positioning (`grid-row`, `grid-column`) not absolute pixels. This ensures responsive behavior.
 
-4. **Visual Feedback**: Add `.dragging` class for cursor and opacity changes during drag.
+4. **Visual Feedback During Drag**:
+   - Add `.dragging` class for styling
+   - Use `cursor: grabbing` (closed hand) to indicate element is "grabbed"
+   - Add `user-select: none` to prevent accidental text selection
+   ```css
+   .inserted-textbox.dragging {
+     cursor: grabbing !important;
+     user-select: none !important;
+     opacity: 0.9;
+   }
+
+   .inserted-textbox.dragging .textbox-content {
+     pointer-events: none;
+     user-select: none !important;
+   }
+   ```
+
+5. **Drag Handle Still Works**: Even with threshold detection, the drag handle should start drag immediately (no threshold) for users who prefer that approach.
 
 ---
 
@@ -773,6 +821,7 @@ Use this checklist when implementing a new element type:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2024-12-02 | Added threshold-based drag detection (click-to-edit vs drag-to-move), grabbing cursor feedback |
 | 1.0 | 2024-12-02 | Initial document based on text box implementation |
 
 ---

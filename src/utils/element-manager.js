@@ -617,32 +617,37 @@
       position: relative;
     `;
 
-    // Create drag handle bar at top (NOT contentEditable, so it can be dragged)
+    // Create centered drag handle pill at top (NOT contentEditable, so it can be dragged)
     const dragHandle = document.createElement('div');
     dragHandle.className = 'textbox-drag-handle';
-    const padding = style.padding || 16;
     dragHandle.style.cssText = `
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
       height: 24px;
-      background: rgba(59, 130, 246, 0.15);
+      background: #3b82f6;
       cursor: move;
-      border-bottom: 1px dashed #93c5fd;
-      margin: -${padding}px -${padding}px 8px -${padding}px;
-      padding: 4px 8px;
-      transition: all 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px 4px 0 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: all 0.15s ease;
+      z-index: 101;
     `;
-    // Add grip icon indicator
-    dragHandle.innerHTML = '<span style="color: #3b82f6; font-size: 12px; letter-spacing: 3px;">⋮⋮⋮</span>';
+    // Add grip icon (6 dots in 2 rows)
+    dragHandle.innerHTML = '<span style="color: white; font-size: 14px; line-height: 1;">⋮⋮</span>';
 
     // Highlight more on hover
     dragHandle.addEventListener('mouseenter', () => {
-      dragHandle.style.background = 'rgba(59, 130, 246, 0.25)';
+      dragHandle.style.background = '#2563eb';
+      dragHandle.style.transform = 'translateX(-50%) scale(1.05)';
     });
     dragHandle.addEventListener('mouseleave', () => {
-      dragHandle.style.background = 'rgba(59, 130, 246, 0.15)';
+      dragHandle.style.background = '#3b82f6';
+      dragHandle.style.transform = 'translateX(-50%) scale(1)';
     });
 
     // Create editable content area
@@ -653,7 +658,7 @@
     contentDiv.innerHTML = config.content || '';
     contentDiv.style.cssText = `
       width: 100%;
-      min-height: calc(100% - 32px);
+      min-height: 100%;
       outline: none;
       cursor: text;
       font-family: Inter, system-ui, -apple-system, sans-serif;

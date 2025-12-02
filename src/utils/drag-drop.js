@@ -404,8 +404,20 @@
     // Add resizable class
     element.classList.add('resizable');
 
-    // Create 8 resize handles (4 corners + 4 edges)
+    // Create 8 resize handles (4 corners + 4 edges) with arrow icons
     const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+
+    // Arrow icons for each direction
+    const arrowIcons = {
+      n: '▲',   // Up
+      s: '▼',   // Down
+      e: '▶',   // Right
+      w: '◀',   // Left
+      nw: '↖',  // Top-left
+      ne: '↗',  // Top-right
+      sw: '↙',  // Bottom-left
+      se: '↘'   // Bottom-right
+    };
 
     handles.forEach(direction => {
       // Check if handle already exists
@@ -416,6 +428,9 @@
       const handle = document.createElement('div');
       handle.className = `resize-handle resize-handle-${direction}`;
       handle.dataset.direction = direction;
+
+      // Add arrow icon inside the handle
+      handle.innerHTML = `<span class="resize-arrow">${arrowIcons[direction]}</span>`;
 
       // Mouse events
       handle.addEventListener('mousedown', (e) => handleResizeStart(e, elementId, direction));

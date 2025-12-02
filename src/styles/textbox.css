@@ -1,9 +1,7 @@
 /**
  * Text Box Styles for Layout Builder v7.5
  *
- * Text boxes are overlay elements with elevated z-index (1000+)
- * Handles positioned INSIDE the box (to avoid clipping by parent overflow)
- * Grey border and text visible on both light and dark backgrounds
+ * Grey border, light blue drag handle, dark blue resize handles
  */
 
 /* ===== BASE TEXT BOX STYLES ===== */
@@ -11,19 +9,20 @@
 .inserted-textbox {
   z-index: 1000;
   background: transparent;
-  border: 2px dashed #6b7280;  /* Grey border - visible on light/dark */
-  border-radius: 4px;
-  min-height: 60px;
+  border: 3px dashed #6b7280 !important;  /* Grey border - FORCED */
+  border-radius: 6px;
+  min-height: 80px;
   overflow: visible;
   position: relative;
+  box-sizing: border-box;
 }
 
 /* ===== SELECTION STATE ===== */
 
 .inserted-textbox.element-selected {
   z-index: 1500;
-  border-color: #3b82f6;
-  border-style: solid;
+  border-color: #3b82f6 !important;
+  border-style: solid !important;
 }
 
 .inserted-textbox.dragging {
@@ -38,33 +37,29 @@
   border-color: #10b981 !important;
 }
 
-.inserted-textbox.textbox-editing .textbox-content {
-  cursor: text;
-}
-
-/* ===== DRAG HANDLE (Top center, INSIDE the box) ===== */
+/* ===== DRAG HANDLE (Light Blue, 30% bigger) ===== */
 
 .textbox-drag-handle {
   position: absolute;
-  top: 4px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 48px;
-  height: 20px;
-  background: #6b7280;
+  width: 62px;      /* 48 * 1.3 = 62 */
+  height: 26px;     /* 20 * 1.3 = 26 */
+  background: #60a5fa !important;  /* Light blue */
   cursor: move;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border-radius: 13px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   transition: all 0.15s ease;
   z-index: 102;
   user-select: none;
 }
 
 .textbox-drag-handle:hover {
-  background: #4b5563;
+  background: #3b82f6 !important;
   transform: translateX(-50%) scale(1.05);
 }
 
@@ -78,8 +73,10 @@
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 32px;
   line-height: 1.5;
-  color: #6b7280;  /* Grey text - visible on light/dark */
-  padding-top: 28px;  /* Space for drag handle */
+  color: #374151;
+  padding-top: 36px;  /* Space for drag handle */
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .textbox-content:empty::before {
@@ -93,40 +90,42 @@
   outline: none;
 }
 
-/* ===== RESIZE HANDLES (4 handles on edges, INSIDE the box) ===== */
+/* ===== RESIZE HANDLES (Dark Blue circles, 75% bigger, white arrows) ===== */
 
 .inserted-textbox .resize-handle {
   position: absolute;
-  background: #6b7280;
+  background: #1e40af !important;  /* Dark blue */
   border: 2px solid #ffffff;
-  opacity: 1;
+  opacity: 1 !important;
+  visibility: visible !important;
   transition: all 0.15s ease;
   z-index: 101;
   pointer-events: auto;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  border-radius: 50%;  /* Circle */
 }
 
 .inserted-textbox .resize-handle:hover {
-  background: #4b5563;
+  background: #1e3a8a !important;
   transform: scale(1.1);
 }
 
 .inserted-textbox .resize-handle .resize-arrow {
-  color: white;
-  font-size: 10px;
+  color: white !important;
+  font-size: 14px;
+  font-weight: bold;
   line-height: 1;
   user-select: none;
 }
 
-/* === Left handle (w) - Inside left edge === */
+/* === Left handle (w) - 75% bigger === */
 .resize-handle-w {
-  width: 16px;
+  width: 28px;      /* 16 * 1.75 = 28 */
   height: 28px;
-  left: 4px;
+  left: 6px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -136,11 +135,11 @@
   transform: translateY(-50%) scale(1.1);
 }
 
-/* === Right handle (e) - Inside right edge === */
+/* === Right handle (e) - 75% bigger === */
 .resize-handle-e {
-  width: 16px;
+  width: 28px;
   height: 28px;
-  right: 4px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -150,11 +149,11 @@
   transform: translateY(-50%) scale(1.1);
 }
 
-/* === Bottom handle (s) - Inside bottom edge === */
+/* === Bottom handle (s) - 75% bigger === */
 .resize-handle-s {
   width: 28px;
-  height: 16px;
-  bottom: 4px;
+  height: 28px;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
@@ -164,12 +163,12 @@
   transform: translateX(-50%) scale(1.1);
 }
 
-/* === Bottom-right corner (se) - Inside corner === */
+/* === Bottom-right corner (se) - 75% bigger === */
 .resize-handle-se {
-  width: 20px;
-  height: 20px;
-  right: 4px;
-  bottom: 4px;
+  width: 32px;      /* 20 * 1.6 = 32 */
+  height: 32px;
+  right: 6px;
+  bottom: 6px;
   cursor: nwse-resize;
 }
 
@@ -177,7 +176,7 @@
   transform: scale(1.1);
 }
 
-/* ===== VIEW MODE - Hide controls but keep content visible ===== */
+/* ===== VIEW MODE - Hide controls ===== */
 
 body:not([data-mode="edit"]) .inserted-textbox {
   border: none !important;
@@ -189,7 +188,7 @@ body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
 }
 
 body:not([data-mode="edit"]) .inserted-textbox .textbox-content {
-  padding-top: 0;  /* Remove padding when handles hidden */
+  padding-top: 0;
 }
 
 /* ===== RESIZING STATE ===== */

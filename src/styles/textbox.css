@@ -36,7 +36,7 @@
 .inserted-textbox.dragging {
   z-index: 11000;
   opacity: 0.9;
-  cursor: move !important;
+  cursor: grabbing !important;
   user-select: none !important;
 }
 

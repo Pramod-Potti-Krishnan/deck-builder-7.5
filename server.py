@@ -7,7 +7,7 @@ Layouts: L01, L02, L03, L25, L27, L29
 
 import os
 import json
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -464,8 +464,14 @@ async def update_slide_content(
         if not updates:
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        # Update slide content
-        presentation["slides"][slide_index]["content"].update(updates)
+        # Handle text_boxes separately - they go at slide level, not in content
+        if "text_boxes" in updates:
+            text_boxes_data = updates.pop("text_boxes")
+            presentation["slides"][slide_index]["text_boxes"] = text_boxes_data
+
+        # Update slide content (remaining fields)
+        if updates:
+            presentation["slides"][slide_index]["content"].update(updates)
 
         # Save with version tracking
         updated = await storage.update(
@@ -486,6 +492,80 @@ async def update_slide_content(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating slide: {str(e)}")
+
+
+# ==================== Batch Update All Slides (Auto-Save) ====================
+
+@app.put("/api/presentations/{presentation_id}/slides")
+async def update_all_slides(
+    presentation_id: str,
+    request: Request
+):
+    """
+    Batch update multiple slides (for auto-save from editor).
+
+    This endpoint accepts an array of slide updates and applies them all at once,
+    which is more efficient than calling the individual slide endpoint multiple times.
+
+    Request Body:
+    {
+        "slides": [
+            { "slide_title": "...", "text_boxes": [...], ... },
+            { "rich_content": "...", ... },
+            ...
+        ],
+        "updated_by": "user",
+        "change_summary": "Auto-save from editor"
+    }
+    """
+    try:
+        data = await request.json()
+        slides_data = data.get("slides", [])
+        updated_by = data.get("updated_by", "user")
+        change_summary = data.get("change_summary", "Auto-save")
+
+        if not slides_data:
+            raise HTTPException(status_code=400, detail="No slides data provided")
+
+        # Load presentation
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Update each slide
+        slides_updated = 0
+        for i, slide_update in enumerate(slides_data):
+            if i < len(presentation["slides"]):
+                # Handle text_boxes at slide level (not in content)
+                if "text_boxes" in slide_update:
+                    presentation["slides"][i]["text_boxes"] = slide_update.pop("text_boxes")
+
+                # Handle content fields
+                for key, value in slide_update.items():
+                    if value is not None:
+                        presentation["slides"][i]["content"][key] = value
+
+                slides_updated += 1
+
+        # Save with version tracking
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=updated_by,
+            change_summary=change_summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Updated {slides_updated} slides",
+            "slides_updated": slides_updated
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error batch updating slides: {str(e)}")
 
 
 @app.get("/api/presentations/{presentation_id}/versions", response_model=VersionHistoryResponse)

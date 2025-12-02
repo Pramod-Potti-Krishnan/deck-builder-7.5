@@ -296,8 +296,8 @@
    * Get presentation ID from URL or data attribute
    */
   function getPresentationId() {
-    // Try URL first
-    const urlMatch = window.location.pathname.match(/\/viewer\/([a-f0-9-]+)/);
+    // Try URL first (matches /p/{presentation_id} pattern)
+    const urlMatch = window.location.pathname.match(/\/p\/([^\/]+)/);
     if (urlMatch) {
       return urlMatch[1];
     }

@@ -338,6 +338,11 @@ class SlideContentUpdate(BaseModel):
     # Background customization fields
     background_color: Optional[str] = Field(None, description="Slide background color (hex format)")
     background_image: Optional[str] = Field(None, description="Slide background image URL or data URI")
+    # Text boxes (dynamically added elements)
+    text_boxes: Optional[List[TextBox]] = Field(
+        None,
+        description="List of text box overlays on this slide"
+    )
 
 
 class PresentationMetadataUpdate(BaseModel):

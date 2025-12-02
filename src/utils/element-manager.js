@@ -691,18 +691,18 @@
       }
     });
 
-    // Enable drag-drop on container
+    // Add to slide FIRST (element must be in DOM before makeDraggable/makeResizable)
+    slide.appendChild(container);
+
+    // Enable drag-drop on container (AFTER element is in DOM)
     if (config.draggable !== false && typeof window.DragDrop !== 'undefined') {
       window.DragDrop.makeDraggable(id);
     }
 
-    // Enable resize if available and requested
+    // Enable resize if available and requested (AFTER element is in DOM)
     if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
       window.DragDrop.makeResizable(id);
     }
-
-    // Add to slide
-    slide.appendChild(container);
 
     // Register element
     const elementData = {

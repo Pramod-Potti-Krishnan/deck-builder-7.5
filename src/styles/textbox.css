@@ -69,9 +69,16 @@
   justify-content: center;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  transition: all 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
   z-index: 102;
   user-select: none;
+  opacity: 0;  /* Hidden by default */
+}
+
+/* Show drag handle on hover or when selected */
+.inserted-textbox:hover .textbox-drag-handle,
+.inserted-textbox.element-selected .textbox-drag-handle {
+  opacity: 1;
 }
 
 /* Clean 3×3 dot grid using CSS grid */

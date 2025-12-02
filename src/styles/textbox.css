@@ -2,8 +2,8 @@
  * Text Box Styles for Layout Builder v7.5
  *
  * Text boxes are overlay elements with elevated z-index (1000+)
- * Default: Completely transparent in view mode
- * Edit mode: Dotted border, handles outside the box
+ * Handles positioned INSIDE the box (to avoid clipping by parent overflow)
+ * Grey border and text visible on both light and dark backgrounds
  */
 
 /* ===== BASE TEXT BOX STYLES ===== */
@@ -11,35 +11,16 @@
 .inserted-textbox {
   z-index: 1000;
   background: transparent;
-  border: none;
+  border: 2px dashed #6b7280;  /* Grey border - visible on light/dark */
+  border-radius: 4px;
   min-height: 60px;
   overflow: visible;
   position: relative;
 }
 
-/* ===== EDIT MODE - Dotted Border ===== */
+/* ===== SELECTION STATE ===== */
 
-body[data-mode="edit"] .inserted-textbox {
-  border: 2px dashed #93c5fd;
-  border-radius: 4px;
-}
-
-/* ===== VIEW MODE - Completely Transparent ===== */
-
-body:not([data-mode="edit"]) .inserted-textbox {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-body:not([data-mode="edit"]) .inserted-textbox .textbox-drag-handle,
-body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
-  display: none !important;
-}
-
-/* ===== SELECTION STATES (Edit Mode Only) ===== */
-
-body[data-mode="edit"] .inserted-textbox.element-selected {
+.inserted-textbox.element-selected {
   z-index: 1500;
   border-color: #3b82f6;
   border-style: solid;
@@ -61,35 +42,30 @@ body[data-mode="edit"] .inserted-textbox.element-selected {
   cursor: text;
 }
 
-/* ===== DRAG HANDLE (Centered Pill - OUTSIDE the box) ===== */
+/* ===== DRAG HANDLE (Top center, INSIDE the box) ===== */
 
 .textbox-drag-handle {
   position: absolute;
-  top: -28px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 56px;
-  height: 24px;
-  background: #3b82f6;
+  width: 48px;
+  height: 20px;
+  background: #6b7280;
   cursor: move;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transition: all 0.15s ease;
   z-index: 102;
   user-select: none;
 }
 
 .textbox-drag-handle:hover {
-  background: #2563eb;
+  background: #4b5563;
   transform: translateX(-50%) scale(1.05);
-}
-
-/* Hide in view mode */
-body:not([data-mode="edit"]) .textbox-drag-handle {
-  display: none;
 }
 
 /* ===== CONTENT AREA ===== */
@@ -102,7 +78,8 @@ body:not([data-mode="edit"]) .textbox-drag-handle {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 32px;
   line-height: 1.5;
-  color: #1f2937;
+  color: #6b7280;  /* Grey text - visible on light/dark */
+  padding-top: 28px;  /* Space for drag handle */
 }
 
 .textbox-content:empty::before {
@@ -116,52 +93,42 @@ body:not([data-mode="edit"]) .textbox-drag-handle {
   outline: none;
 }
 
-/* ===== RESIZE HANDLES (Semi-circles OUTSIDE the box) ===== */
+/* ===== RESIZE HANDLES (4 handles on edges, INSIDE the box) ===== */
 
 .inserted-textbox .resize-handle {
   position: absolute;
-  background: #3b82f6;
+  background: #6b7280;
   border: 2px solid #ffffff;
-  opacity: 0;
+  opacity: 1;
   transition: all 0.15s ease;
   z-index: 101;
   pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  border-radius: 4px;
 }
 
 .inserted-textbox .resize-handle:hover {
-  background: #2563eb;
+  background: #4b5563;
   transform: scale(1.1);
 }
 
 .inserted-textbox .resize-handle .resize-arrow {
   color: white;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 1;
   user-select: none;
 }
 
-/* Show handles in edit mode */
-body[data-mode="edit"] .inserted-textbox .resize-handle {
-  opacity: 1;
-}
-
-/* Hide in view mode */
-body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
-  display: none;
-}
-
-/* === Left handle (w) - Semi-circle on left edge === */
+/* === Left handle (w) - Inside left edge === */
 .resize-handle-w {
-  width: 20px;
-  height: 32px;
-  left: -22px;
+  width: 16px;
+  height: 28px;
+  left: 4px;
   top: 50%;
   transform: translateY(-50%);
-  border-radius: 10px 0 0 10px;
   cursor: ew-resize;
 }
 
@@ -169,14 +136,13 @@ body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
   transform: translateY(-50%) scale(1.1);
 }
 
-/* === Right handle (e) - Semi-circle on right edge === */
+/* === Right handle (e) - Inside right edge === */
 .resize-handle-e {
-  width: 20px;
-  height: 32px;
-  right: -22px;
+  width: 16px;
+  height: 28px;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
-  border-radius: 0 10px 10px 0;
   cursor: ew-resize;
 }
 
@@ -184,14 +150,13 @@ body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
   transform: translateY(-50%) scale(1.1);
 }
 
-/* === Bottom handle (s) - Semi-circle on bottom edge === */
+/* === Bottom handle (s) - Inside bottom edge === */
 .resize-handle-s {
-  width: 32px;
-  height: 20px;
-  bottom: -22px;
+  width: 28px;
+  height: 16px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 0 0 10px 10px;
   cursor: ns-resize;
 }
 
@@ -199,18 +164,32 @@ body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
   transform: translateX(-50%) scale(1.1);
 }
 
-/* === Bottom-right corner (se) - Quarter circle === */
+/* === Bottom-right corner (se) - Inside corner === */
 .resize-handle-se {
-  width: 24px;
-  height: 24px;
-  right: -14px;
-  bottom: -14px;
-  border-radius: 0 0 12px 0;
+  width: 20px;
+  height: 20px;
+  right: 4px;
+  bottom: 4px;
   cursor: nwse-resize;
 }
 
 .resize-handle-se:hover {
   transform: scale(1.1);
+}
+
+/* ===== VIEW MODE - Hide controls but keep content visible ===== */
+
+body:not([data-mode="edit"]) .inserted-textbox {
+  border: none !important;
+}
+
+body:not([data-mode="edit"]) .inserted-textbox .textbox-drag-handle,
+body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
+  display: none !important;
+}
+
+body:not([data-mode="edit"]) .inserted-textbox .textbox-content {
+  padding-top: 0;  /* Remove padding when handles hidden */
 }
 
 /* ===== RESIZING STATE ===== */
@@ -248,6 +227,9 @@ body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
 
   .inserted-textbox {
     border: none !important;
-    outline: none !important;
+  }
+
+  .inserted-textbox .textbox-content {
+    padding-top: 0;
   }
 }

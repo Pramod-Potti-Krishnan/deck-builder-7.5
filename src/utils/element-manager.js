@@ -633,8 +633,8 @@
     // Create editable content area
     const contentDiv = document.createElement('div');
     contentDiv.className = 'textbox-content';
-    contentDiv.contentEditable = 'true';
-    contentDiv.dataset.placeholder = config.placeholder || 'Click to add text...';
+    contentDiv.setAttribute('contenteditable', 'true');  // Use attribute for better compatibility
+    contentDiv.dataset.placeholder = config.placeholder || 'Click to edit text';
     contentDiv.innerHTML = config.content || '';
     contentDiv.style.cssText = `
       width: 100%;
@@ -645,6 +645,7 @@
       font-size: 32px;
       line-height: 1.5;
       color: #1f2937;
+      pointer-events: auto;
     `;
 
     // Handle input for auto-save
@@ -652,9 +653,15 @@
       triggerAutoSave(slideIndex);
     });
 
-    // Prevent drag when clicking on text content (but allow on drag handle)
+    // Prevent drag when clicking on text content - focus the content instead
     contentDiv.addEventListener('mousedown', (e) => {
       e.stopPropagation();
+    });
+
+    // Click handler to ensure focus works
+    contentDiv.addEventListener('click', (e) => {
+      e.stopPropagation();
+      contentDiv.focus();
     });
 
     // Focus handling

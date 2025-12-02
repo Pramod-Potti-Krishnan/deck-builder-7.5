@@ -108,91 +108,59 @@
   outline: none;
 }
 
-/* ===== RESIZE HANDLES (Dark Blue SQUARES on border, 1.5x size) ===== */
-/* 28px * 1.5 = 42px for edge handles, positioned half in/half out */
+/* ===== RESIZE HANDLES (Simple small black-bordered squares) ===== */
 
 .inserted-textbox .resize-handle {
   position: absolute;
-  background: #1e40af !important;  /* Dark blue */
-  border: 2px solid #ffffff;
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  border: 1px solid #000000;
   opacity: 1 !important;
   visibility: visible !important;
-  transition: all 0.15s ease;
-  z-index: 1001;  /* Above textbox z-index */
+  z-index: 1001;
   pointer-events: auto;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-  border-radius: 4px;  /* SQUARE with slight rounding */
+  box-sizing: border-box;
 }
 
 .inserted-textbox .resize-handle:hover {
-  background: #1e3a8a !important;
-  transform: scale(1.1);
+  background: #e5e7eb;
 }
 
+/* Hide arrow icons - not needed for simple squares */
 .inserted-textbox .resize-handle .resize-arrow {
-  color: white !important;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 1;
-  user-select: none;
+  display: none;
 }
 
-/* === Left handle (w) - 42px square ON the border === */
+/* === Left handle (w) === */
 .resize-handle-w {
-  width: 42px;
-  height: 42px;
-  left: -21px;      /* Half outside */
+  left: -4px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
 
-.resize-handle-w:hover {
-  transform: translateY(-50%) scale(1.1);
-}
-
-/* === Right handle (e) - 42px square ON the border === */
+/* === Right handle (e) === */
 .resize-handle-e {
-  width: 42px;
-  height: 42px;
-  right: -21px;     /* Half outside */
+  right: -4px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
 
-.resize-handle-e:hover {
-  transform: translateY(-50%) scale(1.1);
-}
-
-/* === Bottom handle (s) - 42px square ON the border === */
+/* === Bottom handle (s) === */
 .resize-handle-s {
-  width: 42px;
-  height: 42px;
-  bottom: -21px;    /* Half outside */
+  bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
-.resize-handle-s:hover {
-  transform: translateX(-50%) scale(1.1);
-}
-
-/* === Bottom-right corner (se) - 48px square ON the corner === */
+/* === Bottom-right corner (se) === */
 .resize-handle-se {
-  width: 48px;
-  height: 48px;
-  right: -24px;     /* Half outside */
-  bottom: -24px;    /* Half outside */
+  right: -4px;
+  bottom: -4px;
   cursor: nwse-resize;
-}
-
-.resize-handle-se:hover {
-  transform: scale(1.1);
 }
 
 /* ===== VIEW MODE - Hide controls ===== */

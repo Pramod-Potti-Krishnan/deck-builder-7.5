@@ -623,12 +623,11 @@
       position: relative;
     `;
 
-    // Create centered drag handle pill at top (NOT contentEditable, so it can be dragged)
-    // Styles are primarily in textbox.css - minimal inline styles here
+    // Create centered drag handle at top (NOT contentEditable, so it can be dragged)
+    // Styles and 9-dot grid pattern are in textbox.css via ::before pseudo-element
     const dragHandle = document.createElement('div');
     dragHandle.className = 'textbox-drag-handle';
-    // Add grip icon (6 dots pattern)
-    dragHandle.innerHTML = '<span style="color: white; font-size: 14px; line-height: 1; letter-spacing: 3px;">⋮⋮</span>';
+    // 9-dot pattern is rendered via CSS ::before (no innerHTML needed)
 
     // Create editable content area
     // Only enable contentEditable in edit mode

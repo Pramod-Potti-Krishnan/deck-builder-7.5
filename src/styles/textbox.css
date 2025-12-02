@@ -1,0 +1,211 @@
+/**
+ * Text Box Styles for Layout Builder v7.5
+ *
+ * Text boxes are overlay elements with elevated z-index (1000+)
+ * that float above the main layout content.
+ * Default style: Transparent overlay (no background, no border).
+ */
+
+/* ===== BASE TEXT BOX STYLES ===== */
+
+.inserted-textbox {
+  /* Elevated z-index for text boxes */
+  z-index: 1000;
+
+  /* Default transparent overlay */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+
+  /* Layout */
+  min-height: 60px;
+  overflow: auto;
+  position: relative;
+
+  /* Transitions */
+  transition: box-shadow 0.15s ease, outline 0.15s ease;
+}
+
+/* ===== SELECTION STATES ===== */
+
+.inserted-textbox.element-selected {
+  z-index: 1500;
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.inserted-textbox.dragging {
+  z-index: 11000;
+  opacity: 0.9;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== EDITING STATE ===== */
+
+.inserted-textbox.textbox-editing {
+  cursor: text;
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.inserted-textbox.textbox-editing .textbox-content {
+  cursor: text;
+}
+
+/* ===== CONTENT AREA ===== */
+
+.textbox-content {
+  width: 100%;
+  min-height: 100%;
+  outline: none;
+  cursor: text;
+
+  /* Default typography */
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+/* Placeholder text when empty */
+.textbox-content:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Focus state */
+.textbox-content:focus {
+  outline: none;
+}
+
+/* ===== HOVER STATES ===== */
+
+body[data-mode="edit"] .inserted-textbox:hover:not(.element-selected):not(.textbox-editing) {
+  outline: 1px dashed #93c5fd;
+  outline-offset: 2px;
+}
+
+/* ===== RESIZE HANDLES ===== */
+
+.inserted-textbox .resize-handle {
+  position: absolute;
+  background: #3b82f6;
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+}
+
+.inserted-textbox.element-selected .resize-handle,
+.inserted-textbox:hover .resize-handle {
+  opacity: 1;
+}
+
+/* Corner handles */
+.resize-handle-nw,
+.resize-handle-ne,
+.resize-handle-sw,
+.resize-handle-se {
+  width: 10px;
+  height: 10px;
+}
+
+.resize-handle-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+.resize-handle-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+.resize-handle-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+.resize-handle-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+/* Edge handles */
+.resize-handle-n,
+.resize-handle-s {
+  width: 30px;
+  height: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.resize-handle-n { top: -4px; cursor: ns-resize; }
+.resize-handle-s { bottom: -4px; cursor: ns-resize; }
+
+.resize-handle-e,
+.resize-handle-w {
+  width: 8px;
+  height: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.resize-handle-e { right: -4px; cursor: ew-resize; }
+.resize-handle-w { left: -4px; cursor: ew-resize; }
+
+/* ===== RESIZING STATE ===== */
+
+.inserted-textbox.resizing {
+  z-index: 11000;
+  user-select: none;
+}
+
+.inserted-textbox.resizing .textbox-content {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ===== LOCKED STATE ===== */
+
+.inserted-textbox.textbox-locked {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.inserted-textbox.textbox-locked::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* ===== HIDDEN STATE ===== */
+
+.inserted-textbox.textbox-hidden {
+  display: none;
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+
+.inserted-textbox::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.inserted-textbox::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.inserted-textbox::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.inserted-textbox::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .inserted-textbox .resize-handle {
+    display: none;
+  }
+
+  .inserted-textbox.element-selected {
+    outline: none;
+  }
+}

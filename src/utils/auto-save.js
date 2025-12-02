@@ -236,7 +236,60 @@
     if (bgColor) update.background_color = bgColor;
     if (bgImage) update.background_image = bgImage;
 
+    // Collect text boxes from this slide
+    const textBoxes = collectTextBoxes(slideElement, index);
+    if (textBoxes.length > 0) {
+      update.text_boxes = textBoxes;
+    }
+
     return update;
+  }
+
+  /**
+   * Collect text boxes from a slide
+   */
+  function collectTextBoxes(slideElement, slideIndex) {
+    const textBoxes = [];
+
+    // Find all text box elements in this slide
+    const textBoxElements = slideElement.querySelectorAll('.inserted-textbox');
+
+    textBoxElements.forEach(el => {
+      const textBox = {
+        id: el.id,
+        position: {
+          grid_row: el.style.gridRow || '5/10',
+          grid_column: el.style.gridColumn || '3/15'
+        },
+        z_index: parseInt(el.style.zIndex) || 1000,
+        content: '',
+        style: {},
+        locked: el.classList.contains('textbox-locked'),
+        visible: !el.classList.contains('textbox-hidden')
+      };
+
+      // Get content from contentEditable area
+      const contentEl = el.querySelector('.textbox-content');
+      if (contentEl) {
+        textBox.content = contentEl.innerHTML;
+      }
+
+      // Extract style from element
+      const computedStyle = window.getComputedStyle(el);
+      textBox.style = {
+        background_color: el.style.backgroundColor || 'transparent',
+        border_color: el.style.borderColor || 'transparent',
+        border_width: parseInt(el.style.borderWidth) || 0,
+        border_radius: parseInt(el.style.borderRadius) || 0,
+        padding: parseInt(el.style.padding) || 16,
+        opacity: parseFloat(el.style.opacity) || 1.0,
+        box_shadow: el.style.boxShadow || null
+      };
+
+      textBoxes.push(textBox);
+    });
+
+    return textBoxes;
   }
 
   /**

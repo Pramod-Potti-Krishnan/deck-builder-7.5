@@ -355,16 +355,288 @@
     gridSnapEnabled = enabled;
   }
 
-  // ===== RESIZE SUPPORT (Future) =====
+  // ===== RESIZE SUPPORT =====
+
+  // Resize state
+  let isResizing = false;
+  let resizeElement = null;
+  let resizeElementId = null;
+  let resizeHandle = null;
+  let resizeStartX = 0;
+  let resizeStartY = 0;
+  let resizeStartGridRow = '';
+  let resizeStartGridColumn = '';
+  let resizeSlide = null;
+
+  // Minimum size in grid units
+  const MIN_COLS = 2;
+  const MIN_ROWS = 1;
 
   /**
-   * Make element resizable (placeholder for future implementation)
+   * Make element resizable with 8-point handles
+   *
+   * @param {string} elementId - Element ID
+   * @param {Object} [options] - Options
+   * @param {number} [options.minCols=2] - Minimum column span
+   * @param {number} [options.minRows=1] - Minimum row span
+   */
+  function makeResizable(elementId, options = {}) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+      console.warn(`DragDrop: Element not found for resize: ${elementId}`);
+      return;
+    }
+
+    const minCols = options.minCols || MIN_COLS;
+    const minRows = options.minRows || MIN_ROWS;
+
+    // Store min size on element for reference
+    element.dataset.minCols = minCols;
+    element.dataset.minRows = minRows;
+
+    // Add resizable class
+    element.classList.add('resizable');
+
+    // Create 8 resize handles (4 corners + 4 edges)
+    const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+
+    handles.forEach(direction => {
+      // Check if handle already exists
+      if (element.querySelector(`.resize-handle-${direction}`)) {
+        return;
+      }
+
+      const handle = document.createElement('div');
+      handle.className = `resize-handle resize-handle-${direction}`;
+      handle.dataset.direction = direction;
+
+      // Mouse events
+      handle.addEventListener('mousedown', (e) => handleResizeStart(e, elementId, direction));
+
+      // Touch events
+      handle.addEventListener('touchstart', (e) => handleResizeTouchStart(e, elementId, direction), { passive: false });
+
+      element.appendChild(handle);
+    });
+
+    console.log(`DragDrop: Made ${elementId} resizable`);
+  }
+
+  /**
+   * Handle resize start (mouse)
+   */
+  function handleResizeStart(e, elementId, direction) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Only in edit mode
+    if (document.body.getAttribute('data-mode') !== 'edit') {
+      return;
+    }
+
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    startResize(element, elementId, direction, e.clientX, e.clientY);
+
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeEnd);
+  }
+
+  /**
+   * Handle resize start (touch)
+   */
+  function handleResizeTouchStart(e, elementId, direction) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (document.body.getAttribute('data-mode') !== 'edit') {
+      return;
+    }
+
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    const touch = e.touches[0];
+    startResize(element, elementId, direction, touch.clientX, touch.clientY);
+
+    document.addEventListener('touchmove', handleResizeTouchMove, { passive: false });
+    document.addEventListener('touchend', handleResizeTouchEnd);
+  }
+
+  /**
+   * Initialize resize state
+   */
+  function startResize(element, elementId, direction, clientX, clientY) {
+    isResizing = true;
+    resizeElement = element;
+    resizeElementId = elementId;
+    resizeHandle = direction;
+    resizeStartX = clientX;
+    resizeStartY = clientY;
+    resizeStartGridRow = element.style.gridRow;
+    resizeStartGridColumn = element.style.gridColumn;
+    resizeSlide = element.closest('.reveal .slides > section');
+
+    // Visual feedback
+    element.classList.add('resizing');
+    element.style.transition = 'none';
+
+    // Select the element
+    if (typeof window.ElementManager !== 'undefined') {
+      window.ElementManager.selectElement(elementId);
+    }
+  }
+
+  /**
+   * Handle resize move (mouse)
+   */
+  function handleResizeMove(e) {
+    if (!isResizing || !resizeElement) return;
+    e.preventDefault();
+    updateResizePosition(e.clientX, e.clientY);
+  }
+
+  /**
+   * Handle resize move (touch)
+   */
+  function handleResizeTouchMove(e) {
+    if (!isResizing || !resizeElement) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    updateResizePosition(touch.clientX, touch.clientY);
+  }
+
+  /**
+   * Update element size during resize
+   */
+  function updateResizePosition(clientX, clientY) {
+    if (!resizeSlide || !resizeElement) return;
+
+    // Get slide bounds
+    const slideRect = resizeSlide.getBoundingClientRect();
+    const cellWidth = slideRect.width / GRID_COLS;
+    const cellHeight = slideRect.height / GRID_ROWS;
+
+    // Calculate movement in grid cells
+    const deltaX = clientX - resizeStartX;
+    const deltaY = clientY - resizeStartY;
+    const colDelta = Math.round(deltaX / cellWidth);
+    const rowDelta = Math.round(deltaY / cellHeight);
+
+    // Parse starting position
+    const [rowStart, rowEnd] = parseGridSpan(resizeStartGridRow);
+    const [colStart, colEnd] = parseGridSpan(resizeStartGridColumn);
+
+    // Get min sizes
+    const minCols = parseInt(resizeElement.dataset.minCols) || MIN_COLS;
+    const minRows = parseInt(resizeElement.dataset.minRows) || MIN_ROWS;
+
+    // Calculate new values based on handle direction
+    let newRowStart = rowStart;
+    let newRowEnd = rowEnd;
+    let newColStart = colStart;
+    let newColEnd = colEnd;
+
+    switch (resizeHandle) {
+      case 'n':  // North (top edge)
+        newRowStart = Math.max(1, Math.min(rowEnd - minRows, rowStart + rowDelta));
+        break;
+      case 's':  // South (bottom edge)
+        newRowEnd = Math.max(rowStart + minRows, Math.min(GRID_ROWS + 1, rowEnd + rowDelta));
+        break;
+      case 'e':  // East (right edge)
+        newColEnd = Math.max(colStart + minCols, Math.min(GRID_COLS + 1, colEnd + colDelta));
+        break;
+      case 'w':  // West (left edge)
+        newColStart = Math.max(1, Math.min(colEnd - minCols, colStart + colDelta));
+        break;
+      case 'nw': // Northwest corner
+        newRowStart = Math.max(1, Math.min(rowEnd - minRows, rowStart + rowDelta));
+        newColStart = Math.max(1, Math.min(colEnd - minCols, colStart + colDelta));
+        break;
+      case 'ne': // Northeast corner
+        newRowStart = Math.max(1, Math.min(rowEnd - minRows, rowStart + rowDelta));
+        newColEnd = Math.max(colStart + minCols, Math.min(GRID_COLS + 1, colEnd + colDelta));
+        break;
+      case 'sw': // Southwest corner
+        newRowEnd = Math.max(rowStart + minRows, Math.min(GRID_ROWS + 1, rowEnd + rowDelta));
+        newColStart = Math.max(1, Math.min(colEnd - minCols, colStart + colDelta));
+        break;
+      case 'se': // Southeast corner
+        newRowEnd = Math.max(rowStart + minRows, Math.min(GRID_ROWS + 1, rowEnd + rowDelta));
+        newColEnd = Math.max(colStart + minCols, Math.min(GRID_COLS + 1, colEnd + colDelta));
+        break;
+    }
+
+    // Apply new size
+    resizeElement.style.gridRow = `${newRowStart}/${newRowEnd}`;
+    resizeElement.style.gridColumn = `${newColStart}/${newColEnd}`;
+  }
+
+  /**
+   * Handle resize end (mouse)
+   */
+  function handleResizeEnd(e) {
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeEnd);
+    finalizeResize();
+  }
+
+  /**
+   * Handle resize end (touch)
+   */
+  function handleResizeTouchEnd(e) {
+    document.removeEventListener('touchmove', handleResizeTouchMove);
+    document.removeEventListener('touchend', handleResizeTouchEnd);
+    finalizeResize();
+  }
+
+  /**
+   * Finalize resize operation
+   */
+  function finalizeResize() {
+    if (!isResizing || !resizeElement) return;
+
+    // Remove visual feedback
+    resizeElement.classList.remove('resizing');
+    resizeElement.style.transition = '';
+
+    // Check if size changed
+    const newGridRow = resizeElement.style.gridRow;
+    const newGridColumn = resizeElement.style.gridColumn;
+
+    if (newGridRow !== resizeStartGridRow || newGridColumn !== resizeStartGridColumn) {
+      // Update ElementManager
+      if (typeof window.ElementManager !== 'undefined') {
+        window.ElementManager.updatePosition(resizeElementId, {
+          gridRow: newGridRow,
+          gridColumn: newGridColumn
+        });
+      }
+
+      console.log(`DragDrop: Resized ${resizeElementId} to row:${newGridRow} col:${newGridColumn}`);
+    }
+
+    // Reset state
+    isResizing = false;
+    resizeElement = null;
+    resizeElementId = null;
+    resizeHandle = null;
+    resizeSlide = null;
+  }
+
+  /**
+   * Remove resize handles from element
    *
    * @param {string} elementId - Element ID
    */
-  function makeResizable(elementId) {
-    // TODO: Implement resize handles
-    console.log(`DragDrop: Resize not yet implemented for ${elementId}`);
+  function removeResizable(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    element.classList.remove('resizable');
+    element.querySelectorAll('.resize-handle').forEach(h => h.remove());
   }
 
   // ===== KEYBOARD SUPPORT =====
@@ -431,6 +703,7 @@
   window.DragDrop = {
     makeDraggable: makeDraggable,
     makeResizable: makeResizable,
+    removeResizable: removeResizable,
     getPosition: getPosition,
     setPosition: setPosition,
     setGridSnap: setGridSnap,

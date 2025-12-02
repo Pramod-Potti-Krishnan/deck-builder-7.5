@@ -10,8 +10,10 @@ Layouts:
 - L29: Full-Bleed Slides (hero/section slides)
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional, Union, Literal, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Union, Literal, Dict, Any, List
+from uuid import uuid4
+import re
 
 
 # ==================== L25: Main Content Shell ====================
@@ -105,10 +107,146 @@ class FlexibleContent(BaseModel):
         return {**self.__dict__, **self.__pydantic_extra__}
 
 
+# ==================== Text Box Models ====================
+
+class TextBoxPosition(BaseModel):
+    """
+    Position and dimensions for a text box using CSS Grid coordinates.
+
+    The presentation uses a 32×18 grid system on 1920×1080 resolution.
+    Grid values are in 'start/end' format (1-indexed).
+    """
+    grid_row: str = Field(
+        ...,
+        description="CSS grid-row value (e.g., '5/10' for rows 5-9)",
+        examples=["5/10", "8/12", "3/6"]
+    )
+    grid_column: str = Field(
+        ...,
+        description="CSS grid-column value (e.g., '3/15' for columns 3-14)",
+        examples=["3/15", "10/25", "2/32"]
+    )
+
+    @field_validator('grid_row', 'grid_column')
+    @classmethod
+    def validate_grid_value(cls, v: str) -> str:
+        """Validate grid values are in 'start/end' format."""
+        if '/' not in v:
+            raise ValueError("Grid value must be in 'start/end' format")
+        parts = v.split('/')
+        if len(parts) != 2:
+            raise ValueError("Grid value must have exactly two parts")
+        try:
+            start, end = int(parts[0]), int(parts[1])
+        except ValueError:
+            raise ValueError("Grid values must be integers")
+        if start >= end:
+            raise ValueError("Start must be less than end")
+        if start < 1:
+            raise ValueError("Start must be at least 1")
+        return v
+
+
+class TextBoxStyle(BaseModel):
+    """
+    Visual styling options for a text box.
+
+    Default: Transparent overlay (no background, no border).
+    """
+    background_color: Optional[str] = Field(
+        default="transparent",
+        description="Background color (hex, rgba, or 'transparent')",
+        examples=["#ffffff", "rgba(255,255,255,0.8)", "transparent"]
+    )
+    border_color: Optional[str] = Field(
+        default="transparent",
+        description="Border color in hex format"
+    )
+    border_width: int = Field(
+        default=0, ge=0, le=20,
+        description="Border width in pixels"
+    )
+    border_radius: int = Field(
+        default=0, ge=0, le=50,
+        description="Border radius in pixels"
+    )
+    padding: int = Field(
+        default=16, ge=0, le=100,
+        description="Internal padding in pixels"
+    )
+    opacity: float = Field(
+        default=1.0, ge=0.0, le=1.0,
+        description="Opacity value (0.0 to 1.0)"
+    )
+    box_shadow: Optional[str] = Field(
+        default=None,
+        description="CSS box-shadow value"
+    )
+
+
+class TextBox(BaseModel):
+    """
+    A text box element that can be placed on any slide.
+
+    Text boxes are overlay elements that float above the main layout content.
+    They support rich HTML content with inline styling for multi-style text.
+    Text boxes have elevated z-index (1000+) to appear above other elements.
+    """
+    id: str = Field(
+        default_factory=lambda: f"textbox-{uuid4().hex[:12]}",
+        description="Unique identifier for the text box"
+    )
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position and dimensions"
+    )
+    z_index: int = Field(
+        default=1000, ge=1, le=10000,
+        description="Layer order (higher = on top). Text boxes start at 1000."
+    )
+    content: str = Field(
+        default="",
+        description="Rich HTML content with inline styles"
+    )
+    style: TextBoxStyle = Field(
+        default_factory=TextBoxStyle,
+        description="Visual styling options"
+    )
+    locked: bool = Field(
+        default=False,
+        description="Prevent accidental edits when True"
+    )
+    visible: bool = Field(
+        default=True,
+        description="Show/hide without deleting"
+    )
+
+    @field_validator('content')
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        """Sanitize content to prevent XSS attacks."""
+        # Prevent script injection
+        if re.search(r'<script', v, re.IGNORECASE):
+            raise ValueError("Script tags are not allowed in text box content")
+        # Prevent event handler injection
+        if re.search(r'\bon\w+\s*=', v, re.IGNORECASE):
+            raise ValueError("Event handlers are not allowed in text box content")
+        # Size limit (100KB)
+        if len(v.encode('utf-8')) > 100 * 1024:
+            raise ValueError("Content exceeds maximum size of 100KB")
+        return v
+
+
 # ==================== Slide Model ====================
 
 class Slide(BaseModel):
-    """Individual slide with layout and content."""
+    """
+    Individual slide with layout, content, and overlay elements.
+
+    Text boxes are stored as overlay elements that float above the main
+    layout content. They are persisted with the presentation and restored
+    on load.
+    """
     layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
         ...,
         description="Layout identifier"
@@ -125,6 +263,18 @@ class Slide(BaseModel):
         None,
         description="Slide background image URL or data URI (base64). Uses background-size: cover."
     )
+    text_boxes: List[TextBox] = Field(
+        default_factory=list,
+        description="List of text box overlays on this slide (max 20)"
+    )
+
+    @field_validator('text_boxes')
+    @classmethod
+    def validate_text_boxes_limit(cls, v: List[TextBox]) -> List[TextBox]:
+        """Limit text boxes per slide."""
+        if len(v) > 20:
+            raise ValueError("Maximum 20 text boxes per slide")
+        return v
 
 
 # ==================== Presentation Model ====================
@@ -378,3 +528,128 @@ class DuplicateSlideRequest(BaseModel):
         True,
         description="If True, insert duplicate after source slide. If False, insert before."
     )
+
+
+# ==================== Text Box CRUD Models ====================
+
+class TextBoxCreateRequest(BaseModel):
+    """
+    Request model for creating a new text box on a slide.
+
+    Position uses CSS Grid coordinates (32 columns × 18 rows).
+    """
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position for the text box"
+    )
+    content: Optional[str] = Field(
+        default="",
+        description="Initial HTML content"
+    )
+    style: Optional[TextBoxStyle] = Field(
+        default=None,
+        description="Visual styling options (uses defaults if not provided)"
+    )
+    z_index: Optional[int] = Field(
+        default=None,
+        description="Z-index layer (auto-assigned if not provided)"
+    )
+
+
+class TextBoxUpdateRequest(BaseModel):
+    """
+    Request model for updating an existing text box.
+
+    All fields are optional - only provided fields will be updated.
+    """
+    position: Optional[TextBoxPosition] = Field(
+        None,
+        description="Updated grid position"
+    )
+    content: Optional[str] = Field(
+        None,
+        description="Updated HTML content"
+    )
+    style: Optional[TextBoxStyle] = Field(
+        None,
+        description="Updated visual styling"
+    )
+    z_index: Optional[int] = Field(
+        None,
+        description="Updated z-index layer"
+    )
+    locked: Optional[bool] = Field(
+        None,
+        description="Lock/unlock the text box"
+    )
+    visible: Optional[bool] = Field(
+        None,
+        description="Show/hide the text box"
+    )
+
+
+class TextBoxResponse(BaseModel):
+    """Response model for text box operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    text_box: Optional[TextBox] = Field(None, description="The text box data")
+    message: str = Field(..., description="Success or error message")
+
+
+class TextBoxListResponse(BaseModel):
+    """Response model for listing text boxes on a slide."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    slide_index: int = Field(..., description="The slide index")
+    text_boxes: List[TextBox] = Field(..., description="List of text boxes")
+    count: int = Field(..., description="Number of text boxes")
+
+
+# ==================== AI Text Generation Models ====================
+
+class TextGenerationRequest(BaseModel):
+    """
+    Request model for AI-powered text generation for text boxes.
+
+    Routes to Text Service for content generation.
+    """
+    prompt: str = Field(
+        ...,
+        min_length=1,
+        max_length=1000,
+        description="User prompt describing desired text content"
+    )
+    textbox_id: Optional[str] = Field(
+        None,
+        description="Target text box ID to inject result (optional)"
+    )
+    tone: Optional[str] = Field(
+        default="professional",
+        description="Desired tone: professional, casual, academic, persuasive"
+    )
+    length: Optional[str] = Field(
+        default="medium",
+        description="Desired length: short, medium, long"
+    )
+    format: Optional[str] = Field(
+        default="paragraph",
+        description="Output format: paragraph, bullets, numbered"
+    )
+    context: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Additional context: presentation_title, slide_title, audience, etc."
+    )
+    max_characters: Optional[int] = Field(
+        default=500, ge=50, le=2000,
+        description="Maximum character limit for generated text"
+    )
+
+
+class TextGenerationResponse(BaseModel):
+    """Response model for AI text generation."""
+    success: bool = Field(..., description="Whether generation succeeded")
+    content: str = Field(..., description="Generated HTML content")
+    plain_text: Optional[str] = Field(None, description="Plain text version")
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Generation metadata: tokens_used, model, generation_time_ms"
+    )
+    error: Optional[str] = Field(None, description="Error message if failed")

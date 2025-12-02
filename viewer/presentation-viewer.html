@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/src/styles/text-toolbar.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/auto-save.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251201">
+  <link rel="stylesheet" href="/src/styles/textbox.css?v=20251201">
 
   <style>
     /* Minimal additional styling */
@@ -985,6 +986,163 @@
             }
             break;
 
+          // ===== TEXT BOX OPERATIONS =====
+
+          // Insert text box
+          case 'insertTextBox':
+            if (typeof window.ElementManager?.insertTextBox === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertTextBox(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager.insertTextBox not available';
+            }
+            break;
+
+          // Update text box content
+          case 'updateTextBoxContent':
+            if (typeof window.ElementManager?.updateTextBoxContent === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateTextBoxContent(
+                params.elementId,
+                params.content || '',
+                params.animate || false
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Update text box style
+          case 'updateTextBoxStyle':
+            if (typeof window.ElementManager?.updateTextBoxStyle === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateTextBoxStyle(
+                params.elementId,
+                params.style || params
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Get text box content
+          case 'getTextBoxContent':
+            if (typeof window.ElementManager?.getTextBoxContent === 'function' && params?.elementId) {
+              const contentResult = window.ElementManager.getTextBoxContent(params.elementId);
+              result = { ...result, ...contentResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Get all text boxes on a slide
+          case 'getTextBoxes':
+            if (typeof window.ElementManager?.getElementsBySlide === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const allElements = window.ElementManager.getElementsBySlide(slideIndex);
+              const textBoxes = allElements.filter(el => el.type === 'textbox');
+              result.success = true;
+              result.slideIndex = slideIndex;
+              result.textBoxes = textBoxes;
+              result.count = textBoxes.length;
+            } else {
+              result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Generate AI text content
+          case 'generateTextBoxContent':
+            (async () => {
+              try {
+                const response = await fetch(`${getApiBaseUrl()}/api/textbox/generate`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    prompt: params.prompt,
+                    tone: params.tone,
+                    length: params.length,
+                    format: params.format,
+                    context: params.context,
+                    max_characters: params.maxCharacters || params.max_characters
+                  })
+                });
+                const data = await response.json();
+
+                if (data.success && params.elementId) {
+                  // Inject content into text box
+                  if (typeof window.ElementManager?.updateTextBoxContent === 'function') {
+                    window.ElementManager.updateTextBoxContent(params.elementId, data.content, true);
+                  }
+                }
+
+                result.success = data.success;
+                result.content = data.content;
+                result.plainText = data.plain_text;
+                result.metadata = data.metadata;
+                if (data.error) result.error = data.error;
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+
+              // Send async response
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Select text box
+          case 'selectTextBox':
+            if (typeof window.ElementManager?.selectElement === 'function' && params?.elementId) {
+              window.ElementManager.selectElement(params.elementId);
+              const selected = window.ElementManager.getSelectedElement();
+              result.success = true;
+              result.data = selected;
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Deselect text box
+          case 'deselectTextBox':
+            if (typeof window.ElementManager?.deselectAll === 'function') {
+              window.ElementManager.deselectAll();
+              result.success = true;
+            } else {
+              result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Delete text box (uses standard deleteElement)
+          case 'deleteTextBox':
+            if (typeof window.ElementManager?.deleteElement === 'function' && params?.elementId) {
+              const deleteResult = window.ElementManager.deleteElement(params.elementId);
+              result = { ...result, ...deleteResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Bring text box to front
+          case 'bringTextBoxToFront':
+            if (typeof window.ElementManager?.bringToFront === 'function' && params?.elementId) {
+              window.ElementManager.bringToFront(params.elementId);
+              result.success = true;
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Send text box to back
+          case 'sendTextBoxToBack':
+            if (typeof window.ElementManager?.sendToBack === 'function' && params?.elementId) {
+              window.ElementManager.sendToBack(params.elementId);
+              result.success = true;
+            } else {
+              result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
           // Delete element
           case 'deleteElement':
             if (typeof window.ElementManager?.deleteElement === 'function' && params?.elementId) {
@@ -992,6 +1150,323 @@
               result = { ...result, ...deleteResult };
             } else {
               result.error = params?.elementId ? 'ElementManager not available' : 'elementId parameter required';
+            }
+            break;
+
+          // ===== TEXT BOX FORMATTING HANDLERS =====
+
+          // Apply rich text formatting command (bold, italic, underline, etc.)
+          case 'applyTextFormatCommand':
+            if (params?.command) {
+              try {
+                // Focus on text box content if elementId provided
+                if (params.elementId) {
+                  const textBox = document.getElementById(params.elementId);
+                  const contentEl = textBox?.querySelector('.textbox-content');
+                  if (contentEl) contentEl.focus();
+                }
+                // Execute the formatting command
+                document.execCommand(params.command, false, params.value || null);
+                result.success = true;
+                result.command = params.command;
+              } catch (e) {
+                result.error = `execCommand failed: ${e.message}`;
+              }
+            } else {
+              result.error = 'command parameter required';
+            }
+            break;
+
+          // Set text box font family
+          case 'setTextBoxFont':
+            if (params?.elementId && params?.fontFamily) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.fontFamily = params.fontFamily;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and fontFamily parameters required';
+            }
+            break;
+
+          // Set text box font size
+          case 'setTextBoxFontSize':
+            if (params?.elementId && params?.fontSize) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.fontSize = typeof params.fontSize === 'number' ? `${params.fontSize}px` : params.fontSize;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and fontSize parameters required';
+            }
+            break;
+
+          // Set text box text color
+          case 'setTextBoxColor':
+            if (params?.elementId && params?.color) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.color = params.color;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and color parameters required';
+            }
+            break;
+
+          // Set text box text alignment
+          case 'setTextBoxAlignment':
+            if (params?.elementId && params?.alignment) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.textAlign = params.alignment; // left, center, right, justify
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and alignment parameters required';
+            }
+            break;
+
+          // Set text box line height
+          case 'setTextBoxLineHeight':
+            if (params?.elementId && params?.lineHeight) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.lineHeight = params.lineHeight;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and lineHeight parameters required';
+            }
+            break;
+
+          // Set text box letter spacing
+          case 'setTextBoxLetterSpacing':
+            if (params?.elementId && params?.letterSpacing !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                contentEl.style.letterSpacing = typeof params.letterSpacing === 'number' ? `${params.letterSpacing}px` : params.letterSpacing;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and letterSpacing parameters required';
+            }
+            break;
+
+          // Set text box background
+          case 'setTextBoxBackground':
+            if (params?.elementId) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                if (params.backgroundColor) textBox.style.backgroundColor = params.backgroundColor;
+                if (params.backgroundImage) textBox.style.backgroundImage = params.backgroundImage;
+                if (params.backgroundGradient) textBox.style.background = params.backgroundGradient;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId parameter required';
+            }
+            break;
+
+          // Set text box border
+          case 'setTextBoxBorder':
+            if (params?.elementId) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                if (params.borderWidth !== undefined) textBox.style.borderWidth = typeof params.borderWidth === 'number' ? `${params.borderWidth}px` : params.borderWidth;
+                if (params.borderColor) textBox.style.borderColor = params.borderColor;
+                if (params.borderStyle) textBox.style.borderStyle = params.borderStyle;
+                if (params.borderRadius !== undefined) textBox.style.borderRadius = typeof params.borderRadius === 'number' ? `${params.borderRadius}px` : params.borderRadius;
+                // Ensure border is visible if width > 0
+                if (params.borderWidth && params.borderWidth > 0 && !textBox.style.borderStyle) {
+                  textBox.style.borderStyle = 'solid';
+                }
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId parameter required';
+            }
+            break;
+
+          // Set text box padding
+          case 'setTextBoxPadding':
+            if (params?.elementId && params?.padding !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                textBox.style.padding = typeof params.padding === 'number' ? `${params.padding}px` : params.padding;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and padding parameters required';
+            }
+            break;
+
+          // Set text box opacity
+          case 'setTextBoxOpacity':
+            if (params?.elementId && params?.opacity !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                textBox.style.opacity = params.opacity;
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and opacity parameters required';
+            }
+            break;
+
+          // Set text box box-shadow
+          case 'setTextBoxShadow':
+            if (params?.elementId) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                textBox.style.boxShadow = params.boxShadow || 'none';
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId parameter required';
+            }
+            break;
+
+          // Get text box formatting state
+          case 'getTextBoxFormatting':
+            if (params?.elementId) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (textBox && contentEl) {
+                const computedContent = window.getComputedStyle(contentEl);
+                const computedBox = window.getComputedStyle(textBox);
+                result.formatting = {
+                  // Text formatting
+                  fontFamily: computedContent.fontFamily,
+                  fontSize: computedContent.fontSize,
+                  fontWeight: computedContent.fontWeight,
+                  fontStyle: computedContent.fontStyle,
+                  textDecoration: computedContent.textDecoration,
+                  color: computedContent.color,
+                  textAlign: computedContent.textAlign,
+                  lineHeight: computedContent.lineHeight,
+                  letterSpacing: computedContent.letterSpacing,
+                  // Box formatting
+                  backgroundColor: computedBox.backgroundColor,
+                  borderWidth: computedBox.borderWidth,
+                  borderColor: computedBox.borderColor,
+                  borderStyle: computedBox.borderStyle,
+                  borderRadius: computedBox.borderRadius,
+                  padding: computedBox.padding,
+                  opacity: computedBox.opacity,
+                  boxShadow: computedBox.boxShadow
+                };
+                result.success = true;
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId parameter required';
+            }
+            break;
+
+          // Lock/unlock text box
+          case 'setTextBoxLocked':
+            if (params?.elementId && params?.locked !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                if (params.locked) {
+                  textBox.classList.add('textbox-locked');
+                } else {
+                  textBox.classList.remove('textbox-locked');
+                }
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and locked parameters required';
+            }
+            break;
+
+          // Show/hide text box
+          case 'setTextBoxVisible':
+            if (params?.elementId && params?.visible !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                if (params.visible) {
+                  textBox.classList.remove('textbox-hidden');
+                } else {
+                  textBox.classList.add('textbox-hidden');
+                }
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and visible parameters required';
+            }
+            break;
+
+          // Resize text box
+          case 'resizeTextBox':
+            if (params?.elementId && (params?.gridRow || params?.gridColumn)) {
+              const textBox = document.getElementById(params.elementId);
+              if (textBox) {
+                if (params.gridRow) textBox.style.gridRow = params.gridRow;
+                if (params.gridColumn) textBox.style.gridColumn = params.gridColumn;
+                // Update ElementManager registry
+                if (typeof window.ElementManager?.updatePosition === 'function') {
+                  window.ElementManager.updatePosition(params.elementId, {
+                    gridRow: textBox.style.gridRow,
+                    gridColumn: textBox.style.gridColumn
+                  });
+                }
+                result.success = true;
+                if (typeof window.markContentChanged === 'function') window.markContentChanged();
+              } else {
+                result.error = 'Text box not found';
+              }
+            } else {
+              result.error = 'elementId and gridRow or gridColumn parameters required';
             }
             break;
 

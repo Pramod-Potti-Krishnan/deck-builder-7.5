@@ -26,7 +26,17 @@ from models import (
     AddSlideRequest,
     ReorderSlidesRequest,
     ChangeLayoutRequest,
-    DuplicateSlideRequest
+    DuplicateSlideRequest,
+    # Text Box models
+    TextBox,
+    TextBoxPosition,
+    TextBoxStyle,
+    TextBoxCreateRequest,
+    TextBoxUpdateRequest,
+    TextBoxResponse,
+    TextBoxListResponse,
+    TextGenerationRequest,
+    TextGenerationResponse
 )
 from storage import storage
 import copy
@@ -981,6 +991,304 @@ async def change_slide_layout(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error changing slide layout: {str(e)}")
+
+
+# ==================== Text Box CRUD Endpoints ====================
+
+def ensure_slide_text_boxes(slide_data: dict) -> dict:
+    """
+    Ensure slide data has text_boxes field for backward compatibility.
+    Called when loading presentations created before text_boxes feature.
+    """
+    if 'text_boxes' not in slide_data:
+        slide_data['text_boxes'] = []
+    return slide_data
+
+
+def get_next_textbox_z_index(text_boxes: list) -> int:
+    """Get the next available z-index for a new text box."""
+    if not text_boxes:
+        return 1000  # Base z-index for text boxes
+    max_z = max(tb.get('z_index', 1000) for tb in text_boxes)
+    return max_z + 1
+
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/textboxes", response_model=TextBoxResponse)
+async def create_text_box(
+    presentation_id: str,
+    slide_index: int,
+    request: TextBoxCreateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Create a new text box on a slide.
+
+    Text boxes are overlay elements that float above the main layout content.
+    They support rich HTML content and can be positioned anywhere on the slide.
+    """
+    try:
+        # Load presentation
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        # Ensure text_boxes array exists (backward compatibility)
+        presentation["slides"][slide_index] = ensure_slide_text_boxes(presentation["slides"][slide_index])
+        text_boxes = presentation["slides"][slide_index]["text_boxes"]
+
+        # Check limit
+        if len(text_boxes) >= 20:
+            raise HTTPException(status_code=400, detail="Maximum 20 text boxes per slide")
+
+        # Create new text box
+        new_textbox = TextBox(
+            position=request.position,
+            content=request.content or "",
+            style=request.style or TextBoxStyle(),
+            z_index=request.z_index or get_next_textbox_z_index(text_boxes)
+        )
+
+        # Add to slide
+        text_boxes.append(new_textbox.model_dump())
+
+        # Save with version tracking
+        summary = change_summary or f"Added text box to slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return TextBoxResponse(
+            success=True,
+            text_box=new_textbox,
+            message=f"Text box created on slide {slide_index + 1}"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating text box: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/textboxes", response_model=TextBoxListResponse)
+async def list_text_boxes(presentation_id: str, slide_index: int):
+    """Get all text boxes on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        # Ensure text_boxes exists
+        slide = ensure_slide_text_boxes(presentation["slides"][slide_index])
+        text_boxes = slide.get("text_boxes", [])
+
+        return TextBoxListResponse(
+            success=True,
+            slide_index=slide_index,
+            text_boxes=[TextBox(**tb) for tb in text_boxes],
+            count=len(text_boxes)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing text boxes: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/textboxes/{textbox_id}", response_model=TextBoxResponse)
+async def update_text_box(
+    presentation_id: str,
+    slide_index: int,
+    textbox_id: str,
+    request: TextBoxUpdateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Update an existing text box.
+
+    Only provided fields will be updated; others remain unchanged.
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        # Ensure text_boxes exists
+        presentation["slides"][slide_index] = ensure_slide_text_boxes(presentation["slides"][slide_index])
+        text_boxes = presentation["slides"][slide_index]["text_boxes"]
+
+        # Find the text box
+        textbox_idx = None
+        for idx, tb in enumerate(text_boxes):
+            if tb.get("id") == textbox_id:
+                textbox_idx = idx
+                break
+
+        if textbox_idx is None:
+            raise HTTPException(status_code=404, detail=f"Text box not found: {textbox_id}")
+
+        # Update fields
+        current_tb = text_boxes[textbox_idx]
+        update_data = request.model_dump(exclude_unset=True)
+
+        for key, value in update_data.items():
+            if value is not None:
+                if key == "position":
+                    current_tb["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                elif key == "style":
+                    current_tb["style"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                else:
+                    current_tb[key] = value
+
+        # Save with version tracking
+        summary = change_summary or f"Updated text box on slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return TextBoxResponse(
+            success=True,
+            text_box=TextBox(**current_tb),
+            message=f"Text box updated"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating text box: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}/textboxes/{textbox_id}")
+async def delete_text_box(
+    presentation_id: str,
+    slide_index: int,
+    textbox_id: str,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Delete a text box from a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        # Ensure text_boxes exists
+        presentation["slides"][slide_index] = ensure_slide_text_boxes(presentation["slides"][slide_index])
+        text_boxes = presentation["slides"][slide_index]["text_boxes"]
+
+        # Find and remove the text box
+        original_count = len(text_boxes)
+        text_boxes[:] = [tb for tb in text_boxes if tb.get("id") != textbox_id]
+
+        if len(text_boxes) == original_count:
+            raise HTTPException(status_code=404, detail=f"Text box not found: {textbox_id}")
+
+        # Save with version tracking
+        summary = change_summary or f"Deleted text box from slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Text box deleted",
+            "textbox_id": textbox_id
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting text box: {str(e)}")
+
+
+# ==================== AI Text Generation Endpoint ====================
+
+@app.post("/api/textbox/generate", response_model=TextGenerationResponse)
+async def generate_text_box_content(request: TextGenerationRequest):
+    """
+    Generate AI text content for text boxes.
+
+    Currently returns mock content. Future: routes to Text Service.
+    """
+    try:
+        # Phase 5: Mock implementation
+        # TODO: Route to Text Service at TEXT_SERVICE_URL in future
+
+        prompt = request.prompt
+        tone = request.tone or "professional"
+        length = request.length or "medium"
+        format_type = request.format or "paragraph"
+
+        # Generate mock content based on format
+        if format_type == "bullets":
+            mock_content = f"""<ul style="margin: 0; padding-left: 24px; color: #374151; line-height: 1.8;">
+<li>Key insight based on: "{prompt[:50]}..."</li>
+<li>Supporting point with relevant details</li>
+<li>Additional consideration for context</li>
+</ul>"""
+        elif format_type == "numbered":
+            mock_content = f"""<ol style="margin: 0; padding-left: 24px; color: #374151; line-height: 1.8;">
+<li>First point related to: "{prompt[:40]}..."</li>
+<li>Second point with supporting evidence</li>
+<li>Third point concluding the thought</li>
+</ol>"""
+        else:
+            mock_content = f"""<p style="margin: 0; color: #374151; line-height: 1.6;">
+This is AI-generated content based on your prompt: "{prompt[:60]}...".
+In a {tone} tone, this {length} response provides relevant information
+that addresses your request. The content has been tailored to fit
+the presentation context and maintain consistency with your overall message.
+</p>"""
+
+        # Strip HTML for plain text version
+        import re
+        plain_text = re.sub(r'<[^>]+>', '', mock_content).strip()
+        plain_text = re.sub(r'\s+', ' ', plain_text)
+
+        return TextGenerationResponse(
+            success=True,
+            content=mock_content,
+            plain_text=plain_text,
+            metadata={
+                "model": "mock-v1",
+                "tokens_used": 0,
+                "generation_time_ms": 100,
+                "note": "Mock content - Text Service integration pending"
+            }
+        )
+
+    except Exception as e:
+        return TextGenerationResponse(
+            success=False,
+            content="",
+            error=str(e)
+        )
 
 
 @app.get("/p/{presentation_id}", response_class=HTMLResponse)

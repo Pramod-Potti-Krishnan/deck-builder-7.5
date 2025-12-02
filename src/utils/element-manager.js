@@ -559,6 +559,253 @@
     };
   }
 
+  // ===== INSERT TEXT BOX =====
+
+  /**
+   * Z-index counter specifically for text boxes (elevated above other elements)
+   */
+  let textBoxZIndexCounter = 1000;
+
+  /**
+   * Insert a text box element into a slide
+   *
+   * Text boxes are overlay elements with elevated z-index (1000+)
+   * that support rich text editing via contentEditable.
+   *
+   * @param {number} slideIndex - Target slide (0-based)
+   * @param {Object} config - Text box configuration
+   * @param {Object} config.position - Grid position {gridRow, gridColumn}
+   * @param {string} [config.content] - Initial HTML content
+   * @param {Object} [config.style] - Styling options
+   * @param {string} [config.placeholder] - Placeholder text
+   * @param {boolean} [config.draggable=true] - Enable drag-drop
+   * @param {boolean} [config.resizable=true] - Enable resize handles
+   * @returns {Object} Result with elementId
+   */
+  function insertTextBox(slideIndex, config) {
+    const slide = getSlideElement(slideIndex);
+    if (!slide) {
+      return { success: false, error: `Slide ${slideIndex} not found` };
+    }
+
+    const id = generateId('textbox');
+    const position = config.position || { gridRow: '6/12', gridColumn: '5/28' };
+    const style = config.style || {};
+
+    // Text boxes use elevated z-index
+    const zIndex = config.zIndex || (++textBoxZIndexCounter);
+
+    // Create container
+    const container = document.createElement('div');
+    container.id = id;
+    container.className = 'dynamic-element inserted-textbox';
+    container.dataset.elementType = 'textbox';
+    container.dataset.slideIndex = slideIndex;
+    container.style.cssText = `
+      grid-row: ${position.gridRow};
+      grid-column: ${position.gridColumn};
+      z-index: ${zIndex};
+      background: ${style.backgroundColor || style.background_color || 'transparent'};
+      border: ${style.borderWidth || style.border_width || 0}px solid ${style.borderColor || style.border_color || 'transparent'};
+      border-radius: ${style.borderRadius || style.border_radius || 0}px;
+      padding: ${style.padding || 16}px;
+      opacity: ${style.opacity || 1};
+      box-shadow: ${style.boxShadow || style.box_shadow || 'none'};
+      min-height: 60px;
+      overflow: auto;
+      cursor: ${config.draggable !== false ? 'move' : 'text'};
+      position: relative;
+    `;
+
+    // Create editable content area
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'textbox-content';
+    contentDiv.contentEditable = 'true';
+    contentDiv.dataset.placeholder = config.placeholder || 'Click to add text...';
+    contentDiv.innerHTML = config.content || '';
+    contentDiv.style.cssText = `
+      width: 100%;
+      min-height: 100%;
+      outline: none;
+      cursor: text;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+      color: #1f2937;
+    `;
+
+    // Handle input for auto-save
+    contentDiv.addEventListener('input', () => {
+      triggerAutoSave(slideIndex);
+    });
+
+    // Prevent drag when editing text
+    contentDiv.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+    });
+
+    // Focus handling
+    contentDiv.addEventListener('focus', () => {
+      container.classList.add('textbox-editing');
+    });
+    contentDiv.addEventListener('blur', () => {
+      container.classList.remove('textbox-editing');
+    });
+
+    container.appendChild(contentDiv);
+
+    // Add click handler for selection (on container border/padding)
+    container.addEventListener('click', (e) => {
+      if (e.target === container) {
+        e.stopPropagation();
+        selectElement(id);
+      }
+    });
+
+    // Enable drag-drop on container
+    if (config.draggable !== false && typeof window.DragDrop !== 'undefined') {
+      window.DragDrop.makeDraggable(id);
+    }
+
+    // Enable resize if available and requested
+    if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
+      window.DragDrop.makeResizable(id);
+    }
+
+    // Add to slide
+    slide.appendChild(container);
+
+    // Register element
+    const elementData = {
+      id: id,
+      type: 'textbox',
+      slideIndex: slideIndex,
+      position: position,
+      zIndex: zIndex,
+      selected: false,
+      data: {
+        content: config.content || '',
+        style: style,
+        placeholder: config.placeholder
+      }
+    };
+    elementRegistry.set(id, elementData);
+
+    // Trigger auto-save
+    triggerAutoSave(slideIndex);
+
+    return {
+      success: true,
+      elementId: id,
+      position: position,
+      zIndex: zIndex
+    };
+  }
+
+  /**
+   * Update text box content
+   *
+   * @param {string} elementId - Text box ID
+   * @param {string} content - New HTML content
+   * @param {boolean} [animate=false] - Animate the change
+   */
+  function updateTextBoxContent(elementId, content, animate = false) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'textbox') {
+      return { success: false, error: 'Text box not found' };
+    }
+
+    const contentDiv = element.querySelector('.textbox-content');
+    if (contentDiv) {
+      if (animate) {
+        contentDiv.style.transition = 'opacity 0.2s';
+        contentDiv.style.opacity = '0';
+        setTimeout(() => {
+          contentDiv.innerHTML = content;
+          contentDiv.style.opacity = '1';
+        }, 200);
+      } else {
+        contentDiv.innerHTML = content;
+      }
+      data.data.content = content;
+      triggerAutoSave(data.slideIndex);
+    }
+
+    return { success: true };
+  }
+
+  /**
+   * Update text box style
+   *
+   * @param {string} elementId - Text box ID
+   * @param {Object} style - Style updates
+   */
+  function updateTextBoxStyle(elementId, style) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'textbox') {
+      return { success: false, error: 'Text box not found' };
+    }
+
+    // Apply style updates
+    if (style.backgroundColor || style.background_color) {
+      element.style.background = style.backgroundColor || style.background_color;
+    }
+    if (style.borderColor || style.border_color) {
+      element.style.borderColor = style.borderColor || style.border_color;
+    }
+    if (style.borderWidth !== undefined || style.border_width !== undefined) {
+      element.style.borderWidth = (style.borderWidth || style.border_width || 0) + 'px';
+    }
+    if (style.borderRadius !== undefined || style.border_radius !== undefined) {
+      element.style.borderRadius = (style.borderRadius || style.border_radius || 0) + 'px';
+    }
+    if (style.padding !== undefined) {
+      element.style.padding = style.padding + 'px';
+    }
+    if (style.opacity !== undefined) {
+      element.style.opacity = style.opacity;
+    }
+    if (style.boxShadow || style.box_shadow) {
+      element.style.boxShadow = style.boxShadow || style.box_shadow;
+    }
+
+    // Update registry
+    data.data.style = { ...data.data.style, ...style };
+    triggerAutoSave(data.slideIndex);
+
+    return { success: true };
+  }
+
+  /**
+   * Get text box content
+   *
+   * @param {string} elementId - Text box ID
+   * @returns {Object} Content and plain text
+   */
+  function getTextBoxContent(elementId) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'textbox') {
+      return { success: false, error: 'Text box not found' };
+    }
+
+    const contentDiv = element.querySelector('.textbox-content');
+    const htmlContent = contentDiv ? contentDiv.innerHTML : '';
+    const plainText = contentDiv ? contentDiv.textContent : '';
+
+    return {
+      success: true,
+      elementId: elementId,
+      content: htmlContent,
+      plainText: plainText
+    };
+  }
+
   // ===== ELEMENT SELECTION =====
 
   /**
@@ -771,6 +1018,7 @@
     insertTable: insertTable,
     insertChart: insertChart,
     insertImage: insertImage,
+    insertTextBox: insertTextBox,
 
     // Query methods
     getElementById: getElementById,
@@ -786,6 +1034,11 @@
     deleteElement: deleteElement,
     bringToFront: bringToFront,
     sendToBack: sendToBack,
+
+    // Text box specific methods
+    updateTextBoxContent: updateTextBoxContent,
+    updateTextBoxStyle: updateTextBoxStyle,
+    getTextBoxContent: getTextBoxContent,
 
     // Registry access (for debugging)
     _registry: elementRegistry

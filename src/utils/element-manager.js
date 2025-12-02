@@ -588,8 +588,14 @@
       return { success: false, error: `Slide ${slideIndex} not found` };
     }
 
-    const id = generateId('textbox');
-    const position = config.position || { gridRow: '6/12', gridColumn: '5/28' };
+    // Use provided id (for restoration) or generate new one
+    const id = config.id || generateId('textbox');
+
+    // Support both nested position object and direct gridRow/gridColumn
+    const position = config.position || {
+      gridRow: config.gridRow || '6/12',
+      gridColumn: config.gridColumn || '5/28'
+    };
     const style = config.style || {};
 
     // Text boxes use elevated z-index
@@ -683,6 +689,16 @@
       window.DragDrop.makeResizable(id);
     }
 
+    // Apply locked state if specified
+    if (config.locked) {
+      container.classList.add('textbox-locked');
+    }
+
+    // Apply hidden state if specified
+    if (config.visible === false) {
+      container.classList.add('textbox-hidden');
+    }
+
     // Register element
     const elementData = {
       id: id,
@@ -694,13 +710,18 @@
       data: {
         content: config.content || '',
         style: style,
-        placeholder: config.placeholder
+        placeholder: config.placeholder,
+        locked: config.locked || false,
+        visible: config.visible !== false
       }
     };
     elementRegistry.set(id, elementData);
 
-    // Trigger auto-save
-    triggerAutoSave(slideIndex);
+    // Trigger auto-save only for NEW text boxes (not restoration)
+    // If id was provided in config, this is a restoration - skip auto-save
+    if (!config.id) {
+      triggerAutoSave(slideIndex);
+    }
 
     return {
       success: true,

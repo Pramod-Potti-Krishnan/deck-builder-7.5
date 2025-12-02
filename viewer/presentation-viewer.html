@@ -232,7 +232,7 @@
   <!-- World-Class Editor APIs (v7.5.3) -->
   <script src="/src/utils/format-api.js"></script>
   <script src="/src/utils/drag-drop.js?v=20251201-semicircle"></script>
-  <script src="/src/utils/element-manager.js?v=20251201-semicircle"></script>
+  <script src="/src/utils/element-manager.js?v=20251201-restore"></script>
 
   <!-- v7.5 Renderers (6 layouts) -->
   <script src="/src/renderers/L01.js"></script>
@@ -256,6 +256,48 @@
       'L27': window.renderL27,
       'L29': window.renderL29
     };
+
+    /**
+     * Restore text boxes from saved slide data
+     * This re-creates text boxes with proper event handlers after slides are rendered
+     */
+    function restoreTextBoxes(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const textBoxes = slide.text_boxes || [];
+        if (textBoxes.length === 0) return;
+
+        console.log(`Restoring ${textBoxes.length} text box(es) on slide ${slideIndex + 1}`);
+
+        textBoxes.forEach(tb => {
+          try {
+            // Use ElementManager to insert text box with proper event handlers
+            if (typeof window.ElementManager?.insertTextBox === 'function') {
+              const config = {
+                id: tb.id,
+                gridRow: tb.position?.grid_row || '3/15',
+                gridColumn: tb.position?.grid_column || '3/30',
+                content: tb.content || '',
+                zIndex: tb.z_index || 1000,
+                style: tb.style || {},
+                draggable: true,
+                resizable: true,
+                locked: tb.locked || false,
+                visible: tb.visible !== false
+              };
+
+              window.ElementManager.insertTextBox(slideIndex, config);
+              console.log(`✅ Restored text box: ${tb.id}`);
+            } else {
+              console.warn('ElementManager.insertTextBox not available for restoration');
+            }
+          } catch (error) {
+            console.error(`Failed to restore text box ${tb.id}:`, error);
+          }
+        });
+      });
+    }
 
     /**
      * Render presentation from data
@@ -361,6 +403,9 @@
             history: true
           });
         }
+
+        // Restore text boxes from saved data
+        restoreTextBoxes(data.slides);
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
       }, 300);  // Give scripts 300ms to execute

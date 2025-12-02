@@ -56,18 +56,18 @@
 
 .textbox-drag-handle {
   position: absolute;
-  top: -12px;
+  top: -18px;
   left: 50%;
   transform: translateX(-50%);
-  width: 48px;
-  height: 24px;
+  width: 64px;
+  height: 32px;
   background: #3b82f6;
   cursor: move;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   transition: all 0.15s ease;
   z-index: 101;
   user-select: none;
@@ -75,7 +75,7 @@
 
 .textbox-drag-handle:hover {
   background: #2563eb;
-  transform: translateX(-50%) scale(1.05);
+  transform: translateX(-50%) scale(1.08);
 }
 
 /* Hide drag handle in view mode */
@@ -120,12 +120,13 @@ body[data-mode="edit"] .inserted-textbox:hover:not(.element-selected):not(.textb
 
 /* ===== RESIZE HANDLES (Circle with Arrow) ===== */
 
+/* Edge handles - 2x bigger (48px) */
 .inserted-textbox .resize-handle {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 48px;
+  height: 48px;
   background: #3b82f6;
-  border: 2px solid #ffffff;
+  border: 3px solid #ffffff;
   border-radius: 50%;
   opacity: 0;
   transition: all 0.15s ease;
@@ -134,7 +135,7 @@ body[data-mode="edit"] .inserted-textbox:hover:not(.element-selected):not(.textb
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
 }
 
 .inserted-textbox .resize-handle:hover {
@@ -145,7 +146,7 @@ body[data-mode="edit"] .inserted-textbox:hover:not(.element-selected):not(.textb
 /* Arrow icon inside handles */
 .inserted-textbox .resize-handle .resize-arrow {
   color: white;
-  font-size: 10px;
+  font-size: 18px;
   line-height: 1;
   user-select: none;
 }
@@ -160,51 +161,52 @@ body[data-mode="edit"] .inserted-textbox .resize-handle {
   opacity: 1;
 }
 
-/* Corner handles - smaller circles */
+/* Corner handles - 30% bigger (26px) */
 .resize-handle-nw,
 .resize-handle-ne,
 .resize-handle-sw,
 .resize-handle-se {
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
 }
 
 .resize-handle-nw .resize-arrow,
 .resize-handle-ne .resize-arrow,
 .resize-handle-sw .resize-arrow,
 .resize-handle-se .resize-arrow {
-  font-size: 9px;
+  font-size: 11px;
 }
 
-.resize-handle-nw { top: -10px; left: -10px; cursor: nwse-resize; }
-.resize-handle-ne { top: -10px; right: -10px; cursor: nesw-resize; }
-.resize-handle-sw { bottom: -10px; left: -10px; cursor: nesw-resize; }
-.resize-handle-se { bottom: -10px; right: -10px; cursor: nwse-resize; }
+.resize-handle-nw { top: -13px; left: -13px; cursor: nwse-resize; }
+.resize-handle-ne { top: -13px; right: -13px; cursor: nesw-resize; }
+.resize-handle-sw { bottom: -13px; left: -13px; cursor: nesw-resize; }
+.resize-handle-se { bottom: -13px; right: -13px; cursor: nwse-resize; }
 
-/* Edge handles - centered on edges */
+/* Edge handles - centered on edges, positioned outside */
+/* North handle offset to right of drag handle */
 .resize-handle-n {
-  top: -12px;
-  left: 50%;
+  top: -24px;
+  left: calc(50% + 50px);
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
 .resize-handle-s {
-  bottom: -12px;
+  bottom: -24px;
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
 .resize-handle-e {
-  right: -12px;
+  right: -24px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
 
 .resize-handle-w {
-  left: -12px;
+  left: -24px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;

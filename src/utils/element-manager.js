@@ -622,23 +622,23 @@
     dragHandle.className = 'textbox-drag-handle';
     dragHandle.style.cssText = `
       position: absolute;
-      top: -12px;
+      top: -18px;
       left: 50%;
       transform: translateX(-50%);
-      width: 48px;
-      height: 24px;
+      width: 64px;
+      height: 32px;
       background: #3b82f6;
       cursor: move;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
       transition: all 0.15s ease;
       z-index: 101;
     `;
     // Add grip icon (6 dots in 2 rows)
-    dragHandle.innerHTML = '<span style="color: white; font-size: 14px; line-height: 1;">⋮⋮</span>';
+    dragHandle.innerHTML = '<span style="color: white; font-size: 18px; line-height: 1; letter-spacing: 2px;">⋮⋮</span>';
 
     // Highlight more on hover
     dragHandle.addEventListener('mouseenter', () => {

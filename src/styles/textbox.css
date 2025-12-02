@@ -60,38 +60,34 @@
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 62px;
+  width: 47px;   /* 62px * 0.75 = ~47px (25% narrower) */
   height: 26px;
-  background: rgba(96, 165, 250, 0.5) !important;  /* Light blue at 50% opacity */
+  background: rgba(96, 165, 250, 0.35) !important;  /* Light blue at 35% opacity (65% transparent) */
   cursor: move;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 6px;  /* Rounded rectangle instead of pill */
+  justify-content: space-evenly;  /* Distribute dots evenly across width */
+  border-radius: 6px;  /* Rounded rectangle */
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
   transition: all 0.15s ease;
   z-index: 102;
   user-select: none;
 }
 
-/* 9-dot grid pattern (3x3) */
+/* 9-dot grid pattern (3 columns × 3 rows, spread across full width) */
 .textbox-drag-handle::before {
   content: '';
-  display: grid;
-  grid-template-columns: repeat(3, 4px);
-  grid-template-rows: repeat(3, 4px);
-  gap: 3px;
+  width: calc(100% - 12px);  /* Full width minus padding */
+  height: 18px;
   background-image:
-    radial-gradient(circle, white 2px, transparent 2px);
-  background-size: 7px 7px;
-  background-position: 0 0;
-  width: 19px;  /* 3 dots * 4px + 2 gaps * 3px - 2px */
-  height: 19px;
+    radial-gradient(circle, white 2.5px, transparent 2.5px);
+  background-size: calc(100% / 3) 6px;  /* 3 columns, evenly spaced */
+  background-position: calc(100% / 6) 0;  /* Center dots in each column */
   opacity: 1;
 }
 
 .textbox-drag-handle:hover {
-  background: rgba(59, 130, 246, 0.6) !important;  /* Slightly more opaque on hover */
+  background: rgba(59, 130, 246, 0.45) !important;  /* Slightly more opaque on hover */
   transform: translateX(-50%) scale(1.05);
 }
 
@@ -187,6 +183,41 @@
   cursor: nwse-resize;
 }
 
+/* ===== DELETE BUTTON ===== */
+
+.inserted-textbox .delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 1002;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.inserted-textbox:hover .delete-button,
+.inserted-textbox.element-selected .delete-button {
+  opacity: 1;
+}
+
+.inserted-textbox .delete-button:hover {
+  transform: scale(1.15);
+  background: #dc2626;
+}
+
 /* ===== VIEW MODE - Hide controls ===== */
 
 body:not([data-mode="edit"]) .inserted-textbox {
@@ -194,7 +225,8 @@ body:not([data-mode="edit"]) .inserted-textbox {
 }
 
 body:not([data-mode="edit"]) .inserted-textbox .textbox-drag-handle,
-body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
+body:not([data-mode="edit"]) .inserted-textbox .resize-handle,
+body:not([data-mode="edit"]) .inserted-textbox .delete-button {
   display: none !important;
 }
 
@@ -231,7 +263,8 @@ body:not([data-mode="edit"]) .inserted-textbox .textbox-content {
 
 @media print {
   .inserted-textbox .resize-handle,
-  .inserted-textbox .textbox-drag-handle {
+  .inserted-textbox .textbox-drag-handle,
+  .inserted-textbox .delete-button {
     display: none !important;
   }
 

@@ -688,8 +688,19 @@
       container.classList.remove('textbox-editing');
     });
 
+    // Create delete button (appears on hover/selection)
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-button';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.title = 'Delete text box';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteElement(id);
+    });
+
     container.appendChild(dragHandle);
     container.appendChild(contentDiv);
+    container.appendChild(deleteBtn);
 
     // Add click handler for selection (on container border/padding)
     container.addEventListener('click', (e) => {
@@ -1198,10 +1209,159 @@
     }
   });
 
-  // Deselect elements when pressing Escape
+  // ===== CLIPBOARD SUPPORT =====
+
+  /**
+   * Clipboard storage for copy/cut operations
+   */
+  let clipboardData = null;
+
+  /**
+   * Copy selected element to clipboard
+   */
+  function copyElement() {
+    if (!selectedElementId) return { success: false, error: 'No element selected' };
+
+    const data = elementRegistry.get(selectedElementId);
+    const element = document.getElementById(selectedElementId);
+
+    if (!data || !element) return { success: false, error: 'Element not found' };
+
+    // For text boxes, capture content and styles
+    if (data.type === 'textbox') {
+      const contentDiv = element.querySelector('.textbox-content');
+      clipboardData = {
+        type: 'textbox',
+        content: contentDiv ? contentDiv.innerHTML : '',
+        position: { ...data.position },
+        style: { ...data.data.style },
+        textStyle: data.data.textStyle ? { ...data.data.textStyle } : null
+      };
+      console.log('📋 Copied text box to clipboard');
+      return { success: true, message: 'Text box copied' };
+    }
+
+    return { success: false, error: 'Copy not supported for this element type' };
+  }
+
+  /**
+   * Cut selected element (copy + delete)
+   */
+  function cutElement() {
+    const copyResult = copyElement();
+    if (copyResult.success) {
+      deleteElement(selectedElementId);
+      console.log('✂️ Cut text box');
+      return { success: true, message: 'Text box cut' };
+    }
+    return copyResult;
+  }
+
+  /**
+   * Paste element from clipboard
+   */
+  function pasteElement() {
+    if (!clipboardData) return { success: false, error: 'Clipboard is empty' };
+
+    // Find current slide index
+    const currentSlide = document.querySelector('.reveal .slides > section.present');
+    if (!currentSlide) return { success: false, error: 'No active slide' };
+
+    const slides = document.querySelectorAll('.reveal .slides > section');
+    let slideIndex = 0;
+    slides.forEach((slide, idx) => {
+      if (slide === currentSlide) slideIndex = idx;
+    });
+
+    if (clipboardData.type === 'textbox') {
+      // Offset position slightly so paste is visible
+      const position = { ...clipboardData.position };
+      // Parse and offset the grid position
+      const rowParts = position.gridRow.split('/');
+      const colParts = position.gridColumn.split('/');
+      position.gridRow = `${parseInt(rowParts[0]) + 1}/${parseInt(rowParts[1]) + 1}`;
+      position.gridColumn = `${parseInt(colParts[0]) + 1}/${parseInt(colParts[1]) + 1}`;
+
+      const result = insertTextBox(slideIndex, {
+        position: position,
+        content: clipboardData.content,
+        style: clipboardData.style,
+        textStyle: clipboardData.textStyle
+      });
+
+      if (result.success) {
+        selectElement(result.elementId);
+        console.log('📋 Pasted text box');
+      }
+      return result;
+    }
+
+    return { success: false, error: 'Paste not supported for this element type' };
+  }
+
+  // ===== KEYBOARD SHORTCUTS =====
+
   document.addEventListener('keydown', (e) => {
+    // Check if user is typing in an editable area (don't intercept normal typing)
+    const isEditing = e.target.isContentEditable ||
+                      e.target.tagName === 'INPUT' ||
+                      e.target.tagName === 'TEXTAREA';
+
+    // Modifier key check (Cmd on Mac, Ctrl on Windows/Linux)
+    const modKey = e.metaKey || e.ctrlKey;
+
+    // Escape - Deselect
     if (e.key === 'Escape' && selectedElementId) {
       deselectAll();
+      return;
+    }
+
+    // Delete/Backspace - Delete selected element (only if not editing text)
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementId && !isEditing) {
+      e.preventDefault();
+      deleteElement(selectedElementId);
+      console.log('🗑️ Deleted element via keyboard');
+      return;
+    }
+
+    // Ctrl/Cmd + C - Copy
+    if (modKey && e.key === 'c' && selectedElementId && !isEditing) {
+      e.preventDefault();
+      copyElement();
+      return;
+    }
+
+    // Ctrl/Cmd + X - Cut
+    if (modKey && e.key === 'x' && selectedElementId && !isEditing) {
+      e.preventDefault();
+      cutElement();
+      return;
+    }
+
+    // Ctrl/Cmd + V - Paste
+    if (modKey && e.key === 'v' && clipboardData && !isEditing) {
+      e.preventDefault();
+      pasteElement();
+      return;
+    }
+
+    // Ctrl/Cmd + Z - Undo (notify parent frame)
+    if (modKey && e.key === 'z' && !isEditing) {
+      // Emit undo request to parent frame
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'undoRequested' }, '*');
+        console.log('↩️ Undo requested');
+      }
+      return;
+    }
+
+    // Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y - Redo (notify parent frame)
+    if (modKey && (e.key === 'y' || (e.shiftKey && e.key === 'z')) && !isEditing) {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'redoRequested' }, '*');
+        console.log('↪️ Redo requested');
+      }
+      return;
     }
   });
 
@@ -1257,6 +1417,11 @@
     updateTextBoxContent: updateTextBoxContent,
     updateTextBoxStyle: updateTextBoxStyle,
     getTextBoxContent: getTextBoxContent,
+
+    // Clipboard methods (Ctrl/Cmd + C/X/V)
+    copyElement: copyElement,
+    cutElement: cutElement,
+    pasteElement: pasteElement,
 
     // PostMessage events (for parent frame communication)
     emitFormattingUpdate: emitFormattingUpdate,

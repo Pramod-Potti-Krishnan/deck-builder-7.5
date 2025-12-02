@@ -623,27 +623,26 @@
     const padding = style.padding || 16;
     dragHandle.style.cssText = `
       height: 24px;
-      background: transparent;
+      background: rgba(59, 130, 246, 0.15);
       cursor: move;
-      border-bottom: 1px dashed transparent;
+      border-bottom: 1px dashed #93c5fd;
       margin: -${padding}px -${padding}px 8px -${padding}px;
       padding: 4px 8px;
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 4px 4px 0 0;
     `;
     // Add grip icon indicator
-    dragHandle.innerHTML = '<span style="color: #9ca3af; font-size: 10px; letter-spacing: 2px;">⋮⋮⋮</span>';
+    dragHandle.innerHTML = '<span style="color: #3b82f6; font-size: 12px; letter-spacing: 3px;">⋮⋮⋮</span>';
 
-    // Show handle on hover
+    // Highlight more on hover
     dragHandle.addEventListener('mouseenter', () => {
-      dragHandle.style.background = 'rgba(59, 130, 246, 0.1)';
-      dragHandle.style.borderBottomColor = '#93c5fd';
+      dragHandle.style.background = 'rgba(59, 130, 246, 0.25)';
     });
     dragHandle.addEventListener('mouseleave', () => {
-      dragHandle.style.background = 'transparent';
-      dragHandle.style.borderBottomColor = 'transparent';
+      dragHandle.style.background = 'rgba(59, 130, 246, 0.15)';
     });
 
     // Create editable content area

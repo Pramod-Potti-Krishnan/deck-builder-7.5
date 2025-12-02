@@ -404,19 +404,15 @@
     // Add resizable class
     element.classList.add('resizable');
 
-    // Create 8 resize handles (4 corners + 4 edges) with arrow icons
-    const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+    // Create only 4 resize handles (3 edges + 1 corner)
+    const handles = ['w', 'e', 's', 'se'];
 
-    // Arrow icons for each direction
+    // Arrow icons for each direction (simple arrows, no tails)
     const arrowIcons = {
-      n: '▲',   // Up
       s: '▼',   // Down
       e: '▶',   // Right
       w: '◀',   // Left
-      nw: '↖',  // Top-left
-      ne: '↗',  // Top-right
-      sw: '↙',  // Bottom-left
-      se: '↘'   // Bottom-right
+      se: '↘'   // Bottom-right corner
     };
 
     handles.forEach(direction => {

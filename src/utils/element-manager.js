@@ -618,37 +618,11 @@
     `;
 
     // Create centered drag handle pill at top (NOT contentEditable, so it can be dragged)
+    // Styles are primarily in textbox.css - minimal inline styles here
     const dragHandle = document.createElement('div');
     dragHandle.className = 'textbox-drag-handle';
-    dragHandle.style.cssText = `
-      position: absolute;
-      top: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 64px;
-      height: 32px;
-      background: #3b82f6;
-      cursor: move;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-      transition: all 0.15s ease;
-      z-index: 101;
-    `;
-    // Add grip icon (6 dots in 2 rows)
-    dragHandle.innerHTML = '<span style="color: white; font-size: 18px; line-height: 1; letter-spacing: 2px;">⋮⋮</span>';
-
-    // Highlight more on hover
-    dragHandle.addEventListener('mouseenter', () => {
-      dragHandle.style.background = '#2563eb';
-      dragHandle.style.transform = 'translateX(-50%) scale(1.05)';
-    });
-    dragHandle.addEventListener('mouseleave', () => {
-      dragHandle.style.background = '#3b82f6';
-      dragHandle.style.transform = 'translateX(-50%) scale(1)';
-    });
+    // Add grip icon (6 dots pattern)
+    dragHandle.innerHTML = '<span style="color: white; font-size: 14px; line-height: 1; letter-spacing: 3px;">⋮⋮</span>';
 
     // Create editable content area
     const contentDiv = document.createElement('div');

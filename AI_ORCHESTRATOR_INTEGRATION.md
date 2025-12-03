@@ -204,11 +204,22 @@ if (result.injected) {
 
 ## Configuration
 
+### Production URLs
+
+```
+Elementor (AI Orchestrator): https://web-production-3b42.up.railway.app
+Layout Service:              https://web-production-f0d13.up.railway.app
+```
+
 ### Orchestrator Settings
 
 The Orchestrator connects to Layout Service via environment variable:
 
 ```env
+# Production
+LAYOUT_SERVICE_URL=https://web-production-f0d13.up.railway.app
+
+# Local Development
 LAYOUT_SERVICE_URL=http://localhost:8504
 ```
 

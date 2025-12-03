@@ -230,11 +230,26 @@
   background: #e5e7eb;
 }
 
+/* Extended hit area for easier grabbing (especially when element fills slide) */
+.inserted-element-placeholder .resize-handle::before {
+  content: '';
+  position: absolute;
+  pointer-events: auto;
+}
+
 /* === Left handle (w) === */
 .inserted-element-placeholder .resize-handle-w {
   left: -6px;
   top: 50%;
   transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-element-placeholder .resize-handle-w::before {
+  top: -12px;
+  left: 0;
+  width: 24px;
+  height: 36px;
   cursor: ew-resize;
 }
 
@@ -246,6 +261,14 @@
   cursor: ew-resize;
 }
 
+.inserted-element-placeholder .resize-handle-e::before {
+  top: -12px;
+  right: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
 /* === Bottom handle (s) === */
 .inserted-element-placeholder .resize-handle-s {
   bottom: -6px;
@@ -254,10 +277,26 @@
   cursor: ns-resize;
 }
 
+.inserted-element-placeholder .resize-handle-s::before {
+  left: -12px;
+  bottom: 0;
+  width: 36px;
+  height: 24px;
+  cursor: ns-resize;
+}
+
 /* === Bottom-right corner (se) === */
 .inserted-element-placeholder .resize-handle-se {
   right: -6px;
   bottom: -6px;
+  cursor: nwse-resize;
+}
+
+.inserted-element-placeholder .resize-handle-se::before {
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
   cursor: nwse-resize;
 }
 

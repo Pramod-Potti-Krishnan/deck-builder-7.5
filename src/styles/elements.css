@@ -77,15 +77,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  width: 100%;
+  height: 100%;
+  gap: 16px;
   padding: 20px;
+  box-sizing: border-box;
   pointer-events: none;
 }
 
 .element-placeholder-icon {
-  width: 120px;
-  height: 90px;
-  color: #6b7280;
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .element-placeholder-icon svg {
@@ -281,40 +287,76 @@
 
 /* ===== TYPE-SPECIFIC STYLES ===== */
 
-/* ----- Image Placeholder ----- */
+/* ----- Image Placeholder (Blue) ----- */
 .inserted-image.placeholder-mode {
   background: #fafafa;
+  border: 3px dashed #3b82f6 !important;
 }
 
 .inserted-image.placeholder-mode .element-placeholder-icon svg {
-  color: #6b7280;
+  color: #3b82f6;
 }
 
-/* ----- Chart Placeholder ----- */
+.inserted-image.placeholder-mode .element-placeholder-text {
+  color: #3b82f6;
+}
+
+.inserted-image.placeholder-mode .element-placeholder-dots span {
+  background: #3b82f6;
+}
+
+/* ----- Chart Placeholder (Green) ----- */
 .inserted-chart.placeholder-mode {
   background: #fafafa;
+  border: 3px dashed #10b981 !important;
 }
 
 .inserted-chart.placeholder-mode .element-placeholder-icon svg {
-  color: #4b5563;
+  color: #10b981;
 }
 
-/* ----- Infographic Placeholder ----- */
+.inserted-chart.placeholder-mode .element-placeholder-text {
+  color: #10b981;
+}
+
+.inserted-chart.placeholder-mode .element-placeholder-dots span {
+  background: #10b981;
+}
+
+/* ----- Infographic Placeholder (Purple) ----- */
 .inserted-infographic {
   background: #fafafa;
+  border: 3px dashed #8b5cf6 !important;
 }
 
 .inserted-infographic .element-placeholder-icon svg {
-  color: #4b5563;
+  color: #8b5cf6;
 }
 
-/* ----- Diagram Placeholder ----- */
+.inserted-infographic .element-placeholder-text {
+  color: #8b5cf6;
+}
+
+.inserted-infographic .element-placeholder-dots span {
+  background: #8b5cf6;
+}
+
+/* ----- Diagram Placeholder (Orange) ----- */
 .inserted-diagram {
   background: #fafafa;
+  border: 3px dashed #f59e0b !important;
 }
 
 .inserted-diagram .element-placeholder-icon svg {
-  color: #4b5563;
+  color: #f59e0b;
+}
+
+.inserted-diagram .element-placeholder-text {
+  color: #f59e0b;
+}
+
+.inserted-diagram .element-placeholder-dots span {
+  background: #f59e0b;
 }
 
 /* ===== CONTENT MODE (When actual content is loaded) ===== */

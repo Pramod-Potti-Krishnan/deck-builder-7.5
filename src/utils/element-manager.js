@@ -402,7 +402,7 @@
           <div class="element-placeholder-dots">
             <span></span><span></span><span></span>
           </div>
-          <span class="element-placeholder-text">Chart placeholder</span>
+          <span class="element-placeholder-text">Generate chart...</span>
         </div>
         <button class="element-delete-button">×</button>
         <div class="element-type-badge">
@@ -775,7 +775,7 @@
           <div class="element-placeholder-dots">
             <span></span><span></span><span></span>
           </div>
-          <span class="element-placeholder-text">Drag images here.</span>
+          <span class="element-placeholder-text">Generate image...</span>
         </div>
         <button class="element-delete-button">×</button>
         <div class="element-type-badge">
@@ -1014,7 +1014,7 @@
           <div class="element-placeholder-dots">
             <span></span><span></span><span></span>
           </div>
-          <span class="element-placeholder-text">Infographic placeholder</span>
+          <span class="element-placeholder-text">Generate infographic...</span>
         </div>
         <button class="element-delete-button">×</button>
         <div class="element-type-badge">
@@ -1240,7 +1240,7 @@
           <div class="element-placeholder-dots">
             <span></span><span></span><span></span>
           </div>
-          <span class="element-placeholder-text">Diagram placeholder</span>
+          <span class="element-placeholder-text">Generate diagram...</span>
         </div>
         <button class="element-delete-button">×</button>
         <div class="element-type-badge">

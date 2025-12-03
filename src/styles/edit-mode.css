@@ -364,14 +364,26 @@ body[data-mode="edit"] .edit-shortcuts {
   pointer-events: auto; /* Enable clicks in edit mode */
 }
 
-/* Optional: Show edit UI when parent enables it */
-body[data-show-edit-ui="true"] #toggle-edit-mode,
-body[data-show-edit-ui="true"] #edit-controls {
-  display: block;
+/* ==================== IFRAME EMBEDDING MODE ==================== */
+/* All native UI controls are permanently hidden for iframe embedding.
+   Frontend controls these via postMessage commands:
+   - enterEditMode / exitEditMode
+   - forceSave / cancelEdits
+   - getVersionHistory / restoreVersion
+*/
+
+/* Permanently hide all native UI controls */
+#toggle-edit-mode,
+#edit-controls,
+.edit-shortcuts,
+.text-toolbar,
+#text-toolbar {
+  display: none !important;
 }
 
-body[data-show-edit-ui="true"][data-mode="edit"] .edit-shortcuts {
-  display: block;
+/* Hide the edit mode badge (pencil emoji indicator) */
+body[data-mode="edit"]::before {
+  display: none !important;
 }
 
 .edit-shortcuts div {

@@ -287,76 +287,76 @@
 
 /* ===== TYPE-SPECIFIC STYLES ===== */
 
-/* ----- Image Placeholder (Blue) ----- */
+/* ----- Image Placeholder (Blue border) ----- */
 .inserted-image.placeholder-mode {
-  background: #fafafa;
+  background: #e5e7eb;
   border: 3px dashed #3b82f6 !important;
 }
 
 .inserted-image.placeholder-mode .element-placeholder-icon svg {
-  color: #3b82f6;
+  color: #6b7280;
 }
 
 .inserted-image.placeholder-mode .element-placeholder-text {
-  color: #3b82f6;
+  color: #6b7280;
 }
 
 .inserted-image.placeholder-mode .element-placeholder-dots span {
-  background: #3b82f6;
+  background: #9ca3af;
 }
 
-/* ----- Chart Placeholder (Green) ----- */
+/* ----- Chart Placeholder (Green border) ----- */
 .inserted-chart.placeholder-mode {
-  background: #fafafa;
+  background: #e5e7eb;
   border: 3px dashed #10b981 !important;
 }
 
 .inserted-chart.placeholder-mode .element-placeholder-icon svg {
-  color: #10b981;
+  color: #6b7280;
 }
 
 .inserted-chart.placeholder-mode .element-placeholder-text {
-  color: #10b981;
+  color: #6b7280;
 }
 
 .inserted-chart.placeholder-mode .element-placeholder-dots span {
-  background: #10b981;
+  background: #9ca3af;
 }
 
-/* ----- Infographic Placeholder (Purple) ----- */
+/* ----- Infographic Placeholder (Purple border) ----- */
 .inserted-infographic {
-  background: #fafafa;
+  background: #e5e7eb;
   border: 3px dashed #8b5cf6 !important;
 }
 
 .inserted-infographic .element-placeholder-icon svg {
-  color: #8b5cf6;
+  color: #6b7280;
 }
 
 .inserted-infographic .element-placeholder-text {
-  color: #8b5cf6;
+  color: #6b7280;
 }
 
 .inserted-infographic .element-placeholder-dots span {
-  background: #8b5cf6;
+  background: #9ca3af;
 }
 
-/* ----- Diagram Placeholder (Orange) ----- */
+/* ----- Diagram Placeholder (Orange border) ----- */
 .inserted-diagram {
-  background: #fafafa;
+  background: #e5e7eb;
   border: 3px dashed #f59e0b !important;
 }
 
 .inserted-diagram .element-placeholder-icon svg {
-  color: #f59e0b;
+  color: #6b7280;
 }
 
 .inserted-diagram .element-placeholder-text {
-  color: #f59e0b;
+  color: #6b7280;
 }
 
 .inserted-diagram .element-placeholder-dots span {
-  background: #f59e0b;
+  background: #9ca3af;
 }
 
 /* ===== CONTENT MODE (When actual content is loaded) ===== */

@@ -392,11 +392,11 @@
         <div class="element-placeholder-content">
           <div class="element-placeholder-icon">
             <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="15" y="50" width="20" height="30" fill="currentColor"/>
-              <rect x="40" y="30" width="20" height="50" fill="currentColor"/>
-              <rect x="65" y="40" width="20" height="40" fill="currentColor"/>
-              <rect x="90" y="20" width="20" height="60" fill="currentColor"/>
-              <line x1="10" y1="80" x2="115" y2="80" stroke="currentColor" stroke-width="2"/>
+              <rect x="12" y="52" width="22" height="28" rx="2" fill="currentColor"/>
+              <rect x="38" y="28" width="22" height="52" rx="2" fill="currentColor"/>
+              <rect x="64" y="38" width="22" height="42" rx="2" fill="currentColor"/>
+              <rect x="90" y="18" width="22" height="62" rx="2" fill="currentColor"/>
+              <line x1="8" y1="82" x2="116" y2="82" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
             </svg>
           </div>
           <div class="element-placeholder-dots">
@@ -767,9 +767,9 @@
         <div class="element-placeholder-content">
           <div class="element-placeholder-icon">
             <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="10" width="100" height="70" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
-              <circle cx="35" cy="35" r="10" fill="currentColor"/>
-              <path d="M15 65 L45 45 L65 55 L105 25" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="8" y="8" width="104" height="74" rx="6" stroke="currentColor" stroke-width="4" fill="none"/>
+              <circle cx="35" cy="32" r="12" fill="currentColor"/>
+              <path d="M12 68 L42 48 L62 58 L108 28" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <div class="element-placeholder-dots">
@@ -1003,12 +1003,12 @@
         <div class="element-placeholder-content">
           <div class="element-placeholder-icon">
             <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="20" cy="25" r="6" fill="currentColor"/>
-              <rect x="30" y="19" width="70" height="12" rx="6" fill="currentColor"/>
-              <circle cx="20" cy="45" r="6" fill="currentColor"/>
-              <rect x="30" y="39" width="70" height="12" rx="6" fill="currentColor"/>
-              <circle cx="20" cy="65" r="6" fill="currentColor"/>
-              <rect x="30" y="59" width="70" height="12" rx="6" fill="currentColor"/>
+              <circle cx="18" cy="22" r="9" fill="currentColor"/>
+              <rect x="32" y="14" width="78" height="16" rx="8" fill="currentColor"/>
+              <circle cx="18" cy="45" r="9" fill="currentColor"/>
+              <rect x="32" y="37" width="78" height="16" rx="8" fill="currentColor"/>
+              <circle cx="18" cy="68" r="9" fill="currentColor"/>
+              <rect x="32" y="60" width="78" height="16" rx="8" fill="currentColor"/>
             </svg>
           </div>
           <div class="element-placeholder-dots">
@@ -1228,13 +1228,13 @@
         <div class="element-placeholder-content">
           <div class="element-placeholder-icon">
             <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="10" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-              <rect x="45" y="35" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-              <rect x="80" y="10" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-              <rect x="45" y="60" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-              <path d="M25 30 L25 45 L45 45" stroke="currentColor" stroke-width="2" fill="none"/>
-              <path d="M95 30 L95 45 L75 45" stroke="currentColor" stroke-width="2" fill="none"/>
-              <path d="M60 55 L60 60" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="8" y="8" width="32" height="22" rx="4" stroke="currentColor" stroke-width="4" fill="none"/>
+              <rect x="44" y="34" width="32" height="22" rx="4" stroke="currentColor" stroke-width="4" fill="none"/>
+              <rect x="80" y="8" width="32" height="22" rx="4" stroke="currentColor" stroke-width="4" fill="none"/>
+              <rect x="44" y="60" width="32" height="22" rx="4" stroke="currentColor" stroke-width="4" fill="none"/>
+              <path d="M24 30 L24 45 L44 45" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M96 30 L96 45 L76 45" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M60 56 L60 60" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
             </svg>
           </div>
           <div class="element-placeholder-dots">

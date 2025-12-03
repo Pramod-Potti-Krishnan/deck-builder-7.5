@@ -239,8 +239,19 @@
     // Collect text boxes from this slide
     // IMPORTANT: Always include text_boxes array, even if empty
     // This ensures deletions are persisted to the backend
-    const textBoxes = collectTextBoxes(slideElement, index);
-    update.text_boxes = textBoxes;
+    update.text_boxes = collectTextBoxes(slideElement, index);
+
+    // Collect images from this slide
+    update.images = collectImages(slideElement, index);
+
+    // Collect charts from this slide
+    update.charts = collectCharts(slideElement, index);
+
+    // Collect infographics from this slide
+    update.infographics = collectInfographics(slideElement, index);
+
+    // Collect diagrams from this slide
+    update.diagrams = collectDiagrams(slideElement, index);
 
     return update;
   }
@@ -313,6 +324,177 @@
     });
 
     return textBoxes;
+  }
+
+  /**
+   * Collect images from a slide
+   */
+  function collectImages(slideElement, slideIndex) {
+    const images = [];
+
+    // Find all image elements in this slide
+    const imageElements = slideElement.querySelectorAll('.inserted-image');
+
+    imageElements.forEach(el => {
+      const image = {
+        id: el.id,
+        position: {
+          grid_row: el.style.gridRow || '4/14',
+          grid_column: el.style.gridColumn || '8/24'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        image_url: null,
+        alt_text: null,
+        object_fit: 'cover',
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get image URL if content mode (not placeholder)
+      if (!el.classList.contains('placeholder-mode')) {
+        const imgEl = el.querySelector('.element-content img');
+        if (imgEl) {
+          image.image_url = imgEl.src;
+          image.alt_text = imgEl.alt || null;
+          // Extract object-fit from inline style
+          const objectFitMatch = imgEl.style.objectFit;
+          if (objectFitMatch) {
+            image.object_fit = objectFitMatch;
+          }
+        }
+      }
+
+      images.push(image);
+    });
+
+    return images;
+  }
+
+  /**
+   * Collect charts from a slide
+   */
+  function collectCharts(slideElement, slideIndex) {
+    const charts = [];
+
+    // Find all chart elements in this slide
+    const chartElements = slideElement.querySelectorAll('.inserted-chart');
+
+    chartElements.forEach(el => {
+      const chart = {
+        id: el.id,
+        position: {
+          grid_row: el.style.gridRow || '4/15',
+          grid_column: el.style.gridColumn || '3/30'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        chart_type: null,
+        chart_config: null,
+        chart_html: null,
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get chart data if content mode (not placeholder)
+      if (!el.classList.contains('placeholder-mode')) {
+        const contentEl = el.querySelector('.element-content');
+        if (contentEl) {
+          // Store the HTML content for persistence
+          chart.chart_html = contentEl.innerHTML;
+        }
+        // Store chart instance data if available
+        if (el.chartInstance) {
+          chart.chart_type = el.chartInstance.config?.type || null;
+          chart.chart_config = el.chartInstance.config || null;
+        }
+      }
+
+      charts.push(chart);
+    });
+
+    return charts;
+  }
+
+  /**
+   * Collect infographics from a slide
+   */
+  function collectInfographics(slideElement, slideIndex) {
+    const infographics = [];
+
+    // Find all infographic elements in this slide
+    const infographicElements = slideElement.querySelectorAll('.inserted-infographic');
+
+    infographicElements.forEach(el => {
+      const infographic = {
+        id: el.id,
+        position: {
+          grid_row: el.style.gridRow || '4/16',
+          grid_column: el.style.gridColumn || '5/28'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        infographic_type: null,
+        svg_content: null,
+        items: null,
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get SVG content if not placeholder
+      if (!el.classList.contains('inserted-element-placeholder') || el.querySelector('.element-content')) {
+        const contentEl = el.querySelector('.element-content');
+        if (contentEl) {
+          infographic.svg_content = contentEl.innerHTML;
+        }
+      }
+
+      infographics.push(infographic);
+    });
+
+    return infographics;
+  }
+
+  /**
+   * Collect diagrams from a slide
+   */
+  function collectDiagrams(slideElement, slideIndex) {
+    const diagrams = [];
+
+    // Find all diagram elements in this slide
+    const diagramElements = slideElement.querySelectorAll('.inserted-diagram');
+
+    diagramElements.forEach(el => {
+      const diagram = {
+        id: el.id,
+        position: {
+          grid_row: el.style.gridRow || '4/16',
+          grid_column: el.style.gridColumn || '5/28'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        diagram_type: null,
+        mermaid_code: null,
+        svg_content: null,
+        direction: 'TB',
+        theme: 'default',
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get content if not placeholder
+      if (!el.classList.contains('inserted-element-placeholder') || el.querySelector('.element-content')) {
+        const contentEl = el.querySelector('.element-content');
+        if (contentEl) {
+          diagram.svg_content = contentEl.innerHTML;
+        }
+      }
+
+      // Get mermaid code if stored as data attribute
+      if (el.dataset.mermaidCode) {
+        diagram.mermaid_code = el.dataset.mermaidCode;
+      }
+
+      diagrams.push(diagram);
+    });
+
+    return diagrams;
   }
 
   /**

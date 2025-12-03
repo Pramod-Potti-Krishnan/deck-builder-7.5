@@ -287,15 +287,205 @@ class TextBox(BaseModel):
         return v
 
 
+# ==================== Image Element Models ====================
+
+class ImageElement(BaseModel):
+    """
+    An image element that can be placed on any slide.
+
+    Supports two modes:
+    1. Placeholder mode (no image_url) - Shows "Drag images here" UI
+    2. Content mode (image_url provided) - Shows actual image
+    """
+    id: str = Field(
+        default_factory=lambda: f"image-{uuid4().hex[:12]}",
+        description="Unique identifier for the image element"
+    )
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position and dimensions"
+    )
+    z_index: int = Field(
+        default=100, ge=1, le=10000,
+        description="Layer order (higher = on top)"
+    )
+    image_url: Optional[str] = Field(
+        default=None,
+        description="Image URL (null for placeholder mode)"
+    )
+    alt_text: Optional[str] = Field(
+        default=None,
+        max_length=500,
+        description="Alt text for accessibility"
+    )
+    object_fit: str = Field(
+        default="cover",
+        description="CSS object-fit: cover, contain, fill, none, scale-down"
+    )
+    locked: bool = Field(
+        default=False,
+        description="Prevent accidental edits when True"
+    )
+    visible: bool = Field(
+        default=True,
+        description="Show/hide without deleting"
+    )
+
+
+# ==================== Chart Element Models ====================
+
+class ChartElement(BaseModel):
+    """
+    A chart element that can be placed on any slide.
+
+    Supports two modes:
+    1. Placeholder mode (no chart_html/chart_config) - Shows chart placeholder UI
+    2. Content mode (chart_html or chart_config provided) - Shows actual chart
+    """
+    id: str = Field(
+        default_factory=lambda: f"chart-{uuid4().hex[:12]}",
+        description="Unique identifier for the chart element"
+    )
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position and dimensions"
+    )
+    z_index: int = Field(
+        default=100, ge=1, le=10000,
+        description="Layer order (higher = on top)"
+    )
+    chart_type: Optional[str] = Field(
+        default=None,
+        description="Chart type: bar, line, pie, doughnut, radar, scatter, bubble, etc."
+    )
+    chart_config: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Chart.js configuration object"
+    )
+    chart_html: Optional[str] = Field(
+        default=None,
+        description="Pre-rendered HTML content from Analytics Service"
+    )
+    locked: bool = Field(
+        default=False,
+        description="Prevent accidental edits when True"
+    )
+    visible: bool = Field(
+        default=True,
+        description="Show/hide without deleting"
+    )
+
+
+# ==================== Infographic Element Models ====================
+
+class InfographicElement(BaseModel):
+    """
+    An infographic element that can be placed on any slide.
+
+    Supports two modes:
+    1. Placeholder mode (no svg_content) - Shows infographic placeholder UI
+    2. Content mode (svg_content provided) - Shows actual infographic
+    """
+    id: str = Field(
+        default_factory=lambda: f"infographic-{uuid4().hex[:12]}",
+        description="Unique identifier for the infographic element"
+    )
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position and dimensions"
+    )
+    z_index: int = Field(
+        default=100, ge=1, le=10000,
+        description="Layer order (higher = on top)"
+    )
+    infographic_type: Optional[str] = Field(
+        default=None,
+        description="Infographic type: timeline, process, comparison, hierarchy, statistics, etc."
+    )
+    svg_content: Optional[str] = Field(
+        default=None,
+        description="SVG content from Illustrator Service"
+    )
+    items: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Data items for the infographic"
+    )
+    locked: bool = Field(
+        default=False,
+        description="Prevent accidental edits when True"
+    )
+    visible: bool = Field(
+        default=True,
+        description="Show/hide without deleting"
+    )
+
+
+# ==================== Diagram Element Models ====================
+
+class DiagramElement(BaseModel):
+    """
+    A diagram element that can be placed on any slide.
+
+    Supports two modes:
+    1. Placeholder mode (no svg_content/mermaid_code) - Shows diagram placeholder UI
+    2. Content mode (svg_content or mermaid_code provided) - Shows actual diagram
+    """
+    id: str = Field(
+        default_factory=lambda: f"diagram-{uuid4().hex[:12]}",
+        description="Unique identifier for the diagram element"
+    )
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position and dimensions"
+    )
+    z_index: int = Field(
+        default=100, ge=1, le=10000,
+        description="Layer order (higher = on top)"
+    )
+    diagram_type: Optional[str] = Field(
+        default=None,
+        description="Diagram type: flowchart, sequence, class, state, entity, gantt, pie, mindmap, etc."
+    )
+    mermaid_code: Optional[str] = Field(
+        default=None,
+        description="Mermaid.js diagram code"
+    )
+    svg_content: Optional[str] = Field(
+        default=None,
+        description="Pre-rendered SVG content"
+    )
+    direction: str = Field(
+        default="TB",
+        description="Layout direction: TB (top-bottom), LR (left-right), BT, RL"
+    )
+    theme: str = Field(
+        default="default",
+        description="Diagram theme: default, dark, forest, neutral"
+    )
+    locked: bool = Field(
+        default=False,
+        description="Prevent accidental edits when True"
+    )
+    visible: bool = Field(
+        default=True,
+        description="Show/hide without deleting"
+    )
+
+
 # ==================== Slide Model ====================
 
 class Slide(BaseModel):
     """
     Individual slide with layout, content, and overlay elements.
 
-    Text boxes are stored as overlay elements that float above the main
-    layout content. They are persisted with the presentation and restored
-    on load.
+    Element types:
+    - text_boxes: Overlay text elements with rich HTML content
+    - images: Image elements (placeholder or actual images)
+    - charts: Chart elements (placeholder or actual Chart.js charts)
+    - infographics: Infographic elements (placeholder or SVG content)
+    - diagrams: Diagram elements (placeholder, Mermaid, or SVG content)
+
+    All element types are persisted and restored on load.
     """
     layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
         ...,
@@ -317,6 +507,22 @@ class Slide(BaseModel):
         default_factory=list,
         description="List of text box overlays on this slide (max 20)"
     )
+    images: List[ImageElement] = Field(
+        default_factory=list,
+        description="List of image elements on this slide (max 20)"
+    )
+    charts: List[ChartElement] = Field(
+        default_factory=list,
+        description="List of chart elements on this slide (max 10)"
+    )
+    infographics: List[InfographicElement] = Field(
+        default_factory=list,
+        description="List of infographic elements on this slide (max 10)"
+    )
+    diagrams: List[DiagramElement] = Field(
+        default_factory=list,
+        description="List of diagram elements on this slide (max 10)"
+    )
 
     @field_validator('text_boxes')
     @classmethod
@@ -324,6 +530,38 @@ class Slide(BaseModel):
         """Limit text boxes per slide."""
         if len(v) > 20:
             raise ValueError("Maximum 20 text boxes per slide")
+        return v
+
+    @field_validator('images')
+    @classmethod
+    def validate_images_limit(cls, v: List[ImageElement]) -> List[ImageElement]:
+        """Limit images per slide."""
+        if len(v) > 20:
+            raise ValueError("Maximum 20 images per slide")
+        return v
+
+    @field_validator('charts')
+    @classmethod
+    def validate_charts_limit(cls, v: List[ChartElement]) -> List[ChartElement]:
+        """Limit charts per slide."""
+        if len(v) > 10:
+            raise ValueError("Maximum 10 charts per slide")
+        return v
+
+    @field_validator('infographics')
+    @classmethod
+    def validate_infographics_limit(cls, v: List[InfographicElement]) -> List[InfographicElement]:
+        """Limit infographics per slide."""
+        if len(v) > 10:
+            raise ValueError("Maximum 10 infographics per slide")
+        return v
+
+    @field_validator('diagrams')
+    @classmethod
+    def validate_diagrams_limit(cls, v: List[DiagramElement]) -> List[DiagramElement]:
+        """Limit diagrams per slide."""
+        if len(v) > 10:
+            raise ValueError("Maximum 10 diagrams per slide")
         return v
 
 
@@ -392,6 +630,26 @@ class SlideContentUpdate(BaseModel):
     text_boxes: Optional[List[TextBox]] = Field(
         None,
         description="List of text box overlays on this slide"
+    )
+    # Image elements
+    images: Optional[List[ImageElement]] = Field(
+        None,
+        description="List of image elements on this slide"
+    )
+    # Chart elements
+    charts: Optional[List[ChartElement]] = Field(
+        None,
+        description="List of chart elements on this slide"
+    )
+    # Infographic elements
+    infographics: Optional[List[InfographicElement]] = Field(
+        None,
+        description="List of infographic elements on this slide"
+    )
+    # Diagram elements
+    diagrams: Optional[List[DiagramElement]] = Field(
+        None,
+        description="List of diagram elements on this slide"
     )
 
 

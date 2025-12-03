@@ -536,9 +536,26 @@ async def update_all_slides(
         slides_updated = 0
         for i, slide_update in enumerate(slides_data):
             if i < len(presentation["slides"]):
-                # Handle text_boxes at slide level (not in content)
+                # Handle element types at slide level (not in content)
+                # Text boxes
                 if "text_boxes" in slide_update:
                     presentation["slides"][i]["text_boxes"] = slide_update.pop("text_boxes")
+
+                # Images
+                if "images" in slide_update:
+                    presentation["slides"][i]["images"] = slide_update.pop("images")
+
+                # Charts
+                if "charts" in slide_update:
+                    presentation["slides"][i]["charts"] = slide_update.pop("charts")
+
+                # Infographics
+                if "infographics" in slide_update:
+                    presentation["slides"][i]["infographics"] = slide_update.pop("infographics")
+
+                # Diagrams
+                if "diagrams" in slide_update:
+                    presentation["slides"][i]["diagrams"] = slide_update.pop("diagrams")
 
                 # Handle content fields
                 for key, value in slide_update.items():
@@ -1075,14 +1092,28 @@ async def change_slide_layout(
 
 # ==================== Text Box CRUD Endpoints ====================
 
-def ensure_slide_text_boxes(slide_data: dict) -> dict:
+def ensure_slide_elements(slide_data: dict) -> dict:
     """
-    Ensure slide data has text_boxes field for backward compatibility.
-    Called when loading presentations created before text_boxes feature.
+    Ensure slide data has all element arrays for backward compatibility.
+    Called when loading presentations created before these features.
     """
     if 'text_boxes' not in slide_data:
         slide_data['text_boxes'] = []
+    if 'images' not in slide_data:
+        slide_data['images'] = []
+    if 'charts' not in slide_data:
+        slide_data['charts'] = []
+    if 'infographics' not in slide_data:
+        slide_data['infographics'] = []
+    if 'diagrams' not in slide_data:
+        slide_data['diagrams'] = []
     return slide_data
+
+
+# Backward compatibility alias
+def ensure_slide_text_boxes(slide_data: dict) -> dict:
+    """Backward compatibility alias for ensure_slide_elements."""
+    return ensure_slide_elements(slide_data)
 
 
 def get_next_textbox_z_index(text_boxes: list) -> int:

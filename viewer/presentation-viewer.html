@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="/src/styles/auto-save.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251201">
   <link rel="stylesheet" href="/src/styles/textbox.css?v=20251202-simple">
+  <link rel="stylesheet" href="/src/styles/elements.css?v=20251202">
 
   <style>
     /* Minimal additional styling */
@@ -302,6 +303,156 @@
     }
 
     /**
+     * Restore images from saved slide data
+     */
+    function restoreImages(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const images = slide.images || [];
+        if (images.length === 0) return;
+
+        console.log(`Restoring ${images.length} image(s) on slide ${slideIndex + 1}`);
+
+        images.forEach(img => {
+          try {
+            if (typeof window.ElementManager?.insertImage === 'function') {
+              const config = {
+                id: img.id,
+                gridRow: img.position?.grid_row || '4/14',
+                gridColumn: img.position?.grid_column || '8/24',
+                imageUrl: img.image_url || null,
+                alt: img.alt_text || '',
+                objectFit: img.object_fit || 'cover',
+                zIndex: img.z_index || 100,
+                locked: img.locked || false,
+                visible: img.visible !== false
+              };
+
+              window.ElementManager.insertImage(slideIndex, config);
+              console.log(`✅ Restored image: ${img.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore image ${img.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
+     * Restore charts from saved slide data
+     */
+    function restoreCharts(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const charts = slide.charts || [];
+        if (charts.length === 0) return;
+
+        console.log(`Restoring ${charts.length} chart(s) on slide ${slideIndex + 1}`);
+
+        charts.forEach(chart => {
+          try {
+            if (typeof window.ElementManager?.insertChart === 'function') {
+              const config = {
+                id: chart.id,
+                gridRow: chart.position?.grid_row || '4/14',
+                gridColumn: chart.position?.grid_column || '8/24',
+                chartType: chart.chart_type || null,
+                chartConfig: chart.chart_config || null,
+                chartHtml: chart.chart_html || null,
+                zIndex: chart.z_index || 100,
+                locked: chart.locked || false,
+                visible: chart.visible !== false
+              };
+
+              window.ElementManager.insertChart(slideIndex, config);
+              console.log(`✅ Restored chart: ${chart.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore chart ${chart.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
+     * Restore infographics from saved slide data
+     */
+    function restoreInfographics(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const infographics = slide.infographics || [];
+        if (infographics.length === 0) return;
+
+        console.log(`Restoring ${infographics.length} infographic(s) on slide ${slideIndex + 1}`);
+
+        infographics.forEach(infographic => {
+          try {
+            if (typeof window.ElementManager?.insertInfographic === 'function') {
+              const config = {
+                id: infographic.id,
+                gridRow: infographic.position?.grid_row || '4/14',
+                gridColumn: infographic.position?.grid_column || '8/24',
+                infographicType: infographic.infographic_type || null,
+                svgContent: infographic.svg_content || null,
+                items: infographic.items || null,
+                zIndex: infographic.z_index || 100,
+                locked: infographic.locked || false,
+                visible: infographic.visible !== false
+              };
+
+              window.ElementManager.insertInfographic(slideIndex, config);
+              console.log(`✅ Restored infographic: ${infographic.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore infographic ${infographic.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
+     * Restore diagrams from saved slide data
+     */
+    function restoreDiagrams(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const diagrams = slide.diagrams || [];
+        if (diagrams.length === 0) return;
+
+        console.log(`Restoring ${diagrams.length} diagram(s) on slide ${slideIndex + 1}`);
+
+        diagrams.forEach(diagram => {
+          try {
+            if (typeof window.ElementManager?.insertDiagram === 'function') {
+              const config = {
+                id: diagram.id,
+                gridRow: diagram.position?.grid_row || '4/14',
+                gridColumn: diagram.position?.grid_column || '8/24',
+                diagramType: diagram.diagram_type || null,
+                mermaidCode: diagram.mermaid_code || null,
+                svgContent: diagram.svg_content || null,
+                direction: diagram.direction || 'TB',
+                theme: diagram.theme || 'default',
+                zIndex: diagram.z_index || 100,
+                locked: diagram.locked || false,
+                visible: diagram.visible !== false
+              };
+
+              window.ElementManager.insertDiagram(slideIndex, config);
+              console.log(`✅ Restored diagram: ${diagram.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore diagram ${diagram.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
      * Render presentation from data
      */
     function renderPresentation(data) {
@@ -406,8 +557,12 @@
           });
         }
 
-        // Restore text boxes from saved data
+        // Restore all dynamic elements from saved data
         restoreTextBoxes(data.slides);
+        restoreImages(data.slides);
+        restoreCharts(data.slides);
+        restoreInfographics(data.slides);
+        restoreDiagrams(data.slides);
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
       }, 300);  // Give scripts 300ms to execute
@@ -1113,6 +1268,109 @@
               result = { ...result, ...insertResult };
             } else {
               result.error = 'ElementManager not available';
+            }
+            break;
+
+          // Update image source
+          case 'updateImageSource':
+            if (typeof window.ElementManager?.updateImageSource === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateImageSource(
+                params.elementId,
+                params.imageUrl,
+                params.alt || params.altText
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateImageSource not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Update chart config (with optional metadata and insights from Orchestrator)
+          case 'updateChartConfig':
+            if (typeof window.ElementManager?.updateChartConfig === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateChartConfig(
+                params.elementId,
+                params.chartConfig,
+                params.metadata || null,   // AI-generated metadata
+                params.insights || null    // AI-generated insights
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateChartConfig not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Set chart HTML content
+          case 'setChartHtml':
+            if (typeof window.ElementManager?.setChartHtml === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.setChartHtml(
+                params.elementId,
+                params.chartHtml
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.setChartHtml not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Insert infographic
+          case 'insertInfographic':
+            if (typeof window.ElementManager?.insertInfographic === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertInfographic(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager.insertInfographic not available';
+            }
+            break;
+
+          // Update infographic content
+          case 'updateInfographicContent':
+            if (typeof window.ElementManager?.updateInfographicContent === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateInfographicContent(
+                params.elementId,
+                params.svgContent
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateInfographicContent not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Insert diagram
+          case 'insertDiagram':
+            if (typeof window.ElementManager?.insertDiagram === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertDiagram(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager.insertDiagram not available';
+            }
+            break;
+
+          // Update diagram with SVG
+          case 'updateDiagramSvg':
+            if (typeof window.ElementManager?.updateDiagramSvg === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateDiagramSvg(
+                params.elementId,
+                params.svgContent
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateDiagramSvg not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Update diagram with Mermaid code
+          case 'updateDiagramMermaid':
+            if (typeof window.ElementManager?.updateDiagramMermaid === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateDiagramMermaid(
+                params.elementId,
+                params.mermaidCode
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateDiagramMermaid not available' : 'elementId parameter required';
             }
             break;
 

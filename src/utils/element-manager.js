@@ -349,12 +349,18 @@
   /**
    * Insert a chart element into a slide
    *
+   * Supports two modes:
+   * 1. Placeholder mode (no chartHtml/chartConfig) - Shows chart placeholder UI
+   * 2. Content mode (chartHtml or chartConfig provided) - Shows actual chart
+   *
    * @param {number} slideIndex - Target slide (0-based)
    * @param {Object} config - Chart configuration
    * @param {string} [config.chartHtml] - Pre-formatted HTML from Analytics Service
    * @param {Object} [config.chartConfig] - Chart.js configuration
-   * @param {Object} config.position - Grid position {gridRow, gridColumn}
+   * @param {Object} [config.position] - Grid position {gridRow, gridColumn}
    * @param {boolean} [config.draggable=true] - Enable drag-drop
+   * @param {boolean} [config.resizable=true] - Enable resize handles
+   * @param {string} [config.id] - Existing ID (for restoration)
    * @returns {Object} Result with elementId
    */
   function insertChart(slideIndex, config) {
@@ -363,60 +369,115 @@
       return { success: false, error: `Slide ${slideIndex} not found` };
     }
 
-    const id = generateId('chart');
+    const isPlaceholderMode = !config.chartHtml && !config.chartConfig;
+    const id = config.id || generateId('chart');
     const position = config.position || { gridRow: '4/15', gridColumn: '3/30' };
 
     // Create container
     const container = document.createElement('div');
     container.id = id;
-    container.className = 'dynamic-element inserted-chart';
+    container.className = `dynamic-element inserted-element-placeholder inserted-chart${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'chart';
     container.dataset.slideIndex = slideIndex;
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
-      display: flex;
-      align-items: center;
-      justify-content: center;
       z-index: ${++zIndexCounter};
-      background: white;
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: visible;
-      cursor: ${config.draggable !== false ? 'move' : 'default'};
     `;
 
-    // Use provided HTML or create chart from config
-    if (config.chartHtml) {
-      container.innerHTML = config.chartHtml;
-    } else if (config.chartConfig && typeof Chart !== 'undefined') {
-      // Create canvas for Chart.js
-      const canvas = document.createElement('canvas');
-      canvas.id = `canvas-${id}`;
-      canvas.style.cssText = 'width:100%;height:100%;';
-      container.appendChild(canvas);
+    if (isPlaceholderMode) {
+      // Placeholder mode - show chart placeholder UI
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-placeholder-content">
+          <div class="element-placeholder-icon">
+            <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="15" y="50" width="20" height="30" fill="currentColor"/>
+              <rect x="40" y="30" width="20" height="50" fill="currentColor"/>
+              <rect x="65" y="40" width="20" height="40" fill="currentColor"/>
+              <rect x="90" y="20" width="20" height="60" fill="currentColor"/>
+              <line x1="10" y1="80" x2="115" y2="80" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="element-placeholder-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="element-placeholder-text">Chart placeholder</span>
+        </div>
+        <button class="element-delete-button">×</button>
+        <div class="element-type-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3v18h18" stroke="currentColor" stroke-width="2"/>
+            <rect x="7" y="10" width="3" height="8" fill="currentColor"/>
+            <rect x="12" y="6" width="3" height="12" fill="currentColor"/>
+            <rect x="17" y="12" width="3" height="6" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
 
-      // Initialize chart after container is in DOM
-      setTimeout(() => {
-        try {
-          const chart = new Chart(canvas, {
-            type: config.chartConfig.type || 'bar',
-            data: config.chartConfig.data,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              ...config.chartConfig.options
-            }
-          });
-          container.chartInstance = chart;
-        } catch (error) {
-          console.error('Chart creation failed:', error);
-          container.innerHTML = `<div style="color:#6b7280;text-align:center;">Chart error: ${error.message}</div>`;
-        }
-      }, 0);
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
     } else {
-      container.innerHTML = '<div style="color:#6b7280;text-align:center;">Chart placeholder</div>';
+      // Content mode - show actual chart
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-content"></div>
+        <button class="element-delete-button">×</button>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
+
+      const contentDiv = container.querySelector('.element-content');
+
+      if (config.chartHtml) {
+        contentDiv.innerHTML = config.chartHtml;
+      } else if (config.chartConfig && typeof Chart !== 'undefined') {
+        // Create canvas for Chart.js
+        const canvas = document.createElement('canvas');
+        canvas.id = `canvas-${id}`;
+        canvas.style.cssText = 'width:100%;height:100%;';
+        contentDiv.appendChild(canvas);
+
+        // Initialize chart after container is in DOM
+        setTimeout(() => {
+          try {
+            const chart = new Chart(canvas, {
+              type: config.chartConfig.type || 'bar',
+              data: config.chartConfig.data,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                ...config.chartConfig.options
+              }
+            });
+            container.chartInstance = chart;
+          } catch (error) {
+            console.error('Chart creation failed:', error);
+            contentDiv.innerHTML = `<div style="color:#6b7280;text-align:center;">Chart error: ${error.message}</div>`;
+          }
+        }, 0);
+      }
+
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
     }
 
     // Add click handler for selection
@@ -425,13 +486,28 @@
       selectElement(id);
     });
 
+    // Add to slide FIRST (element must be in DOM before makeDraggable/makeResizable)
+    slide.appendChild(container);
+
     // Enable drag-drop
     if (config.draggable !== false && typeof window.DragDrop !== 'undefined') {
       window.DragDrop.makeDraggable(id);
     }
 
-    // Add to slide
-    slide.appendChild(container);
+    // Enable resize if available and requested
+    if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
+      window.DragDrop.makeResizable(id);
+    }
+
+    // Apply locked state if specified
+    if (config.locked) {
+      container.classList.add('element-locked');
+    }
+
+    // Apply hidden state if specified
+    if (config.visible === false) {
+      container.classList.add('element-hidden');
+    }
 
     // Register element
     const elementData = {
@@ -442,13 +518,19 @@
       zIndex: zIndexCounter,
       selected: false,
       data: {
-        chartType: config.chartConfig?.type || 'custom'
+        chartType: config.chartConfig?.type || null,
+        chartConfig: config.chartConfig || null,
+        chartHtml: config.chartHtml || null,
+        locked: config.locked || false,
+        visible: config.visible !== false
       }
     };
     elementRegistry.set(id, elementData);
 
-    // Trigger auto-save
-    triggerAutoSave(slideIndex);
+    // Trigger auto-save only for NEW elements (not restoration)
+    if (!config.id) {
+      triggerAutoSave(slideIndex);
+    }
 
     return {
       success: true,
@@ -457,18 +539,202 @@
     };
   }
 
+  /**
+   * Update chart content
+   *
+   * @param {string} elementId - Chart element ID
+   * @param {Object} chartConfig - Chart.js configuration
+   * @param {Object} [metadata] - Chart metadata from AI service (optional)
+   * @param {Object} [insights] - AI-generated insights (optional)
+   * @returns {Object} Result
+   */
+  function updateChartConfig(elementId, chartConfig, metadata, insights) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'chart') {
+      return { success: false, error: 'Chart element not found' };
+    }
+
+    // Remove placeholder mode
+    element.classList.remove('placeholder-mode');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // Destroy existing chart instance
+    if (element.chartInstance) {
+      element.chartInstance.destroy();
+    }
+
+    // Store metadata and insights in element dataset (for persistence and access)
+    if (metadata) {
+      element.dataset.chartMetadata = JSON.stringify(metadata);
+      data.data.metadata = metadata;
+    }
+    if (insights) {
+      element.dataset.chartInsights = JSON.stringify(insights);
+      data.data.insights = insights;
+    }
+
+    // Create new chart
+    let chartCreated = false;
+    if (typeof Chart !== 'undefined') {
+      const canvas = document.createElement('canvas');
+      canvas.id = `canvas-${elementId}`;
+      canvas.style.cssText = 'width:100%;height:100%;';
+      contentDiv.innerHTML = '';
+      contentDiv.appendChild(canvas);
+
+      setTimeout(() => {
+        try {
+          const chart = new Chart(canvas, {
+            type: chartConfig.type || 'bar',
+            data: chartConfig.data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              ...chartConfig.options
+            }
+          });
+          element.chartInstance = chart;
+          chartCreated = true;
+
+          // Emit chartRendered event to parent (for frontend to know chart is ready)
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'chartRendered',
+              elementId: elementId,
+              success: true,
+              metadata: metadata || null,
+              insights: insights || null
+            }, '*');
+            console.log('📤 postMessage: chartRendered', elementId);
+          }
+        } catch (error) {
+          console.error('Chart update failed:', error);
+          contentDiv.innerHTML = `<div style="color:#6b7280;text-align:center;">Chart error: ${error.message}</div>`;
+
+          // Emit error event to parent
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'chartRendered',
+              elementId: elementId,
+              success: false,
+              error: error.message
+            }, '*');
+          }
+        }
+      }, 0);
+    }
+
+    // Update registry
+    data.data.chartConfig = chartConfig;
+    data.data.chartType = chartConfig.type || null;
+
+    // Trigger auto-save
+    triggerAutoSave(data.slideIndex);
+
+    return { success: true };
+  }
+
+  /**
+   * Set chart HTML content directly
+   *
+   * @param {string} elementId - Chart element ID
+   * @param {string} chartHtml - HTML content for chart
+   * @returns {Object} Result
+   */
+  function setChartHtml(elementId, chartHtml) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'chart') {
+      return { success: false, error: 'Chart element not found' };
+    }
+
+    // Remove placeholder mode
+    element.classList.remove('placeholder-mode');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // Destroy existing chart instance
+    if (element.chartInstance) {
+      element.chartInstance.destroy();
+      element.chartInstance = null;
+    }
+
+    // Set HTML content
+    contentDiv.innerHTML = chartHtml;
+
+    // Update registry
+    data.data.chartHtml = chartHtml;
+
+    // Trigger auto-save
+    triggerAutoSave(data.slideIndex);
+
+    return { success: true };
+  }
+
   // ===== INSERT IMAGE =====
 
   /**
    * Insert an image element into a slide
    *
+   * Supports two modes:
+   * 1. Placeholder mode (no imageUrl) - Shows "Drag images here." UI
+   * 2. Content mode (imageUrl provided) - Shows actual image
+   *
    * @param {number} slideIndex - Target slide (0-based)
    * @param {Object} config - Image configuration
-   * @param {string} config.imageUrl - Image URL
+   * @param {string} [config.imageUrl] - Image URL (optional - shows placeholder if not provided)
    * @param {string} [config.alt] - Alt text
    * @param {string} [config.objectFit] - CSS object-fit: cover|contain|fill
-   * @param {Object} config.position - Grid position {gridRow, gridColumn}
+   * @param {Object} [config.position] - Grid position {gridRow, gridColumn}
    * @param {boolean} [config.draggable=true] - Enable drag-drop
+   * @param {boolean} [config.resizable=true] - Enable resize handles
+   * @param {string} [config.id] - Existing ID (for restoration)
    * @returns {Object} Result with elementId
    */
   function insertImage(slideIndex, config) {
@@ -477,47 +743,98 @@
       return { success: false, error: `Slide ${slideIndex} not found` };
     }
 
-    if (!config.imageUrl) {
-      return { success: false, error: 'imageUrl is required' };
-    }
-
-    const id = generateId('image');
-    const position = config.position || { gridRow: '4/14', gridColumn: '3/20' };
+    const isPlaceholderMode = !config.imageUrl;
+    const id = config.id || generateId('image');
+    const position = config.position || { gridRow: '4/14', gridColumn: '8/24' };
 
     // Create container
     const container = document.createElement('div');
     container.id = id;
-    container.className = 'dynamic-element inserted-image';
+    container.className = `dynamic-element inserted-element-placeholder inserted-image${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'image';
     container.dataset.slideIndex = slideIndex;
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
       z-index: ${++zIndexCounter};
-      overflow: hidden;
-      border-radius: 8px;
-      cursor: ${config.draggable !== false ? 'move' : 'default'};
     `;
 
-    // Create image
-    const img = document.createElement('img');
-    img.src = config.imageUrl;
-    img.alt = config.alt || '';
-    img.style.cssText = `
-      width: 100%;
-      height: 100%;
-      object-fit: ${config.objectFit || 'cover'};
-    `;
+    if (isPlaceholderMode) {
+      // Placeholder mode - show drag images UI
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-placeholder-content">
+          <div class="element-placeholder-icon">
+            <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="100" height="70" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="35" cy="35" r="10" fill="currentColor"/>
+              <path d="M15 65 L45 45 L65 55 L105 25" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="element-placeholder-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="element-placeholder-text">Drag images here.</span>
+        </div>
+        <button class="element-delete-button">×</button>
+        <div class="element-type-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+            <path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
 
-    // Handle load errors
-    img.onerror = () => {
-      container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;
-                                        width:100%;height:100%;background:#f3f4f6;color:#6b7280;">
-        Image unavailable
-      </div>`;
-    };
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
+    } else {
+      // Content mode - show actual image
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-content">
+          <img src="${config.imageUrl}" alt="${config.alt || ''}" style="width:100%;height:100%;object-fit:${config.objectFit || 'cover'};border-radius:6px;">
+        </div>
+        <button class="element-delete-button">×</button>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
 
-    container.appendChild(img);
+      // Handle load errors
+      const img = container.querySelector('img');
+      if (img) {
+        img.onerror = () => {
+          const contentDiv = container.querySelector('.element-content');
+          if (contentDiv) {
+            contentDiv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;
+                                              width:100%;height:100%;background:#f3f4f6;color:#6b7280;">
+              Image unavailable
+            </div>`;
+          }
+        };
+      }
+
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
+    }
 
     // Add click handler for selection
     container.addEventListener('click', (e) => {
@@ -525,13 +842,28 @@
       selectElement(id);
     });
 
+    // Add to slide FIRST (element must be in DOM before makeDraggable/makeResizable)
+    slide.appendChild(container);
+
     // Enable drag-drop
     if (config.draggable !== false && typeof window.DragDrop !== 'undefined') {
       window.DragDrop.makeDraggable(id);
     }
 
-    // Add to slide
-    slide.appendChild(container);
+    // Enable resize if available and requested
+    if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
+      window.DragDrop.makeResizable(id);
+    }
+
+    // Apply locked state if specified
+    if (config.locked) {
+      container.classList.add('element-locked');
+    }
+
+    // Apply hidden state if specified
+    if (config.visible === false) {
+      container.classList.add('element-hidden');
+    }
 
     // Register element
     const elementData = {
@@ -542,21 +874,614 @@
       zIndex: zIndexCounter,
       selected: false,
       data: {
-        imageUrl: config.imageUrl,
-        alt: config.alt,
-        objectFit: config.objectFit
+        imageUrl: config.imageUrl || null,
+        alt: config.alt || null,
+        objectFit: config.objectFit || 'cover',
+        locked: config.locked || false,
+        visible: config.visible !== false
       }
     };
     elementRegistry.set(id, elementData);
 
-    // Trigger auto-save
-    triggerAutoSave(slideIndex);
+    // Trigger auto-save only for NEW elements (not restoration)
+    if (!config.id) {
+      triggerAutoSave(slideIndex);
+    }
 
     return {
       success: true,
       elementId: id,
       position: position
     };
+  }
+
+  /**
+   * Update image source
+   *
+   * @param {string} elementId - Image element ID
+   * @param {string} imageUrl - New image URL
+   * @param {string} [alt] - Alt text
+   * @returns {Object} Result
+   */
+  function updateImageSource(elementId, imageUrl, alt) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'image') {
+      return { success: false, error: 'Image element not found' };
+    }
+
+    // Remove placeholder mode
+    element.classList.remove('placeholder-mode');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      // Create content div if it doesn't exist
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      // Insert after drag handle
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // Set new image
+    contentDiv.innerHTML = `<img src="${imageUrl}" alt="${alt || ''}" style="width:100%;height:100%;object-fit:${data.data.objectFit || 'cover'};border-radius:6px;">`;
+
+    // Update registry
+    data.data.imageUrl = imageUrl;
+    data.data.alt = alt || null;
+
+    // Trigger auto-save
+    triggerAutoSave(data.slideIndex);
+
+    return { success: true };
+  }
+
+  // ===== INSERT INFOGRAPHIC =====
+
+  /**
+   * Insert an infographic element into a slide
+   *
+   * Supports two modes:
+   * 1. Placeholder mode (no svgContent) - Shows infographic placeholder UI
+   * 2. Content mode (svgContent provided) - Shows actual infographic
+   *
+   * @param {number} slideIndex - Target slide (0-based)
+   * @param {Object} config - Infographic configuration
+   * @param {string} [config.svgContent] - SVG content (optional - shows placeholder if not provided)
+   * @param {string} [config.infographicType] - Type: timeline, process, comparison, etc.
+   * @param {Array} [config.items] - Data items for the infographic
+   * @param {Object} [config.position] - Grid position {gridRow, gridColumn}
+   * @param {boolean} [config.draggable=true] - Enable drag-drop
+   * @param {boolean} [config.resizable=true] - Enable resize handles
+   * @param {string} [config.id] - Existing ID (for restoration)
+   * @returns {Object} Result with elementId
+   */
+  function insertInfographic(slideIndex, config) {
+    const slide = getSlideElement(slideIndex);
+    if (!slide) {
+      return { success: false, error: `Slide ${slideIndex} not found` };
+    }
+
+    const isPlaceholderMode = !config.svgContent;
+    const id = config.id || generateId('infographic');
+    const position = config.position || { gridRow: '4/16', gridColumn: '5/28' };
+
+    // Create container
+    const container = document.createElement('div');
+    container.id = id;
+    container.className = `dynamic-element inserted-element-placeholder inserted-infographic${isPlaceholderMode ? '' : ''}`;
+    container.dataset.elementType = 'infographic';
+    container.dataset.slideIndex = slideIndex;
+    container.style.cssText = `
+      grid-row: ${position.gridRow};
+      grid-column: ${position.gridColumn};
+      z-index: ${++zIndexCounter};
+    `;
+
+    if (isPlaceholderMode) {
+      // Placeholder mode - show infographic placeholder UI
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-placeholder-content">
+          <div class="element-placeholder-icon">
+            <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="25" r="6" fill="currentColor"/>
+              <rect x="30" y="19" width="70" height="12" rx="6" fill="currentColor"/>
+              <circle cx="20" cy="45" r="6" fill="currentColor"/>
+              <rect x="30" y="39" width="70" height="12" rx="6" fill="currentColor"/>
+              <circle cx="20" cy="65" r="6" fill="currentColor"/>
+              <rect x="30" y="59" width="70" height="12" rx="6" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="element-placeholder-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="element-placeholder-text">Infographic placeholder</span>
+        </div>
+        <button class="element-delete-button">×</button>
+        <div class="element-type-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="6" cy="6" r="2" fill="currentColor"/>
+            <rect x="10" y="4" width="10" height="4" rx="2" fill="currentColor"/>
+            <circle cx="6" cy="12" r="2" fill="currentColor"/>
+            <rect x="10" y="10" width="10" height="4" rx="2" fill="currentColor"/>
+            <circle cx="6" cy="18" r="2" fill="currentColor"/>
+            <rect x="10" y="16" width="10" height="4" rx="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
+
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
+    } else {
+      // Content mode - show actual infographic
+      container.classList.remove('inserted-element-placeholder');
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-content">${config.svgContent}</div>
+        <button class="element-delete-button">×</button>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
+
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
+    }
+
+    // Add click handler for selection
+    container.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectElement(id);
+    });
+
+    // Add to slide FIRST (element must be in DOM before makeDraggable/makeResizable)
+    slide.appendChild(container);
+
+    // Enable drag-drop
+    if (config.draggable !== false && typeof window.DragDrop !== 'undefined') {
+      window.DragDrop.makeDraggable(id);
+    }
+
+    // Enable resize if available and requested
+    if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
+      window.DragDrop.makeResizable(id);
+    }
+
+    // Apply locked state if specified
+    if (config.locked) {
+      container.classList.add('element-locked');
+    }
+
+    // Apply hidden state if specified
+    if (config.visible === false) {
+      container.classList.add('element-hidden');
+    }
+
+    // Register element
+    const elementData = {
+      id: id,
+      type: 'infographic',
+      slideIndex: slideIndex,
+      position: position,
+      zIndex: zIndexCounter,
+      selected: false,
+      data: {
+        svgContent: config.svgContent || null,
+        infographicType: config.infographicType || null,
+        items: config.items || null,
+        locked: config.locked || false,
+        visible: config.visible !== false
+      }
+    };
+    elementRegistry.set(id, elementData);
+
+    // Trigger auto-save only for NEW elements (not restoration)
+    if (!config.id) {
+      triggerAutoSave(slideIndex);
+    }
+
+    return {
+      success: true,
+      elementId: id,
+      position: position
+    };
+  }
+
+  /**
+   * Update infographic content
+   *
+   * @param {string} elementId - Infographic element ID
+   * @param {string} svgContent - SVG content
+   * @returns {Object} Result
+   */
+  function updateInfographicContent(elementId, svgContent) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'infographic') {
+      return { success: false, error: 'Infographic element not found' };
+    }
+
+    // Remove placeholder styling
+    element.classList.remove('inserted-element-placeholder');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // Set SVG content
+    contentDiv.innerHTML = svgContent;
+
+    // Update registry
+    data.data.svgContent = svgContent;
+
+    // Trigger auto-save
+    triggerAutoSave(data.slideIndex);
+
+    return { success: true };
+  }
+
+  // ===== INSERT DIAGRAM =====
+
+  /**
+   * Insert a diagram element into a slide
+   *
+   * Supports two modes:
+   * 1. Placeholder mode (no svgContent/mermaidCode) - Shows diagram placeholder UI
+   * 2. Content mode (svgContent or mermaidCode provided) - Shows actual diagram
+   *
+   * @param {number} slideIndex - Target slide (0-based)
+   * @param {Object} config - Diagram configuration
+   * @param {string} [config.svgContent] - Pre-rendered SVG content
+   * @param {string} [config.mermaidCode] - Mermaid.js diagram code
+   * @param {string} [config.diagramType] - Type: flowchart, sequence, class, etc.
+   * @param {string} [config.direction] - Layout direction: TB, LR, BT, RL
+   * @param {string} [config.theme] - Theme: default, dark, forest, neutral
+   * @param {Object} [config.position] - Grid position {gridRow, gridColumn}
+   * @param {boolean} [config.draggable=true] - Enable drag-drop
+   * @param {boolean} [config.resizable=true] - Enable resize handles
+   * @param {string} [config.id] - Existing ID (for restoration)
+   * @returns {Object} Result with elementId
+   */
+  function insertDiagram(slideIndex, config) {
+    const slide = getSlideElement(slideIndex);
+    if (!slide) {
+      return { success: false, error: `Slide ${slideIndex} not found` };
+    }
+
+    const isPlaceholderMode = !config.svgContent && !config.mermaidCode;
+    const id = config.id || generateId('diagram');
+    const position = config.position || { gridRow: '4/16', gridColumn: '5/28' };
+
+    // Create container
+    const container = document.createElement('div');
+    container.id = id;
+    container.className = `dynamic-element inserted-element-placeholder inserted-diagram${isPlaceholderMode ? '' : ''}`;
+    container.dataset.elementType = 'diagram';
+    container.dataset.slideIndex = slideIndex;
+    container.style.cssText = `
+      grid-row: ${position.gridRow};
+      grid-column: ${position.gridColumn};
+      z-index: ${++zIndexCounter};
+    `;
+
+    if (isPlaceholderMode) {
+      // Placeholder mode - show diagram placeholder UI
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-placeholder-content">
+          <div class="element-placeholder-icon">
+            <svg viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="45" y="35" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="80" y="10" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+              <rect x="45" y="60" width="30" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M25 30 L25 45 L45 45" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M95 30 L95 45 L75 45" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M60 55 L60 60" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="element-placeholder-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="element-placeholder-text">Diagram placeholder</span>
+        </div>
+        <button class="element-delete-button">×</button>
+        <div class="element-type-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9" y="10" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="15" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9" y="17" width="6" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M6 7v3h3M18 7v3h-3M12 14v3" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
+
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
+    } else {
+      // Content mode - show actual diagram
+      container.classList.remove('inserted-element-placeholder');
+      container.innerHTML = `
+        <div class="element-drag-handle"></div>
+        <div class="element-content"></div>
+        <button class="element-delete-button">×</button>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-se"></div>
+      `;
+
+      const contentDiv = container.querySelector('.element-content');
+
+      if (config.svgContent) {
+        contentDiv.innerHTML = config.svgContent;
+      } else if (config.mermaidCode && typeof mermaid !== 'undefined') {
+        // Render Mermaid diagram
+        const mermaidId = `mermaid-${id}`;
+        contentDiv.innerHTML = `<div id="${mermaidId}">${config.mermaidCode}</div>`;
+        setTimeout(async () => {
+          try {
+            const { svg } = await mermaid.render(mermaidId + '-svg', config.mermaidCode);
+            contentDiv.innerHTML = svg;
+          } catch (error) {
+            console.error('Mermaid render failed:', error);
+            contentDiv.innerHTML = `<div style="color:#6b7280;text-align:center;">Diagram error: ${error.message}</div>`;
+          }
+        }, 0);
+      }
+
+      // Add delete button handler
+      const deleteBtn = container.querySelector('.element-delete-button');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteElement(id);
+        });
+      }
+    }
+
+    // Add click handler for selection
+    container.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectElement(id);
+    });
+
+    // Add to slide FIRST (element must be in DOM before makeDraggable/makeResizable)
+    slide.appendChild(container);
+
+    // Enable drag-drop
+    if (config.draggable !== false && typeof window.DragDrop !== 'undefined') {
+      window.DragDrop.makeDraggable(id);
+    }
+
+    // Enable resize if available and requested
+    if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
+      window.DragDrop.makeResizable(id);
+    }
+
+    // Apply locked state if specified
+    if (config.locked) {
+      container.classList.add('element-locked');
+    }
+
+    // Apply hidden state if specified
+    if (config.visible === false) {
+      container.classList.add('element-hidden');
+    }
+
+    // Register element
+    const elementData = {
+      id: id,
+      type: 'diagram',
+      slideIndex: slideIndex,
+      position: position,
+      zIndex: zIndexCounter,
+      selected: false,
+      data: {
+        svgContent: config.svgContent || null,
+        mermaidCode: config.mermaidCode || null,
+        diagramType: config.diagramType || null,
+        direction: config.direction || 'TB',
+        theme: config.theme || 'default',
+        locked: config.locked || false,
+        visible: config.visible !== false
+      }
+    };
+    elementRegistry.set(id, elementData);
+
+    // Trigger auto-save only for NEW elements (not restoration)
+    if (!config.id) {
+      triggerAutoSave(slideIndex);
+    }
+
+    return {
+      success: true,
+      elementId: id,
+      position: position
+    };
+  }
+
+  /**
+   * Update diagram content with SVG
+   *
+   * @param {string} elementId - Diagram element ID
+   * @param {string} svgContent - SVG content
+   * @returns {Object} Result
+   */
+  function updateDiagramSvg(elementId, svgContent) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'diagram') {
+      return { success: false, error: 'Diagram element not found' };
+    }
+
+    // Remove placeholder styling
+    element.classList.remove('inserted-element-placeholder');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // Set SVG content
+    contentDiv.innerHTML = svgContent;
+
+    // Update registry
+    data.data.svgContent = svgContent;
+
+    // Trigger auto-save
+    triggerAutoSave(data.slideIndex);
+
+    return { success: true };
+  }
+
+  /**
+   * Update diagram content with Mermaid code
+   *
+   * @param {string} elementId - Diagram element ID
+   * @param {string} mermaidCode - Mermaid.js diagram code
+   * @returns {Object} Result
+   */
+  async function updateDiagramMermaid(elementId, mermaidCode) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'diagram') {
+      return { success: false, error: 'Diagram element not found' };
+    }
+
+    if (typeof mermaid === 'undefined') {
+      return { success: false, error: 'Mermaid.js not loaded' };
+    }
+
+    // Remove placeholder styling
+    element.classList.remove('inserted-element-placeholder');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // Render Mermaid diagram
+    try {
+      const mermaidId = `mermaid-${elementId}-svg`;
+      const { svg } = await mermaid.render(mermaidId, mermaidCode);
+      contentDiv.innerHTML = svg;
+
+      // Update registry
+      data.data.mermaidCode = mermaidCode;
+      data.data.svgContent = svg;
+
+      // Trigger auto-save
+      triggerAutoSave(data.slideIndex);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Mermaid render failed:', error);
+      return { success: false, error: error.message };
+    }
   }
 
   // ===== INSERT TEXT BOX =====
@@ -1397,6 +2322,8 @@
     insertChart: insertChart,
     insertImage: insertImage,
     insertTextBox: insertTextBox,
+    insertInfographic: insertInfographic,
+    insertDiagram: insertDiagram,
 
     // Query methods
     getElementById: getElementById,
@@ -1417,6 +2344,20 @@
     updateTextBoxContent: updateTextBoxContent,
     updateTextBoxStyle: updateTextBoxStyle,
     getTextBoxContent: getTextBoxContent,
+
+    // Image specific methods
+    updateImageSource: updateImageSource,
+
+    // Chart specific methods
+    updateChartConfig: updateChartConfig,
+    setChartHtml: setChartHtml,
+
+    // Infographic specific methods
+    updateInfographicContent: updateInfographicContent,
+
+    // Diagram specific methods
+    updateDiagramSvg: updateDiagramSvg,
+    updateDiagramMermaid: updateDiagramMermaid,
 
     // Clipboard methods (Ctrl/Cmd + C/X/V)
     copyElement: copyElement,

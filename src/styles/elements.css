@@ -1,0 +1,430 @@
+/**
+ * Element Placeholder Styles for Layout Builder v7.5
+ *
+ * Styles for Image, Chart, Infographic, and Diagram placeholder elements.
+ * These elements show placeholder UI until AI-generated content is applied.
+ *
+ * Following patterns from textbox.css
+ */
+
+/* ===== PARENT OVERFLOW FIX ===== */
+/* Ensure slides allow overflow for handles positioned outside elements */
+.slide:has(.inserted-element-placeholder),
+.slide-content:has(.inserted-element-placeholder),
+[class*="slide"]:has(.inserted-element-placeholder) {
+  overflow: visible !important;
+}
+
+/* ===== BASE PLACEHOLDER STYLES ===== */
+
+.inserted-element-placeholder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px dashed #94a3b8 !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  overflow: visible !important;
+  min-height: 120px;
+}
+
+/* ===== SELECTION STATE ===== */
+
+.inserted-element-placeholder.element-selected {
+  border: 2px solid #3b82f6 !important;
+  border-style: solid !important;
+  z-index: 1500;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== HOVER STATE ===== */
+
+.inserted-element-placeholder:hover {
+  border-color: #64748b !important;
+  background: #f1f5f9;
+}
+
+/* ===== DRAGGING STATE ===== */
+
+.inserted-element-placeholder.dragging {
+  z-index: 11000;
+  opacity: 0.9;
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.inserted-element-placeholder.dragging .element-placeholder-content {
+  pointer-events: none;
+  user-select: none !important;
+}
+
+/* ===== RESIZING STATE ===== */
+
+.inserted-element-placeholder.resizing {
+  z-index: 11000;
+  user-select: none;
+}
+
+/* ===== PLACEHOLDER CONTENT (Icon + Text) ===== */
+
+.element-placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  pointer-events: none;
+}
+
+.element-placeholder-icon {
+  width: 120px;
+  height: 90px;
+  color: #6b7280;
+}
+
+.element-placeholder-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.element-placeholder-dots {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.element-placeholder-dots span {
+  width: 8px;
+  height: 8px;
+  background: #9ca3af;
+  border-radius: 50%;
+}
+
+.element-placeholder-text {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* ===== DRAG HANDLE (Same as textbox) ===== */
+
+.element-drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 24px;
+  background: rgba(96, 165, 250, 0.35) !important;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  z-index: 102;
+  user-select: none;
+  opacity: 0;
+}
+
+/* Show drag handle on hover or when selected */
+.inserted-element-placeholder:hover .element-drag-handle,
+.inserted-element-placeholder.element-selected .element-drag-handle {
+  opacity: 1;
+}
+
+/* 3×3 dot grid using box-shadow */
+.element-drag-handle::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 0 white,
+    8px 0 0 0 white,
+    16px 0 0 0 white,
+    0 7px 0 0 white,
+    8px 7px 0 0 white,
+    16px 7px 0 0 white,
+    0 14px 0 0 white,
+    8px 14px 0 0 white,
+    16px 14px 0 0 white;
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% - 8px), calc(-50% - 7px));
+}
+
+.element-drag-handle:hover {
+  background: rgba(59, 130, 246, 0.45) !important;
+  transform: translateX(-50%) scale(1.05);
+}
+
+/* ===== DELETE BUTTON ===== */
+
+.inserted-element-placeholder .element-delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 1002;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.inserted-element-placeholder:hover .element-delete-button,
+.inserted-element-placeholder.element-selected .element-delete-button {
+  opacity: 1;
+}
+
+.inserted-element-placeholder .element-delete-button:hover {
+  transform: scale(1.15);
+  background: #dc2626;
+}
+
+/* ===== RESIZE HANDLES ===== */
+
+.inserted-element-placeholder .resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid #000000;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1001;
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.inserted-element-placeholder .resize-handle:hover {
+  background: #e5e7eb;
+}
+
+/* === Left handle (w) === */
+.inserted-element-placeholder .resize-handle-w {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+/* === Right handle (e) === */
+.inserted-element-placeholder .resize-handle-e {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+/* === Bottom handle (s) === */
+.inserted-element-placeholder .resize-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+/* === Bottom-right corner (se) === */
+.inserted-element-placeholder .resize-handle-se {
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}
+
+/* ===== TYPE BADGE (Bottom-right corner icon) ===== */
+
+.element-type-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  background: #374151;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.element-type-badge svg {
+  width: 22px;
+  height: 22px;
+  color: white;
+  fill: white;
+}
+
+/* ===== TYPE-SPECIFIC STYLES ===== */
+
+/* ----- Image Placeholder ----- */
+.inserted-image.placeholder-mode {
+  background: #fafafa;
+}
+
+.inserted-image.placeholder-mode .element-placeholder-icon svg {
+  color: #6b7280;
+}
+
+/* ----- Chart Placeholder ----- */
+.inserted-chart.placeholder-mode {
+  background: #fafafa;
+}
+
+.inserted-chart.placeholder-mode .element-placeholder-icon svg {
+  color: #4b5563;
+}
+
+/* ----- Infographic Placeholder ----- */
+.inserted-infographic {
+  background: #fafafa;
+}
+
+.inserted-infographic .element-placeholder-icon svg {
+  color: #4b5563;
+}
+
+/* ----- Diagram Placeholder ----- */
+.inserted-diagram {
+  background: #fafafa;
+}
+
+.inserted-diagram .element-placeholder-icon svg {
+  color: #4b5563;
+}
+
+/* ===== CONTENT MODE (When actual content is loaded) ===== */
+
+.inserted-image:not(.placeholder-mode),
+.inserted-chart:not(.placeholder-mode),
+.inserted-infographic:not(.placeholder-mode),
+.inserted-diagram:not(.placeholder-mode) {
+  background: transparent;
+  border-style: solid !important;
+  border-color: transparent !important;
+}
+
+.inserted-image:not(.placeholder-mode):hover,
+.inserted-chart:not(.placeholder-mode):hover,
+.inserted-infographic:not(.placeholder-mode):hover,
+.inserted-diagram:not(.placeholder-mode):hover {
+  border-color: #94a3b8 !important;
+}
+
+.inserted-image:not(.placeholder-mode).element-selected,
+.inserted-chart:not(.placeholder-mode).element-selected,
+.inserted-infographic:not(.placeholder-mode).element-selected,
+.inserted-diagram:not(.placeholder-mode).element-selected {
+  border-color: #3b82f6 !important;
+}
+
+/* Hide placeholder content when actual content is loaded */
+.inserted-image:not(.placeholder-mode) .element-placeholder-content,
+.inserted-chart:not(.placeholder-mode) .element-placeholder-content,
+.inserted-infographic:not(.placeholder-mode) .element-placeholder-content,
+.inserted-diagram:not(.placeholder-mode) .element-placeholder-content,
+.inserted-image:not(.placeholder-mode) .element-type-badge,
+.inserted-chart:not(.placeholder-mode) .element-type-badge,
+.inserted-infographic:not(.placeholder-mode) .element-type-badge,
+.inserted-diagram:not(.placeholder-mode) .element-type-badge {
+  display: none;
+}
+
+/* ===== ACTUAL CONTENT CONTAINERS ===== */
+
+.element-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Image element content */
+.inserted-image .element-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Chart element content */
+.inserted-chart .element-content canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Infographic/Diagram SVG content */
+.inserted-infographic .element-content svg,
+.inserted-diagram .element-content svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== VIEW MODE - Hide controls ===== */
+
+body:not([data-mode="edit"]) .inserted-element-placeholder {
+  border: none !important;
+}
+
+body:not([data-mode="edit"]) .inserted-element-placeholder .element-drag-handle,
+body:not([data-mode="edit"]) .inserted-element-placeholder .resize-handle,
+body:not([data-mode="edit"]) .inserted-element-placeholder .element-delete-button {
+  display: none !important;
+}
+
+/* ===== LOCKED STATE ===== */
+
+.inserted-element-placeholder.element-locked {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ===== HIDDEN STATE ===== */
+
+.inserted-element-placeholder.element-hidden {
+  display: none;
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .inserted-element-placeholder .resize-handle,
+  .inserted-element-placeholder .element-drag-handle,
+  .inserted-element-placeholder .element-delete-button,
+  .inserted-element-placeholder .element-type-badge {
+    display: none !important;
+  }
+
+  .inserted-element-placeholder {
+    border: none !important;
+  }
+
+  .inserted-element-placeholder.placeholder-mode {
+    display: none !important;
+  }
+}

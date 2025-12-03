@@ -1097,19 +1097,34 @@
             }
             break;
 
-          // Generate AI text content
+          // Generate AI text content (with full action/tone/style support)
           case 'generateTextBoxContent':
             (async () => {
               try {
+                // Get current content if action requires it
+                let currentContent = '';
+                if (params.elementId && params.action) {
+                  const textBox = document.getElementById(params.elementId);
+                  const contentEl = textBox?.querySelector('.textbox-content');
+                  if (contentEl) {
+                    currentContent = contentEl.innerHTML;
+                  }
+                }
+
                 const response = await fetch(`${getApiBaseUrl()}/api/textbox/generate`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     prompt: params.prompt,
-                    tone: params.tone,
+                    action: params.action,       // shorten, expand, grammar, bulletize, simplify, professional
+                    tone: params.tone,           // professional, casual, persuasive, technical
+                    style: params.style,         // expand, summarize, rewrite
                     length: params.length,
                     format: params.format,
                     context: params.context,
+                    current_content: currentContent,  // Send current content for transformation actions
+                    presentation_id: params.presentationId,
+                    slide_index: params.slideIndex,
                     max_characters: params.maxCharacters || params.max_characters
                   })
                 });
@@ -1322,6 +1337,42 @@
               }
             } else {
               result.error = 'elementId and letterSpacing parameters required';
+            }
+            break;
+
+          // Set text highlight color (inline highlight on selected text)
+          case 'setTextHighlightColor':
+            if (params?.elementId && params?.color !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                // Focus on the content element
+                contentEl.focus();
+
+                // Get the current selection
+                const selection = window.getSelection();
+
+                if (selection && !selection.isCollapsed) {
+                  // Apply highlight to selected text using execCommand
+                  if (params.color === 'transparent' || params.color === 'none' || !params.color) {
+                    // Remove highlight by applying transparent
+                    document.execCommand('hiliteColor', false, 'transparent');
+                  } else {
+                    document.execCommand('hiliteColor', false, params.color);
+                  }
+                  result.success = true;
+                  result.message = 'Highlight applied to selection';
+                  if (typeof window.markContentChanged === 'function') window.markContentChanged();
+                } else {
+                  // No selection - apply to all content by wrapping
+                  result.success = false;
+                  result.error = 'No text selected. Please select text to highlight.';
+                }
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and color parameters required';
             }
             break;
 

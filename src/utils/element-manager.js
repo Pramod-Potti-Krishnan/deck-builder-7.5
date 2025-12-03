@@ -495,8 +495,9 @@
     }
 
     // Enable resize if available and requested
+    // Charts have minimum size of 4 columns × 3 rows
     if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
-      window.DragDrop.makeResizable(id);
+      window.DragDrop.makeResizable(id, { minCols: 4, minRows: 3 });
     }
 
     // Apply locked state if specified
@@ -851,8 +852,9 @@
     }
 
     // Enable resize if available and requested
+    // Images have minimum size of 2 columns × 2 rows
     if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
-      window.DragDrop.makeResizable(id);
+      window.DragDrop.makeResizable(id, { minCols: 2, minRows: 2 });
     }
 
     // Apply locked state if specified
@@ -1077,8 +1079,9 @@
     }
 
     // Enable resize if available and requested
+    // Infographics have minimum size of 3 columns × 3 rows
     if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
-      window.DragDrop.makeResizable(id);
+      window.DragDrop.makeResizable(id, { minCols: 3, minRows: 3 });
     }
 
     // Apply locked state if specified
@@ -1320,8 +1323,9 @@
     }
 
     // Enable resize if available and requested
+    // Diagrams have minimum size of 4 columns × 3 rows
     if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
-      window.DragDrop.makeResizable(id);
+      window.DragDrop.makeResizable(id, { minCols: 4, minRows: 3 });
     }
 
     // Apply locked state if specified
@@ -1644,8 +1648,9 @@
     }
 
     // Enable resize if available and requested (AFTER element is in DOM)
+    // Text boxes have minimum size of 2 columns × 2 rows
     if (config.resizable !== false && typeof window.DragDrop?.makeResizable === 'function') {
-      window.DragDrop.makeResizable(id);
+      window.DragDrop.makeResizable(id, { minCols: 2, minRows: 2 });
     }
 
     // Apply locked state if specified

@@ -582,25 +582,30 @@
     };
 
     handles.forEach(direction => {
-      // Check if handle already exists
-      if (element.querySelector(`.resize-handle-${direction}`)) {
-        return;
+      // Check if handle already exists (e.g., from HTML template)
+      let handle = element.querySelector(`.resize-handle-${direction}`);
+
+      if (!handle) {
+        // Create handle if it doesn't exist
+        handle = document.createElement('div');
+        handle.className = `resize-handle resize-handle-${direction}`;
+        handle.dataset.direction = direction;
+
+        // Add arrow icon inside the handle
+        handle.innerHTML = `<span class="resize-arrow">${arrowIcons[direction]}</span>`;
+
+        element.appendChild(handle);
       }
 
-      const handle = document.createElement('div');
-      handle.className = `resize-handle resize-handle-${direction}`;
+      // ALWAYS attach event listeners (whether handle was created or already existed)
+      // This fixes the bug where pre-existing handles had no event listeners
       handle.dataset.direction = direction;
-
-      // Add arrow icon inside the handle
-      handle.innerHTML = `<span class="resize-arrow">${arrowIcons[direction]}</span>`;
 
       // Mouse events
       handle.addEventListener('mousedown', (e) => handleResizeStart(e, elementId, direction));
 
       // Touch events
       handle.addEventListener('touchstart', (e) => handleResizeTouchStart(e, elementId, direction), { passive: false });
-
-      element.appendChild(handle);
     });
 
     console.log(`DragDrop: Made ${elementId} resizable`);

@@ -57,22 +57,23 @@
 </head>
 <body>
   <!-- Help Text -->
-  <div id="help-text">
+  <!-- Help text - hidden by default for clean UI (frontend controls this) -->
+  <div id="help-text" style="display: none;">
     Press 'R' for review mode | 'E' for edit mode | 'G' for grid | 'B' for borders | '?' for help
   </div>
 
-  <!-- Edit Mode UI -->
-  <button id="toggle-edit-mode" onclick="toggleEditMode()">✏️ Edit Mode</button>
+  <!-- Edit Mode UI - Hidden for clean UI (functionality remains, controlled via postMessage/keyboard) -->
+  <button id="toggle-edit-mode" onclick="toggleEditMode()" style="display: none;">✏️ Edit Mode</button>
 
-  <div id="edit-controls">
+  <div id="edit-controls" style="display: none;">
     <button id="save-btn" onclick="saveAllChanges()" title="Save Changes">💾</button>
     <button id="cancel-btn" onclick="cancelEdits()" title="Cancel">❌</button>
     <button id="view-history-btn" onclick="showVersionHistory()" title="Version History">📋</button>
   </div>
 
-  <div id="edit-notification"></div>
+  <div id="edit-notification" style="display: none;"></div>
 
-  <div class="edit-shortcuts">
+  <div class="edit-shortcuts" style="display: none;">
     <div><kbd>E</kbd> Toggle Edit Mode</div>
     <div><kbd>Ctrl+S</kbd> Save Changes</div>
     <div><kbd>ESC</kbd> Cancel</div>
@@ -99,8 +100,8 @@
     </div>
   </div>
 
-  <!-- Rich Text Floating Toolbar -->
-  <div id="text-toolbar" class="text-toolbar hidden">
+  <!-- Rich Text Floating Toolbar - Hidden (frontend provides formatting panel via postMessage) -->
+  <div id="text-toolbar" class="text-toolbar hidden" style="display: none !important;">
     <!-- Inline Formatting -->
     <div class="toolbar-group">
       <button data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
@@ -762,6 +763,89 @@
               result.success = true;
             }
             break;
+
+          // Get version history via API (cross-origin accessible)
+          case 'getVersionHistory':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/versions`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.presentationId = data.presentation_id;
+                  result.currentVersionId = data.current_version_id;
+                  result.versions = data.versions;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to fetch version history';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Restore a specific version (cross-origin accessible)
+          case 'restoreVersion':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                const versionId = params?.versionId;
+
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                if (!versionId) {
+                  result.success = false;
+                  result.error = 'No version ID provided';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/restore/${versionId}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    create_backup: params?.createBackup !== false  // Default true
+                  })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.message = data.message || 'Version restored successfully';
+                  result.backupVersionId = data.backup_version_id;
+
+                  // Reload the presentation to show restored version
+                  if (params?.reload !== false) {
+                    window.location.reload();
+                  }
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to restore version';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
 
           // Overview mode functions
           case 'toggleOverview':

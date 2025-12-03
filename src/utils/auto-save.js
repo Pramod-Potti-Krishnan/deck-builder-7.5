@@ -237,10 +237,10 @@
     if (bgImage) update.background_image = bgImage;
 
     // Collect text boxes from this slide
+    // IMPORTANT: Always include text_boxes array, even if empty
+    // This ensures deletions are persisted to the backend
     const textBoxes = collectTextBoxes(slideElement, index);
-    if (textBoxes.length > 0) {
-      update.text_boxes = textBoxes;
-    }
+    update.text_boxes = textBoxes;
 
     return update;
   }

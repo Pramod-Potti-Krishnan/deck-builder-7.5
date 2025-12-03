@@ -18,8 +18,9 @@ This document captures the design principles and implementation patterns learned
 8. [Persistence & Auto-Save](#8-persistence--auto-save)
 9. [Restoration on Page Load](#9-restoration-on-page-load)
 10. [Backend API Requirements](#10-backend-api-requirements)
-11. [Common Pitfalls & Solutions](#11-common-pitfalls--solutions)
-12. [Checklist for New Elements](#12-checklist-for-new-elements)
+11. [UI/UX Best Practices](#11-uiux-best-practices)
+12. [Common Pitfalls & Solutions](#12-common-pitfalls--solutions)
+13. [Checklist for New Elements](#13-checklist-for-new-elements)
 
 ---
 
@@ -705,7 +706,178 @@ class ImageElement(BaseElement):
 
 ---
 
-## 11. Common Pitfalls & Solutions
+## 11. UI/UX Best Practices
+
+### Delete Button Pattern
+
+Show a delete button that appears only on hover/selection:
+
+```javascript
+// Create delete button
+const deleteBtn = document.createElement('button');
+deleteBtn.className = 'delete-button';
+deleteBtn.innerHTML = '×';
+deleteBtn.title = 'Delete text box';
+deleteBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  deleteElement(id);
+});
+container.appendChild(deleteBtn);
+```
+
+```css
+.inserted-textbox .delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;  /* Hidden by default */
+  transition: opacity 0.15s ease;
+  z-index: 1002;
+}
+
+.inserted-textbox:hover .delete-button,
+.inserted-textbox.element-selected .delete-button {
+  opacity: 1;  /* Show on hover/selection */
+}
+```
+
+### Drag Handle Pattern
+
+For cleaner UI, hide drag handles by default and show on hover:
+
+```css
+.textbox-drag-handle {
+  opacity: 0;  /* Hidden by default */
+  transition: opacity 0.15s ease;
+}
+
+.inserted-textbox:hover .textbox-drag-handle,
+.inserted-textbox.element-selected .textbox-drag-handle {
+  opacity: 1;  /* Show on hover/selection */
+}
+```
+
+### Keyboard Shortcuts (Cross-Platform)
+
+Support both Mac (Cmd) and Windows/Linux (Ctrl):
+
+```javascript
+document.addEventListener('keydown', (e) => {
+  // Check if user is typing in an editable area
+  const isEditing = e.target.isContentEditable ||
+                    e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'TEXTAREA';
+
+  // Modifier key check (Cmd on Mac, Ctrl on Windows/Linux)
+  const modKey = e.metaKey || e.ctrlKey;
+
+  // Delete/Backspace - Delete selected element (only if not editing)
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElementId && !isEditing) {
+    e.preventDefault();
+    deleteElement(selectedElementId);
+    return;
+  }
+
+  // Ctrl/Cmd + C - Copy
+  if (modKey && e.key === 'c' && selectedElementId && !isEditing) {
+    e.preventDefault();
+    copyElement();
+    return;
+  }
+
+  // Ctrl/Cmd + X - Cut
+  if (modKey && e.key === 'x' && selectedElementId && !isEditing) {
+    e.preventDefault();
+    cutElement();
+    return;
+  }
+
+  // Ctrl/Cmd + V - Paste
+  if (modKey && e.key === 'v' && clipboardData && !isEditing) {
+    e.preventDefault();
+    pasteElement();
+    return;
+  }
+
+  // Ctrl/Cmd + Z - Undo
+  if (modKey && e.key === 'z' && !e.shiftKey && !isEditing) {
+    window.parent?.postMessage({ type: 'undoRequested' }, '*');
+    return;
+  }
+
+  // Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y - Redo
+  if (modKey && (e.key === 'y' || (e.shiftKey && e.key === 'z')) && !isEditing) {
+    window.parent?.postMessage({ type: 'redoRequested' }, '*');
+    return;
+  }
+});
+```
+
+### Clipboard Implementation
+
+```javascript
+let clipboardData = null;
+
+function copyElement() {
+  if (!selectedElementId) return { success: false };
+
+  const data = elementRegistry.get(selectedElementId);
+  const element = document.getElementById(selectedElementId);
+
+  if (data.type === 'textbox') {
+    const contentDiv = element.querySelector('.textbox-content');
+    clipboardData = {
+      type: 'textbox',
+      content: contentDiv?.innerHTML || '',
+      position: { ...data.position },
+      style: { ...data.data.style }
+    };
+    return { success: true };
+  }
+  return { success: false };
+}
+
+function cutElement() {
+  const result = copyElement();
+  if (result.success) {
+    deleteElement(selectedElementId);
+  }
+  return result;
+}
+
+function pasteElement() {
+  if (!clipboardData) return { success: false };
+
+  // Offset position slightly for visibility
+  const position = { ...clipboardData.position };
+  const rowParts = position.gridRow.split('/');
+  const colParts = position.gridColumn.split('/');
+  position.gridRow = `${parseInt(rowParts[0]) + 1}/${parseInt(rowParts[1]) + 1}`;
+  position.gridColumn = `${parseInt(colParts[0]) + 1}/${parseInt(colParts[1]) + 1}`;
+
+  const result = insertTextBox(currentSlideIndex, {
+    position,
+    content: clipboardData.content,
+    style: clipboardData.style
+  });
+
+  if (result.success) {
+    selectElement(result.elementId);
+  }
+  return result;
+}
+```
+
+---
+
+## 12. Common Pitfalls & Solutions
 
 ### Pitfall 1: Elements Not Persisting
 
@@ -720,7 +892,35 @@ class ImageElement(BaseElement):
 | URL pattern mismatch | Fix regex in `getPresentationId()` |
 | Server not restarted | Restart after backend changes |
 
-### Pitfall 2: Drag Not Working
+### Pitfall 2: Element Deletions Not Persisting
+
+**Symptoms**: Deleted elements reappear on page refresh
+
+**Root Cause**: The `collectSlideContent()` function was only including `text_boxes` in the update payload when there were text boxes present. When all were deleted, the field wasn't sent, so the backend kept the old data.
+
+**Solution**: ALWAYS include the element array in the save payload, even when empty:
+
+```javascript
+// ❌ WRONG - deletions won't persist
+const textBoxes = collectTextBoxes(slideElement, index);
+if (textBoxes.length > 0) {
+  update.text_boxes = textBoxes;
+}
+
+// ✅ CORRECT - empty array tells backend to clear
+const textBoxes = collectTextBoxes(slideElement, index);
+update.text_boxes = textBoxes;  // Always include, even if []
+```
+
+**Key Insight**: The backend replaces the entire array:
+```python
+if "text_boxes" in slide_update:
+    presentation["slides"][i]["text_boxes"] = slide_update.pop("text_boxes")
+```
+
+So sending `text_boxes: []` correctly clears all text boxes, but omitting `text_boxes` entirely means the backend keeps whatever was there before.
+
+### Pitfall 3: Drag Not Working
 
 **Symptoms**: Can't drag element, or content gets selected instead
 
@@ -729,7 +929,7 @@ class ImageElement(BaseElement):
 - Stop mousedown propagation on content area
 - Check that drag handle has correct cursor style
 
-### Pitfall 3: PostMessage Not Received
+### Pitfall 4: PostMessage Not Received
 
 **Symptoms**: Format panel doesn't appear when selecting element
 
@@ -739,7 +939,7 @@ class ImageElement(BaseElement):
 - Check browser console for postMessage logs
 - Ensure selection triggers on content click too
 
-### Pitfall 4: ContentEditable Not Working After Mode Toggle
+### Pitfall 5: ContentEditable Not Working After Mode Toggle
 
 **Symptoms**: Can't edit text after switching modes
 
@@ -748,7 +948,7 @@ class ImageElement(BaseElement):
 - Don't just add/remove CSS class, actually set the attribute
 - Check for restored elements that might have wrong initial state
 
-### Pitfall 5: Z-Index Issues
+### Pitfall 6: Z-Index Issues
 
 **Symptoms**: Elements appear behind other elements
 
@@ -759,7 +959,7 @@ class ImageElement(BaseElement):
 
 ---
 
-## 12. Checklist for New Elements
+## 13. Checklist for New Elements
 
 Use this checklist when implementing a new element type:
 
@@ -821,6 +1021,7 @@ Use this checklist when implementing a new element type:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2 | 2024-12-02 | Added Section 11 (UI/UX Best Practices): delete button pattern, drag handle hover visibility, keyboard shortcuts (cross-platform), clipboard implementation. Added Pitfall 2: Element Deletions Not Persisting |
 | 1.1 | 2024-12-02 | Added threshold-based drag detection (click-to-edit vs drag-to-move), grabbing cursor feedback |
 | 1.0 | 2024-12-02 | Initial document based on text box implementation |
 

@@ -987,7 +987,7 @@
     // Create container
     const container = document.createElement('div');
     container.id = id;
-    container.className = `dynamic-element inserted-element-placeholder inserted-infographic${isPlaceholderMode ? '' : ''}`;
+    container.className = `dynamic-element inserted-element-placeholder inserted-infographic${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'infographic';
     container.dataset.slideIndex = slideIndex;
     container.style.cssText = `
@@ -1212,7 +1212,7 @@
     // Create container
     const container = document.createElement('div');
     container.id = id;
-    container.className = `dynamic-element inserted-element-placeholder inserted-diagram${isPlaceholderMode ? '' : ''}`;
+    container.className = `dynamic-element inserted-element-placeholder inserted-diagram${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'diagram';
     container.dataset.slideIndex = slideIndex;
     container.style.cssText = `

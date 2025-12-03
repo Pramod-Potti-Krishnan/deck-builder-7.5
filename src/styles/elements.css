@@ -324,38 +324,38 @@
 }
 
 /* ----- Infographic Placeholder (Purple border) ----- */
-.inserted-infographic {
+.inserted-infographic.placeholder-mode {
   background: #e5e7eb;
   border: 3px dashed #8b5cf6 !important;
 }
 
-.inserted-infographic .element-placeholder-icon svg {
+.inserted-infographic.placeholder-mode .element-placeholder-icon svg {
   color: #6b7280;
 }
 
-.inserted-infographic .element-placeholder-text {
+.inserted-infographic.placeholder-mode .element-placeholder-text {
   color: #6b7280;
 }
 
-.inserted-infographic .element-placeholder-dots span {
+.inserted-infographic.placeholder-mode .element-placeholder-dots span {
   background: #9ca3af;
 }
 
 /* ----- Diagram Placeholder (Orange border) ----- */
-.inserted-diagram {
+.inserted-diagram.placeholder-mode {
   background: #e5e7eb;
   border: 3px dashed #f59e0b !important;
 }
 
-.inserted-diagram .element-placeholder-icon svg {
+.inserted-diagram.placeholder-mode .element-placeholder-icon svg {
   color: #6b7280;
 }
 
-.inserted-diagram .element-placeholder-text {
+.inserted-diagram.placeholder-mode .element-placeholder-text {
   color: #6b7280;
 }
 
-.inserted-diagram .element-placeholder-dots span {
+.inserted-diagram.placeholder-mode .element-placeholder-dots span {
   background: #9ca3af;
 }
 

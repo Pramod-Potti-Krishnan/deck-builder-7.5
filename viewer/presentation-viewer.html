@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Presentation Viewer - v7.5-main</title>
 
+  <!-- Google Fonts - All fonts used in templates -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
   <!-- Reveal.js Core -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
@@ -236,7 +241,7 @@
   <script src="/src/utils/drag-drop.js?v=20251201-semicircle"></script>
   <script src="/src/utils/element-manager.js?v=20251202-click-fix"></script>
 
-  <!-- v7.5 Renderers (6 layouts) -->
+  <!-- v7.5 Renderers (6 backend layouts) -->
   <script src="/src/renderers/L01.js"></script>
   <script src="/src/renderers/L02.js"></script>
   <script src="/src/renderers/L03.js"></script>
@@ -244,19 +249,49 @@
   <script src="/src/renderers/L27.js"></script>
   <script src="/src/renderers/L29.js"></script>
 
+  <!-- Frontend Template System (NEW - does not replace backend layouts) -->
+  <script src="/src/templates/template-registry.js?v=20251203"></script>
+  <script src="/src/renderers/hero-templates.js?v=20251203"></script>
+  <script src="/src/renderers/content-templates.js?v=20251203"></script>
+  <script src="/src/renderers/split-templates.js?v=20251203"></script>
+
   <!-- Presentation Rendering Script -->
   <script>
     // Presentation data (injected by server)
     const PRESENTATION_DATA = null;
 
-    // Renderer registry (6 layouts)
+    // Renderer registry - Backend layouts (6) + Frontend templates (15)
     const RENDERERS = {
+      // Backend layouts (continue to work as-is)
       'L01': window.renderL01,
       'L02': window.renderL02,
       'L03': window.renderL03,
       'L25': window.renderL25,
       'L27': window.renderL27,
-      'L29': window.renderL29
+      'L29': window.renderL29,
+
+      // Frontend templates - Hero (4)
+      'H1-generated': window.renderH1Generated,
+      'H1-structured': window.renderH1Structured,
+      'H2-section': window.renderH2Section,
+      'H3-closing': window.renderH3Closing,
+
+      // Frontend templates - Content (6)
+      'C1-text': window.renderC1Text,
+      'C2-table': window.renderC2Table,
+      'C3-chart': window.renderC3Chart,
+      'C4-infographic': window.renderC4Infographic,
+      'C5-diagram': window.renderC5Diagram,
+      'C6-image': window.renderC6Image,
+
+      // Frontend templates - Split (4)
+      'S1-visual-text': window.renderS1VisualText,
+      'S2-image-content': window.renderS2ImageContent,
+      'S3-two-visuals': window.renderS3TwoVisuals,
+      'S4-comparison': window.renderS4Comparison,
+
+      // Frontend templates - Blank (1)
+      'B1-blank': window.renderB1Blank
     };
 
     /**

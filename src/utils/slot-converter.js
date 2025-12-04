@@ -142,10 +142,28 @@
       }
 
       // Check for existing converted element (restoration scenario)
+      // Instead of skipping, UPDATE the element to match template positions
       const existingId = `slide-${slideIndex}-slot-${slotName}-element`;
-      if (document.getElementById(existingId)) {
-        console.log(`[SlotConverter] Element ${existingId} already exists (restored)`);
+      const existingElement = document.getElementById(existingId);
+      if (existingElement) {
+        console.log(`[SlotConverter] Updating restored element ${existingId} to match template`);
+        // UPDATE position to match template (restored elements may have saved positions)
+        existingElement.style.gridRow = slotDef.gridRow;
+        existingElement.style.gridColumn = slotDef.gridColumn;
+        // Mark as converted slot
         slotElement.classList.add('converted');
+        existingElement.classList.add('converted-slot', `slot-${slotName}`);
+        existingElement.dataset.originalSlot = slotName;
+        // Apply slot-specific styling for background
+        if (slotName === 'background') {
+          existingElement.classList.add('slot-background');
+          existingElement.style.zIndex = '1';
+          existingElement.style.borderRadius = '0';
+        }
+        // Apply slot-specific styling for logo
+        if (slotName === 'logo') {
+          existingElement.classList.add('slot-logo');
+        }
         return;
       }
 
@@ -239,6 +257,17 @@
       if (newElement) {
         newElement.classList.add('converted-slot', `slot-${slotName}`);
         newElement.dataset.originalSlot = slotName;
+
+        // FORCE template-defined grid position (in case defaults were used)
+        newElement.style.gridRow = slotDef.gridRow;
+        newElement.style.gridColumn = slotDef.gridColumn;
+
+        // FORCE flexbox alignment from template definition
+        const slotStyle = slotDef.style || {};
+        newElement.style.display = 'flex';
+        newElement.style.flexDirection = 'column';
+        newElement.style.justifyContent = slotStyle.justifyContent || 'flex-start';
+        newElement.style.alignItems = slotStyle.alignItems || 'flex-start';
       }
     } else {
       console.error(`[SlotConverter] Failed to create TextBox for slot '${slotName}':`, result.error);
@@ -264,8 +293,16 @@
 
     // Build text style from slot definition with fallback to computed styles
     const slotStyle = slotDef.style || {};
+
+    // Slot-specific default colors (for dark background visibility)
+    const slotColors = {
+      'title': '#ffffff',      // White for title (prominent)
+      'subtitle': '#94a3b8',   // Slate for subtitle (from template)
+      'footer': '#94a3b8'      // Light color for footer (visible on dark background)
+    };
+
     const textStyle = {
-      color: slotStyle.color || computedStyle.color || '#ffffff',
+      color: slotStyle.color || slotColors[slotName] || computedStyle.color || '#ffffff',
       font_family: slotStyle.fontFamily || computedStyle.fontFamily || 'Poppins, sans-serif',
       font_size: slotStyle.fontSize || computedStyle.fontSize || '32px',
       font_weight: slotStyle.fontWeight || computedStyle.fontWeight || 'normal',
@@ -341,11 +378,21 @@
         newElement.classList.add('converted-slot', `slot-${slotName}`);
         newElement.dataset.originalSlot = slotName;
 
-        // Special handling for background
+        // FORCE template-defined grid position (in case insertImage used defaults)
+        newElement.style.gridRow = slotDef.gridRow;
+        newElement.style.gridColumn = slotDef.gridColumn;
+
+        // Special handling for Background Image
         if (slotName === 'background') {
           newElement.classList.add('slot-background');
-          // Ensure background is behind everything
+          // Ensure background is behind everything and full-bleed
           newElement.style.zIndex = '1';
+          newElement.style.borderRadius = '0';  // No rounded corners for full-bleed
+        }
+
+        // Special handling for Logo Image
+        if (slotName === 'logo') {
+          newElement.classList.add('slot-logo');
         }
       }
     } else {

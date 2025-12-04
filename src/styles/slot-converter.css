@@ -73,19 +73,36 @@
   /* Footer elements */
 }
 
-/* Logo slot */
-.converted-slot.slot-logo {
-  /* Logo images */
-}
-
-/* ===== BACKGROUND SLOT SPECIAL HANDLING ===== */
+/* ===== IMAGE ELEMENT SLOT-SPECIFIC PLACEHOLDER COLORS ===== */
 
 /**
- * Background slot converts to an Image element but needs
+ * Background Image placeholder - darker fill when covering full slide
+ * Inherits all Image Element Type properties (drag, resize, delete, format panel)
+ * ONLY changes the placeholder fill color to be darker for full-slide coverage
+ */
+.converted-slot.slot-background.placeholder-mode {
+  background: rgba(30, 58, 95, 0.9) !important;  /* Darker blue - override default #e5e7eb */
+  border: 2px dashed rgba(59, 130, 246, 0.3) !important;  /* Subtle border instead of bright blue */
+  border-radius: 0 !important;  /* No rounded corners for full-bleed */
+}
+
+/**
+ * Logo Image placeholder - slate gray fill
+ * Inherits all Image Element Type properties
+ */
+.converted-slot.slot-logo.placeholder-mode {
+  background: rgba(100, 116, 139, 0.7) !important;  /* Slate gray */
+}
+
+/* ===== BACKGROUND IMAGE SLOT SPECIAL HANDLING ===== */
+
+/**
+ * Background Image slot converts to an Image element but needs
  * special positioning to stay behind all other elements.
  */
 .converted-slot.slot-background {
   z-index: 1 !important;
+  border-radius: 0 !important;  /* No rounded corners for full-bleed */
   pointer-events: none;  /* Click through to elements above */
 }
 

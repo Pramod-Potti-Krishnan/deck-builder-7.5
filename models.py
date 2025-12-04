@@ -16,6 +16,23 @@ from uuid import uuid4
 import re
 
 
+# ==================== Valid Layout Types ====================
+# All supported layouts: Backend (L01-L29) + Frontend Templates (H1-H3, C1-C6, S1-S4, B1)
+
+ValidLayoutType = Literal[
+    # Backend layouts
+    "L01", "L02", "L03", "L25", "L27", "L29",
+    # Frontend templates - Hero
+    "H1-generated", "H1-structured", "H2-section", "H3-closing",
+    # Frontend templates - Content
+    "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
+    # Frontend templates - Split
+    "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+    # Frontend templates - Blank
+    "B1-blank"
+]
+
+
 # ==================== L25: Main Content Shell ====================
 
 class L25Content(BaseModel):
@@ -487,9 +504,9 @@ class Slide(BaseModel):
 
     All element types are persisted and restored on load.
     """
-    layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
+    layout: ValidLayoutType = Field(
         ...,
-        description="Layout identifier"
+        description="Layout identifier (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
     )
     content: Union[L25Content, L29Content, Dict[str, Any]] = Field(
         ...,
@@ -771,9 +788,9 @@ class AddSlideRequest(BaseModel):
     The slide will be inserted at the specified position, or appended
     at the end if no position is provided.
     """
-    layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
+    layout: ValidLayoutType = Field(
         ...,
-        description="Layout type for the new slide"
+        description="Layout type for the new slide (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
     )
     position: Optional[int] = Field(
         None,
@@ -819,9 +836,9 @@ class ChangeLayoutRequest(BaseModel):
 
     Optionally preserves compatible content fields when switching layouts.
     """
-    new_layout: Literal["L01", "L02", "L03", "L25", "L27", "L29"] = Field(
+    new_layout: ValidLayoutType = Field(
         ...,
-        description="New layout type for the slide"
+        description="New layout type for the slide (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
     )
     preserve_content: bool = Field(
         True,

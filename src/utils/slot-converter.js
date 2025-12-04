@@ -268,6 +268,14 @@
         newElement.style.flexDirection = 'column';
         newElement.style.justifyContent = slotStyle.justifyContent || 'flex-start';
         newElement.style.alignItems = slotStyle.alignItems || 'flex-start';
+
+        // CRITICAL: Remove min-height from textbox-content so flexbox alignment works
+        // The inline style min-height: 100% prevents justify-content from positioning content
+        const contentDiv = newElement.querySelector('.textbox-content');
+        if (contentDiv) {
+          contentDiv.style.minHeight = 'auto';
+          contentDiv.style.height = 'auto';
+        }
       }
     } else {
       console.error(`[SlotConverter] Failed to create TextBox for slot '${slotName}':`, result.error);
@@ -298,7 +306,7 @@
     const slotColors = {
       'title': '#ffffff',      // White for title (prominent)
       'subtitle': '#94a3b8',   // Slate for subtitle (from template)
-      'footer': '#94a3b8'      // Light color for footer (visible on dark background)
+      'footer': '#ffffff'      // White for footer (visible on dark background)
     };
 
     const textStyle = {

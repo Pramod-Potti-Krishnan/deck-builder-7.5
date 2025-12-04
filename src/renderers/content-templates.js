@@ -1,101 +1,85 @@
 /**
  * Content Template Renderers for Frontend Slide Templates
  *
- * Single content area slides (C1-C6):
+ * These renderers use buildSlotStyle() to apply styles from TEMPLATE_REGISTRY.
+ * This ensures templates render exactly as designed in the Template Builder.
+ *
+ * Content Templates (C1-C6):
  * - C1: Text Content (body paragraphs, bullets)
  * - C2: Table Slide
  * - C3: Single Chart
  * - C4: Single Infographic
  * - C5: Single Diagram
  * - C6: Single Image
- *
- * These are based on L25 structure but with proper slot tagging.
- * They do NOT replace L25 - that continues to work for backend-generated content.
  */
 
 // ===========================================
-// SHARED HELPER: Build Standard Slide Structure
+// SHARED HELPER: Build Content Slide Structure
 // ===========================================
 
 /**
- * Builds the standard slide structure with title, subtitle, footer, logo
- * All content templates share this structure, only the main content area differs
+ * Builds the standard content slide structure with title, subtitle, content, footer, logo
+ * All C1-C6 templates share this structure, only the content slot differs.
  */
-function buildStandardSlide(templateId, content, slide, slideIndex, mainContentHtml, mainContentTag) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
-    }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
-  }
+function buildContentSlide(templateId, content, slide, slideIndex, contentSlotName, contentHtml) {
+  const backgroundStyle = buildBackgroundStyle(slide, content, '');
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title (42px bold) -->
+      <!-- Title -->
       <div class="slide-title"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
+           ${buildSlotAttributes('title', slideIndex)}
+           style="${buildSlotStyle(templateId, 'title', {
+             'display': 'flex',
+             'align-items': 'flex-end'
+           })}">
         ${content.slide_title || content.title || ''}
       </div>
 
-      <!-- Subtitle (24px) -->
-      ${(content.subtitle || content.element_1) ? `
+      <!-- Subtitle -->
       <div class="subtitle"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
+           ${buildSlotAttributes('subtitle', slideIndex)}
+           style="${buildSlotStyle(templateId, 'subtitle', {
+             'display': 'flex',
+             'align-items': 'flex-start'
+           })}">
         ${content.subtitle || content.element_1 || ''}
       </div>
-      ` : ''}
 
       <!-- Main Content Area -->
       <div class="content-area"
-           data-slot-type="${mainContentTag}"
-           data-section-id="slide-${slideIndex}-section-content"
-           data-section-type="content"
-           data-slide-index="${slideIndex}"
-           style="grid-row: 5/17; grid-column: 2/32; overflow-y: auto; overflow-x: hidden;"
+           ${buildSlotAttributes(contentSlotName, slideIndex)}
+           style="${buildSlotStyle(templateId, 'content', {
+             'overflow-y': 'auto',
+             'overflow-x': 'hidden'
+           })}"
            data-content-width="1800px"
            data-content-height="720px">
-        ${mainContentHtml}
+        ${contentHtml}
       </div>
 
-      <!-- Footer (bottom-left) -->
-      ${content.presentation_name ? `
-      <div class="footer-presentation-name"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           style="grid-row: 18/19; grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
-        ${content.presentation_name}
+      <!-- Footer -->
+      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      <div class="footer"
+           ${buildSlotAttributes('footer', slideIndex)}
+           style="${buildSlotStyle(templateId, 'footer', {
+             'display': 'flex',
+             'align-items': 'center'
+           })}">
+        ${content.presentation_name || content.footer_text || content.footer || ''}
       </div>
       ` : ''}
 
-      <!-- Company Logo (bottom-right) -->
+      <!-- Company Logo -->
       ${content.company_logo ? `
-      <div class="footer-company-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row: 17/19; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
-        <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
+      <div class="logo"
+           ${buildSlotAttributes('logo', slideIndex)}
+           style="${buildSlotStyle(templateId, 'logo', {
+             'display': 'flex',
+             'align-items': 'center',
+             'justify-content': 'center'
+           })}">
+        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
           ${content.company_logo}
         </div>
       </div>
@@ -109,117 +93,12 @@ function buildStandardSlide(templateId, content, slide, slideIndex, mainContentH
 // ===========================================
 
 /**
- * Text Content - C1-text
- * 
- * Generated by v7.4 Template Builder
+ * C1-text - Standard slide with body text
+ * Uses template-registry styles for elegant typography.
  */
-
-/**
- * Text Content - C1-text
- * 
- * Generated by v7.4 Template Builder
- */
-
-/**
- * Text Content - C1-text
- * 
- * Generated by v7.4 Template Builder
- */
-
 function renderC1Text(content, slide = {}, slideIndex = 0) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
-    }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
-  }
-
-  return `
-    <section data-layout="C1-text" data-template="C1-text" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="title-slide"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 1; grid-row-end: 3; grid-column-start: 2; grid-column-end: 32; font-size: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; font-family: Poppins, sans-serif">
-        ${content.slide_title || ''}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle-slide"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 3; grid-row-end: 4; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; font-size: 32px">
-        ${content.subtitle || ''}
-      </div>
-
-      <!-- Content Area -->
-      <div class="body-slide"
-           data-slot-type="body"
-           data-section-id="slide-${slideIndex}-section-body"
-           data-section-type="body"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 4; grid-row-end: 18; grid-column-start: 2; grid-column-end: 32; text-align: left; font-size: 24px; padding: 25px 0px">
-        ${content.rich_content || ''}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text) ? `
-      <div class="footer-slide"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 18; grid-row-end: 19; grid-column-start: 2; grid-column-end: 7">
-        ${content.presentation_name || content.footer_text || ''}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${content.company_logo ? `
-      <div class="slide-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row-start: 17; grid-row-end: 19; grid-column-start: 30; grid-column-end: 32; font-size: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC1Text = renderC1Text;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC1Text = renderC1Text;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC1Text = renderC1Text;
+  const contentHtml = content.rich_content || content.body || '';
+  return buildContentSlide('C1-text', content, slide, slideIndex, 'body', contentHtml);
 }
 
 // ===========================================
@@ -227,117 +106,12 @@ if (typeof window !== 'undefined') {
 // ===========================================
 
 /**
- * Table Slide - C2-table
- * 
- * Generated by v7.4 Template Builder
+ * C2-table - Slide with data table
+ * Uses template-registry styles for proper table presentation.
  */
-
-/**
- * Table Slide - C2-table
- * 
- * Generated by v7.4 Template Builder
- */
-
-/**
- * Table Slide - C2-table
- * 
- * Generated by v7.4 Template Builder
- */
-
 function renderC2Table(content, slide = {}, slideIndex = 0) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
-    }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
-  }
-
-  return `
-    <section data-layout="C2-table" data-template="C2-table" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="title-slide"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 1; grid-row-end: 3; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; font-size: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start">
-        ${content.slide_title || ''}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle-slide"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 3; grid-row-end: 4; grid-column-start: 2; grid-column-end: 32; font-size: 32px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; font-family: Poppins, sans-serif">
-        ${content.subtitle || ''}
-      </div>
-
-      <!-- Content Area -->
-      <div class="table-slide"
-           data-slot-type="table"
-           data-section-id="slide-${slideIndex}-section-table"
-           data-section-type="table"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 4; grid-row-end: 18; grid-column-start: 2; grid-column-end: 32; font-size: 24px; text-align: left; padding: 25px 0px">
-        ${content.table_html || ''}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text) ? `
-      <div class="footer-slide"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 18; grid-row-end: 19; grid-column-start: 2; grid-column-end: 7">
-        ${content.presentation_name || content.footer_text || ''}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${content.company_logo ? `
-      <div class="slide-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row-start: 17; grid-row-end: 19; grid-column-start: 30; grid-column-end: 32; font-size: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC2Table = renderC2Table;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC2Table = renderC2Table;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC2Table = renderC2Table;
+  const contentHtml = content.table_html || content.table || '';
+  return buildContentSlide('C2-table', content, slide, slideIndex, 'table', contentHtml);
 }
 
 // ===========================================
@@ -345,106 +119,12 @@ if (typeof window !== 'undefined') {
 // ===========================================
 
 /**
- * Single Chart - C3-chart
- * 
- * Generated by v7.4 Template Builder
+ * C3-chart - Slide with one chart visualization
+ * Uses template-registry styles for chart container.
  */
-
-/**
- * Single Chart - C3-chart
- * 
- * Generated by v7.4 Template Builder
- */
-
 function renderC3Chart(content, slide = {}, slideIndex = 0) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
-    }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
-  }
-
-  return `
-    <section data-layout="C3-chart" data-template="C3-chart" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="title-slide"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 1; grid-row-end: 3; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; font-size: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start">
-        ${content.slide_title || ''}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle-slide"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 3; grid-row-end: 4; grid-column-start: 2; grid-column-end: 32; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; font-size: 32px; font-family: Poppins, sans-serif">
-        ${content.subtitle || ''}
-      </div>
-
-      <!-- Content Area -->
-      <div class="chart-slide"
-           data-slot-type="chart"
-           data-section-id="slide-${slideIndex}-section-chart"
-           data-section-type="chart"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 4; grid-row-end: 18; grid-column-start: 2; grid-column-end: 32; font-size: 24px; text-align: left; padding: 25px 0px">
-        ${content.chart_html || ''}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text) ? `
-      <div class="footer-slide"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 18; grid-row-end: 19; grid-column-start: 2; grid-column-end: 7">
-        ${content.presentation_name || content.footer_text || ''}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${content.company_logo ? `
-      <div class="slide-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row-start: 17; grid-row-end: 19; grid-column-start: 30; grid-column-end: 32; font-size: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC3Chart = renderC3Chart;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC3Chart = renderC3Chart;
+  const contentHtml = content.chart_html || content.chart || '';
+  return buildContentSlide('C3-chart', content, slide, slideIndex, 'chart', contentHtml);
 }
 
 // ===========================================
@@ -452,128 +132,12 @@ if (typeof window !== 'undefined') {
 // ===========================================
 
 /**
- * Single Infographic - C4-infographic
- * 
- * Generated by v7.4 Template Builder
+ * C4-infographic - Slide with one infographic
+ * Uses template-registry styles for infographic container.
  */
-
-/**
- * Single Infographic - C4-infographic
- * 
- * Generated by v7.4 Template Builder
- */
-
-/**
- * Single Infographic - C4-infographic
- * 
- * Generated by v7.4 Template Builder
- */
-
-/**
- * Single Infographic - C4-infographic
- * 
- * Generated by v7.4 Template Builder
- */
-
 function renderC4Infographic(content, slide = {}, slideIndex = 0) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
-    }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
-  }
-
-  return `
-    <section data-layout="C4-infographic" data-template="C4-infographic" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="title-slide"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 1; grid-row-end: 3; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; font-size: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start">
-        ${content.slide_title || ''}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle-slide"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 3; grid-row-end: 4; grid-column-start: 2; grid-column-end: 32; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; font-size: 32px; font-family: Poppins, sans-serif">
-        ${content.subtitle || ''}
-      </div>
-
-      <!-- Content Area -->
-      <div class="infographic-slide"
-           data-slot-type="infographic"
-           data-section-id="slide-${slideIndex}-section-infographic"
-           data-section-type="infographic"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 4; grid-row-end: 18; grid-column-start: 2; grid-column-end: 32; font-size: 24px; text-align: left; padding: 25px 0px">
-        ${content.infographic_svg || ''}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text) ? `
-      <div class="footer-slide"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 18; grid-row-end: 19; grid-column-start: 2; grid-column-end: 7">
-        ${content.presentation_name || content.footer_text || ''}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${content.company_logo ? `
-      <div class="slide-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row-start: 17; grid-row-end: 19; grid-column-start: 30; grid-column-end: 32; font-size: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC4Infographic = renderC4Infographic;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC4Infographic = renderC4Infographic;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC4Infographic = renderC4Infographic;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC4Infographic = renderC4Infographic;
+  const contentHtml = content.infographic_svg || content.infographic || '';
+  return buildContentSlide('C4-infographic', content, slide, slideIndex, 'infographic', contentHtml);
 }
 
 // ===========================================
@@ -581,106 +145,12 @@ if (typeof window !== 'undefined') {
 // ===========================================
 
 /**
- * Single Diagram - C5-diagram
- * 
- * Generated by v7.4 Template Builder
+ * C5-diagram - Slide with one diagram
+ * Uses template-registry styles for diagram container.
  */
-
-/**
- * Single Diagram - C5-diagram
- * 
- * Generated by v7.4 Template Builder
- */
-
 function renderC5Diagram(content, slide = {}, slideIndex = 0) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
-    }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
-  }
-
-  return `
-    <section data-layout="C5-diagram" data-template="C5-diagram" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="title-slide"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 1; grid-row-end: 3; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; font-size: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start">
-        ${content.slide_title || ''}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle-slide"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 3; grid-row-end: 4; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; font-size: 32px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start">
-        ${content.subtitle || ''}
-      </div>
-
-      <!-- Content Area -->
-      <div class="diagram-slide"
-           data-slot-type="diagram"
-           data-section-id="slide-${slideIndex}-section-diagram"
-           data-section-type="diagram"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 4; grid-row-end: 18; grid-column-start: 2; grid-column-end: 32; font-size: 24px; text-align: left; padding: 25px 0px">
-        ${content.diagram_svg || ''}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text) ? `
-      <div class="footer-slide"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 18; grid-row-end: 19; grid-column-start: 2; grid-column-end: 7">
-        ${content.presentation_name || content.footer_text || ''}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${content.company_logo ? `
-      <div class="slide-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row-start: 17; grid-row-end: 19; grid-column-start: 30; grid-column-end: 32; font-size: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC5Diagram = renderC5Diagram;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC5Diagram = renderC5Diagram;
+  const contentHtml = content.diagram_svg || content.diagram || '';
+  return buildContentSlide('C5-diagram', content, slide, slideIndex, 'diagram', contentHtml);
 }
 
 // ===========================================
@@ -688,95 +158,23 @@ if (typeof window !== 'undefined') {
 // ===========================================
 
 /**
- * Single Image - C6-image
- * 
- * Generated by v7.4 Template Builder
+ * C6-image - Slide with one image and optional caption
+ * Uses template-registry styles for image container.
  */
-
 function renderC6Image(content, slide = {}, slideIndex = 0) {
-  // Extract background settings
-  const backgroundColor = slide?.background_color || content?.background_color || '';
-  const backgroundImage = slide?.background_image || content?.background_image || '';
-
-  // Build background style
-  let backgroundStyle = '';
-  if (backgroundImage) {
-    backgroundStyle = `background-image: url('${backgroundImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`;
-    if (backgroundColor) {
-      backgroundStyle += ` background-color: ${backgroundColor};`;
+  let contentHtml = '';
+  if (content.image_url) {
+    if (content.image_url.startsWith('<')) {
+      // Already HTML
+      contentHtml = content.image_url;
+    } else {
+      // URL - wrap in img tag
+      contentHtml = `<img src="${content.image_url}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="${content.slide_title || 'Image'}">`;
     }
-  } else if (backgroundColor) {
-    backgroundStyle = `background-color: ${backgroundColor};`;
+  } else if (content.image) {
+    contentHtml = content.image;
   }
-
-  return `
-    <section data-layout="C6-image" data-template="C6-image" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="title-slide"
-           data-slot-type="title"
-           data-section-id="slide-${slideIndex}-section-title"
-           data-section-type="title"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 1; grid-row-end: 3; grid-column-start: 2; grid-column-end: 32; font-family: Poppins, sans-serif; font-size: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start">
-        ${content.slide_title || ''}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle-slide"
-           data-slot-type="subtitle"
-           data-section-id="slide-${slideIndex}-section-subtitle"
-           data-section-type="subtitle"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 3; grid-row-end: 4; grid-column-start: 2; grid-column-end: 32; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; font-size: 32px; font-family: Poppins, sans-serif">
-        ${content.subtitle || ''}
-      </div>
-
-      <!-- Content Area -->
-      <div class="image-slide"
-           data-slot-type="image"
-           data-section-id="slide-${slideIndex}-section-image"
-           data-section-type="image"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 4; grid-row-end: 18; grid-column-start: 2; grid-column-end: 32; font-size: 24px; text-align: left; padding: 25px 0px">
-        ${content.image_url || ''}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text) ? `
-      <div class="footer-slide"
-           data-slot-type="footer"
-           data-section-id="slide-${slideIndex}-section-footer"
-           data-section-type="footer"
-           data-slide-index="${slideIndex}"
-           data-editable="true"
-           style="grid-row-start: 18; grid-row-end: 19; grid-column-start: 2; grid-column-end: 7">
-        ${content.presentation_name || content.footer_text || ''}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${content.company_logo ? `
-      <div class="slide-logo"
-           data-slot-type="logo"
-           data-section-id="slide-${slideIndex}-section-logo"
-           data-section-type="logo"
-           data-slide-index="${slideIndex}"
-           style="grid-row-start: 17; grid-row-end: 19; grid-column-start: 30; grid-column-end: 32; font-size: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
-}
-
-// Export for browser
-if (typeof window !== 'undefined') {
-  window.renderC6Image = renderC6Image;
+  return buildContentSlide('C6-image', content, slide, slideIndex, 'image', contentHtml);
 }
 
 // ===========================================
@@ -791,7 +189,7 @@ if (typeof window !== 'undefined') {
   window.renderC4Infographic = renderC4Infographic;
   window.renderC5Diagram = renderC5Diagram;
   window.renderC6Image = renderC6Image;
-  window.buildStandardSlide = buildStandardSlide;
+  window.buildContentSlide = buildContentSlide;
 }
 
 // Export for Node.js
@@ -803,6 +201,6 @@ if (typeof module !== 'undefined' && module.exports) {
     renderC4Infographic,
     renderC5Diagram,
     renderC6Image,
-    buildStandardSlide
+    buildContentSlide
   };
 }

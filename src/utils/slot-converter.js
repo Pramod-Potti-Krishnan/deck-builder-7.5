@@ -216,8 +216,9 @@
    * @param {number} slideIndex - Slide index
    */
   function convertToTextBox(slotElement, slotDef, slotName, slideIndex) {
-    // Extract current content
-    const content = slotElement.innerHTML || slotDef.defaultText || '';
+    // Extract current content - trim and use defaultText as fallback
+    const rawContent = slotElement.innerHTML?.trim();
+    const content = rawContent || slotDef.defaultText || '';
 
     // Extract styles from slot definition and computed styles
     const computedStyle = window.getComputedStyle(slotElement);
@@ -276,13 +277,20 @@
       text_transform: slotStyle.textTransform || computedStyle.textTransform || 'none'
     };
 
-    // Build container style
+    // Build container style with flexbox alignment from slot definition
+    // justifyContent controls vertical alignment when flexDirection is 'column'
+    // alignItems controls horizontal alignment when flexDirection is 'column'
     const style = {
       backgroundColor: 'transparent',  // Slots typically have transparent background
       borderWidth: 0,
       borderRadius: 0,
       padding: 0,  // Slots handle their own padding via grid
-      opacity: 1
+      opacity: 1,
+      // Flexbox alignment from slot definition
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: slotStyle.justifyContent || 'flex-start',  // Vertical: flex-end = bottom
+      alignItems: slotStyle.alignItems || 'flex-start'           // Horizontal: flex-start = left
     };
 
     return {
@@ -346,6 +354,21 @@
   }
 
   /**
+   * Slot-specific customization for Image placeholders
+   * Defines custom placeholder text and colors for different slot types
+   */
+  const SLOT_IMAGE_CUSTOMIZATION = {
+    'background': {
+      placeholderText: 'Background Image',
+      placeholderColor: 'rgba(30, 58, 95, 0.8)'  // Darker blue for background
+    },
+    'logo': {
+      placeholderText: 'Logo',
+      placeholderColor: 'rgba(100, 116, 139, 0.6)'  // Slate gray for logo
+    }
+  };
+
+  /**
    * Build Image configuration from slot element and definition
    *
    * @param {HTMLElement} slotElement - Original slot element
@@ -364,13 +387,19 @@
     // Determine object-fit based on slot type
     const objectFit = slotName === 'background' ? 'cover' : 'contain';
 
+    // Get slot-specific customization
+    const customization = SLOT_IMAGE_CUSTOMIZATION[slotName] || {};
+
     return {
       id: `slide-${slideIndex}-slot-${slotName}-element`,
       position: position,
       objectFit: objectFit,
       draggable: slotName !== 'background',  // Background typically not draggable
       resizable: true,
-      zIndex: SLOT_Z_INDEX[slotName] || 1
+      zIndex: SLOT_Z_INDEX[slotName] || 1,
+      // Slot-specific placeholder customization
+      placeholderText: customization.placeholderText,
+      placeholderColor: customization.placeholderColor
     };
   }
 

@@ -762,6 +762,9 @@
 
     if (isPlaceholderMode) {
       // Placeholder mode - show drag images UI
+      // Support custom placeholder text and color for different slot types
+      const placeholderText = config.placeholderText || 'Generate image...';
+
       container.innerHTML = `
         <div class="element-drag-handle"></div>
         <div class="element-placeholder-content">
@@ -775,7 +778,7 @@
           <div class="element-placeholder-dots">
             <span></span><span></span><span></span>
           </div>
-          <span class="element-placeholder-text">Generate image...</span>
+          <span class="element-placeholder-text">${placeholderText}</span>
         </div>
         <button class="element-delete-button">×</button>
         <div class="element-type-badge">
@@ -790,6 +793,11 @@
         <div class="resize-handle resize-handle-s"></div>
         <div class="resize-handle resize-handle-se"></div>
       `;
+
+      // Apply custom placeholder background color if specified
+      if (config.placeholderColor) {
+        container.style.backgroundColor = config.placeholderColor;
+      }
 
       // Add delete button handler
       const deleteBtn = container.querySelector('.element-delete-button');
@@ -1536,6 +1544,14 @@
     container.className = 'dynamic-element inserted-textbox';
     container.dataset.elementType = 'textbox';
     container.dataset.slideIndex = slideIndex;
+    // Build flexbox styles for vertical/horizontal alignment
+    // justifyContent controls vertical when flexDirection is 'column'
+    // alignItems controls horizontal when flexDirection is 'column'
+    const display = style.display || 'block';
+    const flexDirection = style.flexDirection || 'column';
+    const justifyContent = style.justifyContent || 'flex-start';
+    const alignItems = style.alignItems || 'flex-start';
+
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
@@ -1550,6 +1566,10 @@
       overflow: auto;
       cursor: ${config.draggable !== false ? 'move' : 'text'};
       position: relative;
+      display: ${display};
+      flex-direction: ${flexDirection};
+      justify-content: ${justifyContent};
+      align-items: ${alignItems};
     `;
 
     // Create centered drag handle at top (NOT contentEditable, so it can be dragged)

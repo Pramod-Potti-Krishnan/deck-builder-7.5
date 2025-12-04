@@ -1,8 +1,11 @@
 """
-FastAPI server for v7.5-main: Simplified 6-Layout Architecture
+FastAPI server for v7.5-main: Simplified Layout Architecture
 
 Port: 8504
-Layouts: L01, L02, L03, L25, L27, L29
+Backend Layouts: L01, L02, L03, L25, L27, L29
+Frontend Templates: H1-generated, H1-structured, H2-section, H3-closing,
+                   C1-text, C2-table, C3-chart, C4-infographic, C5-diagram, C6-image,
+                   S1-visual-text, S2-image-content, S3-two-visuals, S4-comparison, B1-blank
 """
 
 import os
@@ -49,8 +52,10 @@ def get_default_content(layout: str) -> dict:
     Get default content template for a layout type.
 
     These defaults provide a starting point for new slides.
+    Supports both backend layouts (L01-L29) and frontend templates (H1, C1, S1, B1).
     """
     defaults = {
+        # ========== BACKEND LAYOUTS ==========
         "L01": {
             "slide_title": "Chart Title",
             "element_1": "Subtitle",
@@ -83,6 +88,99 @@ def get_default_content(layout: str) -> dict:
         },
         "L29": {
             "hero_content": "<div style='width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'><h1 style='color:white;font-size:64px;font-weight:bold;text-shadow:2px 2px 8px rgba(0,0,0,0.3);margin-bottom:24px;'>Hero Title</h1><p style='color:rgba(255,255,255,0.8);font-size:24px;'>Subtitle or tagline goes here</p></div>"
+        },
+
+        # ========== FRONTEND TEMPLATES - HERO ==========
+        "H1-generated": {
+            "hero_content": "",
+            "background_color": "#1f2937"
+        },
+        "H1-structured": {
+            "slide_title": "Presentation Title",
+            "subtitle": "Your tagline or subtitle here",
+            "footer_text": "",
+            "background_color": "#1e3a5f"
+        },
+        "H2-section": {
+            "section_number": "SECTION 01",
+            "slide_title": "Section Title",
+            "subtitle": "",
+            "background_color": "#374151"
+        },
+        "H3-closing": {
+            "slide_title": "Thank You",
+            "subtitle": "Questions & Discussion",
+            "contact_info": "",
+            "background_color": "#1e3a5f"
+        },
+
+        # ========== FRONTEND TEMPLATES - CONTENT ==========
+        "C1-text": {
+            "slide_title": "Slide Title",
+            "subtitle": "",
+            "body": ""
+        },
+        "C2-table": {
+            "slide_title": "Table Title",
+            "subtitle": "",
+            "table_html": ""
+        },
+        "C3-chart": {
+            "slide_title": "Chart Title",
+            "subtitle": "",
+            "chart_html": ""
+        },
+        "C4-infographic": {
+            "slide_title": "Infographic Title",
+            "subtitle": "",
+            "infographic_svg": ""
+        },
+        "C5-diagram": {
+            "slide_title": "Diagram Title",
+            "subtitle": "",
+            "diagram_svg": ""
+        },
+        "C6-image": {
+            "slide_title": "Image Title",
+            "subtitle": "",
+            "image_url": ""
+        },
+
+        # ========== FRONTEND TEMPLATES - SPLIT ==========
+        "S1-visual-text": {
+            "slide_title": "Visual + Text",
+            "subtitle": "",
+            "element_3": "",
+            "element_2": ""
+        },
+        "S2-image-content": {
+            "slide_title": "Image + Content",
+            "subtitle": "",
+            "image_url": "",
+            "main_content": ""
+        },
+        "S3-two-visuals": {
+            "slide_title": "Comparison",
+            "subtitle": "",
+            "element_4": "",
+            "element_2": "",
+            "element_3": "",
+            "element_5": ""
+        },
+        "S4-comparison": {
+            "slide_title": "Comparison",
+            "subtitle": "",
+            "header_left": "Option A",
+            "header_right": "Option B",
+            "content_left": "",
+            "content_right": ""
+        },
+
+        # ========== FRONTEND TEMPLATES - BLANK ==========
+        "B1-blank": {
+            "slide_title": "",
+            "subtitle": "",
+            "canvas_content": ""
         }
     }
     return defaults.get(layout, defaults["L25"])
@@ -152,7 +250,15 @@ async def root():
     return {
         "message": "v7.5-main: Simplified Layout Builder API with Content Editing",
         "version": "7.5.0",
-        "layouts": ["L01", "L02", "L03", "L25", "L27", "L29"],
+        "layouts": {
+            "backend": ["L01", "L02", "L03", "L25", "L27", "L29"],
+            "frontend": {
+                "hero": ["H1-generated", "H1-structured", "H2-section", "H3-closing"],
+                "content": ["C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image"],
+                "split": ["S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison"],
+                "blank": ["B1-blank"]
+            }
+        },
         "philosophy": "Text Service owns content creation, Layout Builder provides structure",
         "features": ["Content editing", "Version history", "Undo/restore capabilities"],
         "endpoints": {
@@ -220,8 +326,19 @@ async def create_presentation(request: Presentation):
         # Convert request to dict
         presentation_data = request.model_dump()
 
-        # Validate layouts
-        valid_layouts = ["L01", "L02", "L03", "L25", "L27", "L29"]
+        # Validate layouts (backend + frontend templates)
+        valid_layouts = [
+            # Backend layouts
+            "L01", "L02", "L03", "L25", "L27", "L29",
+            # Frontend templates - Hero
+            "H1-generated", "H1-structured", "H2-section", "H3-closing",
+            # Frontend templates - Content
+            "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
+            # Frontend templates - Split
+            "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+            # Frontend templates - Blank
+            "B1-blank"
+        ]
         for slide in presentation_data["slides"]:
             if slide["layout"] not in valid_layouts:
                 raise HTTPException(
@@ -865,8 +982,14 @@ async def add_slide(
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 
-        # Validate layout
-        valid_layouts = ["L01", "L02", "L03", "L25", "L27", "L29"]
+        # Validate layout (backend + frontend templates)
+        valid_layouts = [
+            "L01", "L02", "L03", "L25", "L27", "L29",
+            "H1-generated", "H1-structured", "H2-section", "H3-closing",
+            "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
+            "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+            "B1-blank"
+        ]
         if request.layout not in valid_layouts:
             raise HTTPException(
                 status_code=400,
@@ -1028,8 +1151,14 @@ async def change_slide_layout(
                 detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
             )
 
-        # Validate new layout
-        valid_layouts = ["L01", "L02", "L03", "L25", "L27", "L29"]
+        # Validate new layout (backend + frontend templates)
+        valid_layouts = [
+            "L01", "L02", "L03", "L25", "L27", "L29",
+            "H1-generated", "H1-structured", "H2-section", "H3-closing",
+            "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
+            "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+            "B1-blank"
+        ]
         if request.new_layout not in valid_layouts:
             raise HTTPException(
                 status_code=400,

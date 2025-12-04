@@ -43,51 +43,60 @@ const TEMPLATE_REGISTRY = {
     category: 'hero',
     description: 'Structured title slide with editable title, subtitle, and customizable background',
     renderer: 'renderH1Structured',
-    baseLayout: null, // New renderer
+    baseLayout: null,
     slots: {
       background: {
         gridRow: '1/19',
         gridColumn: '1/33',
         tag: 'background',
         accepts: ['image', 'color', 'gradient'],
+        style: { zIndex: -1 },
+        defaultText: null,
         description: 'Background image or color'
       },
       title: {
         gridRow: '7/10',
-        gridColumn: '3/31',
+        gridColumn: '3/17',  // LEFT HALF (was 3/31)
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '72px',
+          fontSize: '48px',  // (was 72px)
           fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
           color: '#ffffff',
-          textAlign: 'center',
-          textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',    // BOTTOM aligned
+          justifyContent: 'flex-start'  // LEFT aligned
         },
+        defaultText: 'Presentation Title',
         description: 'Main presentation title'
       },
       subtitle: {
         gridRow: '10/12',
-        gridColumn: '5/29',
+        gridColumn: '3/17',  // LEFT HALF (was 5/29)
         tag: 'subtitle',
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'normal',
-          color: '#e5e7eb',
-          textAlign: 'center'
+          fontFamily: 'Poppins, sans-serif',
+          textAlign: 'left'  // (was center)
         },
+        defaultText: 'Presentation Subtitle',
         description: 'Subtitle or tagline'
       },
       footer: {
         gridRow: '16/18',
-        gridColumn: '3/15',
+        gridColumn: '3/17',  // LEFT HALF (was 3/15)
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '18px',
-          color: '#d1d5db'
+          fontSize: '26px',  // (was 18px)
+          fontWeight: 'bold',
+          textAlign: 'left',
+          textTransform: 'uppercase'
         },
+        defaultText: 'AUTHOR | DATE',
         description: 'Date, presenter name, or other info'
       },
       logo: {
@@ -95,6 +104,12 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '28/31',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px',
+          fontWeight: 'bold',
+          textTransform: 'capitalize'
+        },
+        defaultText: 'Logo',
         description: 'Company logo'
       }
     },
@@ -117,48 +132,43 @@ const TEMPLATE_REGISTRY = {
         gridRow: '1/19',
         gridColumn: '1/33',
         tag: 'background',
-        accepts: ['image', 'color', 'gradient']
+        accepts: ['image', 'color', 'gradient'],
+        style: { zIndex: -1 },
+        defaultText: null
       },
       section_number: {
-        gridRow: '6/8',
-        gridColumn: '3/31',
+        gridRow: '6/11',
+        gridColumn: '11/17',  // Large number on left side
         tag: 'section_number',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          fontWeight: '600',
-          color: '#9ca3af',
-          textAlign: 'center',
-          textTransform: 'uppercase',
-          letterSpacing: '4px'
+          fontSize: '180px',  // Large section number
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        description: 'Section number (e.g., "SECTION 01")'
+        defaultText: '1',
+        description: 'Section number (e.g., "1")'
       },
       title: {
-        gridRow: '8/11',
-        gridColumn: '3/31',
+        gridRow: '6/11',
+        gridColumn: '17/31',  // Title on right side next to number
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '56px',
-          fontWeight: 'bold',
-          color: '#ffffff',
-          textAlign: 'center'
+          fontSize: '64px',
+          textTransform: 'capitalize',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
         },
+        defaultText: 'Section Title',
         description: 'Section title'
-      },
-      subtitle: {
-        gridRow: '11/13',
-        gridColumn: '5/29',
-        tag: 'subtitle',
-        accepts: ['text'],
-        style: {
-          fontSize: '24px',
-          color: '#d1d5db',
-          textAlign: 'center'
-        },
-        description: 'Optional section description'
       }
+      // NOTE: No subtitle in Template Builder design for H2-section
     },
     defaults: {
       background_color: '#374151'
@@ -178,7 +188,9 @@ const TEMPLATE_REGISTRY = {
         gridRow: '1/19',
         gridColumn: '1/33',
         tag: 'background',
-        accepts: ['image', 'color', 'gradient']
+        accepts: ['image', 'color', 'gradient'],
+        style: { zIndex: -1 },
+        defaultText: null
       },
       title: {
         gridRow: '6/9',
@@ -186,11 +198,13 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '64px',
-          fontWeight: 'bold',
-          color: '#ffffff',
-          textAlign: 'center'
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end'  // BOTTOM aligned
         },
+        defaultText: 'Closing Note',
         description: 'Closing message (e.g., "Thank You")'
       },
       subtitle: {
@@ -199,34 +213,34 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
-          color: '#e5e7eb',
-          textAlign: 'center'
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif'
         },
+        defaultText: 'Closing Tagline',
         description: 'Additional message or call to action'
       },
       contact_info: {
-        gridRow: '13/16',
+        gridRow: '12/15',
         gridColumn: '8/26',
         tag: 'contact',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '20px',
-          color: '#d1d5db',
-          textAlign: 'center',
-          lineHeight: '1.8'
+          fontSize: '28px',
+          textTransform: 'uppercase'
         },
+        defaultText: null,
         description: 'Contact details, website, social links'
       },
       logo: {
         gridRow: '16/18',
-        gridColumn: '14/20',
+        gridColumn: '26/32',
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          textAlign: 'center'
+          fontSize: '20px'
         },
-        description: 'Company logo (centered)'
+        defaultText: 'Logo',
+        description: 'Company logo'
       }
     },
     defaults: {
@@ -248,16 +262,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937',
-          lineHeight: '1.2'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -265,22 +282,26 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280',
-          lineHeight: '1.4',
-          marginTop: '8px'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'body',
         accepts: ['body', 'html'],
         style: {
-          fontSize: '20px',
-          color: '#374151',
-          lineHeight: '1.6'
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 0px'
         },
+        defaultText: null,
         description: 'Main text content area (1800x720px)'
       },
       footer: {
@@ -288,17 +309,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: null
       }
     },
     defaults: {},
@@ -314,15 +336,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -330,15 +356,26 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'table',
         accepts: ['table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 0px'
+        },
+        defaultText: null,
         description: 'Table content area'
       },
       footer: {
@@ -346,17 +383,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -372,15 +410,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -388,15 +430,26 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'chart',
         accepts: ['chart'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 0px'
+        },
+        defaultText: null,
         description: 'Chart placeholder area'
       },
       footer: {
@@ -404,17 +457,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -430,15 +484,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -446,15 +504,26 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'infographic',
         accepts: ['infographic'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 0px'
+        },
+        defaultText: 'Infographic',
         description: 'Infographic placeholder area'
       },
       footer: {
@@ -462,17 +531,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -488,15 +558,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -504,15 +578,26 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'diagram',
         accepts: ['diagram'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 0px'
+        },
+        defaultText: 'Diagram + Insights',
         description: 'Diagram placeholder area'
       },
       footer: {
@@ -520,17 +605,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -546,15 +632,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -562,15 +652,26 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'image',
         accepts: ['image'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 0px'
+        },
+        defaultText: null,
         description: 'Image placeholder area'
       },
       footer: {
@@ -578,17 +679,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -608,15 +710,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L02',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -624,27 +730,40 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content_left: {
-        gridRow: '5/17',
-        gridColumn: '2/17',
+        gridRow: '4/18',
+        gridColumn: '2/20',
         tag: 'visual',
         accepts: ['chart', 'infographic', 'diagram', 'image'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
         description: 'Visual element (900x720px)'
       },
       content_right: {
-        gridRow: '5/17',
-        gridColumn: '18/32',
+        gridRow: '4/18',
+        gridColumn: '20/32',
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '20px',
-          color: '#374151',
-          lineHeight: '1.6'
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 25px'
         },
+        defaultText: 'Key Insights',
         description: 'Text/observations (840x720px)'
       },
       footer: {
@@ -652,17 +771,16 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: null
       }
     },
     defaults: {},
@@ -682,57 +800,76 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '1/12',
         tag: 'image',
         accepts: ['image'],
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
         description: 'Full-height image (660x1080px)'
       },
       title: {
-        gridRow: '2/3',
-        gridColumn: '13/32',
+        gridRow: '1/3',
+        gridColumn: '12/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start',
+          padding: '0px 25px'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
-        gridColumn: '13/32',
+        gridColumn: '12/32',
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          padding: '0px 25px'
+        },
+        defaultText: null
       },
       content: {
-        gridRow: '5/17',
-        gridColumn: '13/32',
+        gridRow: '4/18',
+        gridColumn: '12/32',
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '20px',
-          color: '#374151',
-          lineHeight: '1.6'
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 25px'
         },
+        defaultText: null,
         description: 'Main content area'
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '13/18',
+        gridColumn: '12/17',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -748,15 +885,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L03',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -764,44 +905,69 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       content_left: {
-        gridRow: '5/14',
-        gridColumn: '2/16',
+        gridRow: '4/14',
+        gridColumn: '2/17',
         tag: 'visual',
         accepts: ['chart', 'infographic', 'diagram', 'image'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
         description: 'Left visual (840x540px)'
       },
       content_right: {
-        gridRow: '5/14',
-        gridColumn: '17/31',
+        gridRow: '4/14',
+        gridColumn: '17/32',
         tag: 'visual',
         accepts: ['chart', 'infographic', 'diagram', 'image'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
         description: 'Right visual (840x540px)'
       },
       caption_left: {
-        gridRow: '14/17',
-        gridColumn: '2/16',
+        gridRow: '14/18',
+        gridColumn: '2/17',
         tag: 'body',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '18px',
-          color: '#374151'
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '10px 10px'
         },
+        defaultText: null,
         description: 'Left caption/description'
       },
       caption_right: {
-        gridRow: '14/17',
-        gridColumn: '17/31',
+        gridRow: '14/18',
+        gridColumn: '17/32',
         tag: 'body',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '18px',
-          color: '#374151'
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '10px 10px'
         },
+        defaultText: null,
         description: 'Right caption/description'
       },
       footer: {
@@ -809,17 +975,16 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: null
       }
     },
     defaults: {},
@@ -835,15 +1000,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: null,
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
-        }
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       subtitle: {
         gridRow: '3/4',
@@ -851,48 +1020,60 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
-        }
+          fontSize: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
+        },
+        defaultText: null
       },
       header_left: {
-        gridRow: '5/6',
-        gridColumn: '2/16',
+        gridRow: '4/5',
+        gridColumn: '2/17',
         tag: 'header',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
-          fontWeight: '600',
-          color: '#1f2937',
-          textAlign: 'center'
+          fontSize: '24px',
+          textTransform: 'uppercase'
         },
+        defaultText: null,
         description: 'Left column header (e.g., "Before", "Option A")'
       },
       header_right: {
-        gridRow: '5/6',
-        gridColumn: '17/31',
+        gridRow: '4/5',
+        gridColumn: '17/32',
         tag: 'header',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
-          fontWeight: '600',
-          color: '#1f2937',
-          textAlign: 'center'
+          fontSize: '24px',
+          textTransform: 'uppercase'
         },
+        defaultText: null,
         description: 'Right column header (e.g., "After", "Option B")'
       },
       content_left: {
-        gridRow: '6/17',
-        gridColumn: '2/16',
+        gridRow: '5/18',
+        gridColumn: '2/17',
         tag: 'body',
         accepts: ['body', 'table', 'html', 'image', 'chart'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left'
+        },
+        defaultText: null,
         description: 'Left column content'
       },
       content_right: {
-        gridRow: '6/17',
-        gridColumn: '17/31',
+        gridRow: '5/18',
+        gridColumn: '17/32',
         tag: 'body',
         accepts: ['body', 'table', 'html', 'image', 'chart'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left'
+        },
+        defaultText: null,
         description: 'Right column content'
       },
       footer: {
@@ -900,17 +1081,18 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        }
+        style: {},
+        defaultText: null
       },
       logo: {
         gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
-        accepts: ['image', 'emoji']
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: null
       }
     },
     defaults: {},
@@ -930,15 +1112,19 @@ const TEMPLATE_REGISTRY = {
     baseLayout: null,
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          color: '#1f2937'
+          fontSize: '48px',
+          fontFamily: 'Poppins, sans-serif',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
         },
+        defaultText: null,
         optional: true
       },
       subtitle: {
@@ -947,16 +1133,28 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          color: '#6b7280'
+          fontSize: '32px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start'
         },
+        defaultText: null,
         optional: true
       },
       canvas: {
         gridRow: '4/18',
-        gridColumn: '1/33',
+        gridColumn: '2/32',
         tag: 'canvas',
         accepts: ['any'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
         description: 'Freeform content area - insert elements anywhere'
       },
       footer: {
@@ -964,11 +1162,8 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {
-          fontSize: '18px',
-          fontWeight: '500',
-          color: '#1f2937'
-        },
+        style: {},
+        defaultText: null,
         optional: true
       },
       logo: {
@@ -976,6 +1171,10 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '30/32',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo',
         optional: true
       }
     },

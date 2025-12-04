@@ -46,10 +46,11 @@ function renderH1Generated(content, slide = {}, slideIndex = 0) {
 
 /**
  * H1-structured - Manual title slide with editable elements
- * Uses template-registry styles for elegant, centered design.
+ * Uses template-registry styles for LEFT-aligned, LEFT HALF design.
  */
 function renderH1Structured(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H1-structured'));
+  const template = TEMPLATE_REGISTRY['H1-structured'];
 
   return `
     <section data-layout="H1-structured" data-template="H1-structured" class="hero-slide grid-container" style="${backgroundStyle}">
@@ -60,54 +61,33 @@ function renderH1Structured(content, slide = {}, slideIndex = 0) {
         ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
       </div>
 
-      <!-- Title -->
+      <!-- Title (LEFT-aligned, BOTTOM-aligned, LEFT HALF) -->
       <div class="title-hero"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'title', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('H1-structured', 'title')}">
+        ${content.slide_title || content.title || template.slots.title.defaultText || ''}
       </div>
 
-      <!-- Subtitle -->
+      <!-- Subtitle (LEFT-aligned, LEFT HALF) -->
       <div class="subtitle-hero"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('H1-structured', 'subtitle')}">
+        ${content.subtitle || template.slots.subtitle.defaultText || ''}
       </div>
 
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      <!-- Footer (LEFT, UPPERCASE, BOLD) -->
       <div class="footer-hero"
            ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'footer', {
-             'display': 'flex',
-             'align-items': 'center'
-           })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+           style="${buildSlotStyle('H1-structured', 'footer')}">
+        ${content.presentation_name || content.footer_text || content.footer || template.slots.footer.defaultText || ''}
       </div>
-      ` : ''}
 
-      <!-- Logo -->
-      ${content.company_logo ? `
+      <!-- Logo (BOTTOM RIGHT) -->
       <div class="logo-hero"
            ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
+           style="${buildSlotStyle('H1-structured', 'logo')}">
+        ${content.company_logo || template.slots.logo.defaultText || ''}
       </div>
-      ` : ''}
     </section>
   `;
 }
@@ -119,9 +99,11 @@ function renderH1Structured(content, slide = {}, slideIndex = 0) {
 /**
  * H2-section - Section divider slide
  * Features section number and title with elegant styling.
+ * Uses template-registry styles - NO subtitle slot in this template.
  */
 function renderH2Section(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H2-section'));
+  const template = TEMPLATE_REGISTRY['H2-section'];
 
   return `
     <section data-layout="H2-section" data-template="H2-section" class="hero-slide grid-container" style="${backgroundStyle}">
@@ -132,40 +114,19 @@ function renderH2Section(content, slide = {}, slideIndex = 0) {
         ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
       </div>
 
-      <!-- Section Number -->
+      <!-- Section Number (centered, large) -->
       <div class="section-number-hero"
            ${buildSlotAttributes('section_number', slideIndex)}
-           style="${buildSlotStyle('H2-section', 'section_number', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.section_number || ''}
+           style="${buildSlotStyle('H2-section', 'section_number')}">
+        ${content.section_number || template.slots.section_number.defaultText || ''}
       </div>
 
-      <!-- Title -->
+      <!-- Title (centered below section number) -->
       <div class="title-hero"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('H2-section', 'title', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('H2-section', 'title')}">
+        ${content.slide_title || content.title || template.slots.title.defaultText || ''}
       </div>
-
-      <!-- Subtitle -->
-      ${content.subtitle ? `
-      <div class="subtitle-hero"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('H2-section', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.subtitle}
-      </div>
-      ` : ''}
     </section>
   `;
 }
@@ -177,9 +138,11 @@ function renderH2Section(content, slide = {}, slideIndex = 0) {
 /**
  * H3-closing - Closing slide with contact info
  * Elegant centered design for thank you slides.
+ * Uses template-registry styles for all slots.
  */
 function renderH3Closing(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H3-closing'));
+  const template = TEMPLATE_REGISTRY['H3-closing'];
 
   return `
     <section data-layout="H3-closing" data-template="H3-closing" class="hero-slide grid-container" style="${backgroundStyle}">
@@ -190,56 +153,33 @@ function renderH3Closing(content, slide = {}, slideIndex = 0) {
         ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
       </div>
 
-      <!-- Title -->
+      <!-- Title (centered) -->
       <div class="title-hero"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'title', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.slide_title || content.title || 'Thank You'}
+           style="${buildSlotStyle('H3-closing', 'title')}">
+        ${content.slide_title || content.title || template.slots.title.defaultText || ''}
       </div>
 
-      <!-- Subtitle -->
+      <!-- Subtitle (centered below title) -->
       <div class="subtitle-hero"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('H3-closing', 'subtitle')}">
+        ${content.subtitle || template.slots.subtitle.defaultText || ''}
       </div>
 
       <!-- Contact Information -->
-      ${content.contact_info ? `
       <div class="contact-hero"
            ${buildSlotAttributes('contact', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'contact_info', {
-             'display': 'flex',
-             'flex-direction': 'column',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.contact_info}
+           style="${buildSlotStyle('H3-closing', 'contact_info')}">
+        ${content.contact_info || ''}
       </div>
-      ` : ''}
 
-      <!-- Logo -->
-      ${content.company_logo ? `
+      <!-- Logo (bottom right) -->
       <div class="logo-hero"
            ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px;">
-          ${content.company_logo}
-        </div>
+           style="${buildSlotStyle('H3-closing', 'logo')}">
+        ${content.company_logo || template.slots.logo.defaultText || ''}
       </div>
-      ` : ''}
     </section>
   `;
 }

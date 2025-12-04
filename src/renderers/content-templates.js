@@ -20,30 +20,26 @@
 /**
  * Builds the standard content slide structure with title, subtitle, content, footer, logo
  * All C1-C6 templates share this structure, only the content slot differs.
+ * Uses defaultText from TEMPLATE_REGISTRY when no content provided.
  */
 function buildContentSlide(templateId, content, slide, slideIndex, contentSlotName, contentHtml) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const template = TEMPLATE_REGISTRY[templateId];
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}" class="content-slide grid-container" style="${backgroundStyle}">
       <!-- Title -->
       <div class="slide-title"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle(templateId, 'title', {
-             'display': 'flex',
-             'align-items': 'flex-end'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle(templateId, 'title')}">
+        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle(templateId, 'subtitle', {
-             'display': 'flex',
-             'align-items': 'flex-start'
-           })}">
-        ${content.subtitle || content.element_1 || ''}
+           style="${buildSlotStyle(templateId, 'subtitle')}">
+        ${content.subtitle || content.element_1 || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Main Content Area -->
@@ -55,23 +51,23 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
            })}"
            data-content-width="1800px"
            data-content-height="720px">
-        ${contentHtml}
+        ${contentHtml || (template?.slots?.content?.defaultText || '')}
       </div>
 
       <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle(templateId, 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
       </div>
       ` : ''}
 
       <!-- Company Logo -->
-      ${content.company_logo ? `
+      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle(templateId, 'logo', {
@@ -80,7 +76,7 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
              'justify-content': 'center'
            })}">
         <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
         </div>
       </div>
       ` : ''}

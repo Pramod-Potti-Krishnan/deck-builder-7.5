@@ -22,38 +22,29 @@
  */
 function renderS1VisualText(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const template = TEMPLATE_REGISTRY['S1-visual-text'];
 
   return `
     <section data-layout="S1-visual-text" data-template="S1-visual-text" class="split-slide grid-container" style="${backgroundStyle}">
       <!-- Title -->
       <div class="slide-title"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'title', {
-             'display': 'flex',
-             'align-items': 'flex-end'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('S1-visual-text', 'title')}">
+        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'flex-start'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('S1-visual-text', 'subtitle')}">
+        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Left Content (Visual) -->
       <div class="content-left"
            ${buildSlotAttributes('visual', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'content_left', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.visual_content || content.chart_html || content.diagram_svg || content.infographic_svg || ''}
+           style="${buildSlotStyle('S1-visual-text', 'content_left')}">
+        ${content.visual_content || content.chart_html || content.diagram_svg || content.infographic_svg || (template?.slots?.content_left?.defaultText || '')}
       </div>
 
       <!-- Right Content (Text) -->
@@ -62,23 +53,23 @@ function renderS1VisualText(content, slide = {}, slideIndex = 0) {
            style="${buildSlotStyle('S1-visual-text', 'content_right', {
              'overflow-y': 'auto'
            })}">
-        ${content.rich_content || content.body || content.content_right || ''}
+        ${content.rich_content || content.body || content.content_right || (template?.slots?.content_right?.defaultText || '')}
       </div>
 
       <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle('S1-visual-text', 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
       </div>
       ` : ''}
 
       <!-- Logo -->
-      ${content.company_logo ? `
+      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle('S1-visual-text', 'logo', {
@@ -87,7 +78,7 @@ function renderS1VisualText(content, slide = {}, slideIndex = 0) {
              'justify-content': 'center'
            })}">
         <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
         </div>
       </div>
       ` : ''}
@@ -105,6 +96,7 @@ function renderS1VisualText(content, slide = {}, slideIndex = 0) {
  */
 function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const template = TEMPLATE_REGISTRY['S2-image-content'];
 
   // Handle image content
   let imageHtml = '';
@@ -126,27 +118,21 @@ function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
            style="${buildSlotStyle('S2-image-content', 'image', {
              'overflow': 'hidden'
            })}">
-        ${imageHtml}
+        ${imageHtml || (template?.slots?.image?.defaultText || '')}
       </div>
 
       <!-- Title -->
       <div class="slide-title"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'title', {
-             'display': 'flex',
-             'align-items': 'flex-end'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('S2-image-content', 'title')}">
+        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'flex-start'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('S2-image-content', 'subtitle')}">
+        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Content Area -->
@@ -155,23 +141,23 @@ function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
            style="${buildSlotStyle('S2-image-content', 'content', {
              'overflow-y': 'auto'
            })}">
-        ${content.rich_content || content.body || ''}
+        ${content.rich_content || content.body || (template?.slots?.content?.defaultText || '')}
       </div>
 
       <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle('S2-image-content', 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
       </div>
       ` : ''}
 
       <!-- Logo -->
-      ${content.company_logo ? `
+      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle('S2-image-content', 'logo', {
@@ -180,7 +166,7 @@ function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
              'justify-content': 'center'
            })}">
         <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
         </div>
       </div>
       ` : ''}
@@ -198,81 +184,66 @@ function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
  */
 function renderS3TwoVisuals(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const template = TEMPLATE_REGISTRY['S3-two-visuals'];
 
   return `
     <section data-layout="S3-two-visuals" data-template="S3-two-visuals" class="split-slide grid-container" style="${backgroundStyle}">
       <!-- Title -->
       <div class="slide-title"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'title', {
-             'display': 'flex',
-             'align-items': 'flex-end',
-             'justify-content': 'center'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('S3-two-visuals', 'title')}">
+        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'flex-start',
-             'justify-content': 'center'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('S3-two-visuals', 'subtitle')}">
+        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Left Visual -->
       <div class="content-left"
            ${buildSlotAttributes('visual_left', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'content_left', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.visual_left || content.chart_html_1 || ''}
+           style="${buildSlotStyle('S3-two-visuals', 'content_left')}">
+        ${content.visual_left || content.chart_html_1 || (template?.slots?.content_left?.defaultText || '')}
       </div>
 
       <!-- Right Visual -->
       <div class="content-right"
            ${buildSlotAttributes('visual_right', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'content_right', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.visual_right || content.chart_html_2 || ''}
+           style="${buildSlotStyle('S3-two-visuals', 'content_right')}">
+        ${content.visual_right || content.chart_html_2 || (template?.slots?.content_right?.defaultText || '')}
       </div>
 
       <!-- Left Caption -->
       <div class="caption-left"
            ${buildSlotAttributes('caption_left', slideIndex)}
            style="${buildSlotStyle('S3-two-visuals', 'caption_left')}">
-        ${content.caption_left || ''}
+        ${content.caption_left || (template?.slots?.caption_left?.defaultText || '')}
       </div>
 
       <!-- Right Caption -->
       <div class="caption-right"
            ${buildSlotAttributes('caption_right', slideIndex)}
            style="${buildSlotStyle('S3-two-visuals', 'caption_right')}">
-        ${content.caption_right || ''}
+        ${content.caption_right || (template?.slots?.caption_right?.defaultText || '')}
       </div>
 
       <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle('S3-two-visuals', 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
       </div>
       ` : ''}
 
       <!-- Logo -->
-      ${content.company_logo ? `
+      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle('S3-two-visuals', 'logo', {
@@ -281,7 +252,7 @@ function renderS3TwoVisuals(content, slide = {}, slideIndex = 0) {
              'justify-content': 'center'
            })}">
         <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
         </div>
       </div>
       ` : ''}
@@ -299,29 +270,22 @@ function renderS3TwoVisuals(content, slide = {}, slideIndex = 0) {
  */
 function renderS4Comparison(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const template = TEMPLATE_REGISTRY['S4-comparison'];
 
   return `
     <section data-layout="S4-comparison" data-template="S4-comparison" class="split-slide grid-container" style="${backgroundStyle}">
       <!-- Title -->
       <div class="slide-title"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'title', {
-             'display': 'flex',
-             'align-items': 'flex-end',
-             'justify-content': 'center'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('S4-comparison', 'title')}">
+        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'flex-start',
-             'justify-content': 'center'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('S4-comparison', 'subtitle')}">
+        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Left Header -->
@@ -332,7 +296,7 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
              'align-items': 'center',
              'justify-content': 'center'
            })}">
-        ${content.header_left || content.left_header || ''}
+        ${content.header_left || content.left_header || (template?.slots?.header_left?.defaultText || '')}
       </div>
 
       <!-- Right Header -->
@@ -343,7 +307,7 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
              'align-items': 'center',
              'justify-content': 'center'
            })}">
-        ${content.header_right || content.right_header || ''}
+        ${content.header_right || content.right_header || (template?.slots?.header_right?.defaultText || '')}
       </div>
 
       <!-- Left Content -->
@@ -352,7 +316,7 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
            style="${buildSlotStyle('S4-comparison', 'content_left', {
              'overflow-y': 'auto'
            })}">
-        ${content.content_left || content.left_content || ''}
+        ${content.content_left || content.left_content || (template?.slots?.content_left?.defaultText || '')}
       </div>
 
       <!-- Right Content -->
@@ -361,23 +325,23 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
            style="${buildSlotStyle('S4-comparison', 'content_right', {
              'overflow-y': 'auto'
            })}">
-        ${content.content_right || content.right_content || ''}
+        ${content.content_right || content.right_content || (template?.slots?.content_right?.defaultText || '')}
       </div>
 
       <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle('S4-comparison', 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
       </div>
       ` : ''}
 
       <!-- Logo -->
-      ${content.company_logo ? `
+      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle('S4-comparison', 'logo', {
@@ -386,7 +350,7 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
              'justify-content': 'center'
            })}">
         <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
         </div>
       </div>
       ` : ''}
@@ -404,56 +368,45 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
  */
 function renderB1Blank(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const template = TEMPLATE_REGISTRY['B1-blank'];
 
   return `
     <section data-layout="B1-blank" data-template="B1-blank" class="blank-slide grid-container" style="${backgroundStyle}">
       <!-- Title -->
       <div class="slide-title"
            ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'title', {
-             'display': 'flex',
-             'align-items': 'flex-end',
-             'justify-content': 'center'
-           })}">
-        ${content.slide_title || content.title || ''}
+           style="${buildSlotStyle('B1-blank', 'title')}">
+        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
            ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'subtitle', {
-             'display': 'flex',
-             'align-items': 'flex-start',
-             'justify-content': 'center'
-           })}">
-        ${content.subtitle || ''}
+           style="${buildSlotStyle('B1-blank', 'subtitle')}">
+        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Canvas -->
       <div class="canvas"
            ${buildSlotAttributes('canvas', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'canvas', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.canvas_content || content.canvas || ''}
+           style="${buildSlotStyle('B1-blank', 'canvas')}">
+        ${content.canvas_content || content.canvas || (template?.slots?.canvas?.defaultText || '')}
       </div>
 
       <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer) ? `
+      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle('B1-blank', 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
-        ${content.presentation_name || content.footer_text || content.footer || ''}
+        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
       </div>
       ` : ''}
 
       <!-- Logo -->
-      ${content.company_logo ? `
+      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle('B1-blank', 'logo', {
@@ -462,7 +415,7 @@ function renderB1Blank(content, slide = {}, slideIndex = 0) {
              'justify-content': 'center'
            })}">
         <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
         </div>
       </div>
       ` : ''}

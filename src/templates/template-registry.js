@@ -56,31 +56,37 @@ const TEMPLATE_REGISTRY = {
       },
       title: {
         gridRow: '7/10',
-        gridColumn: '3/17',  // LEFT HALF (was 3/31)
+        gridColumn: '3/17',
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',  // (was 72px)
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',    // BOTTOM aligned
-          justifyContent: 'flex-start'  // LEFT aligned
+          alignItems: 'flex-start',    // LEFT (horizontal cross-axis)
+          justifyContent: 'flex-end',  // BOTTOM (vertical main-axis)
+          textAlign: 'left'
         },
         defaultText: 'Presentation Title',
         description: 'Main presentation title'
       },
       subtitle: {
         gridRow: '10/12',
-        gridColumn: '3/17',  // LEFT HALF (was 5/29)
+        gridColumn: '3/17',
         tag: 'subtitle',
         accepts: ['text'],
         style: {
           fontSize: '32px',
           fontFamily: 'Poppins, sans-serif',
-          textAlign: 'left'  // (was center)
+          color: '#94a3b8',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',    // LEFT (horizontal cross-axis)
+          justifyContent: 'flex-start', // TOP (vertical main-axis)
+          textAlign: 'left'
         },
         defaultText: 'Presentation Subtitle',
         description: 'Subtitle or tagline'

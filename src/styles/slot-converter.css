@@ -46,10 +46,16 @@
 /**
  * Converted TextBox content should preserve template styling.
  * The textStyle is applied via inline styles from slot definition.
+ *
+ * CRITICAL: Override min-height: 100% so that flexbox alignment
+ * (justify-content: flex-end for bottom, flex-start for top) works.
+ * Without this, the content fills the container and can't be positioned.
  */
 .inserted-textbox.converted-slot .textbox-content {
   background: transparent;
   padding: 0;
+  min-height: auto !important;  /* Allow flexbox positioning to work */
+  height: auto !important;      /* Don't fill entire container */
 }
 
 /* ===== SLOT-SPECIFIC STYLES ===== */
@@ -132,7 +138,8 @@ body[data-mode="edit"] .converted-slot.slot-background {
 /* ===== EDIT MODE VISIBILITY ===== */
 
 /**
- * Show drag handles only in edit mode
+ * Hide ALL interactive elements (drag handles, resize handles, delete buttons)
+ * when NOT in edit mode
  */
 body:not([data-mode="edit"]) .converted-slot .textbox-drag-handle,
 body:not([data-mode="edit"]) .converted-slot .element-drag-handle {
@@ -146,6 +153,32 @@ body:not([data-mode="edit"]) .converted-slot .resize-handle {
 body:not([data-mode="edit"]) .converted-slot .delete-button,
 body:not([data-mode="edit"]) .converted-slot .element-delete-button {
   display: none !important;
+}
+
+/**
+ * In EDIT MODE: Hide resize handles by DEFAULT for converted slots
+ * Only show on hover or selection (not always visible)
+ */
+body[data-mode="edit"] .converted-slot .resize-handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/**
+ * Show resize handles on HOVER in edit mode
+ */
+body[data-mode="edit"] .converted-slot:hover .resize-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/**
+ * Show resize handles on SELECTION in edit mode
+ */
+body[data-mode="edit"] .converted-slot.element-selected .resize-handle,
+body[data-mode="edit"] .converted-slot.textbox-selected .resize-handle {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ===== HOVER STATES ===== */

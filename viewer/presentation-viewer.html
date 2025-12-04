@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251201">
   <link rel="stylesheet" href="/src/styles/textbox.css?v=20251202-simple">
   <link rel="stylesheet" href="/src/styles/elements.css?v=20251202">
+  <link rel="stylesheet" href="/src/styles/slot-converter.css?v=20251204-v1">
 
   <style>
     /* Minimal additional styling */
@@ -250,11 +251,14 @@
   <script src="/src/renderers/L29.js"></script>
 
   <!-- Frontend Template System (NEW - does not replace backend layouts) -->
-  <script src="/src/templates/template-registry.js?v=20251204-fix2"></script>
-  <script src="/src/renderers/style-builder.js?v=20251204-fix2"></script>
-  <script src="/src/renderers/hero-templates.js?v=20251204-fix2"></script>
-  <script src="/src/renderers/content-templates.js?v=20251204-fix2"></script>
-  <script src="/src/renderers/split-templates.js?v=20251204-fix2"></script>
+  <script src="/src/templates/template-registry.js?v=20251204-fix3"></script>
+  <script src="/src/renderers/style-builder.js?v=20251204-fix3"></script>
+  <script src="/src/renderers/hero-templates.js?v=20251204-fix3"></script>
+  <script src="/src/renderers/content-templates.js?v=20251204-fix3"></script>
+  <script src="/src/renderers/split-templates.js?v=20251204-fix3"></script>
+
+  <!-- Slot Converter - Converts template slots to Element Type instances -->
+  <script src="/src/utils/slot-converter.js?v=20251204-v1"></script>
 
   <!-- Presentation Rendering Script -->
   <script>
@@ -599,6 +603,23 @@
         restoreCharts(data.slides);
         restoreInfographics(data.slides);
         restoreDiagrams(data.slides);
+
+        // Convert Hero template slots to Element Type instances
+        // This enables drag handles, resize handles, and format panel for H1-structured
+        if (typeof convertHeroSlotsToElements === 'function') {
+          data.slides.forEach((slide, index) => {
+            // Only convert H1-structured for now (focus on getting one right first)
+            if (slide.layout === 'H1-structured') {
+              const slideElement = document.querySelector(
+                `.reveal .slides > section:nth-child(${index + 1})`
+              );
+              if (slideElement) {
+                convertHeroSlotsToElements(slideElement, index, slide.layout);
+              }
+            }
+          });
+          console.log('[SlotConverter] Hero slot conversion complete');
+        }
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
       }, 300);  // Give scripts 300ms to execute

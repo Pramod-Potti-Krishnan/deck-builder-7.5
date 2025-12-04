@@ -47,6 +47,11 @@ function renderH1Generated(content, slide = {}, slideIndex = 0) {
 /**
  * H1-structured - Manual title slide with editable elements
  * Uses template-registry styles for LEFT-aligned, LEFT HALF design.
+ *
+ * Slot elements have:
+ * - Unique IDs for targeting by slot-converter.js
+ * - slot-convertible class for conversion tracking
+ * - data-element-target for specifying target Element Type
  */
 function renderH1Structured(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H1-structured'));
@@ -55,35 +60,45 @@ function renderH1Structured(content, slide = {}, slideIndex = 0) {
   return `
     <section data-layout="H1-structured" data-template="H1-structured" class="hero-slide grid-container" style="${backgroundStyle}">
       <!-- Background Image Layer -->
-      <div class="background-hero"
+      <div class="background-hero slot-convertible"
+           id="slide-${slideIndex}-slot-background"
+           data-element-target="image"
            ${buildSlotAttributes('background', slideIndex)}
            style="${buildSlotStyle('H1-structured', 'background')}">
         ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
       </div>
 
       <!-- Title (LEFT-aligned, BOTTOM-aligned, LEFT HALF) -->
-      <div class="title-hero"
+      <div class="title-hero slot-convertible"
+           id="slide-${slideIndex}-slot-title"
+           data-element-target="textbox"
            ${buildSlotAttributes('title', slideIndex)}
            style="${buildSlotStyle('H1-structured', 'title')}">
         ${content.slide_title || content.title || template.slots.title.defaultText || ''}
       </div>
 
       <!-- Subtitle (LEFT-aligned, LEFT HALF) -->
-      <div class="subtitle-hero"
+      <div class="subtitle-hero slot-convertible"
+           id="slide-${slideIndex}-slot-subtitle"
+           data-element-target="textbox"
            ${buildSlotAttributes('subtitle', slideIndex)}
            style="${buildSlotStyle('H1-structured', 'subtitle')}">
         ${content.subtitle || template.slots.subtitle.defaultText || ''}
       </div>
 
       <!-- Footer (LEFT, UPPERCASE, BOLD) -->
-      <div class="footer-hero"
+      <div class="footer-hero slot-convertible"
+           id="slide-${slideIndex}-slot-footer"
+           data-element-target="textbox"
            ${buildSlotAttributes('footer', slideIndex)}
            style="${buildSlotStyle('H1-structured', 'footer')}">
         ${content.presentation_name || content.footer_text || content.footer || template.slots.footer.defaultText || ''}
       </div>
 
       <!-- Logo (BOTTOM RIGHT) -->
-      <div class="logo-hero"
+      <div class="logo-hero slot-convertible"
+           id="slide-${slideIndex}-slot-logo"
+           data-element-target="image"
            ${buildSlotAttributes('logo', slideIndex)}
            style="${buildSlotStyle('H1-structured', 'logo')}">
         ${content.company_logo || template.slots.logo.defaultText || ''}

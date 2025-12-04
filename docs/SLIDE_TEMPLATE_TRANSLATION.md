@@ -451,5 +451,59 @@ Increment the version (e.g., `fix1` → `fix2`) to force browsers to fetch new f
 
 ---
 
+## 13. Interactive Debugging Features
+
+### Border Highlight Toggle ('B' Key)
+
+Press **'B'** to toggle color-coded borders around all slide elements. This is essential for debugging layout positioning and verifying element boundaries.
+
+**Implementation:**
+- Handler: `toggleBorderHighlight()` in `src/core/reveal-config.js` (lines 44-48)
+- CSS: `src/styles/core/borders.css` (lines 507-675)
+- Mechanism: Toggles `show-borders` class on `document.body`
+
+### Color Coding System
+
+| Element Type | Border Color | Hex Code | CSS Selector |
+|--------------|--------------|----------|--------------|
+| Charts | Blue | `#3b82f6` | `.chart-container` |
+| Diagrams | Purple | `#8b5cf6` | `.diagram-container` |
+| Images | Red | `#ef4444` | `.image-container` |
+| Text/Body | Green | `#10b981` | `.body-primary`, `.text-content` |
+| Title/Subtitle | Light Purple | `#a78bfa` | `.title-hero`, `.subtitle-hero` |
+| Footer/Logo | Yellow | `#fbbf24` | `.footer-hero`, `.logo-hero` |
+| Hero Areas | Orange | `#f97316` | `.hero-content-area` |
+| Inserted Textboxes | Orange | `#f59e0b` | `.inserted-textbox` |
+| Blank Canvas | Pink | `#ec4899` | `.canvas` |
+
+### Other Keyboard Shortcuts
+
+| Key | Function | Implementation |
+|-----|----------|----------------|
+| **B** | Toggle border highlight | `reveal-config.js:44-48` |
+| **G** | Toggle grid overlay (32×18) | `reveal-config.js:24-39` |
+| **C** | Toggle controls panel | `reveal-config.js:53-60` |
+| **H** | Toggle help text | `reveal-config.js:65-72` |
+| **R** | Review mode (AI regeneration) | `review-mode.js` |
+| **E** | Toggle edit mode | `edit-mode.js` |
+
+### Adding Border Support for New Elements
+
+When adding new template slots or element types, add corresponding CSS rules:
+
+```css
+/* In borders.css, add: */
+body.show-borders .your-new-element {
+  outline: 2px dotted #YOUR_COLOR !important;
+  outline-offset: -2px !important;
+}
+```
+
+**Note**: Use `outline` instead of `border` to avoid affecting layout dimensions.
+
+**Full documentation**: See `docs/ELEMENT_INTERACTIONS.md`
+
+---
+
 *Last updated: December 4, 2025*
-*Version: 1.0*
+*Version: 1.1*

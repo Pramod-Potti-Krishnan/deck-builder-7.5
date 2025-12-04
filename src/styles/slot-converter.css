@@ -1,0 +1,215 @@
+/**
+ * Slot Converter CSS
+ *
+ * Styles for elements that have been converted from template slots
+ * to Element Type instances (TextBox, Image).
+ *
+ * Key classes:
+ * - .converted - Original slot element, hidden after conversion
+ * - .converted-slot - Converted element (on the new Element Type)
+ * - .slot-{name} - Identifies which slot the element came from
+ */
+
+/* ===== HIDE ORIGINAL SLOTS AFTER CONVERSION ===== */
+
+/**
+ * When a slot element has the .converted class, it has been
+ * converted to an Element Type instance and should be hidden.
+ * The new element takes its place on the grid.
+ */
+.slot-convertible.converted {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* ===== CONVERTED ELEMENT BASE STYLES ===== */
+
+/**
+ * Converted slot elements maintain their original grid positioning
+ * while gaining Element Type functionality (drag, resize, format panel).
+ */
+.converted-slot {
+  /* Ensure converted elements can be interacted with */
+  pointer-events: auto;
+}
+
+/**
+ * Converted TextBox elements should have transparent background
+ * by default to preserve the original slot appearance.
+ */
+.inserted-textbox.converted-slot {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/**
+ * Converted TextBox content should preserve template styling.
+ * The textStyle is applied via inline styles from slot definition.
+ */
+.inserted-textbox.converted-slot .textbox-content {
+  background: transparent;
+  padding: 0;
+}
+
+/* ===== SLOT-SPECIFIC STYLES ===== */
+
+/* Title slot */
+.converted-slot.slot-title {
+  /* Title elements are typically prominent */
+}
+
+.converted-slot.slot-title .textbox-content {
+  /* Preserve title styling */
+}
+
+/* Subtitle slot */
+.converted-slot.slot-subtitle {
+  /* Subtitle elements */
+}
+
+/* Footer slot */
+.converted-slot.slot-footer {
+  /* Footer elements */
+}
+
+/* Logo slot */
+.converted-slot.slot-logo {
+  /* Logo images */
+}
+
+/* ===== BACKGROUND SLOT SPECIAL HANDLING ===== */
+
+/**
+ * Background slot converts to an Image element but needs
+ * special positioning to stay behind all other elements.
+ */
+.converted-slot.slot-background {
+  z-index: 1 !important;
+  pointer-events: none;  /* Click through to elements above */
+}
+
+/**
+ * In edit mode, allow interaction with background
+ */
+body[data-mode="edit"] .converted-slot.slot-background {
+  pointer-events: auto;
+}
+
+/**
+ * Background should not show drag handle by default
+ * (too disruptive for full-bleed backgrounds)
+ */
+.converted-slot.slot-background .element-drag-handle {
+  display: none;
+}
+
+/**
+ * Show drag handle on explicit selection
+ */
+.converted-slot.slot-background.element-selected .element-drag-handle {
+  display: block;
+  opacity: 0.7;
+}
+
+/* ===== EDIT MODE VISIBILITY ===== */
+
+/**
+ * Show drag handles only in edit mode
+ */
+body:not([data-mode="edit"]) .converted-slot .textbox-drag-handle,
+body:not([data-mode="edit"]) .converted-slot .element-drag-handle {
+  display: none !important;
+}
+
+body:not([data-mode="edit"]) .converted-slot .resize-handle {
+  display: none !important;
+}
+
+body:not([data-mode="edit"]) .converted-slot .delete-button,
+body:not([data-mode="edit"]) .converted-slot .element-delete-button {
+  display: none !important;
+}
+
+/* ===== HOVER STATES ===== */
+
+/**
+ * Subtle highlight on hover for converted elements
+ */
+body[data-mode="edit"] .converted-slot:hover {
+  outline: 1px dashed rgba(59, 130, 246, 0.3);
+  outline-offset: 2px;
+}
+
+/**
+ * Strong highlight on selection
+ */
+body[data-mode="edit"] .converted-slot.element-selected {
+  outline: 2px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
+}
+
+/* ===== BORDER TOGGLE INTEGRATION ===== */
+
+/**
+ * When border toggle ('B' key) is active, show borders on converted slots
+ * with their own color scheme to distinguish from other elements.
+ */
+body.show-borders .converted-slot.slot-title {
+  outline: 2px dotted #a78bfa !important;  /* Light purple - same as title-hero */
+  outline-offset: -2px !important;
+}
+
+body.show-borders .converted-slot.slot-subtitle {
+  outline: 2px dotted #a78bfa !important;  /* Light purple */
+  outline-offset: -2px !important;
+}
+
+body.show-borders .converted-slot.slot-footer {
+  outline: 2px dotted #fbbf24 !important;  /* Yellow - same as footer */
+  outline-offset: -2px !important;
+}
+
+body.show-borders .converted-slot.slot-logo {
+  outline: 2px dotted #fbbf24 !important;  /* Yellow */
+  outline-offset: -2px !important;
+}
+
+body.show-borders .converted-slot.slot-background {
+  outline: 2px dotted #06b6d4 !important;  /* Cyan - background */
+  outline-offset: -2px !important;
+}
+
+/* ===== TRANSITION ANIMATIONS ===== */
+
+/**
+ * Smooth transitions for hover/selection states
+ */
+.converted-slot {
+  transition: outline 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+.converted-slot .textbox-drag-handle,
+.converted-slot .element-drag-handle {
+  transition: opacity 0.15s ease-out;
+}
+
+.converted-slot .resize-handle {
+  transition: opacity 0.15s ease-out, transform 0.1s ease-out;
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .converted-slot .textbox-drag-handle,
+  .converted-slot .element-drag-handle,
+  .converted-slot .resize-handle,
+  .converted-slot .delete-button,
+  .converted-slot .element-delete-button {
+    display: none !important;
+  }
+
+  .converted-slot {
+    outline: none !important;
+  }
+}

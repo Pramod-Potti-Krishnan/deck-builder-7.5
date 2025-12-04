@@ -500,8 +500,380 @@ POST /api/presentations/{id}/restore/{ver_id} # Restore version
 
 ---
 
+## postMessage API (for iframe integration)
+
+When the presentation viewer is embedded in an iframe, you can control slide operations via `postMessage`. This is the **recommended approach** for frontend integration.
+
+### Security
+
+The viewer accepts postMessage from these origins:
+- `localhost:*` (development)
+- `*.up.railway.app` (Railway deployments)
+- `*.vercel.app` (Vercel deployments)
+- `*.netlify.app` (Netlify deployments)
+- `deckster.xyz` and `www.deckster.xyz` (production)
+
+### Basic Usage
+
+```javascript
+// Get reference to the iframe
+const iframe = document.querySelector('iframe');
+
+// Send command to iframe
+iframe.contentWindow.postMessage({
+  action: 'addSlide',
+  params: {
+    layout: 'C1-text',
+    position: 2,
+    content: { slide_title: 'New Slide' }
+  }
+}, '*');
+
+// Listen for response
+window.addEventListener('message', (event) => {
+  if (event.data.action === 'addSlide') {
+    console.log('Result:', event.data.success, event.data.message);
+  }
+});
+```
+
+### Slide CRUD Actions
+
+#### addSlide
+
+Add a new slide to the presentation.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'addSlide',
+  params: {
+    layout: 'H2-section',           // Required: Layout ID
+    position: 2,                     // Optional: 0-based index, defaults to end
+    content: {                       // Optional: slide content
+      section_number: 'SECTION 02',
+      slide_title: 'Market Analysis'
+    },
+    background_color: '#1e3a5f',    // Optional: for hero slides
+    background_image: 'https://...' // Optional: background image URL
+  }
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "addSlide",
+  "message": "Slide added at position 3",
+  "slide_index": 2,
+  "slide_count": 5
+}
+```
+
+#### deleteSlide
+
+Delete a slide by index.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'deleteSlide',
+  params: {
+    index: 2  // Required: 0-based slide index
+  }
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "deleteSlide",
+  "message": "Slide 2 deleted"
+}
+```
+
+#### duplicateSlide
+
+Duplicate an existing slide.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'duplicateSlide',
+  params: {
+    index: 1,           // Required: slide index to duplicate
+    insert_after: true  // Optional: insert after (true) or before (false)
+  }
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "duplicateSlide",
+  "message": "Slide duplicated",
+  "new_slide_index": 2
+}
+```
+
+#### reorderSlides
+
+Move a slide from one position to another.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'reorderSlides',
+  params: {
+    from_index: 0,  // Required: current position
+    to_index: 3     // Required: new position
+  }
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "reorderSlides",
+  "message": "Slide moved from position 0 to 3"
+}
+```
+
+#### changeSlideLayout
+
+Change the layout of an existing slide.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'changeSlideLayout',
+  params: {
+    index: 1,                   // Required: slide index
+    new_layout: 'S1-visual-text', // Required: new layout ID
+    preserve_content: true      // Optional: keep existing content
+  }
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "changeSlideLayout",
+  "message": "Layout changed to S1-visual-text"
+}
+```
+
+### Query Actions
+
+#### getSlideCount
+
+Get the total number of slides.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'getSlideCount',
+  params: {}
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "getSlideCount",
+  "data": { "count": 5 }
+}
+```
+
+#### getSlideInfo
+
+Get information about a specific slide.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'getSlideInfo',
+  params: { index: 0 }
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "getSlideInfo",
+  "data": {
+    "index": 0,
+    "layout": "H1-structured",
+    "content": { "slide_title": "...", "subtitle": "..." }
+  }
+}
+```
+
+#### getSlideLayouts
+
+Get all available layout types.
+
+```javascript
+iframe.contentWindow.postMessage({
+  action: 'getSlideLayouts',
+  params: {}
+}, '*');
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "action": "getSlideLayouts",
+  "data": {
+    "layouts": ["L01", "L02", "L03", "L25", "L27", "L29"],
+    "descriptions": {
+      "L01": "Centered Chart with Text Below",
+      "L02": "Left Diagram with Text on Right",
+      ...
+    }
+  }
+}
+```
+
+### Navigation Actions
+
+```javascript
+// Go to next slide
+iframe.contentWindow.postMessage({ action: 'nextSlide' }, '*');
+
+// Go to previous slide
+iframe.contentWindow.postMessage({ action: 'prevSlide' }, '*');
+
+// Go to specific slide (0-based index)
+iframe.contentWindow.postMessage({
+  action: 'goToSlide',
+  params: { index: 2 }
+}, '*');
+
+// Get current slide info
+iframe.contentWindow.postMessage({ action: 'getCurrentSlideInfo' }, '*');
+```
+
+### Edit Mode Actions
+
+```javascript
+// Toggle edit mode
+iframe.contentWindow.postMessage({ action: 'toggleEditMode' }, '*');
+
+// Save all changes
+iframe.contentWindow.postMessage({ action: 'saveAllChanges' }, '*');
+
+// Force save immediately
+iframe.contentWindow.postMessage({ action: 'forceSave' }, '*');
+
+// Cancel edits
+iframe.contentWindow.postMessage({ action: 'cancelEdits' }, '*');
+```
+
+### Complete Frontend Integration Example
+
+```javascript
+class PresentationController {
+  constructor(iframeSelector) {
+    this.iframe = document.querySelector(iframeSelector);
+    this.pendingCallbacks = new Map();
+    this.messageId = 0;
+
+    // Listen for responses
+    window.addEventListener('message', this.handleResponse.bind(this));
+  }
+
+  handleResponse(event) {
+    const { action, success, error, ...data } = event.data;
+    if (action && this.pendingCallbacks.has(action)) {
+      const callback = this.pendingCallbacks.get(action);
+      this.pendingCallbacks.delete(action);
+      if (success) {
+        callback.resolve(data);
+      } else {
+        callback.reject(new Error(error || 'Unknown error'));
+      }
+    }
+  }
+
+  sendCommand(action, params = {}) {
+    return new Promise((resolve, reject) => {
+      this.pendingCallbacks.set(action, { resolve, reject });
+      this.iframe.contentWindow.postMessage({ action, params }, '*');
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (this.pendingCallbacks.has(action)) {
+          this.pendingCallbacks.delete(action);
+          reject(new Error('Request timeout'));
+        }
+      }, 10000);
+    });
+  }
+
+  // Slide CRUD methods
+  async addSlide(layout, options = {}) {
+    return this.sendCommand('addSlide', { layout, ...options });
+  }
+
+  async deleteSlide(index) {
+    return this.sendCommand('deleteSlide', { index });
+  }
+
+  async duplicateSlide(index, insertAfter = true) {
+    return this.sendCommand('duplicateSlide', { index, insert_after: insertAfter });
+  }
+
+  async reorderSlides(fromIndex, toIndex) {
+    return this.sendCommand('reorderSlides', { from_index: fromIndex, to_index: toIndex });
+  }
+
+  async changeLayout(index, newLayout, preserveContent = true) {
+    return this.sendCommand('changeSlideLayout', {
+      index,
+      new_layout: newLayout,
+      preserve_content: preserveContent
+    });
+  }
+
+  // Navigation
+  async goToSlide(index) {
+    return this.sendCommand('goToSlide', { index });
+  }
+
+  async nextSlide() {
+    return this.sendCommand('nextSlide');
+  }
+
+  async prevSlide() {
+    return this.sendCommand('prevSlide');
+  }
+}
+
+// Usage
+const controller = new PresentationController('#presentation-iframe');
+
+// Add a section divider
+await controller.addSlide('H2-section', {
+  content: { section_number: 'SECTION 03', slide_title: 'Summary' }
+});
+
+// Duplicate slide 2
+await controller.duplicateSlide(2);
+
+// Change slide 1 to chart layout
+await controller.changeLayout(1, 'C3-chart');
+
+// Delete slide 4
+await controller.deleteSlide(4);
+```
+
+---
+
 ## Related Resources
 
 - **API Documentation**: `/docs` (Swagger UI)
 - **API Tester**: `/tester`
 - **Template Registry**: `src/templates/template-registry.js`
+- **postMessage Events**: `POSTMESSAGE_SELECTION_EVENTS.md`

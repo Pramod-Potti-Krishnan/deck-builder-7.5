@@ -591,3 +591,84 @@ body.show-borders .inserted-textbox {
   outline: 2px dotted #f59e0b !important;
   outline-offset: -2px !important;
 }
+
+/* ===== FRONTEND TEMPLATE BORDERS (H1-H3, C1-C6, S1-S4, B1) ===== */
+/* These classes are used by the new frontend template system */
+
+/* Hero template title/subtitle elements - Purple dotted outline */
+body.show-borders .title-hero,
+body.show-borders .subtitle-hero {
+  outline: 2px dotted #a78bfa !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template footer/logo - Yellow dotted outline */
+body.show-borders .footer-hero,
+body.show-borders .logo-hero {
+  outline: 2px dotted #fbbf24 !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template background - Cyan dotted outline */
+body.show-borders .background-hero {
+  outline: 2px dotted #06b6d4 !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template section number - Indigo dotted outline */
+body.show-borders .section-number-hero {
+  outline: 2px dotted #6366f1 !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template contact info - Teal dotted outline */
+body.show-borders .contact-hero {
+  outline: 2px dotted #14b8a6 !important;
+  outline-offset: -2px !important;
+}
+
+/* Content template content area - Green dotted outline */
+body.show-borders .content-area {
+  outline: 2px dotted #10b981 !important;
+  outline-offset: -2px !important;
+}
+
+/* Split template left/right content - Blue dotted outline */
+body.show-borders .content-left,
+body.show-borders .content-right {
+  outline: 2px dotted #3b82f6 !important;
+  outline-offset: -2px !important;
+}
+
+/* Split template image area - Red dotted outline */
+body.show-borders .image-area {
+  outline: 2px dotted #ef4444 !important;
+  outline-offset: -2px !important;
+}
+
+/* Split template captions - Gray dotted outline */
+body.show-borders .caption-left,
+body.show-borders .caption-right {
+  outline: 2px dotted #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Comparison headers - Orange dotted outline */
+body.show-borders .header-left,
+body.show-borders .header-right {
+  outline: 2px dotted #f97316 !important;
+  outline-offset: -2px !important;
+}
+
+/* Blank canvas - Pink dotted outline */
+body.show-borders .canvas {
+  outline: 2px dotted #ec4899 !important;
+  outline-offset: -2px !important;
+}
+
+/* Generic footer and logo (used by content/split templates) - Yellow dotted outline */
+body.show-borders .footer,
+body.show-borders .logo {
+  outline: 2px dotted #fbbf24 !important;
+  outline-offset: -2px !important;
+}

@@ -158,27 +158,29 @@ body:not([data-mode="edit"]) .converted-slot .element-delete-button {
 /**
  * In EDIT MODE: Hide resize handles by DEFAULT for converted slots
  * Only show on hover or selection (not always visible)
+ * Use !important to override element-manager.css defaults
  */
 body[data-mode="edit"] .converted-slot .resize-handle {
-  opacity: 0;
-  pointer-events: none;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /**
- * Show resize handles on HOVER in edit mode
+ * Show resize handles ONLY on HOVER of THIS SPECIFIC element
  */
 body[data-mode="edit"] .converted-slot:hover .resize-handle {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 /**
- * Show resize handles on SELECTION in edit mode
+ * Show resize handles ONLY on SELECTION of THIS SPECIFIC element
+ * (not all elements when one is selected)
  */
 body[data-mode="edit"] .converted-slot.element-selected .resize-handle,
 body[data-mode="edit"] .converted-slot.textbox-selected .resize-handle {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 /* ===== HOVER STATES ===== */

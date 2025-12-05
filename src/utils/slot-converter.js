@@ -32,8 +32,15 @@
     'footer': 'textbox',
     'section_number': 'textbox',
     'contact_info': 'textbox',
-    'body': 'textbox',
-    'content': 'textbox',  // Content area for C1-C6 templates
+    'body': 'textbox',      // C1-text body content -> textbox
+
+    // Visual content slots -> Image Element Type (placeholder mode)
+    // These are specialized content areas that hold visual elements
+    'table': 'image',       // C2-table content area
+    'chart': 'image',       // C3-chart content area
+    'infographic': 'image', // C4-infographic content area
+    'diagram': 'image',     // C5-diagram content area
+    'image': 'image',       // C6-image content area
 
     // Image-based slots -> Image Element Type
     'logo': 'image',
@@ -53,7 +60,12 @@
     'section_number': 1014,
     'contact_info': 1015,
     'body': 1016,
-    'content': 1016  // Same as body for content templates
+    // Visual content areas (same z-index as body)
+    'table': 1016,
+    'chart': 1016,
+    'infographic': 1016,
+    'diagram': 1016,
+    'image': 1016
   };
 
   /**

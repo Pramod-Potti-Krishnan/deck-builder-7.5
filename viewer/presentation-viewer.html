@@ -616,17 +616,19 @@
         // - Other templates still use convertHeroSlotsToElements()
 
         // Templates using the NEW direct element approach (blank grid + add elements)
-        // All C1-C6 content templates and S1-S4 split templates now use this simpler approach
+        // All C1-C6 content templates, S1-S4 split templates, and H1-H3 hero templates use this approach
         const directElementTemplates = [
+          // Content templates
           'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image',
-          'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison'
+          // Split templates
+          'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison',
+          // Hero templates (dark background)
+          'H1-structured', 'H2-section', 'H3-closing'
         ];
 
         // Templates using the OLD slot conversion approach
         const slotConversionTemplates = [
-          // Hero templates (dark background)
-          'H1-structured', 'H2-section', 'H3-closing',
-          // Blank template
+          // Only B1-blank remains using old approach
           'B1-blank'
         ];
 

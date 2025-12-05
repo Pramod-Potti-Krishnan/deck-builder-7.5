@@ -44,6 +44,11 @@
     'header_left': 'textbox',   // S4 header slots
     'header_right': 'textbox',
 
+    // Hero template specific slots (H1-H3)
+    'background': 'image',      // Full-bleed background image (H1, H2, H3)
+    'section_number': 'textbox', // H2 large section number (180px)
+    'contact_info': 'textbox',   // H3 contact information
+
     // NOTE: 'content', 'content_left', 'content_right' slots are NOT mapped here
     // They use slotDef.tag to determine type:
     // - S1: content_left.tag='visual', content_right.tag='body'
@@ -229,6 +234,12 @@
       zIndex: getZIndexForSlot(slotName)
     };
 
+    // Use dark placeholder color for background slot (hero templates)
+    if (slotName === 'background' && !imageUrl) {
+      config.placeholderColor = '#1e3a5f';  // Dark blue for hero background
+      config.objectFit = 'cover';           // Background should cover the area
+    }
+
     const result = window.ElementManager.insertImage(slideIndex, config);
 
     if (result.success) {
@@ -356,7 +367,11 @@
       'header_right': content.header_right || content.right_header,
 
       // S2 uses 'content' for body text on right side
-      'content': content.rich_content || content.body || content.content_html
+      'content': content.rich_content || content.body || content.content_html,
+
+      // Hero template specific slots (H1-H3)
+      'section_number': content.section_number || content.chapter_number,
+      'contact_info': content.contact_info || content.contact || content.email
     };
 
     return mapping[slotName] || defaultText || '';
@@ -371,6 +386,12 @@
 
     // Helper to validate URL
     const isValidHttpUrl = (url) => url && typeof url === 'string' && url.startsWith('http');
+
+    // Hero template background slot (H1, H2, H3)
+    if (slotName === 'background') {
+      const url = content.background_image || content.hero_image || content.image_url;
+      return isValidHttpUrl(url) ? url : null;
+    }
 
     // Main content area - C6-image
     if (slotName === 'content') {
@@ -425,7 +446,12 @@
       'header_left': 1014,     // S4 headers
       'header_right': 1014,
       'caption_left': 1012,    // S3 captions
-      'caption_right': 1012
+      'caption_right': 1012,
+
+      // Hero template slots (H1-H3)
+      'background': 1,         // Full-bleed background - behind everything
+      'section_number': 1014,  // H2 large section number
+      'contact_info': 1015     // H3 contact information
     };
     return zIndexMap[slotName] || 1010;
   }

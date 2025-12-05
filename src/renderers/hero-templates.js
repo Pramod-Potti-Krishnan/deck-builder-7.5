@@ -1,15 +1,42 @@
 /**
  * Hero Template Renderers for Frontend Slide Templates
  *
- * These renderers use buildSlotStyle() to apply styles from TEMPLATE_REGISTRY.
- * This ensures templates render exactly as designed in the Template Builder.
+ * These renderers use the NEW Direct Element Creation approach:
+ * - Render blank grid container only
+ * - Elements are created after render by DirectElementCreator using ElementManager
+ * - All styles come from TEMPLATE_REGISTRY
  *
  * Hero Templates:
- * - H1-generated: Full-bleed AI-generated content
+ * - H1-generated: Full-bleed AI-generated content (LEGACY - not using direct elements)
  * - H1-structured: Manual title/subtitle with customizable background
  * - H2-section: Section divider slide
  * - H3-closing: Closing/thank you slide
  */
+
+// ===========================================
+// SHARED HELPER: Build Blank Hero Slide
+// ===========================================
+
+/**
+ * Builds a blank grid container for direct element creation.
+ * Elements are added after render by DirectElementCreator.
+ *
+ * Hero slides use dark backgrounds by default.
+ */
+function buildBlankHeroSlide(templateId, content, slide, slideIndex) {
+  // Hero slides default to dark background
+  const defaultBg = templateId === 'H2-section' ? '#374151' : '#1e3a5f';
+  const backgroundStyle = buildBackgroundStyle(slide, content, defaultBg);
+
+  return `
+    <section data-layout="${templateId}" data-template="${templateId}"
+             class="hero-slide grid-container"
+             data-slide-index="${slideIndex}"
+             data-direct-elements="true"
+             style="${backgroundStyle}">
+    </section>
+  `;
+}
 
 // ===========================================
 // H1-GENERATED: AI-Generated Hero
@@ -18,6 +45,8 @@
 /**
  * H1-generated - Full-bleed hero slide (AI generates everything)
  * Used when AI generates the entire title slide design.
+ * NOTE: This template uses LEGACY approach (not direct element creation)
+ * because AI generates the complete hero_content HTML.
  */
 function renderH1Generated(content, slide = {}, slideIndex = 0) {
   const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H1-generated'));
@@ -46,65 +75,14 @@ function renderH1Generated(content, slide = {}, slideIndex = 0) {
 
 /**
  * H1-structured - Manual title slide with editable elements
- * Uses template-registry styles for LEFT-aligned, LEFT HALF design.
  *
- * Slot elements have:
- * - Unique IDs for targeting by slot-converter.js
- * - slot-convertible class for conversion tracking
- * - data-element-target for specifying target Element Type
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements (background, title, subtitle, footer, logo) are created after render
+ *   by DirectElementCreator using ElementManager
  */
 function renderH1Structured(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H1-structured'));
-  const template = TEMPLATE_REGISTRY['H1-structured'];
-
-  return `
-    <section data-layout="H1-structured" data-template="H1-structured" class="hero-slide grid-container" style="${backgroundStyle}">
-      <!-- Background Image Layer -->
-      <div class="background-hero slot-convertible"
-           id="slide-${slideIndex}-slot-background"
-           data-element-target="image"
-           ${buildSlotAttributes('background', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'background')}">
-        ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
-      </div>
-
-      <!-- Title (LEFT-aligned, BOTTOM-aligned, LEFT HALF) -->
-      <div class="title-hero slot-convertible"
-           id="slide-${slideIndex}-slot-title"
-           data-element-target="textbox"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'title')}">
-        ${content.slide_title || content.title || template.slots.title.defaultText || ''}
-      </div>
-
-      <!-- Subtitle (LEFT-aligned, LEFT HALF) -->
-      <div class="subtitle-hero slot-convertible"
-           id="slide-${slideIndex}-slot-subtitle"
-           data-element-target="textbox"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'subtitle')}">
-        ${content.subtitle || template.slots.subtitle.defaultText || ''}
-      </div>
-
-      <!-- Footer (LEFT, UPPERCASE, BOLD) -->
-      <div class="footer-hero slot-convertible"
-           id="slide-${slideIndex}-slot-footer"
-           data-element-target="textbox"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'footer')}">
-        ${content.presentation_name || content.footer_text || content.footer || template.slots.footer.defaultText || ''}
-      </div>
-
-      <!-- Logo (BOTTOM RIGHT) -->
-      <div class="logo-hero slot-convertible"
-           id="slide-${slideIndex}-slot-logo"
-           data-element-target="image"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('H1-structured', 'logo')}">
-        ${content.company_logo || template.slots.logo.defaultText || ''}
-      </div>
-    </section>
-  `;
+  return buildBlankHeroSlide('H1-structured', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -113,37 +91,15 @@ function renderH1Structured(content, slide = {}, slideIndex = 0) {
 
 /**
  * H2-section - Section divider slide
- * Features section number and title with elegant styling.
- * Uses template-registry styles - NO subtitle slot in this template.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements (background, section_number, title) are created after render
+ *   by DirectElementCreator using ElementManager
+ * - NOTE: This template has NO subtitle slot
  */
 function renderH2Section(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H2-section'));
-  const template = TEMPLATE_REGISTRY['H2-section'];
-
-  return `
-    <section data-layout="H2-section" data-template="H2-section" class="hero-slide grid-container" style="${backgroundStyle}">
-      <!-- Background Layer -->
-      <div class="background-hero"
-           ${buildSlotAttributes('background', slideIndex)}
-           style="${buildSlotStyle('H2-section', 'background')}">
-        ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
-      </div>
-
-      <!-- Section Number (centered, large) -->
-      <div class="section-number-hero"
-           ${buildSlotAttributes('section_number', slideIndex)}
-           style="${buildSlotStyle('H2-section', 'section_number')}">
-        ${content.section_number || template.slots.section_number.defaultText || ''}
-      </div>
-
-      <!-- Title (centered below section number) -->
-      <div class="title-hero"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('H2-section', 'title')}">
-        ${content.slide_title || content.title || template.slots.title.defaultText || ''}
-      </div>
-    </section>
-  `;
+  return buildBlankHeroSlide('H2-section', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -152,51 +108,14 @@ function renderH2Section(content, slide = {}, slideIndex = 0) {
 
 /**
  * H3-closing - Closing slide with contact info
- * Elegant centered design for thank you slides.
- * Uses template-registry styles for all slots.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements (background, title, subtitle, contact_info, logo) are created after render
+ *   by DirectElementCreator using ElementManager
  */
 function renderH3Closing(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H3-closing'));
-  const template = TEMPLATE_REGISTRY['H3-closing'];
-
-  return `
-    <section data-layout="H3-closing" data-template="H3-closing" class="hero-slide grid-container" style="${backgroundStyle}">
-      <!-- Background Layer -->
-      <div class="background-hero"
-           ${buildSlotAttributes('background', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'background')}">
-        ${content.background_image ? `<img src="${content.background_image}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
-      </div>
-
-      <!-- Title (centered) -->
-      <div class="title-hero"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'title')}">
-        ${content.slide_title || content.title || template.slots.title.defaultText || ''}
-      </div>
-
-      <!-- Subtitle (centered below title) -->
-      <div class="subtitle-hero"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'subtitle')}">
-        ${content.subtitle || template.slots.subtitle.defaultText || ''}
-      </div>
-
-      <!-- Contact Information -->
-      <div class="contact-hero"
-           ${buildSlotAttributes('contact_info', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'contact_info')}">
-        ${content.contact_info || template.slots.contact_info.defaultText || ''}
-      </div>
-
-      <!-- Logo (bottom right) -->
-      <div class="logo-hero"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('H3-closing', 'logo')}">
-        ${content.company_logo || template.slots.logo.defaultText || ''}
-      </div>
-    </section>
-  `;
+  return buildBlankHeroSlide('H3-closing', content, slide, slideIndex);
 }
 
 // ===========================================

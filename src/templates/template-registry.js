@@ -165,8 +165,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',  // CENTER (vertical)
           textAlign: 'center'
         },
-        defaultText: '01',
-        description: 'Section number (e.g., "01")'
+        defaultText: '#',
+        description: 'Section number placeholder'
       },
       title: {
         gridRow: '6/11',

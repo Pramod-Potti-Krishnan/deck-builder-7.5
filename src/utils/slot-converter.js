@@ -66,14 +66,14 @@
       'background': '.background-hero'
     },
     'H2-section': {
-      'section_number': '.section-number',
+      'section_number': '.section-number-hero',  // Match hero-templates.js class
       'title': '.title-hero',
       'background': '.background-hero'
     },
     'H3-closing': {
       'title': '.title-hero',
       'subtitle': '.subtitle-hero',
-      'contact_info': '.contact-info',
+      'contact_info': '.contact-hero',  // Match hero-templates.js class
       'logo': '.logo-hero',
       'background': '.background-hero'
     }

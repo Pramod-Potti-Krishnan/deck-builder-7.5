@@ -184,9 +184,9 @@ function renderH3Closing(content, slide = {}, slideIndex = 0) {
 
       <!-- Contact Information -->
       <div class="contact-hero"
-           ${buildSlotAttributes('contact', slideIndex)}
+           ${buildSlotAttributes('contact_info', slideIndex)}
            style="${buildSlotStyle('H3-closing', 'contact_info')}">
-        ${content.contact_info || ''}
+        ${content.contact_info || template.slots.contact_info.defaultText || ''}
       </div>
 
       <!-- Logo (bottom right) -->

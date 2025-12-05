@@ -605,11 +605,11 @@
         restoreDiagrams(data.slides);
 
         // Convert Hero template slots to Element Type instances
-        // This enables drag handles, resize handles, and format panel for H1-structured
+        // This enables drag handles, resize handles, and format panel for all hero templates
         if (typeof convertHeroSlotsToElements === 'function') {
+          const heroTemplates = ['H1-structured', 'H2-section', 'H3-closing'];
           data.slides.forEach((slide, index) => {
-            // Only convert H1-structured for now (focus on getting one right first)
-            if (slide.layout === 'H1-structured') {
+            if (heroTemplates.includes(slide.layout)) {
               const slideElement = document.querySelector(
                 `.reveal .slides > section:nth-child(${index + 1})`
               );

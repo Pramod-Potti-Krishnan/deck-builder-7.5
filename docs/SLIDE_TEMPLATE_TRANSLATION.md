@@ -1332,15 +1332,95 @@ footer: {
 
 ---
 
-## 24. Template Implementation Order
+## 24. CRITICAL: Slot-to-Element Conversion
+
+**Without this step, template slots are just static HTML divs - no drag, resize, delete, or formatting capabilities.**
+
+### Why Slot Conversion is Required
+
+Template slots (like `title`, `subtitle`, `section_number`) must be converted to **Element Types** (TextBox, Image) to inherit:
+- ✅ Drag handles
+- ✅ Resize handles
+- ✅ Delete button
+- ✅ Format panel support
+- ✅ Save/restore functionality
+- ✅ All element-specific behaviors
+
+### The Three Files That Must Be Updated
+
+For each new template, ensure these three files are properly configured:
+
+#### 1. `slot-converter.js` - SLOT_CLASS_SELECTORS
+
+Add CSS selectors for finding slot elements:
+```javascript
+const SLOT_CLASS_SELECTORS = {
+  'H2-section': {
+    'section_number': '.section-number-hero',  // CSS class in rendered HTML
+    'title': '.title-hero',
+    'background': '.background-hero'
+  },
+  // ... other templates
+};
+```
+
+#### 2. `presentation-viewer.html` - heroTemplates Array
+
+Enable conversion for the template:
+```javascript
+const heroTemplates = ['H1-structured', 'H2-section', 'H3-closing'];
+data.slides.forEach((slide, index) => {
+  if (heroTemplates.includes(slide.layout)) {
+    convertHeroSlotsToElements(slideElement, index, slide.layout);
+  }
+});
+```
+
+#### 3. `hero-templates.js` - Renderer Function
+
+Ensure slot names in `buildSlotAttributes()` match `TEMPLATE_REGISTRY` slot names:
+```javascript
+// CORRECT: Slot name matches template-registry
+${buildSlotAttributes('contact_info', slideIndex)}
+
+// WRONG: Using tag name instead of slot name
+${buildSlotAttributes('contact', slideIndex)}
+```
+
+### Checklist for New Template Slots
+
+- [ ] Slot name in `template-registry.js` (e.g., `contact_info`)
+- [ ] Same slot name in `buildSlotAttributes()` call in renderer
+- [ ] CSS class in rendered HTML (e.g., `.contact-hero`)
+- [ ] Selector in `SLOT_CLASS_SELECTORS` matching CSS class
+- [ ] Template ID in `heroTemplates` array (for hero templates)
+- [ ] Slot name in `SLOT_TO_ELEMENT_MAP` if new slot type
+- [ ] Slot color in `slotColors` if hero template
+
+### Debugging Slot Conversion
+
+If a slot is not being converted, check console for:
+```
+[SlotConverter] No selector defined for slot: contact_info
+[SlotConverter] Slot element not found: .contact-hero
+```
+
+This usually means a mismatch between:
+- Slot name in template-registry
+- CSS class in rendered HTML
+- Selector in SLOT_CLASS_SELECTORS
+
+---
+
+## 25. Template Implementation Order
 
 When rolling out template fixes, follow this recommended order:
 
 ### Phase 1: Hero Templates (Dark Background)
 1. ✅ **H1-structured** - Title Slide (Manual) - COMPLETED
-2. **H1-generated** - Title Slide (AI Generated)
-3. **H2-section** - Section Divider
-4. **H3-closing** - Closing Slide
+2. ⏭️ **H1-generated** - Title Slide (AI Generated) - N/A (AI renders full content)
+3. ✅ **H2-section** - Section Divider - COMPLETED
+4. ✅ **H3-closing** - Closing Slide - COMPLETED
 
 **Common Hero Patterns:**
 - Background: dark (#1e3a5f)
@@ -1383,4 +1463,4 @@ When rolling out template fixes, follow this recommended order:
 ---
 
 *Last updated: December 4, 2025*
-*Version: 1.3*
+*Version: 1.4 - Added Section 24: Slot-to-Element Conversion*

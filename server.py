@@ -102,7 +102,7 @@ def get_default_content(layout: str) -> dict:
             "background_color": "#1e3a5f"
         },
         "H2-section": {
-            "section_number": "SECTION 01",
+            "section_number": "#",
             "slide_title": "Section Title",
             "subtitle": "",
             "background_color": "#374151"

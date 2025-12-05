@@ -87,6 +87,17 @@
 
     // Create each element from the template slots
     Object.entries(template.slots).forEach(([slotName, slotDef]) => {
+      // CHECK: Does this element already exist (from restore phase)?
+      // If element was moved/modified and saved, it gets restored before this runs.
+      // Skip creation to avoid duplicates.
+      const elementId = `slide-${slideIndex}-${slotName}`;
+      const existingElement = document.getElementById(elementId);
+
+      if (existingElement) {
+        console.log(`[DirectElementCreator] Skipping ${slotName} - already restored from save`);
+        return;  // Skip - already created during restore phase
+      }
+
       const elementType = getElementTypeForSlot(slotName, slotDef);
 
       console.log(`[DirectElementCreator] Creating ${elementType} for slot '${slotName}'`);

@@ -14,6 +14,32 @@
  */
 
 // ===========================================
+// SHARED HELPER: Build Blank Grid Container
+// ===========================================
+
+/**
+ * Builds a blank grid container for direct element creation.
+ * Elements are added after render by DirectElementCreator.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Renderer outputs blank grid container only
+ * - DirectElementCreator adds elements using ElementManager
+ * - No slot HTML, no slot conversion, no race conditions
+ */
+function buildBlankContentSlide(templateId, content, slide, slideIndex) {
+  const backgroundStyle = buildBackgroundStyle(slide, content, '#ffffff');
+
+  return `
+    <section data-layout="${templateId}" data-template="${templateId}"
+             class="content-slide grid-container"
+             data-slide-index="${slideIndex}"
+             data-direct-elements="true"
+             style="${backgroundStyle}">
+    </section>
+  `;
+}
+
+// ===========================================
 // SHARED HELPER: Build Content Slide Structure
 // ===========================================
 
@@ -21,6 +47,9 @@
  * Builds the standard content slide structure with title, subtitle, content, footer, logo
  * All C1-C6 templates share this structure, only the content slot differs.
  * Uses defaultText from TEMPLATE_REGISTRY when no content provided.
+ *
+ * NOTE: This is the OLD approach using slot HTML elements.
+ * For NEW approach using direct element creation, use buildBlankContentSlide().
  */
 function buildContentSlide(templateId, content, slide, slideIndex, contentSlotName, contentHtml) {
   const backgroundStyle = buildBackgroundStyle(slide, content, '');
@@ -155,22 +184,16 @@ function renderC5Diagram(content, slide = {}, slideIndex = 0) {
 
 /**
  * C6-image - Slide with one image and optional caption
- * Uses template-registry styles for image container.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements (title, subtitle, image, footer, logo) are created after render
+ *   by DirectElementCreator using ElementManager
+ * - No slot HTML, no slot conversion, no race conditions
  */
 function renderC6Image(content, slide = {}, slideIndex = 0) {
-  let contentHtml = '';
-  if (content.image_url) {
-    if (content.image_url.startsWith('<')) {
-      // Already HTML
-      contentHtml = content.image_url;
-    } else {
-      // URL - wrap in img tag
-      contentHtml = `<img src="${content.image_url}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="${content.slide_title || 'Image'}">`;
-    }
-  } else if (content.image) {
-    contentHtml = content.image;
-  }
-  return buildContentSlide('C6-image', content, slide, slideIndex, 'image', contentHtml);
+  // Just return blank container - elements added by DirectElementCreator
+  return buildBlankContentSlide('C6-image', content, slide, slideIndex);
 }
 
 // ===========================================

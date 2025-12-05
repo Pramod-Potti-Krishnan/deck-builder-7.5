@@ -260,6 +260,9 @@
   <!-- Slot Converter - Converts template slots to Element Type instances -->
   <script src="/src/utils/slot-converter.js?v=20251205-v3"></script>
 
+  <!-- Direct Element Creator - NEW simplified approach for C1-C6 templates -->
+  <script src="/src/utils/direct-element-creator.js?v=20251205-v1"></script>
+
   <!-- Presentation Rendering Script -->
   <script>
     // Presentation data (injected by server)
@@ -606,29 +609,51 @@
 
         // Convert template slots to Element Type instances
         // This enables drag handles, resize handles, and format panel for all templates
-        if (typeof convertHeroSlotsToElements === 'function') {
-          const convertibleTemplates = [
-            // Hero templates (dark background)
-            'H1-structured', 'H2-section', 'H3-closing',
-            // Content templates (light background)
-            'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image',
-            // Split templates (mixed layouts)
-            'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison',
-            // Blank template
-            'B1-blank'
-          ];
-          data.slides.forEach((slide, index) => {
-            if (convertibleTemplates.includes(slide.layout)) {
-              const slideElement = document.querySelector(
-                `.reveal .slides > section:nth-child(${index + 1})`
-              );
-              if (slideElement) {
-                convertHeroSlotsToElements(slideElement, index, slide.layout);
-              }
+        //
+        // NEW APPROACH: C6-image (and soon C1-C5) use Direct Element Creation
+        // - Slides with data-direct-elements="true" use createElementsForTemplate()
+        // - Other templates still use convertHeroSlotsToElements()
+
+        // Templates using the NEW direct element approach (blank grid + add elements)
+        const directElementTemplates = ['C6-image'];
+
+        // Templates using the OLD slot conversion approach
+        const slotConversionTemplates = [
+          // Hero templates (dark background)
+          'H1-structured', 'H2-section', 'H3-closing',
+          // Content templates (light background) - EXCEPT C6-image which uses direct approach
+          'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram',
+          // Split templates (mixed layouts)
+          'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison',
+          // Blank template
+          'B1-blank'
+        ];
+
+        data.slides.forEach((slide, index) => {
+          const slideElement = document.querySelector(
+            `.reveal .slides > section:nth-child(${index + 1})`
+          );
+
+          if (!slideElement) return;
+
+          // Check if this slide uses direct element creation
+          if (directElementTemplates.includes(slide.layout) || slideElement.hasAttribute('data-direct-elements')) {
+            // NEW approach: Create elements directly using ElementManager
+            if (typeof createElementsForTemplate === 'function') {
+              console.log(`[DirectElementCreator] Creating elements for slide ${index} (${slide.layout})`);
+              createElementsForTemplate(slideElement, index, slide.layout, slide.content);
+            } else {
+              console.warn('[DirectElementCreator] createElementsForTemplate not available');
             }
-          });
-          console.log('[SlotConverter] Template slot conversion complete');
-        }
+          } else if (slotConversionTemplates.includes(slide.layout)) {
+            // OLD approach: Convert slot HTML to Element Types
+            if (typeof convertHeroSlotsToElements === 'function') {
+              convertHeroSlotsToElements(slideElement, index, slide.layout);
+            }
+          }
+        });
+
+        console.log('[SlotConverter] Template element initialization complete');
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
       }, 300);  // Give scripts 300ms to execute

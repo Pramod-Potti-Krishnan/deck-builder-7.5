@@ -119,11 +119,14 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
 
 /**
  * C1-text - Standard slide with body text
- * Uses template-registry styles for elegant typography.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements (title, subtitle, body, footer, logo) are created after render
+ *   by DirectElementCreator using ElementManager
  */
 function renderC1Text(content, slide = {}, slideIndex = 0) {
-  const contentHtml = content.rich_content || content.body || '';
-  return buildContentSlide('C1-text', content, slide, slideIndex, 'body', contentHtml);
+  return buildBlankContentSlide('C1-text', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -132,11 +135,13 @@ function renderC1Text(content, slide = {}, slideIndex = 0) {
 
 /**
  * C2-table - Slide with data table
- * Uses template-registry styles for proper table presentation.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderC2Table(content, slide = {}, slideIndex = 0) {
-  const contentHtml = content.table_html || content.table || '';
-  return buildContentSlide('C2-table', content, slide, slideIndex, 'table', contentHtml);
+  return buildBlankContentSlide('C2-table', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -145,11 +150,13 @@ function renderC2Table(content, slide = {}, slideIndex = 0) {
 
 /**
  * C3-chart - Slide with one chart visualization
- * Uses template-registry styles for chart container.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderC3Chart(content, slide = {}, slideIndex = 0) {
-  const contentHtml = content.chart_html || content.chart || '';
-  return buildContentSlide('C3-chart', content, slide, slideIndex, 'chart', contentHtml);
+  return buildBlankContentSlide('C3-chart', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -158,11 +165,13 @@ function renderC3Chart(content, slide = {}, slideIndex = 0) {
 
 /**
  * C4-infographic - Slide with one infographic
- * Uses template-registry styles for infographic container.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderC4Infographic(content, slide = {}, slideIndex = 0) {
-  const contentHtml = content.infographic_svg || content.infographic || '';
-  return buildContentSlide('C4-infographic', content, slide, slideIndex, 'infographic', contentHtml);
+  return buildBlankContentSlide('C4-infographic', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -171,11 +180,13 @@ function renderC4Infographic(content, slide = {}, slideIndex = 0) {
 
 /**
  * C5-diagram - Slide with one diagram
- * Uses template-registry styles for diagram container.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderC5Diagram(content, slide = {}, slideIndex = 0) {
-  const contentHtml = content.diagram_svg || content.diagram || '';
-  return buildContentSlide('C5-diagram', content, slide, slideIndex, 'diagram', contentHtml);
+  return buildBlankContentSlide('C5-diagram', content, slide, slideIndex);
 }
 
 // ===========================================

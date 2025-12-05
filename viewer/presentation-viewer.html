@@ -610,19 +610,21 @@
         // Convert template slots to Element Type instances
         // This enables drag handles, resize handles, and format panel for all templates
         //
-        // NEW APPROACH: C6-image (and soon C1-C5) use Direct Element Creation
-        // - Slides with data-direct-elements="true" use createElementsForTemplate()
+        // NEW APPROACH: All C1-C6 content templates use Direct Element Creation
+        // - Slides use createElementsForTemplate() which reads from TEMPLATE_REGISTRY
+        // - Creates proper elements (TextBox, Image, Chart, Table, etc.) directly
         // - Other templates still use convertHeroSlotsToElements()
 
         // Templates using the NEW direct element approach (blank grid + add elements)
-        const directElementTemplates = ['C6-image'];
+        // All C1-C6 content templates now use this simpler approach
+        const directElementTemplates = [
+          'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image'
+        ];
 
         // Templates using the OLD slot conversion approach
         const slotConversionTemplates = [
           // Hero templates (dark background)
           'H1-structured', 'H2-section', 'H3-closing',
-          // Content templates (light background) - EXCEPT C6-image which uses direct approach
-          'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram',
           // Split templates (mixed layouts)
           'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison',
           // Blank template

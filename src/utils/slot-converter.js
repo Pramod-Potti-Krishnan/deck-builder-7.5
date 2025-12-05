@@ -279,8 +279,8 @@
         // UPDATE position to match template (restored elements may have saved positions)
         existingElement.style.gridRow = slotDef.gridRow;
         existingElement.style.gridColumn = slotDef.gridColumn;
-        // REMOVE original slot from DOM (not just hide)
-        slotElement.remove();
+        // HIDE original slot (don't remove - prevents race condition on page reload)
+        slotElement.classList.add('converted');
         existingElement.classList.add('converted-slot', `slot-${slotName}`);
         existingElement.dataset.originalSlot = slotName;
         // Apply slot-specific styling for background
@@ -393,9 +393,9 @@
     if (result.success) {
       console.log(`[SlotConverter] Created TextBox ${result.elementId} for slot '${slotName}'`);
 
-      // REMOVE original slot element from DOM (not just hide)
-      // This prevents ghost elements appearing when converted element is deleted
-      slotElement.remove();
+      // HIDE original slot (don't remove - prevents race condition on page reload)
+      // CSS class .converted has display: none !important
+      slotElement.classList.add('converted');
 
       // Add class to identify this as a converted slot element
       const newElement = document.getElementById(result.elementId);
@@ -535,9 +535,9 @@
     if (result.success) {
       console.log(`[SlotConverter] Created Image ${result.elementId} for slot '${slotName}'`);
 
-      // REMOVE original slot element from DOM (not just hide)
-      // This prevents ghost elements appearing when converted element is deleted
-      slotElement.remove();
+      // HIDE original slot (don't remove - prevents race condition on page reload)
+      // CSS class .converted has display: none !important
+      slotElement.classList.add('converted');
 
       // Add class to identify this as a converted slot element
       const newElement = document.getElementById(result.elementId);
@@ -754,8 +754,9 @@
    * @param {string} elementId - New element's ID
    */
   function finalizeConvertedElement(slotElement, slotDef, slotName, elementId) {
-    // REMOVE original slot element from DOM
-    slotElement.remove();
+    // HIDE original slot (don't remove - prevents race condition on page reload)
+    // CSS class .converted has display: none !important
+    slotElement.classList.add('converted');
 
     // Add class to identify this as a converted slot element
     const newElement = document.getElementById(elementId);

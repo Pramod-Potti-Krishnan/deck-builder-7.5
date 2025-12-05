@@ -146,7 +146,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'background',
         accepts: ['image', 'color', 'gradient'],
         style: { zIndex: -1 },
-        defaultText: null
+        defaultText: null,
+        description: 'Background image or color'
       },
       section_number: {
         gridRow: '6/11',
@@ -155,14 +156,17 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '180px',  // Large section number
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'center',      // CENTER (horizontal)
+          justifyContent: 'center',  // CENTER (vertical)
+          textAlign: 'center'
         },
-        defaultText: '1',
-        description: 'Section number (e.g., "1")'
+        defaultText: '01',
+        description: 'Section number (e.g., "01")'
       },
       title: {
         gridRow: '6/11',
@@ -171,11 +175,15 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '64px',
-          textTransform: 'capitalize',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',    // LEFT (horizontal)
+          justifyContent: 'center',    // CENTER (vertical)
+          textAlign: 'left',
+          textTransform: 'capitalize'
         },
         defaultText: 'Section Title',
         description: 'Section title'
@@ -202,7 +210,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'background',
         accepts: ['image', 'color', 'gradient'],
         style: { zIndex: -1 },
-        defaultText: null
+        defaultText: null,
+        description: 'Background image or color'
       },
       title: {
         gridRow: '6/9',
@@ -211,12 +220,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end'  // BOTTOM aligned
+          alignItems: 'center',        // CENTER (horizontal)
+          justifyContent: 'flex-end',  // BOTTOM (vertical)
+          textAlign: 'center'
         },
-        defaultText: 'Closing Note',
+        defaultText: 'Thank You',
         description: 'Closing message (e.g., "Thank You")'
       },
       subtitle: {
@@ -226,9 +239,15 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontFamily: 'Poppins, sans-serif'
+          fontFamily: 'Poppins, sans-serif',
+          color: '#94a3b8',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',        // CENTER (horizontal)
+          justifyContent: 'flex-start', // TOP (vertical)
+          textAlign: 'center'
         },
-        defaultText: 'Closing Tagline',
+        defaultText: 'We appreciate your time',
         description: 'Additional message or call to action'
       },
       contact_info: {
@@ -237,10 +256,17 @@ const TEMPLATE_REGISTRY = {
         tag: 'contact',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '28px',
-          textTransform: 'uppercase'
+          fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',        // CENTER (horizontal)
+          justifyContent: 'flex-start', // TOP (vertical)
+          textAlign: 'center',
+          textTransform: 'none'
         },
-        defaultText: null,
+        defaultText: 'email@company.com | www.company.com',
         description: 'Contact details, website, social links'
       },
       logo: {
@@ -249,7 +275,11 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
         defaultText: 'Logo',
         description: 'Company logo'

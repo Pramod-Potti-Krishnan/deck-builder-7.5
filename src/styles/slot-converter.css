@@ -48,17 +48,35 @@
 
 /**
  * Title slot needs bottom alignment (justify-content: flex-end)
+ * for H1-structured and H3-closing
  */
 .converted-slot.slot-title {
   justify-content: flex-end !important;
 }
 
 /**
- * Subtitle and footer need top alignment (default)
+ * H2-section title is vertically centered
+ * Use attribute selector since template uses data-template="H2-section"
+ */
+[data-template="H2-section"] .converted-slot.slot-title {
+  justify-content: center !important;
+}
+
+/**
+ * Subtitle, footer, and contact_info need top alignment (default)
  */
 .converted-slot.slot-subtitle,
-.converted-slot.slot-footer {
+.converted-slot.slot-footer,
+.converted-slot.slot-contact_info {
   justify-content: flex-start !important;
+}
+
+/**
+ * Section number needs center alignment (both axes)
+ */
+.converted-slot.slot-section_number {
+  justify-content: center !important;
+  align-items: center !important;
 }
 
 /**

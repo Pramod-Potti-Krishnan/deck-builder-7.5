@@ -310,11 +310,13 @@
     // Build text style from slot definition with fallback to computed styles
     const slotStyle = slotDef.style || {};
 
-    // Slot-specific default colors (for dark background visibility)
+    // Slot-specific default colors (for dark background visibility on hero slides)
     const slotColors = {
-      'title': '#ffffff',      // White for title (prominent)
-      'subtitle': '#94a3b8',   // Slate for subtitle (from template)
-      'footer': '#ffffff'      // White for footer (visible on dark background)
+      'title': '#ffffff',         // White for title (prominent)
+      'subtitle': '#94a3b8',      // Slate for subtitle (muted)
+      'footer': '#ffffff',        // White for footer
+      'section_number': '#ffffff', // White for section number (H2-section)
+      'contact_info': '#ffffff'   // White for contact info (H3-closing)
     };
 
     // NOTE: Color priority is slotStyle.color > slotColors[slotName] > fallback

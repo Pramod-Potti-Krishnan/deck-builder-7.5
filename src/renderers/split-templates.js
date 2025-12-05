@@ -1,8 +1,10 @@
 /**
  * Split Template Renderers for Frontend Slide Templates
  *
- * These renderers use buildSlotStyle() to apply styles from TEMPLATE_REGISTRY.
- * This ensures templates render exactly as designed in the Template Builder.
+ * These renderers use the NEW Direct Element Creation approach:
+ * - Render blank grid container only
+ * - Elements are created after render by DirectElementCreator using ElementManager
+ * - All styles come from TEMPLATE_REGISTRY
  *
  * Split Templates (S1-S4) + Blank (B1):
  * - S1: Visual + Text (chart/infographic/diagram on left, text on right)
@@ -13,77 +15,44 @@
  */
 
 // ===========================================
+// SHARED HELPER: Build Blank Split Slide
+// ===========================================
+
+/**
+ * Builds a blank grid container for direct element creation.
+ * Elements are added after render by DirectElementCreator.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Renderer outputs blank grid container only
+ * - DirectElementCreator adds elements using ElementManager
+ * - No slot HTML, no slot conversion, no race conditions
+ */
+function buildBlankSplitSlide(templateId, content, slide, slideIndex) {
+  const backgroundStyle = buildBackgroundStyle(slide, content, '');
+
+  return `
+    <section data-layout="${templateId}" data-template="${templateId}"
+             class="split-slide grid-container"
+             data-slide-index="${slideIndex}"
+             data-direct-elements="true"
+             style="${backgroundStyle}">
+    </section>
+  `;
+}
+
+// ===========================================
 // S1-VISUAL-TEXT: Visual + Text Split
 // ===========================================
 
 /**
  * S1-visual-text - Visual element on left, text content on right
- * Uses template-registry styles for proper split layout.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderS1VisualText(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
-  const template = TEMPLATE_REGISTRY['S1-visual-text'];
-
-  return `
-    <section data-layout="S1-visual-text" data-template="S1-visual-text" class="split-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="slide-title"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'title')}">
-        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'subtitle')}">
-        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
-      </div>
-
-      <!-- Left Content (Visual) -->
-      <div class="content-left"
-           ${buildSlotAttributes('visual', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'content_left')}">
-        ${content.visual_content || content.chart_html || content.diagram_svg || content.infographic_svg || (template?.slots?.content_left?.defaultText || '')}
-      </div>
-
-      <!-- Right Content (Text) -->
-      <div class="content-right"
-           ${buildSlotAttributes('body', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'content_right', {
-             'overflow-y': 'auto'
-           })}">
-        ${content.rich_content || content.body || content.content_right || (template?.slots?.content_right?.defaultText || '')}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
-      <div class="footer"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'footer', {
-             'display': 'flex',
-             'align-items': 'center'
-           })}">
-        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
-      <div class="logo"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('S1-visual-text', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
+  return buildBlankSplitSlide('S1-visual-text', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -92,86 +61,13 @@ function renderS1VisualText(content, slide = {}, slideIndex = 0) {
 
 /**
  * S2-image-content - Full-height image on left, content on right
- * Uses template-registry styles for proper split layout.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
-  const template = TEMPLATE_REGISTRY['S2-image-content'];
-
-  // Handle image content
-  let imageHtml = '';
-  if (content.image_url) {
-    if (content.image_url.startsWith('<')) {
-      imageHtml = content.image_url;
-    } else {
-      imageHtml = `<img src="${content.image_url}" style="width: 100%; height: 100%; object-fit: cover;" alt="${content.slide_title || 'Image'}">`;
-    }
-  } else if (content.image) {
-    imageHtml = content.image;
-  }
-
-  return `
-    <section data-layout="S2-image-content" data-template="S2-image-content" class="split-slide grid-container" style="${backgroundStyle}">
-      <!-- Image (full-height left) -->
-      <div class="image-area"
-           ${buildSlotAttributes('image', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'image', {
-             'overflow': 'hidden'
-           })}">
-        ${imageHtml || (template?.slots?.image?.defaultText || '')}
-      </div>
-
-      <!-- Title -->
-      <div class="slide-title"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'title')}">
-        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'subtitle')}">
-        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
-      </div>
-
-      <!-- Content Area -->
-      <div class="content-area"
-           ${buildSlotAttributes('body', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'content', {
-             'overflow-y': 'auto'
-           })}">
-        ${content.rich_content || content.body || (template?.slots?.content?.defaultText || '')}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
-      <div class="footer"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'footer', {
-             'display': 'flex',
-             'align-items': 'center'
-           })}">
-        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
-      <div class="logo"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('S2-image-content', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
+  return buildBlankSplitSlide('S2-image-content', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -180,84 +76,13 @@ function renderS2ImageContent(content, slide = {}, slideIndex = 0) {
 
 /**
  * S3-two-visuals - Two visual elements side by side with captions
- * Uses template-registry styles for proper split layout.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderS3TwoVisuals(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
-  const template = TEMPLATE_REGISTRY['S3-two-visuals'];
-
-  return `
-    <section data-layout="S3-two-visuals" data-template="S3-two-visuals" class="split-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="slide-title"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'title')}">
-        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'subtitle')}">
-        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
-      </div>
-
-      <!-- Left Visual -->
-      <div class="content-left"
-           ${buildSlotAttributes('visual_left', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'content_left')}">
-        ${content.visual_left || content.chart_html_1 || (template?.slots?.content_left?.defaultText || '')}
-      </div>
-
-      <!-- Right Visual -->
-      <div class="content-right"
-           ${buildSlotAttributes('visual_right', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'content_right')}">
-        ${content.visual_right || content.chart_html_2 || (template?.slots?.content_right?.defaultText || '')}
-      </div>
-
-      <!-- Left Caption -->
-      <div class="caption-left"
-           ${buildSlotAttributes('caption_left', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'caption_left')}">
-        ${content.caption_left || (template?.slots?.caption_left?.defaultText || '')}
-      </div>
-
-      <!-- Right Caption -->
-      <div class="caption-right"
-           ${buildSlotAttributes('caption_right', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'caption_right')}">
-        ${content.caption_right || (template?.slots?.caption_right?.defaultText || '')}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
-      <div class="footer"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'footer', {
-             'display': 'flex',
-             'align-items': 'center'
-           })}">
-        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
-      <div class="logo"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('S3-two-visuals', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
+  return buildBlankSplitSlide('S3-two-visuals', content, slide, slideIndex);
 }
 
 // ===========================================
@@ -266,96 +91,13 @@ function renderS3TwoVisuals(content, slide = {}, slideIndex = 0) {
 
 /**
  * S4-comparison - Two columns for comparing items
- * Uses template-registry styles for proper comparison layout.
+ *
+ * NEW SIMPLIFIED APPROACH:
+ * - Outputs blank grid container only
+ * - Elements created by DirectElementCreator
  */
 function renderS4Comparison(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
-  const template = TEMPLATE_REGISTRY['S4-comparison'];
-
-  return `
-    <section data-layout="S4-comparison" data-template="S4-comparison" class="split-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="slide-title"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'title')}">
-        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'subtitle')}">
-        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
-      </div>
-
-      <!-- Left Header -->
-      <div class="header-left"
-           ${buildSlotAttributes('header_left', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'header_left', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.header_left || content.left_header || (template?.slots?.header_left?.defaultText || '')}
-      </div>
-
-      <!-- Right Header -->
-      <div class="header-right"
-           ${buildSlotAttributes('header_right', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'header_right', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        ${content.header_right || content.right_header || (template?.slots?.header_right?.defaultText || '')}
-      </div>
-
-      <!-- Left Content -->
-      <div class="content-left"
-           ${buildSlotAttributes('content_left', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'content_left', {
-             'overflow-y': 'auto'
-           })}">
-        ${content.content_left || content.left_content || (template?.slots?.content_left?.defaultText || '')}
-      </div>
-
-      <!-- Right Content -->
-      <div class="content-right"
-           ${buildSlotAttributes('content_right', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'content_right', {
-             'overflow-y': 'auto'
-           })}">
-        ${content.content_right || content.right_content || (template?.slots?.content_right?.defaultText || '')}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
-      <div class="footer"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'footer', {
-             'display': 'flex',
-             'align-items': 'center'
-           })}">
-        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
-      <div class="logo"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('S4-comparison', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
-        </div>
-      </div>
-      ` : ''}
-    </section>
-  `;
+  return buildBlankSplitSlide('S4-comparison', content, slide, slideIndex);
 }
 
 // ===========================================

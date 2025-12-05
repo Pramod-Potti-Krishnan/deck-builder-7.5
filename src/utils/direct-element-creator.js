@@ -36,8 +36,20 @@
     // Image-based slots
     'logo': 'image',
 
-    // NOTE: 'content' slot is NOT mapped here - it uses slotDef.tag to determine type
-    // C6-image has content.tag='image', C3-chart has content.tag='chart', etc.
+    // Split template specific slots (S1-S4)
+    'visual': 'image',        // S1/S3 visual slots - renders as image placeholder
+    'header': 'textbox',      // S4 header slots
+    'caption_left': 'textbox',  // S3 caption slots
+    'caption_right': 'textbox',
+    'header_left': 'textbox',   // S4 header slots
+    'header_right': 'textbox',
+
+    // NOTE: 'content', 'content_left', 'content_right' slots are NOT mapped here
+    // They use slotDef.tag to determine type:
+    // - S1: content_left.tag='visual', content_right.tag='body'
+    // - S2: content.tag='body'
+    // - S3: content_left/right.tag='visual'
+    // - S4: content_left/right.tag='body'
   };
 
   /**
@@ -329,10 +341,22 @@
     if (!content) return defaultText || '';
 
     const mapping = {
+      // Standard content slots
       'title': content.slide_title || content.title,
       'subtitle': content.subtitle,
       'footer': content.footer_text || content.footer || content.presentation_name,
-      'body': content.body || content.content_html
+      'body': content.body || content.content_html,
+
+      // Split template specific slots (S1-S4)
+      'content_left': content.content_left || content.visual_content,
+      'content_right': content.content_right || content.rich_content || content.body,
+      'caption_left': content.caption_left,
+      'caption_right': content.caption_right,
+      'header_left': content.header_left || content.left_header,
+      'header_right': content.header_right || content.right_header,
+
+      // S2 uses 'content' for body text on right side
+      'content': content.rich_content || content.body || content.content_html
     };
 
     return mapping[slotName] || defaultText || '';
@@ -345,25 +369,40 @@
   function getImageUrl(slotName, content) {
     if (!content) return null;
 
+    // Helper to validate URL
+    const isValidHttpUrl = (url) => url && typeof url === 'string' && url.startsWith('http');
+
+    // Main content area - C6-image
     if (slotName === 'content') {
-      // Main content area - must be a valid HTTP URL
       const url = content.image_url;
-      if (url && typeof url === 'string' && url.startsWith('http')) {
-        return url;
-      }
-      return null;  // Triggers placeholder mode
+      return isValidHttpUrl(url) ? url : null;
     }
 
+    // Logo slot
     if (slotName === 'logo') {
-      // Logo - must be a valid HTTP URL (not HTML, emoji, or data URI)
       const url = content.company_logo;
-      if (url && typeof url === 'string' && url.startsWith('http')) {
-        return url;
-      }
-      return null;  // Triggers placeholder mode
+      return isValidHttpUrl(url) ? url : null;
     }
 
-    return null;
+    // S2-image-content: 'image' slot (full-height left image)
+    if (slotName === 'image') {
+      const url = content.image_url || content.image;
+      return isValidHttpUrl(url) ? url : null;
+    }
+
+    // S1/S3 visual slots (content_left, content_right for visuals)
+    // These are chart/diagram/infographic placeholders - return null for placeholder mode
+    if (slotName === 'content_left' || slotName === 'content_right') {
+      // Check if there's a valid image URL for this slot
+      const urlMapping = {
+        'content_left': content.visual_left_url || content.chart_url_1,
+        'content_right': content.visual_right_url || content.chart_url_2
+      };
+      const url = urlMapping[slotName];
+      return isValidHttpUrl(url) ? url : null;
+    }
+
+    return null;  // Default: placeholder mode
   }
 
   /**
@@ -371,12 +410,22 @@
    */
   function getZIndexForSlot(slotName) {
     const zIndexMap = {
+      // Standard slots
       'title': 1010,
       'subtitle': 1011,
       'footer': 1012,
       'logo': 1013,
       'content': 1016,
-      'body': 1016
+      'body': 1016,
+
+      // Split template slots (S1-S4)
+      'image': 1014,           // S2 full-height image
+      'content_left': 1015,    // S1/S3/S4 left content
+      'content_right': 1015,   // S1/S3/S4 right content
+      'header_left': 1014,     // S4 headers
+      'header_right': 1014,
+      'caption_left': 1012,    // S3 captions
+      'caption_right': 1012
     };
     return zIndexMap[slotName] || 1010;
   }

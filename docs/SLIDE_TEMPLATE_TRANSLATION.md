@@ -1033,5 +1033,354 @@ When starting a new template, copy the H1-structured pattern:
 
 ---
 
+## 20. CSS Override Requirements for Slot Conversion
+
+When slots are converted to Element Types (via `slot-converter.js`), CSS stylesheet rules can override JavaScript inline styles. This section documents the CSS `!important` rules required in `slot-converter.css` to ensure template properties are preserved.
+
+### The Problem
+
+The slot conversion pipeline is:
+```
+template-registry.js → slot-converter.js → element-manager.js → DOM Element
+```
+
+However, CSS stylesheets like `textbox.css` apply default styles that can override the inline styles set by JavaScript:
+
+```css
+/* textbox.css - these override inline styles! */
+.textbox-content {
+  min-height: 100%;   /* Defeats justify-content alignment */
+  color: #374151;     /* Dark text - wrong for hero slides */
+}
+```
+
+### Required CSS Rules in slot-converter.css
+
+#### 1. Flexbox Layout for Converted Slots
+
+```css
+.inserted-textbox.converted-slot {
+  display: flex !important;
+  flex-direction: column !important;
+}
+```
+
+#### 2. Slot-Specific Vertical Alignment
+
+```css
+/* Title needs bottom alignment */
+.converted-slot.slot-title {
+  justify-content: flex-end !important;
+}
+
+/* Subtitle and footer need top alignment */
+.converted-slot.slot-subtitle,
+.converted-slot.slot-footer {
+  justify-content: flex-start !important;
+}
+```
+
+#### 3. Content Div Height Override
+
+```css
+.inserted-textbox.converted-slot .textbox-content {
+  min-height: auto !important;  /* Allow flexbox positioning */
+  height: auto !important;
+}
+```
+
+#### 4. Hero Slide Color Scheme (Dark Background)
+
+```css
+/* White text for hero slides (dark backgrounds) */
+.hero-slide .inserted-textbox.converted-slot .textbox-content {
+  color: #ffffff !important;
+}
+
+/* Subtitle gets muted color */
+.hero-slide .converted-slot.slot-subtitle .textbox-content {
+  color: #94a3b8 !important;
+}
+```
+
+### When to Use `!important`
+
+Use `!important` in `slot-converter.css` when:
+
+| Scenario | Example | Reason |
+|----------|---------|--------|
+| Alignment properties | `justify-content: flex-end !important` | Overrides element-manager defaults |
+| Color on hero slides | `color: #ffffff !important` | Overrides textbox.css dark default |
+| Height constraints | `min-height: auto !important` | Allows flex alignment to work |
+
+**Do NOT use `!important`** for properties that should be customizable by users (e.g., font-size, font-family when user can change them).
+
+---
+
+## 21. Hero vs Content Slide Color Schemes
+
+Templates fall into two categories with different default color schemes.
+
+### Hero Slides (H1, H2, H3)
+
+| Property | Value | Reason |
+|----------|-------|--------|
+| Background | Dark (`#1e3a5f`, `#1f2937`) | Visual impact, supports background images |
+| Title color | White (`#ffffff`) | Contrast on dark background |
+| Subtitle color | Muted gray (`#94a3b8`) | Visible but secondary |
+| Footer color | White (`#ffffff`) | Readable on dark background |
+
+**CSS Implementation:**
+```css
+.hero-slide .inserted-textbox.converted-slot .textbox-content {
+  color: #ffffff !important;
+}
+
+.hero-slide .converted-slot.slot-subtitle .textbox-content {
+  color: #94a3b8 !important;
+}
+```
+
+### Content Slides (C1-C6) and Split Slides (S1-S4)
+
+| Property | Value | Reason |
+|----------|-------|--------|
+| Background | White (`#ffffff`) | Clean, readable |
+| Title color | Dark gray (`#1f2937`) | Readable on light background |
+| Body color | Medium gray (`#374151`) | Slightly lighter for body text |
+| Footer color | Dark gray (`#1f2937`) | Consistent with title |
+
+**CSS Implementation:**
+```css
+/* Content slides use dark text by default - no override needed */
+/* The textbox.css default color: #374151 works correctly */
+
+/* OR explicitly set for clarity: */
+.content-slide .inserted-textbox.converted-slot .textbox-content {
+  color: #1f2937 !important;
+}
+```
+
+### Slide Category Detection
+
+The slide's parent `<section>` element should have a category class:
+
+```html
+<!-- Hero slide -->
+<section class="hero-slide" data-template="H1-structured">
+
+<!-- Content slide -->
+<section class="content-slide" data-template="C1-text">
+
+<!-- Split slide -->
+<section class="content-slide" data-template="S1-visual-text">
+```
+
+Alternatively, check template prefix:
+- `H*` templates → hero-slide
+- `C*` templates → content-slide
+- `S*` templates → content-slide (typically light background)
+- `B*` templates → content-slide (blank canvas)
+
+---
+
+## 22. Default Text (defaultText) Property
+
+The `defaultText` property in `template-registry.js` serves as placeholder text shown when no content is provided.
+
+### Source of defaultText
+
+From Template Builder v7.4:
+
+| Template Builder Field | Registry Property |
+|----------------------|-------------------|
+| `default_text` | `defaultText` |
+| `label` (fallback) | Used if default_text empty |
+
+### defaultText by Slot Type
+
+| Slot | Typical defaultText | Purpose |
+|------|---------------------|---------|
+| `title` | `'Presentation Title'` | Shows placeholder for main title |
+| `subtitle` | `'Your tagline or subtitle here'` | Describes purpose |
+| `footer` | `'AUTHOR \| DATE'` | Format hint |
+| `section_number` | `'01'` | Default numbering |
+| `body` | `null` or empty | Body typically requires content |
+| `logo` | `'Logo'` | Placeholder text |
+| `contact_info` | `null` | Often empty |
+
+### Using defaultText in Renderers
+
+```javascript
+// In renderer function:
+const title = content.slide_title
+  || content.title
+  || template.slots.title.defaultText  // ← Uses defaultText as fallback
+  || '';
+```
+
+### Using defaultText in Slot Converter
+
+The `slot-converter.js` uses `defaultText` when creating TextBox elements:
+
+```javascript
+// In buildTextBoxConfigFromSlot():
+return {
+  // ...
+  placeholder: slotDef.defaultText || `Enter ${slotName}...`,
+  // ...
+};
+
+// In convertToTextBox():
+const content = rawContent || slotDef.defaultText || '';
+```
+
+### Best Practice: Always Include defaultText
+
+Every text slot should have a `defaultText` value:
+
+```javascript
+title: {
+  gridRow: '7/10',
+  gridColumn: '3/17',
+  tag: 'title',
+  accepts: ['text'],
+  style: { /* ... */ },
+  defaultText: 'Presentation Title',  // ← REQUIRED
+  description: 'Main presentation title'
+}
+```
+
+---
+
+## 23. Complete Slot Definition Checklist
+
+When adding or updating a slot in `template-registry.js`, ensure ALL properties are present:
+
+### Required Properties
+
+| Property | Required | Example |
+|----------|----------|---------|
+| `gridRow` | ✅ | `'7/10'` |
+| `gridColumn` | ✅ | `'3/17'` |
+| `tag` | ✅ | `'title'`, `'subtitle'`, `'body'`, `'footer'`, `'logo'`, `'background'` |
+| `accepts` | ✅ | `['text']`, `['image']`, `['text', 'html']` |
+| `style` | ✅ | `{ /* see below */ }` |
+| `defaultText` | ✅ (for text) | `'Presentation Title'` |
+| `description` | Recommended | `'Main presentation title'` |
+
+### Required Style Properties
+
+For TEXT slots (`tag: 'title'`, `'subtitle'`, `'body'`, `'footer'`):
+
+```javascript
+style: {
+  // Typography (REQUIRED)
+  fontSize: '48px',
+  fontWeight: 'bold',
+  fontFamily: 'Poppins, sans-serif',
+
+  // Color (REQUIRED)
+  color: '#ffffff',  // or '#1f2937' for content slides
+
+  // Flexbox Alignment (REQUIRED)
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',      // Horizontal: left/center/right
+  justifyContent: 'flex-end',    // Vertical: top/center/bottom
+  textAlign: 'left',
+
+  // Optional
+  textTransform: 'uppercase',    // If needed
+  padding: '20px'                // If needed
+}
+```
+
+For IMAGE/BACKGROUND slots (`tag: 'logo'`, `'background'`):
+
+```javascript
+style: {
+  zIndex: -1,  // For background (behind content)
+  // or zIndex: 1013 for logo (above content)
+}
+```
+
+### Example: Complete Footer Slot
+
+```javascript
+footer: {
+  gridRow: '16/18',
+  gridColumn: '3/17',
+  tag: 'footer',
+  accepts: ['text'],
+  style: {
+    fontSize: '26px',
+    fontWeight: 'bold',
+    fontFamily: 'Poppins, sans-serif',
+    color: '#ffffff',              // White for hero, #1f2937 for content
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',      // LEFT
+    justifyContent: 'flex-start',  // TOP
+    textAlign: 'left',
+    textTransform: 'uppercase'
+  },
+  defaultText: 'AUTHOR | DATE',
+  description: 'Date, presenter name, or other info'
+}
+```
+
+---
+
+## 24. Template Implementation Order
+
+When rolling out template fixes, follow this recommended order:
+
+### Phase 1: Hero Templates (Dark Background)
+1. ✅ **H1-structured** - Title Slide (Manual) - COMPLETED
+2. **H1-generated** - Title Slide (AI Generated)
+3. **H2-section** - Section Divider
+4. **H3-closing** - Closing Slide
+
+**Common Hero Patterns:**
+- Background: dark (#1e3a5f)
+- Text: white (#ffffff)
+- Subtitle: muted (#94a3b8)
+- CSS class: `.hero-slide`
+
+### Phase 2: Content Templates (Light Background)
+5. **C1-text** - Text Content
+6. **C2-table** - Table Slide
+7. **C3-chart** - Single Chart
+8. **C4-infographic** - Single Infographic
+9. **C5-diagram** - Single Diagram
+10. **C6-image** - Single Image
+
+**Common Content Patterns:**
+- Background: white (#ffffff)
+- Title: dark (#1f2937)
+- Body: medium gray (#374151)
+- CSS class: `.content-slide`
+
+### Phase 3: Split Templates (Light Background)
+11. **S1-visual-text** - Visual + Text
+12. **S2-image-content** - Image + Content
+13. **S3-two-visuals** - Two Visuals
+14. **S4-comparison** - Comparison
+
+**Common Split Patterns:**
+- Same as Content templates
+- Two distinct grid regions
+- May have asymmetric styling
+
+### Phase 4: Blank Template
+15. **B1-blank** - Blank Canvas
+
+**Blank Pattern:**
+- Minimal styling
+- User-customizable
+
+---
+
 *Last updated: December 4, 2025*
-*Version: 1.2*
+*Version: 1.3*

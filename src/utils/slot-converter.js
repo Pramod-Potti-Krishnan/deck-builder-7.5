@@ -117,7 +117,8 @@
       'background': '.background-hero'
     },
     // ===== CONTENT TEMPLATES (C1-C6) =====
-    // All content templates share the same slot structure
+    // All use 'content' slot key from TEMPLATE_REGISTRY
+    // Element type is determined by slotDef.tag (body, table, chart, infographic, diagram, image)
     'C1-text': {
       'title': '.slide-title',
       'subtitle': '.subtitle',

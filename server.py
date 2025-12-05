@@ -115,35 +115,48 @@ def get_default_content(layout: str) -> dict:
         },
 
         # ========== FRONTEND TEMPLATES - CONTENT ==========
+        # Default text values should match Template Builder v7.4 placeholders
         "C1-text": {
             "slide_title": "Slide Title",
-            "subtitle": "",
-            "body": ""
+            "subtitle": "Subtitle",
+            "body": "Content Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "C2-table": {
             "slide_title": "Table Title",
-            "subtitle": "",
-            "table_html": ""
+            "subtitle": "Subtitle",
+            "table_html": "Table Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "C3-chart": {
             "slide_title": "Chart Title",
-            "subtitle": "",
-            "chart_html": ""
+            "subtitle": "Subtitle",
+            "chart_html": "Chart Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "C4-infographic": {
             "slide_title": "Infographic Title",
-            "subtitle": "",
-            "infographic_svg": ""
+            "subtitle": "Subtitle",
+            "infographic_svg": "Infographic Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "C5-diagram": {
             "slide_title": "Diagram Title",
-            "subtitle": "",
-            "diagram_svg": ""
+            "subtitle": "Subtitle",
+            "diagram_svg": "Diagram Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "C6-image": {
             "slide_title": "Image Title",
-            "subtitle": "",
-            "image_url": ""
+            "subtitle": "Subtitle",
+            "image_url": "Image Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
 
         # ========== FRONTEND TEMPLATES - SPLIT ==========
@@ -345,6 +358,9 @@ async def create_presentation(request: Presentation):
                     status_code=400,
                     detail=f"Invalid layout '{slide['layout']}'. Valid layouts: {valid_layouts}"
                 )
+            # Apply defaults when content is empty or missing
+            if not slide.get("content"):
+                slide["content"] = get_default_content(slide["layout"])
 
         # Save to storage
         presentation_id = await storage.save(presentation_data)

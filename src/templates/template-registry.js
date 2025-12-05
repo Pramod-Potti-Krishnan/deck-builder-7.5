@@ -336,7 +336,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/17',
@@ -354,7 +354,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'left',
           padding: '20px 0px'
         },
-        defaultText: '',
+        defaultText: 'Content Area',
         description: 'Main text content area'
       },
       footer: {
@@ -372,7 +372,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -386,7 +386,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center'
         },
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -436,7 +436,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/17',
@@ -454,7 +454,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'left',
           padding: '20px 0px'
         },
-        defaultText: '',
+        defaultText: 'Table Area',
         description: 'Table content area'
       },
       footer: {
@@ -472,7 +472,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -486,7 +486,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center'
         },
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -536,7 +536,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/17',
@@ -554,7 +554,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'center',
           padding: '20px 0px'
         },
-        defaultText: '',
+        defaultText: 'Chart Area',
         description: 'Chart placeholder area'
       },
       footer: {
@@ -572,7 +572,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -586,7 +586,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center'
         },
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -636,7 +636,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/17',
@@ -654,7 +654,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'center',
           padding: '20px 0px'
         },
-        defaultText: '',
+        defaultText: 'Infographic Area',
         description: 'Infographic placeholder area'
       },
       footer: {
@@ -672,7 +672,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -686,7 +686,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center'
         },
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -736,7 +736,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/17',
@@ -754,7 +754,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'center',
           padding: '20px 0px'
         },
-        defaultText: '',
+        defaultText: 'Diagram Area',
         description: 'Diagram placeholder area'
       },
       footer: {
@@ -772,7 +772,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -786,7 +786,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center'
         },
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -836,7 +836,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/17',
@@ -854,7 +854,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'center',
           padding: '20px 0px'
         },
-        defaultText: '',
+        defaultText: 'Image Area',
         description: 'Image placeholder area'
       },
       footer: {
@@ -872,7 +872,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',
           textAlign: 'left'
         },
-        defaultText: ''
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -886,7 +886,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center'
         },
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {

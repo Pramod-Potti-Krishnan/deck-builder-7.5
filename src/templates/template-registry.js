@@ -309,7 +309,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',           // Dark for content slides
@@ -327,7 +327,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',           // Medium gray for subtitle
@@ -410,7 +410,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
@@ -428,7 +428,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
@@ -511,7 +511,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
@@ -529,7 +529,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
@@ -612,7 +612,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
@@ -630,7 +630,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
@@ -713,7 +713,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
@@ -731,7 +731,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
@@ -814,7 +814,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
@@ -832,7 +832,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
@@ -919,7 +919,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -936,7 +936,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -1024,7 +1024,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -1042,7 +1042,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -1104,7 +1104,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -1121,7 +1121,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -1223,7 +1223,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '36px',
+          fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
@@ -1240,7 +1240,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: '32px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',

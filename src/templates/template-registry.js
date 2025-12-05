@@ -310,13 +310,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',           // Dark for content slides
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align
+          justifyContent: 'flex-end', // BOTTOM align
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -324,35 +327,52 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '28px',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',           // Medium gray for subtitle
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align
+          justifyContent: 'flex-start', // TOP align
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: ''
       },
       content: {
-        gridRow: '4/18',
+        gridRow: '4/17',
         gridColumn: '2/32',
         tag: 'body',
         accepts: ['body', 'html'],
         style: {
           fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151',           // Body text gray
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
           textAlign: 'left',
-          padding: '25px 0px'
+          padding: '20px 0px'
         },
-        defaultText: null,
-        description: 'Main text content area (1800x720px)'
+        defaultText: '',
+        description: 'Main text content area'
       },
       footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
+        gridRow: '17/19',
+        gridColumn: '2/10',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
-        defaultText: null
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',           // Light gray for footer
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left'
+        },
+        defaultText: ''
       },
       logo: {
         gridRow: '17/19',
@@ -360,12 +380,18 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        defaultText: null
+        defaultText: ''
       }
     },
-    defaults: {},
+    defaults: {
+      background_color: '#ffffff'
+    },
     thumbnail: 'content-text.svg'
   },
 
@@ -384,13 +410,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -398,35 +427,52 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '28px',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: ''
       },
       content: {
-        gridRow: '4/18',
+        gridRow: '4/17',
         gridColumn: '2/32',
         tag: 'table',
         accepts: ['table', 'html'],
         style: {
           fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
           textAlign: 'left',
-          padding: '25px 0px'
+          padding: '20px 0px'
         },
-        defaultText: null,
+        defaultText: '',
         description: 'Table content area'
       },
       footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
+        gridRow: '17/19',
+        gridColumn: '2/10',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
-        defaultText: null
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left'
+        },
+        defaultText: ''
       },
       logo: {
         gridRow: '17/19',
@@ -434,12 +480,18 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        defaultText: 'Logo'
+        defaultText: ''
       }
     },
-    defaults: {},
+    defaults: {
+      background_color: '#ffffff'
+    },
     thumbnail: 'content-table.svg'
   },
 
@@ -458,13 +510,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -472,35 +527,52 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '28px',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: ''
       },
       content: {
-        gridRow: '4/18',
+        gridRow: '4/17',
         gridColumn: '2/32',
         tag: 'chart',
         accepts: ['chart'],
         style: {
           fontSize: '24px',
-          textAlign: 'left',
-          padding: '25px 0px'
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '20px 0px'
         },
-        defaultText: null,
+        defaultText: '',
         description: 'Chart placeholder area'
       },
       footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
+        gridRow: '17/19',
+        gridColumn: '2/10',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
-        defaultText: null
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left'
+        },
+        defaultText: ''
       },
       logo: {
         gridRow: '17/19',
@@ -508,12 +580,18 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        defaultText: 'Logo'
+        defaultText: ''
       }
     },
-    defaults: {},
+    defaults: {
+      background_color: '#ffffff'
+    },
     thumbnail: 'content-chart.svg'
   },
 
@@ -532,13 +610,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -546,35 +627,52 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '28px',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: ''
       },
       content: {
-        gridRow: '4/18',
+        gridRow: '4/17',
         gridColumn: '2/32',
         tag: 'infographic',
         accepts: ['infographic'],
         style: {
           fontSize: '24px',
-          textAlign: 'left',
-          padding: '25px 0px'
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '20px 0px'
         },
-        defaultText: 'Infographic',
+        defaultText: '',
         description: 'Infographic placeholder area'
       },
       footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
+        gridRow: '17/19',
+        gridColumn: '2/10',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
-        defaultText: null
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left'
+        },
+        defaultText: ''
       },
       logo: {
         gridRow: '17/19',
@@ -582,12 +680,18 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        defaultText: 'Logo'
+        defaultText: ''
       }
     },
-    defaults: {},
+    defaults: {
+      background_color: '#ffffff'
+    },
     thumbnail: 'content-infographic.svg'
   },
 
@@ -606,13 +710,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -620,35 +727,52 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '28px',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: ''
       },
       content: {
-        gridRow: '4/18',
+        gridRow: '4/17',
         gridColumn: '2/32',
         tag: 'diagram',
         accepts: ['diagram'],
         style: {
           fontSize: '24px',
-          textAlign: 'left',
-          padding: '25px 0px'
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '20px 0px'
         },
-        defaultText: 'Diagram + Insights',
+        defaultText: '',
         description: 'Diagram placeholder area'
       },
       footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
+        gridRow: '17/19',
+        gridColumn: '2/10',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
-        defaultText: null
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left'
+        },
+        defaultText: ''
       },
       logo: {
         gridRow: '17/19',
@@ -656,12 +780,18 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        defaultText: 'Logo'
+        defaultText: ''
       }
     },
-    defaults: {},
+    defaults: {
+      background_color: '#ffffff'
+    },
     thumbnail: 'content-diagram.svg'
   },
 
@@ -680,13 +810,16 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -694,35 +827,52 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '28px',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left'
         },
-        defaultText: null
+        defaultText: ''
       },
       content: {
-        gridRow: '4/18',
+        gridRow: '4/17',
         gridColumn: '2/32',
         tag: 'image',
         accepts: ['image'],
         style: {
           fontSize: '24px',
-          textAlign: 'left',
-          padding: '25px 0px'
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '20px 0px'
         },
-        defaultText: null,
+        defaultText: '',
         description: 'Image placeholder area'
       },
       footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
+        gridRow: '17/19',
+        gridColumn: '2/10',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
-        defaultText: null
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left'
+        },
+        defaultText: ''
       },
       logo: {
         gridRow: '17/19',
@@ -730,12 +880,18 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
         },
-        defaultText: 'Logo'
+        defaultText: ''
       }
     },
-    defaults: {},
+    defaults: {
+      background_color: '#ffffff'
+    },
     thumbnail: 'content-image.svg'
   },
 

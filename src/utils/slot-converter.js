@@ -33,6 +33,7 @@
     'section_number': 'textbox',
     'contact_info': 'textbox',
     'body': 'textbox',
+    'content': 'textbox',  // Content area for C1-C6 templates
 
     // Image-based slots -> Image Element Type
     'logo': 'image',
@@ -51,13 +52,15 @@
     'logo': 1013,
     'section_number': 1014,
     'contact_info': 1015,
-    'body': 1016
+    'body': 1016,
+    'content': 1016  // Same as body for content templates
   };
 
   /**
    * CSS class to DOM selector mapping for finding slot elements
    */
   const SLOT_CLASS_SELECTORS = {
+    // ===== HERO TEMPLATES =====
     'H1-structured': {
       'title': '.title-hero',
       'subtitle': '.subtitle-hero',
@@ -66,16 +69,60 @@
       'background': '.background-hero'
     },
     'H2-section': {
-      'section_number': '.section-number-hero',  // Match hero-templates.js class
+      'section_number': '.section-number-hero',
       'title': '.title-hero',
       'background': '.background-hero'
     },
     'H3-closing': {
       'title': '.title-hero',
       'subtitle': '.subtitle-hero',
-      'contact_info': '.contact-hero',  // Match hero-templates.js class
+      'contact_info': '.contact-hero',
       'logo': '.logo-hero',
       'background': '.background-hero'
+    },
+    // ===== CONTENT TEMPLATES (C1-C6) =====
+    // All content templates share the same slot structure
+    'C1-text': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'C2-table': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'C3-chart': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'C4-infographic': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'C5-diagram': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'C6-image': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
     }
   };
 

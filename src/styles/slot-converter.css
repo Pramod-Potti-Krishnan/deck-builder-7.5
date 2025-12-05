@@ -102,9 +102,39 @@
   color: #ffffff !important;
 }
 
-/* Subtitle gets slightly muted color */
+/* Hero subtitle gets slightly muted color */
 .hero-slide .converted-slot.slot-subtitle .textbox-content {
   color: #94a3b8 !important;
+}
+
+/* ===== CONTENT SLIDE COLOR SCHEME ===== */
+
+/**
+ * Content slide converted slots need dark text by default
+ * (content slides have light/white backgrounds)
+ */
+.content-slide .inserted-textbox.converted-slot .textbox-content {
+  color: #1f2937 !important;  /* Dark gray for readability */
+}
+
+/* Content slide title - darker for emphasis */
+.content-slide .converted-slot.slot-title .textbox-content {
+  color: #111827 !important;  /* Near black for titles */
+}
+
+/* Content slide subtitle - medium gray */
+.content-slide .converted-slot.slot-subtitle .textbox-content {
+  color: #4b5563 !important;  /* Medium gray */
+}
+
+/* Content slide footer - lighter gray */
+.content-slide .converted-slot.slot-footer .textbox-content {
+  color: #6b7280 !important;  /* Light gray */
+}
+
+/* Content area - standard dark text */
+.content-slide .converted-slot.slot-content .textbox-content {
+  color: #374151 !important;  /* Body text gray */
 }
 
 /* ===== SLOT-SPECIFIC STYLES ===== */

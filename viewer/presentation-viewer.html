@@ -604,12 +604,17 @@
         restoreInfographics(data.slides);
         restoreDiagrams(data.slides);
 
-        // Convert Hero template slots to Element Type instances
-        // This enables drag handles, resize handles, and format panel for all hero templates
+        // Convert template slots to Element Type instances
+        // This enables drag handles, resize handles, and format panel for all templates
         if (typeof convertHeroSlotsToElements === 'function') {
-          const heroTemplates = ['H1-structured', 'H2-section', 'H3-closing'];
+          const convertibleTemplates = [
+            // Hero templates (dark background)
+            'H1-structured', 'H2-section', 'H3-closing',
+            // Content templates (light background)
+            'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image'
+          ];
           data.slides.forEach((slide, index) => {
-            if (heroTemplates.includes(slide.layout)) {
+            if (convertibleTemplates.includes(slide.layout)) {
               const slideElement = document.querySelector(
                 `.reveal .slides > section:nth-child(${index + 1})`
               );
@@ -618,7 +623,7 @@
               }
             }
           });
-          console.log('[SlotConverter] Hero slot conversion complete');
+          console.log('[SlotConverter] Template slot conversion complete');
         }
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);

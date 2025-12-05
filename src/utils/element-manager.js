@@ -1547,7 +1547,8 @@
     // Build flexbox styles for vertical/horizontal alignment
     // justifyContent controls vertical when flexDirection is 'column'
     // alignItems controls horizontal when flexDirection is 'column'
-    const display = style.display || 'block';
+    // Default to 'flex' instead of 'block' for better alignment support
+    const display = style.display || 'flex';
     const flexDirection = style.flexDirection || 'column';
     const justifyContent = style.justifyContent || 'flex-start';
     const alignItems = style.alignItems || 'flex-start';
@@ -1586,9 +1587,12 @@
     contentDiv.setAttribute('contenteditable', isEditMode ? 'true' : 'false');  // Respect current mode
     contentDiv.dataset.placeholder = config.placeholder || 'Click to edit text';
     contentDiv.innerHTML = config.content || '';
+    // NOTE: min-height: 100% defeats justify-content positioning (e.g., bottom-align)
+    // Use 'auto' when a non-default justifyContent is specified to allow flex alignment to work
+    const contentMinHeight = (justifyContent && justifyContent !== 'flex-start') ? 'auto' : '100%';
     contentDiv.style.cssText = `
       width: 100%;
-      min-height: 100%;
+      min-height: ${contentMinHeight};
       outline: none;
       cursor: text;
       font-family: Inter, system-ui, -apple-system, sans-serif;
@@ -1610,6 +1614,7 @@
       if (config.textStyle.line_height) contentDiv.style.lineHeight = config.textStyle.line_height;
       if (config.textStyle.letter_spacing) contentDiv.style.letterSpacing = config.textStyle.letter_spacing;
       if (config.textStyle.text_decoration) contentDiv.style.textDecoration = config.textStyle.text_decoration;
+      if (config.textStyle.text_transform) contentDiv.style.textTransform = config.textStyle.text_transform;
     }
 
     // Handle input for auto-save

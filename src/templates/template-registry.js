@@ -99,6 +99,12 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '26px',  // (was 18px)
           fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#ffffff',              // White text for hero slide
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',      // LEFT (horizontal)
+          justifyContent: 'flex-start',  // TOP (vertical)
           textAlign: 'left',
           textTransform: 'uppercase'
         },

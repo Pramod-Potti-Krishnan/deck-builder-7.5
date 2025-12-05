@@ -275,6 +275,14 @@
         if (contentDiv) {
           contentDiv.style.minHeight = 'auto';
           contentDiv.style.height = 'auto';
+
+          // Force apply color and text-transform from template definition (belt and suspenders)
+          if (slotStyle.color) {
+            contentDiv.style.color = slotStyle.color;
+          }
+          if (slotStyle.textTransform) {
+            contentDiv.style.textTransform = slotStyle.textTransform;
+          }
         }
       }
     } else {
@@ -309,8 +317,11 @@
       'footer': '#ffffff'      // White for footer (visible on dark background)
     };
 
+    // NOTE: Color priority is slotStyle.color > slotColors[slotName] > fallback
+    // We intentionally skip computedStyle.color because the rendered slot element
+    // may have inherited dark text color from parent CSS which overrides template settings
     const textStyle = {
-      color: slotStyle.color || slotColors[slotName] || computedStyle.color || '#ffffff',
+      color: slotStyle.color || slotColors[slotName] || '#ffffff',
       font_family: slotStyle.fontFamily || computedStyle.fontFamily || 'Poppins, sans-serif',
       font_size: slotStyle.fontSize || computedStyle.fontSize || '32px',
       font_weight: slotStyle.fontWeight || computedStyle.fontWeight || 'normal',

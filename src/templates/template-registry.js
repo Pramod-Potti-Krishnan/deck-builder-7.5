@@ -914,6 +914,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
@@ -1014,6 +1015,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
@@ -1089,6 +1091,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
@@ -1204,6 +1207,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '48px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',

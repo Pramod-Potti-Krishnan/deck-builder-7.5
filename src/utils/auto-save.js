@@ -328,6 +328,8 @@
 
   /**
    * Collect images from a slide
+   * NOTE: Skip placeholder images - they have no content and will be recreated
+   * by DirectElementCreator from template registry on next load.
    */
   function collectImages(slideElement, slideIndex) {
     const images = [];
@@ -336,6 +338,13 @@
     const imageElements = slideElement.querySelectorAll('.inserted-image');
 
     imageElements.forEach(el => {
+      // Skip placeholder images - they have no actual content
+      // DirectElementCreator will recreate them from template registry
+      if (el.classList.contains('placeholder-mode')) {
+        console.log(`[AutoSave] Skipping placeholder image: ${el.id}`);
+        return;
+      }
+
       const image = {
         id: el.id,
         position: {
@@ -350,17 +359,15 @@
         visible: !el.classList.contains('element-hidden')
       };
 
-      // Get image URL if content mode (not placeholder)
-      if (!el.classList.contains('placeholder-mode')) {
-        const imgEl = el.querySelector('.element-content img');
-        if (imgEl) {
-          image.image_url = imgEl.src;
-          image.alt_text = imgEl.alt || null;
-          // Extract object-fit from inline style
-          const objectFitMatch = imgEl.style.objectFit;
-          if (objectFitMatch) {
-            image.object_fit = objectFitMatch;
-          }
+      // Get image URL from content
+      const imgEl = el.querySelector('.element-content img');
+      if (imgEl) {
+        image.image_url = imgEl.src;
+        image.alt_text = imgEl.alt || null;
+        // Extract object-fit from inline style
+        const objectFitMatch = imgEl.style.objectFit;
+        if (objectFitMatch) {
+          image.object_fit = objectFitMatch;
         }
       }
 

@@ -36,11 +36,29 @@
 /**
  * Converted TextBox elements should have transparent background
  * by default to preserve the original slot appearance.
+ * Also ensure flexbox layout works for alignment.
  */
 .inserted-textbox.converted-slot {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/**
+ * Title slot needs bottom alignment (justify-content: flex-end)
+ */
+.converted-slot.slot-title {
+  justify-content: flex-end !important;
+}
+
+/**
+ * Subtitle and footer need top alignment (default)
+ */
+.converted-slot.slot-subtitle,
+.converted-slot.slot-footer {
+  justify-content: flex-start !important;
 }
 
 /**
@@ -56,6 +74,19 @@
   padding: 0;
   min-height: auto !important;  /* Allow flexbox positioning to work */
   height: auto !important;      /* Don't fill entire container */
+}
+
+/**
+ * Hero slide converted slots need white text by default
+ * (hero slides have dark backgrounds)
+ */
+.hero-slide .inserted-textbox.converted-slot .textbox-content {
+  color: #ffffff !important;
+}
+
+/* Subtitle gets slightly muted color */
+.hero-slide .converted-slot.slot-subtitle .textbox-content {
+  color: #94a3b8 !important;
 }
 
 /* ===== SLOT-SPECIFIC STYLES ===== */

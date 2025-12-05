@@ -34,13 +34,13 @@
     'contact_info': 'textbox',
     'body': 'textbox',      // C1-text body content -> textbox
 
-    // Visual content slots -> Image Element Type (placeholder mode)
-    // These are specialized content areas that hold visual elements
-    'table': 'image',       // C2-table content area
-    'chart': 'image',       // C3-chart content area
-    'infographic': 'image', // C4-infographic content area
-    'diagram': 'image',     // C5-diagram content area
-    'image': 'image',       // C6-image content area
+    // Visual content slots -> Their own Element Types
+    // Each visual type has a dedicated insert function in element-manager.js
+    'table': 'table',           // C2-table -> insertTable
+    'chart': 'chart',           // C3-chart -> insertChart
+    'infographic': 'infographic', // C4-infographic -> insertInfographic
+    'diagram': 'diagram',       // C5-diagram -> insertDiagram
+    'image': 'image',           // C6-image -> insertImage
 
     // Image-based slots -> Image Element Type
     'logo': 'image',
@@ -237,7 +237,7 @@
    *
    * @param {string} slotName - Name of the slot (e.g., 'title')
    * @param {Object} slotDef - Slot definition from TEMPLATE_REGISTRY
-   * @returns {string} Element type: 'textbox' or 'image'
+   * @returns {string} Element type: 'textbox', 'image', 'chart', 'infographic', 'diagram', 'table'
    */
   function getElementTypeForSlot(slotName, slotDef) {
     // First check explicit mapping
@@ -273,12 +273,27 @@
   function convertSlotToElement(slotElement, slotDef, slotName, elementType, slideIndex) {
     console.log(`[SlotConverter] Converting slot '${slotName}' to ${elementType}`);
 
-    if (elementType === 'textbox') {
-      convertToTextBox(slotElement, slotDef, slotName, slideIndex);
-    } else if (elementType === 'image') {
-      convertToImage(slotElement, slotDef, slotName, slideIndex);
-    } else {
-      console.warn(`[SlotConverter] Unknown element type: ${elementType}`);
+    switch (elementType) {
+      case 'textbox':
+        convertToTextBox(slotElement, slotDef, slotName, slideIndex);
+        break;
+      case 'image':
+        convertToImage(slotElement, slotDef, slotName, slideIndex);
+        break;
+      case 'chart':
+        convertToChart(slotElement, slotDef, slotName, slideIndex);
+        break;
+      case 'infographic':
+        convertToInfographic(slotElement, slotDef, slotName, slideIndex);
+        break;
+      case 'diagram':
+        convertToDiagram(slotElement, slotDef, slotName, slideIndex);
+        break;
+      case 'table':
+        convertToTable(slotElement, slotDef, slotName, slideIndex);
+        break;
+      default:
+        console.warn(`[SlotConverter] Unknown element type: ${elementType}`);
     }
   }
 
@@ -530,6 +545,158 @@
       placeholderText: customization.placeholderText,
       placeholderColor: customization.placeholderColor
     };
+  }
+
+  // ===== CHART CONVERSION =====
+
+  /**
+   * Convert a slot element to a Chart Element Type
+   *
+   * @param {HTMLElement} slotElement - Original slot element
+   * @param {Object} slotDef - Slot definition
+   * @param {string} slotName - Slot name
+   * @param {number} slideIndex - Slide index
+   */
+  function convertToChart(slotElement, slotDef, slotName, slideIndex) {
+    // Build configuration
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'chart');
+
+    // Insert the Chart element
+    const result = window.ElementManager.insertChart(slideIndex, config);
+
+    if (result.success) {
+      console.log(`[SlotConverter] Created Chart ${result.elementId} for slot '${slotName}'`);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+    } else {
+      console.error(`[SlotConverter] Failed to create Chart for slot '${slotName}':`, result.error);
+    }
+  }
+
+  // ===== INFOGRAPHIC CONVERSION =====
+
+  /**
+   * Convert a slot element to an Infographic Element Type
+   *
+   * @param {HTMLElement} slotElement - Original slot element
+   * @param {Object} slotDef - Slot definition
+   * @param {string} slotName - Slot name
+   * @param {number} slideIndex - Slide index
+   */
+  function convertToInfographic(slotElement, slotDef, slotName, slideIndex) {
+    // Build configuration
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'infographic');
+
+    // Insert the Infographic element
+    const result = window.ElementManager.insertInfographic(slideIndex, config);
+
+    if (result.success) {
+      console.log(`[SlotConverter] Created Infographic ${result.elementId} for slot '${slotName}'`);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+    } else {
+      console.error(`[SlotConverter] Failed to create Infographic for slot '${slotName}':`, result.error);
+    }
+  }
+
+  // ===== DIAGRAM CONVERSION =====
+
+  /**
+   * Convert a slot element to a Diagram Element Type
+   *
+   * @param {HTMLElement} slotElement - Original slot element
+   * @param {Object} slotDef - Slot definition
+   * @param {string} slotName - Slot name
+   * @param {number} slideIndex - Slide index
+   */
+  function convertToDiagram(slotElement, slotDef, slotName, slideIndex) {
+    // Build configuration
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'diagram');
+
+    // Insert the Diagram element
+    const result = window.ElementManager.insertDiagram(slideIndex, config);
+
+    if (result.success) {
+      console.log(`[SlotConverter] Created Diagram ${result.elementId} for slot '${slotName}'`);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+    } else {
+      console.error(`[SlotConverter] Failed to create Diagram for slot '${slotName}':`, result.error);
+    }
+  }
+
+  // ===== TABLE CONVERSION =====
+
+  /**
+   * Convert a slot element to a Table Element Type
+   *
+   * @param {HTMLElement} slotElement - Original slot element
+   * @param {Object} slotDef - Slot definition
+   * @param {string} slotName - Slot name
+   * @param {number} slideIndex - Slide index
+   */
+  function convertToTable(slotElement, slotDef, slotName, slideIndex) {
+    // Build configuration
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'table');
+
+    // Insert the Table element
+    const result = window.ElementManager.insertTable(slideIndex, config);
+
+    if (result.success) {
+      console.log(`[SlotConverter] Created Table ${result.elementId} for slot '${slotName}'`);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+    } else {
+      console.error(`[SlotConverter] Failed to create Table for slot '${slotName}':`, result.error);
+    }
+  }
+
+  // ===== VISUAL ELEMENT HELPERS =====
+
+  /**
+   * Build configuration for visual elements (chart, infographic, diagram, table)
+   *
+   * @param {HTMLElement} slotElement - Original slot element
+   * @param {Object} slotDef - Slot definition
+   * @param {string} slotName - Slot name
+   * @param {number} slideIndex - Slide index
+   * @param {string} elementType - Element type (chart, infographic, diagram, table)
+   * @returns {Object} Configuration object
+   */
+  function buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, elementType) {
+    // Build position from slot definition
+    const position = {
+      gridRow: slotDef.gridRow || '4/17',
+      gridColumn: slotDef.gridColumn || '2/32'
+    };
+
+    return {
+      id: `slide-${slideIndex}-slot-${slotName}-element`,
+      position: position,
+      draggable: true,
+      resizable: true,
+      zIndex: SLOT_Z_INDEX[slotName] || 1016
+    };
+  }
+
+  /**
+   * Finalize a converted element - remove original slot and apply classes
+   *
+   * @param {HTMLElement} slotElement - Original slot element to remove
+   * @param {Object} slotDef - Slot definition
+   * @param {string} slotName - Slot name
+   * @param {string} elementId - New element's ID
+   */
+  function finalizeConvertedElement(slotElement, slotDef, slotName, elementId) {
+    // REMOVE original slot element from DOM
+    slotElement.remove();
+
+    // Add class to identify this as a converted slot element
+    const newElement = document.getElementById(elementId);
+    if (newElement) {
+      newElement.classList.add('converted-slot', `slot-${slotName}`);
+      newElement.dataset.originalSlot = slotName;
+
+      // FORCE template-defined grid position
+      newElement.style.gridRow = slotDef.gridRow;
+      newElement.style.gridColumn = slotDef.gridColumn;
+    }
   }
 
   // ===== UTILITY FUNCTIONS =====

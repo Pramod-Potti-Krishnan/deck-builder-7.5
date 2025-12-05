@@ -611,7 +611,11 @@
             // Hero templates (dark background)
             'H1-structured', 'H2-section', 'H3-closing',
             // Content templates (light background)
-            'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image'
+            'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image',
+            // Split templates (mixed layouts)
+            'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison',
+            // Blank template
+            'B1-blank'
           ];
           data.slides.forEach((slide, index) => {
             if (convertibleTemplates.includes(slide.layout)) {

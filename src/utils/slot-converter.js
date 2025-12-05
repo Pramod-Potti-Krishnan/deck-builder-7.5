@@ -44,7 +44,20 @@
 
     // Image-based slots -> Image Element Type
     'logo': 'image',
-    'background': 'image'
+    'background': 'image',
+
+    // Split template slots (S1-S4)
+    'visual': 'image',          // S1/S3 visual areas -> image placeholder
+    'header': 'textbox',        // S4 column headers
+    'caption_left': 'textbox',  // S3 left caption
+    'caption_right': 'textbox', // S3 right caption
+    'header_left': 'textbox',   // S4 left header
+    'header_right': 'textbox',  // S4 right header
+    'content_left': 'textbox',  // S1/S3/S4 left content (body)
+    'content_right': 'textbox', // S1/S3/S4 right content (body)
+
+    // Blank template slot (B1)
+    'canvas': 'textbox'         // B1 canvas -> textbox for freeform content
   };
 
   /**
@@ -65,7 +78,18 @@
     'chart': 1016,
     'infographic': 1016,
     'diagram': 1016,
-    'image': 1016
+    'image': 1016,
+    // Split template slots
+    'visual': 1016,
+    'header': 1014,
+    'header_left': 1014,
+    'header_right': 1014,
+    'content_left': 1016,
+    'content_right': 1016,
+    'caption_left': 1017,
+    'caption_right': 1017,
+    // Blank template
+    'canvas': 1016
   };
 
   /**
@@ -133,6 +157,51 @@
       'title': '.slide-title',
       'subtitle': '.subtitle',
       'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    // ===== SPLIT TEMPLATES (S1-S4) =====
+    'S1-visual-text': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content_left': '.content-left',
+      'content_right': '.content-right',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'S2-image-content': {
+      'image': '.image-area',
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content': '.content-area',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'S3-two-visuals': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'content_left': '.content-left',
+      'content_right': '.content-right',
+      'caption_left': '.caption-left',
+      'caption_right': '.caption-right',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    'S4-comparison': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'header_left': '.header-left',
+      'header_right': '.header-right',
+      'content_left': '.content-left',
+      'content_right': '.content-right',
+      'footer': '.footer',
+      'logo': '.logo'
+    },
+    // ===== BLANK TEMPLATE (B1) =====
+    'B1-blank': {
+      'title': '.slide-title',
+      'subtitle': '.subtitle',
+      'canvas': '.canvas',
       'footer': '.footer',
       'logo': '.logo'
     }

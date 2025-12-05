@@ -160,40 +160,51 @@ def get_default_content(layout: str) -> dict:
         },
 
         # ========== FRONTEND TEMPLATES - SPLIT ==========
+        # Default text values should match Template Builder v7.4 placeholders
         "S1-visual-text": {
-            "slide_title": "Visual + Text",
-            "subtitle": "",
-            "element_3": "",
-            "element_2": ""
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "visual_content": "Visual Area",
+            "body": "Key Insights",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "S2-image-content": {
-            "slide_title": "Image + Content",
-            "subtitle": "",
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
             "image_url": "",
-            "main_content": ""
+            "body": "Content Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "S3-two-visuals": {
-            "slide_title": "Comparison",
-            "subtitle": "",
-            "element_4": "",
-            "element_2": "",
-            "element_3": "",
-            "element_5": ""
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "visual_left": "Left Visual",
+            "visual_right": "Right Visual",
+            "caption_left": "Left Caption",
+            "caption_right": "Right Caption",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
         "S4-comparison": {
             "slide_title": "Comparison",
-            "subtitle": "",
+            "subtitle": "Subtitle",
             "header_left": "Option A",
             "header_right": "Option B",
-            "content_left": "",
-            "content_right": ""
+            "content_left": "Left Content",
+            "content_right": "Right Content",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         },
 
         # ========== FRONTEND TEMPLATES - BLANK ==========
         "B1-blank": {
-            "slide_title": "",
-            "subtitle": "",
-            "canvas_content": ""
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "canvas_content": "Canvas Area",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
         }
     }
     return defaults.get(layout, defaults["L25"])

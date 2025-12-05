@@ -309,14 +309,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',           // Dark for content slides
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align
-          justifyContent: 'flex-end', // BOTTOM align
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Slide Title'
@@ -327,13 +327,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',           // Medium gray for subtitle
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align
-          justifyContent: 'flex-start', // TOP align
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Subtitle'
@@ -409,14 +410,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Slide Title'
@@ -427,13 +428,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Subtitle'
@@ -509,14 +511,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Slide Title'
@@ -527,13 +529,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Subtitle'
@@ -609,14 +612,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Slide Title'
@@ -627,13 +630,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Subtitle'
@@ -709,14 +713,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Slide Title'
@@ -727,13 +731,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Subtitle'
@@ -809,14 +814,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-end',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Slide Title'
@@ -827,13 +832,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '28px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
         defaultText: 'Subtitle'
@@ -913,13 +919,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          textAlign: 'left'
         },
         defaultText: null
       },
@@ -929,11 +936,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
+          textAlign: 'left'
         },
         defaultText: null
       },
@@ -1014,13 +1024,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          textAlign: 'left',
           padding: '0px 25px'
         },
         defaultText: null
@@ -1031,11 +1042,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
+          textAlign: 'left',
           padding: '0px 25px'
         },
         defaultText: null
@@ -1090,13 +1104,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          textAlign: 'left'
         },
         defaultText: null
       },
@@ -1106,12 +1121,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '24px',
+          fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
+          textAlign: 'left'
         },
         defaultText: null
       },
@@ -1206,13 +1223,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
+          fontSize: '36px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          textAlign: 'left'
         },
         defaultText: null
       },
@@ -1222,11 +1240,14 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
+          alignItems: 'flex-start',   // LEFT align (horizontal)
+          justifyContent: 'center',   // MIDDLE align (vertical)
+          textAlign: 'left'
         },
         defaultText: null
       },

@@ -17,7 +17,7 @@
   'use strict';
 
   /**
-   * Mapping from slot tags to Element Types
+   * Mapping from slot names/tags to Element Types
    */
   const SLOT_TO_ELEMENT_TYPE = {
     // Text slots -> TextBox
@@ -34,7 +34,10 @@
     'table': 'table',
 
     // Image-based slots
-    'logo': 'image'
+    'logo': 'image',
+
+    // NOTE: 'content' slot is NOT mapped here - it uses slotDef.tag to determine type
+    // C6-image has content.tag='image', C3-chart has content.tag='chart', etc.
   };
 
   /**
@@ -192,6 +195,15 @@
   function createImage(slideIndex, slotName, slotDef, content) {
     const imageUrl = getImageUrl(slotName, content);
 
+    console.log(`[DirectElementCreator] createImage() called:`, {
+      slideIndex,
+      slotName,
+      imageUrl,
+      isPlaceholder: !imageUrl,
+      contentImageUrl: content?.image_url,
+      contentLogo: content?.company_logo
+    });
+
     const config = {
       id: `slide-${slideIndex}-${slotName}`,
       position: {
@@ -328,24 +340,27 @@
 
   /**
    * Get image URL for a slot from the content object
+   * Returns null if no valid URL, which triggers placeholder mode
    */
   function getImageUrl(slotName, content) {
     if (!content) return null;
 
     if (slotName === 'content') {
-      // Main content area - could be image_url
-      if (content.image_url && !content.image_url.startsWith('<')) {
-        return content.image_url;
+      // Main content area - must be a valid HTTP URL
+      const url = content.image_url;
+      if (url && typeof url === 'string' && url.startsWith('http')) {
+        return url;
       }
-      return null;
+      return null;  // Triggers placeholder mode
     }
 
     if (slotName === 'logo') {
-      // Logo - check if it's a URL (not HTML or emoji)
-      if (content.company_logo && content.company_logo.startsWith('http')) {
-        return content.company_logo;
+      // Logo - must be a valid HTTP URL (not HTML, emoji, or data URI)
+      const url = content.company_logo;
+      if (url && typeof url === 'string' && url.startsWith('http')) {
+        return url;
       }
-      return null;
+      return null;  // Triggers placeholder mode
     }
 
     return null;

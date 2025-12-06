@@ -170,11 +170,18 @@
   height: 12px;  /* 8px * 1.5 = 12px */
   background: #ffffff;
   border: 1px solid #000000;
-  opacity: 1 !important;
-  visibility: visible !important;
+  opacity: 0;  /* Hidden by default - show only when selected */
+  visibility: hidden;
   z-index: 1001;
   pointer-events: auto;
   box-sizing: border-box;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+/* Show resize handles only when element is selected */
+.inserted-textbox.element-selected .resize-handle {
+  opacity: 1;
+  visibility: visible;
 }
 
 .inserted-textbox .resize-handle:hover {

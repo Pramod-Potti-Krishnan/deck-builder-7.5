@@ -104,21 +104,21 @@
 
 .editable {
   outline: 1px solid transparent;
-  outline-offset: 4px;
+  outline-offset: -2px;  /* Draw inside like "B" mode - prevents text shift */
   transition: all 0.2s ease;
   cursor: text;
   position: relative;
 }
 
 .editable:hover {
-  outline-color: #3b82f6;
+  outline-color: #9ca3af;  /* Gray - same as "B" mode */
   outline-style: solid;
 }
 
 .editable:focus {
-  outline-color: #3b82f6;
+  outline-color: #9ca3af;  /* Gray - same as "B" mode */
   outline-style: solid;
-  background-color: rgba(59, 130, 246, 0.05);
+  background-color: rgba(156, 163, 175, 0.05);
 }
 
 /* Placeholder for empty editable elements */

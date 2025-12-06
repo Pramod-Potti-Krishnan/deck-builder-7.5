@@ -787,6 +787,11 @@
             timestamp: Date.now()
           }));
 
+          // Clear the URL hash to prevent Reveal.js from navigating based on old hash
+          // Use replaceState to avoid adding to browser history
+          const cleanUrl = window.location.pathname + window.location.search;
+          window.history.replaceState(null, '', cleanUrl);
+
           // Reload presentation to show new slide
           window.location.reload();
           return { success: true, action: 'addSlide', ...data };

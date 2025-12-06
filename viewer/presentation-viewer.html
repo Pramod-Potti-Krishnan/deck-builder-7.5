@@ -240,7 +240,7 @@
   <!-- World-Class Editor APIs (v7.5.3) -->
   <script src="/src/utils/format-api.js"></script>
   <script src="/src/utils/drag-drop.js?v=20251201-semicircle"></script>
-  <script src="/src/utils/element-manager.js?v=20251205-v3"></script>
+  <script src="/src/utils/element-manager.js?v=20251205-dupfix"></script>
 
   <!-- v7.5 Renderers (6 backend layouts) -->
   <script src="/src/renderers/L01.js"></script>
@@ -659,7 +659,62 @@
         console.log('[SlotConverter] Template element initialization complete');
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
+
+        // Check for pending slide navigation (e.g., after adding a new slide)
+        checkPendingSlideNavigation();
       }, 300);  // Give scripts 300ms to execute
+    }
+
+    /**
+     * Check for pending slide navigation and execute it
+     * This handles auto-navigation to new slides after add/reload
+     */
+    function checkPendingSlideNavigation() {
+      try {
+        const pendingNav = sessionStorage.getItem('pendingSlideNavigation');
+        if (!pendingNav) return;
+
+        const navData = JSON.parse(pendingNav);
+
+        // Clear the pending navigation immediately to prevent loops
+        sessionStorage.removeItem('pendingSlideNavigation');
+
+        // Only process if recent (within 10 seconds) to avoid stale data
+        if (Date.now() - navData.timestamp > 10000) {
+          console.log('[Navigation] Pending navigation expired, ignoring');
+          return;
+        }
+
+        console.log(`[Navigation] Navigating to slide ${navData.slideIndex} after reload`);
+
+        // Navigate to the slide (0-based index)
+        if (typeof Reveal !== 'undefined' && Reveal.isReady()) {
+          Reveal.slide(navData.slideIndex);
+
+          // Enable edit mode if requested
+          if (navData.enableEditMode) {
+            // Small delay to ensure slide is fully visible before enabling edit mode
+            setTimeout(() => {
+              if (typeof enterEditMode === 'function') {
+                enterEditMode();
+                console.log('[Navigation] Edit mode enabled for new slide');
+              } else if (typeof toggleEditMode === 'function') {
+                // Fallback: use toggle if enterEditMode not available
+                const isEdit = document.body.getAttribute('data-mode') === 'edit';
+                if (!isEdit) {
+                  toggleEditMode();
+                  console.log('[Navigation] Edit mode toggled for new slide');
+                }
+              }
+            }, 200);
+          }
+        } else {
+          console.warn('[Navigation] Reveal.js not ready, cannot navigate');
+        }
+      } catch (error) {
+        console.error('[Navigation] Error processing pending navigation:', error);
+        sessionStorage.removeItem('pendingSlideNavigation');
+      }
     }
 
     /**
@@ -723,6 +778,15 @@
         const data = await response.json();
 
         if (response.ok) {
+          // Store the new slide position to navigate to after reload
+          // The API returns slide_index (0-based position where slide was added)
+          const newSlideIndex = data.slide_index !== undefined ? data.slide_index : (params.position || 0);
+          sessionStorage.setItem('pendingSlideNavigation', JSON.stringify({
+            slideIndex: newSlideIndex,
+            enableEditMode: true,
+            timestamp: Date.now()
+          }));
+
           // Reload presentation to show new slide
           window.location.reload();
           return { success: true, action: 'addSlide', ...data };

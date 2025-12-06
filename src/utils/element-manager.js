@@ -74,7 +74,14 @@
       return { success: false, error: `Slide ${slideIndex} not found` };
     }
 
-    const id = generateId('shape');
+    const id = config.id || generateId('shape');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] Shape ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
+
     const position = config.position || { gridRow: '8/12', gridColumn: '10/22' };
     const style = config.style || {};
     const fill = style.fill || '#3b82f6';
@@ -226,7 +233,14 @@
       return { success: false, error: `Slide ${slideIndex} not found` };
     }
 
-    const id = generateId('table');
+    const id = config.id || generateId('table');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] Table ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
+
     const position = config.position || { gridRow: '5/14', gridColumn: '3/30' };
 
     // Create container
@@ -371,6 +385,13 @@
 
     const isPlaceholderMode = !config.chartHtml && !config.chartConfig;
     const id = config.id || generateId('chart');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] Chart ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
+
     const position = config.position || { gridRow: '4/15', gridColumn: '3/30' };
 
     // Create container
@@ -746,6 +767,13 @@
 
     const isPlaceholderMode = !config.imageUrl;
     const id = config.id || generateId('image');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] Image ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
+
     const position = config.position || { gridRow: '4/14', gridColumn: '8/24' };
 
     // Create container
@@ -990,6 +1018,13 @@
 
     const isPlaceholderMode = !config.svgContent;
     const id = config.id || generateId('infographic');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] Infographic ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
+
     const position = config.position || { gridRow: '4/16', gridColumn: '5/28' };
 
     // Create container
@@ -1215,6 +1250,13 @@
 
     const isPlaceholderMode = !config.svgContent && !config.mermaidCode;
     const id = config.id || generateId('diagram');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] Diagram ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
+
     const position = config.position || { gridRow: '4/16', gridColumn: '5/28' };
 
     // Create container
@@ -1527,6 +1569,13 @@
 
     // Use provided id (for restoration) or generate new one
     const id = config.id || generateId('textbox');
+
+    // DUPLICATE PREVENTION: Skip if element already exists
+    // This prevents double-creation during restore + createElementsForTemplate race
+    if (document.getElementById(id)) {
+      console.log(`[ElementManager] TextBox ${id} already exists, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
+    }
 
     // Support both nested position object and direct gridRow/gridColumn
     const position = config.position || {

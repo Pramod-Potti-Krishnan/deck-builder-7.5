@@ -1880,7 +1880,8 @@
     const rect = element.getBoundingClientRect();
     const computedStyle = window.getComputedStyle(element);
 
-    return {
+    // Base properties for all elements
+    const properties = {
       position: {
         x: rect.left,
         y: rect.top
@@ -1890,8 +1891,114 @@
         height: rect.height
       },
       rotation: 0, // Future: extract from transform
-      locked: element.classList.contains('textbox-locked') || false,
+      locked: element.classList.contains('element-locked') || false,
       zIndex: parseInt(computedStyle.zIndex) || data.zIndex
+    };
+
+    // Add element-specific properties based on type
+    switch (data.type) {
+      case 'image':
+        Object.assign(properties, extractImageProperties(element, data));
+        break;
+      case 'chart':
+        Object.assign(properties, extractChartProperties(element, data));
+        break;
+      case 'table':
+        Object.assign(properties, extractTableProperties(element, data));
+        break;
+      case 'infographic':
+        Object.assign(properties, extractInfographicProperties(element, data));
+        break;
+      case 'diagram':
+        Object.assign(properties, extractDiagramProperties(element, data));
+        break;
+    }
+
+    return properties;
+  }
+
+  /**
+   * Extract image-specific properties
+   */
+  function extractImageProperties(element, data) {
+    const img = element.querySelector('.element-content img');
+    const isPlaceholder = element.classList.contains('placeholder-mode');
+
+    return {
+      imageUrl: img ? img.src : null,
+      altText: img ? img.alt : '',
+      objectFit: img ? (img.style.objectFit || 'cover') : 'cover',
+      isPlaceholder: isPlaceholder,
+      opacity: parseFloat(element.style.opacity) || 1,
+      borderRadius: element.style.borderRadius || '0px'
+    };
+  }
+
+  /**
+   * Extract chart-specific properties
+   */
+  function extractChartProperties(element, data) {
+    const canvas = element.querySelector('canvas');
+    const isPlaceholder = element.classList.contains('placeholder-mode');
+
+    return {
+      chartType: data.chartType || 'bar',
+      chartData: data.chartData || null,
+      isPlaceholder: isPlaceholder,
+      hasCanvas: !!canvas
+    };
+  }
+
+  /**
+   * Extract table-specific properties
+   */
+  function extractTableProperties(element, data) {
+    const table = element.querySelector('table');
+    const isPlaceholder = element.classList.contains('placeholder-mode');
+
+    let rows = 0, cols = 0;
+    if (table) {
+      const tableRows = table.querySelectorAll('tr');
+      rows = tableRows.length;
+      if (tableRows[0]) {
+        cols = tableRows[0].querySelectorAll('td, th').length;
+      }
+    }
+
+    return {
+      rows: rows,
+      columns: cols,
+      hasHeader: table ? !!table.querySelector('thead') : false,
+      isPlaceholder: isPlaceholder,
+      tableData: data.tableData || null
+    };
+  }
+
+  /**
+   * Extract infographic-specific properties
+   */
+  function extractInfographicProperties(element, data) {
+    const svg = element.querySelector('svg');
+    const isPlaceholder = element.classList.contains('placeholder-mode');
+
+    return {
+      infographicType: data.infographicType || 'generic',
+      hasSvg: !!svg,
+      isPlaceholder: isPlaceholder
+    };
+  }
+
+  /**
+   * Extract diagram-specific properties
+   */
+  function extractDiagramProperties(element, data) {
+    const svg = element.querySelector('svg');
+    const isPlaceholder = element.classList.contains('placeholder-mode');
+
+    return {
+      diagramType: data.diagramType || 'generic',
+      hasSvg: !!svg,
+      isPlaceholder: isPlaceholder
     };
   }
 

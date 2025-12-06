@@ -246,7 +246,7 @@ body:not([data-mode="edit"]) .inserted-table [contenteditable="true"] {
 }
 
 .grid-debug-overlay .grid-cell {
-  border: 1px dashed rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 /* ===== ANIMATION UTILITIES ===== */

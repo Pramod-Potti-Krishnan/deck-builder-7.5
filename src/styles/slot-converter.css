@@ -167,7 +167,7 @@
  */
 .converted-slot.slot-background.placeholder-mode {
   background: rgba(30, 58, 95, 0.9) !important;  /* Darker blue - override default #e5e7eb */
-  border: 2px dashed rgba(59, 130, 246, 0.3) !important;  /* Subtle border instead of bright blue */
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;  /* Subtle border instead of bright blue */
   border-radius: 0 !important;  /* No rounded corners for full-bleed */
 }
 
@@ -268,7 +268,7 @@ body[data-mode="edit"] .converted-slot.textbox-selected .resize-handle {
  * Subtle highlight on hover for converted elements
  */
 body[data-mode="edit"] .converted-slot:hover {
-  outline: 1px dashed rgba(59, 130, 246, 0.3);
+  outline: 1px solid rgba(59, 130, 246, 0.3);
   outline-offset: 2px;
 }
 

@@ -103,7 +103,7 @@
 /* ==================== Editable Content Styles ==================== */
 
 .editable {
-  outline: 2px dashed transparent;
+  outline: 1px solid transparent;
   outline-offset: 4px;
   transition: all 0.2s ease;
   cursor: text;
@@ -112,7 +112,7 @@
 
 .editable:hover {
   outline-color: #3b82f6;
-  outline-style: dashed;
+  outline-style: solid;
 }
 
 .editable:focus {

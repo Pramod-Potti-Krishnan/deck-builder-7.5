@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: center;
   background: #f8fafc;
-  border: 2px dashed #94a3b8 !important;
+  border: 1px solid #94a3b8 !important;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -336,7 +336,7 @@
 /* ----- Image Placeholder (Blue border) ----- */
 .inserted-image.placeholder-mode {
   background: #e5e7eb;
-  border: 3px dashed #3b82f6 !important;
+  border: 1px solid #3b82f6 !important;
 }
 
 .inserted-image.placeholder-mode .element-placeholder-icon svg {
@@ -354,7 +354,7 @@
 /* ----- Chart Placeholder (Green border) ----- */
 .inserted-chart.placeholder-mode {
   background: #e5e7eb;
-  border: 3px dashed #10b981 !important;
+  border: 1px solid #10b981 !important;
 }
 
 .inserted-chart.placeholder-mode .element-placeholder-icon svg {
@@ -372,7 +372,7 @@
 /* ----- Infographic Placeholder (Purple border) ----- */
 .inserted-infographic.placeholder-mode {
   background: #e5e7eb;
-  border: 3px dashed #8b5cf6 !important;
+  border: 1px solid #8b5cf6 !important;
 }
 
 .inserted-infographic.placeholder-mode .element-placeholder-icon svg {
@@ -390,7 +390,7 @@
 /* ----- Diagram Placeholder (Orange border) ----- */
 .inserted-diagram.placeholder-mode {
   background: #e5e7eb;
-  border: 3px dashed #f59e0b !important;
+  border: 1px solid #f59e0b !important;
 }
 
 .inserted-diagram.placeholder-mode .element-placeholder-icon svg {

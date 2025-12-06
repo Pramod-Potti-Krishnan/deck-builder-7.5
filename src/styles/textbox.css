@@ -17,7 +17,7 @@
 .inserted-textbox {
   z-index: 1000;
   background: transparent;
-  border: 3px dashed #6b7280 !important;  /* Grey border - FORCED */
+  border: 1px solid #6b7280 !important;  /* Grey border - thin solid */
   border-radius: 6px;
   min-height: 80px;
   overflow: visible !important;

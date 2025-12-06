@@ -781,22 +781,78 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Store the new slide position to navigate to after reload
-          // The API returns slide_index (0-based position where slide was added)
+          // NO-RELOAD APPROACH: Insert slide directly into DOM
+          // This eliminates conflicts between template creation and restore functions
+
           const newSlideIndex = data.slide_index !== undefined ? data.slide_index : (params.position || 0);
-          sessionStorage.setItem('pendingSlideNavigation', JSON.stringify({
-            slideIndex: newSlideIndex,
-            enableEditMode: true,
-            timestamp: Date.now()
-          }));
+          const layout = params.layout || 'C1-text';
+          const content = params.content || {};
 
-          // Clear the URL hash to prevent Reveal.js from navigating based on old hash
-          // Use replaceState to avoid adding to browser history
-          const cleanUrl = window.location.pathname + window.location.search;
-          window.history.replaceState(null, '', cleanUrl);
+          console.log(`[handleAddSlide] Adding slide ${newSlideIndex} with layout ${layout} (no reload)`);
 
-          // Reload presentation to show new slide
-          window.location.reload();
+          // 1. Get renderer for this layout
+          const renderer = RENDERERS[layout];
+          if (!renderer) {
+            console.error(`[handleAddSlide] No renderer found for layout: ${layout}`);
+            return { success: false, action: 'addSlide', error: `Unknown layout: ${layout}` };
+          }
+
+          // 2. Render slide HTML
+          const slideHTML = renderer(content, { layout }, newSlideIndex);
+
+          // 3. Parse HTML to section element
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = slideHTML;
+          const newSection = tempDiv.querySelector('section');
+
+          if (!newSection) {
+            console.error('[handleAddSlide] Renderer did not return a section element');
+            return { success: false, action: 'addSlide', error: 'Failed to render slide' };
+          }
+
+          // 4. Insert at correct position in DOM
+          const slidesContainer = document.getElementById('slides-container');
+          const existingSlides = slidesContainer.querySelectorAll(':scope > section');
+
+          if (newSlideIndex >= existingSlides.length) {
+            slidesContainer.appendChild(newSection);
+          } else {
+            slidesContainer.insertBefore(newSection, existingSlides[newSlideIndex]);
+          }
+
+          // 5. Update data-slide-index on ALL slides (critical for element IDs)
+          slidesContainer.querySelectorAll(':scope > section').forEach((section, i) => {
+            section.setAttribute('data-slide-index', i);
+          });
+
+          // 6. Create elements for the new slide
+          if (typeof createElementsForTemplate === 'function') {
+            console.log(`[handleAddSlide] Creating elements for slide ${newSlideIndex} (${layout})`);
+            createElementsForTemplate(newSection, newSlideIndex, layout, content);
+          } else {
+            console.warn('[handleAddSlide] createElementsForTemplate not available');
+          }
+
+          // 7. Sync Reveal.js to recognize new slide
+          if (typeof Reveal !== 'undefined') {
+            Reveal.sync();
+            console.log('[handleAddSlide] Reveal.sync() called');
+          }
+
+          // 8. Navigate to new slide
+          if (typeof Reveal !== 'undefined') {
+            Reveal.slide(newSlideIndex);
+            console.log(`[handleAddSlide] Navigated to slide ${newSlideIndex}`);
+          }
+
+          // 9. Enter edit mode after a short delay
+          setTimeout(() => {
+            if (typeof enterEditMode === 'function') {
+              enterEditMode();
+              console.log('[handleAddSlide] Edit mode enabled');
+            }
+          }, 100);
+
           return { success: true, action: 'addSlide', ...data };
         } else {
           return { success: false, action: 'addSlide', error: data.detail || 'Failed to add slide' };

@@ -55,6 +55,93 @@
     return `${type}-${timestamp}-${random}`;
   }
 
+  // ===== PROPERTY HELPERS =====
+
+  /**
+   * Map vertical align value to flexbox justifyContent
+   * @param {string} value - 'top', 'middle', 'bottom'
+   * @returns {string} Flexbox justify-content value
+   */
+  function mapVerticalAlign(value) {
+    const map = {
+      'top': 'flex-start',
+      'middle': 'center',
+      'bottom': 'flex-end'
+    };
+    return map[value] || 'flex-start';
+  }
+
+  /**
+   * Reverse map justifyContent to vertical align value
+   * @param {string} value - Flexbox justify-content value
+   * @returns {string} Vertical align: 'top', 'middle', or 'bottom'
+   */
+  function reverseMapVerticalAlign(value) {
+    const map = {
+      'flex-start': 'top',
+      'center': 'middle',
+      'flex-end': 'bottom',
+      'start': 'top',
+      'end': 'bottom'
+    };
+    return map[value] || 'top';
+  }
+
+  /**
+   * Parse padding value - supports shorthand like "25px 0px" or "10px 20px 10px 20px"
+   * @param {string|number} padding - Padding value
+   * @returns {string} CSS padding string
+   */
+  function parsePadding(padding) {
+    if (typeof padding === 'number') return `${padding}px`;
+    if (typeof padding === 'string') {
+      // If it already has 'px' or other units, return as-is
+      if (padding.includes('px') || padding.includes('em') || padding.includes('%')) {
+        return padding;
+      }
+      // Otherwise treat as number
+      return `${parseInt(padding) || 0}px`;
+    }
+    return '0px';
+  }
+
+  /**
+   * Parse border shorthand - supports "1px solid #ddd" or separate properties
+   * @param {string|Object} border - Border value or object
+   * @returns {Object|null} Parsed border object or null if shorthand
+   */
+  function parseBorder(border) {
+    if (typeof border === 'string') {
+      // Shorthand format: "1px solid #ddd" or "2px dashed red"
+      const match = border.match(/^(\d+(?:px)?)\s+(solid|dashed|dotted|double|none)\s+(.+)$/i);
+      if (match) {
+        return {
+          shorthand: border,
+          width: parseInt(match[1]) || 0,
+          style: match[2].toLowerCase(),
+          color: match[3]
+        };
+      }
+    }
+    return null;  // Use separate borderWidth/borderColor instead
+  }
+
+  /**
+   * Format border shorthand from computed styles
+   * @param {CSSStyleDeclaration} style - Computed style
+   * @returns {string|null} Border shorthand or null
+   */
+  function formatBorderShorthand(style) {
+    const width = parseInt(style.borderWidth) || parseInt(style.borderTopWidth) || 0;
+    const styleVal = style.borderStyle || style.borderTopStyle || 'none';
+    const color = style.borderColor || style.borderTopColor || 'transparent';
+
+    if (width > 0 && styleVal !== 'none') {
+      return `${width}px ${styleVal} ${color}`;
+    }
+    return null;
+  }
+
   // ===== INSERT SHAPE =====
 
   /**
@@ -1599,17 +1686,34 @@
     // Default to 'flex' instead of 'block' for better alignment support
     const display = style.display || 'flex';
     const flexDirection = style.flexDirection || 'column';
-    const justifyContent = style.justifyContent || 'flex-start';
+    // Support verticalAlign as a user-friendly property that maps to justifyContent
+    const justifyContent = style.verticalAlign
+      ? mapVerticalAlign(style.verticalAlign)
+      : (style.justifyContent || 'flex-start');
     const alignItems = style.alignItems || 'flex-start';
+
+    // Parse padding - supports shorthand like "25px 0px"
+    const paddingValue = parsePadding(style.padding !== undefined ? style.padding : 16);
+
+    // Parse border - supports shorthand like "1px solid #ddd"
+    const borderParsed = parseBorder(style.border);
+    let borderStyle;
+    if (borderParsed) {
+      borderStyle = borderParsed.shorthand;
+    } else {
+      const bw = style.borderWidth || style.border_width || 0;
+      const bc = style.borderColor || style.border_color || 'transparent';
+      borderStyle = `${bw}px solid ${bc}`;
+    }
 
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
       z-index: ${zIndex};
       background: ${style.backgroundColor || style.background_color || 'transparent'};
-      border: ${style.borderWidth || style.border_width || 0}px solid ${style.borderColor || style.border_color || 'transparent'};
+      border: ${borderStyle};
       border-radius: ${style.borderRadius || style.border_radius || 0}px;
-      padding: ${style.padding || 16}px;
+      padding: ${paddingValue};
       opacity: ${style.opacity || 1};
       box-shadow: ${style.boxShadow || style.box_shadow || 'none'};
       min-height: 60px;
@@ -1621,6 +1725,15 @@
       justify-content: ${justifyContent};
       align-items: ${alignItems};
     `;
+
+    // Apply CSS classes if provided
+    if (config.cssClasses && Array.isArray(config.cssClasses)) {
+      config.cssClasses.forEach(cls => {
+        if (cls && typeof cls === 'string') {
+          container.classList.add(cls);
+        }
+      });
+    }
 
     // Create centered drag handle at top (NOT contentEditable, so it can be dragged)
     // Styles and 9-dot grid pattern are in textbox.css via ::before pseudo-element
@@ -1748,6 +1861,7 @@
       data: {
         content: config.content || '',
         style: style,
+        cssClasses: config.cssClasses || [],
         placeholder: config.placeholder,
         locked: config.locked || false,
         visible: config.visible !== false
@@ -1821,18 +1935,31 @@
     if (style.backgroundColor || style.background_color) {
       element.style.background = style.backgroundColor || style.background_color;
     }
-    if (style.borderColor || style.border_color) {
-      element.style.borderColor = style.borderColor || style.border_color;
+
+    // Handle border - supports shorthand like "1px solid #ddd"
+    if (style.border) {
+      const borderParsed = parseBorder(style.border);
+      if (borderParsed) {
+        element.style.border = borderParsed.shorthand;
+      }
+    } else {
+      if (style.borderColor || style.border_color) {
+        element.style.borderColor = style.borderColor || style.border_color;
+      }
+      if (style.borderWidth !== undefined || style.border_width !== undefined) {
+        element.style.borderWidth = (style.borderWidth || style.border_width || 0) + 'px';
+      }
     }
-    if (style.borderWidth !== undefined || style.border_width !== undefined) {
-      element.style.borderWidth = (style.borderWidth || style.border_width || 0) + 'px';
-    }
+
     if (style.borderRadius !== undefined || style.border_radius !== undefined) {
       element.style.borderRadius = (style.borderRadius || style.border_radius || 0) + 'px';
     }
+
+    // Handle padding - supports shorthand like "25px 0px"
     if (style.padding !== undefined) {
-      element.style.padding = style.padding + 'px';
+      element.style.padding = parsePadding(style.padding);
     }
+
     if (style.opacity !== undefined) {
       element.style.opacity = style.opacity;
     }
@@ -1840,11 +1967,73 @@
       element.style.boxShadow = style.boxShadow || style.box_shadow;
     }
 
+    // Handle vertical align - maps to justifyContent
+    if (style.verticalAlign) {
+      element.style.justifyContent = mapVerticalAlign(style.verticalAlign);
+    }
+
     // Update registry
     data.data.style = { ...data.data.style, ...style };
     triggerAutoSave(data.slideIndex);
 
     return { success: true };
+  }
+
+  /**
+   * Update CSS classes on an element
+   * Allows programmatic control of custom CSS classes for styling
+   *
+   * @param {string} elementId - Element ID
+   * @param {string[]} classes - Array of CSS class names to apply
+   * @param {Object} [options] - Options
+   * @param {boolean} [options.replace=true] - If true, replaces all custom classes; if false, adds to existing
+   * @returns {Object} Result object
+   */
+  function updateElementClasses(elementId, classes, options = {}) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data) {
+      return { success: false, error: 'Element not found' };
+    }
+
+    const replace = options.replace !== false;  // Default to replace mode
+
+    // System classes to preserve (never remove these)
+    const systemPrefixes = ['dynamic-element', 'inserted-', 'element-', 'textbox-'];
+
+    if (replace) {
+      // Remove all non-system classes first
+      const currentClasses = Array.from(element.classList);
+      currentClasses.forEach(cls => {
+        const isSystem = systemPrefixes.some(prefix => cls.startsWith(prefix));
+        if (!isSystem) {
+          element.classList.remove(cls);
+        }
+      });
+    }
+
+    // Add new classes
+    if (Array.isArray(classes)) {
+      classes.forEach(cls => {
+        if (cls && typeof cls === 'string') {
+          element.classList.add(cls);
+        }
+      });
+    }
+
+    // Update registry
+    data.data.cssClasses = Array.from(element.classList).filter(cls =>
+      !systemPrefixes.some(prefix => cls.startsWith(prefix))
+    );
+
+    triggerAutoSave(data.slideIndex);
+
+    return {
+      success: true,
+      elementId: elementId,
+      cssClasses: data.data.cssClasses
+    };
   }
 
   /**
@@ -1888,22 +2077,53 @@
     const computedStyle = window.getComputedStyle(contentDiv);
     const containerStyle = window.getComputedStyle(element);
 
+    // Extract CSS classes (excluding system classes)
+    const cssClasses = Array.from(element.classList).filter(cls =>
+      !cls.startsWith('dynamic-element') &&
+      !cls.startsWith('inserted-') &&
+      !cls.startsWith('element-') &&
+      !cls.startsWith('textbox-')
+    );
+
+    // Extract vertical align from justifyContent
+    const verticalAlign = reverseMapVerticalAlign(containerStyle.justifyContent);
+
+    // Build padding shorthand string
+    const pt = parseInt(containerStyle.paddingTop) || 0;
+    const pr = parseInt(containerStyle.paddingRight) || 0;
+    const pb = parseInt(containerStyle.paddingBottom) || 0;
+    const pl = parseInt(containerStyle.paddingLeft) || 0;
+    let paddingShorthand;
+    if (pt === pr && pr === pb && pb === pl) {
+      paddingShorthand = `${pt}px`;
+    } else if (pt === pb && pl === pr) {
+      paddingShorthand = `${pt}px ${pr}px`;
+    } else {
+      paddingShorthand = `${pt}px ${pr}px ${pb}px ${pl}px`;
+    }
+
     return {
       fontFamily: computedStyle.fontFamily,
       fontSize: parseInt(computedStyle.fontSize) || 32,
       fontWeight: computedStyle.fontWeight,
       fontStyle: computedStyle.fontStyle,
       textDecoration: computedStyle.textDecoration,
+      textTransform: computedStyle.textTransform,
       color: computedStyle.color,
       backgroundColor: containerStyle.backgroundColor,
       textAlign: computedStyle.textAlign,
+      verticalAlign: verticalAlign,
       lineHeight: computedStyle.lineHeight,
+      // Padding as shorthand string and detailed object
+      paddingShorthand: paddingShorthand,
       padding: {
-        top: parseInt(containerStyle.paddingTop) || 0,
-        right: parseInt(containerStyle.paddingRight) || 0,
-        bottom: parseInt(containerStyle.paddingBottom) || 0,
-        left: parseInt(containerStyle.paddingLeft) || 0
+        top: pt,
+        right: pr,
+        bottom: pb,
+        left: pl
       },
+      // Border as shorthand and detailed object
+      borderShorthand: formatBorderShorthand(containerStyle),
       border: {
         width: parseInt(containerStyle.borderWidth) || 0,
         color: containerStyle.borderColor,
@@ -1914,7 +2134,9 @@
         topRight: parseInt(containerStyle.borderTopRightRadius) || 0,
         bottomRight: parseInt(containerStyle.borderBottomRightRadius) || 0,
         bottomLeft: parseInt(containerStyle.borderBottomLeftRadius) || 0
-      }
+      },
+      // CSS classes (custom classes only, excluding system classes)
+      cssClasses: cssClasses
     };
   }
 
@@ -2531,6 +2753,9 @@
     updateTextBoxStyle: updateTextBoxStyle,
     getTextBoxContent: getTextBoxContent,
 
+    // CSS classes method (works on any element)
+    updateElementClasses: updateElementClasses,
+
     // Image specific methods
     updateImageSource: updateImageSource,
 
@@ -2553,6 +2778,15 @@
     // PostMessage events (for parent frame communication)
     emitFormattingUpdate: emitFormattingUpdate,
     extractTextBoxFormatting: extractTextBoxFormatting,
+
+    // Property helpers (for programmatic use)
+    utils: {
+      mapVerticalAlign: mapVerticalAlign,
+      reverseMapVerticalAlign: reverseMapVerticalAlign,
+      parsePadding: parsePadding,
+      parseBorder: parseBorder,
+      formatBorderShorthand: formatBorderShorthand
+    },
 
     // Registry access (for debugging)
     _registry: elementRegistry

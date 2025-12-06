@@ -39,7 +39,11 @@ from models import (
     TextBoxResponse,
     TextBoxListResponse,
     TextGenerationRequest,
-    TextGenerationResponse
+    TextGenerationResponse,
+    # Element property models
+    ElementClassesUpdateRequest,
+    ElementClassesResponse,
+    TextContentStyle
 )
 from storage import storage
 import copy
@@ -1556,6 +1560,194 @@ the presentation context and maintain consistency with your overall message.
             content="",
             error=str(e)
         )
+
+
+# ==================== Element Properties API ====================
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/elements/{element_id}/classes",
+         response_model=ElementClassesResponse)
+async def update_element_classes(
+    presentation_id: str,
+    slide_index: int,
+    element_id: str,
+    request: ElementClassesUpdateRequest
+):
+    """
+    Update CSS classes on any element (textbox, image, chart, etc.).
+
+    This endpoint updates the css_classes property on the specified element.
+    The actual rendering is done client-side via postMessage to the iframe.
+
+    Args:
+        presentation_id: Presentation UUID
+        slide_index: 0-based slide index
+        element_id: Element ID (e.g., 'textbox-abc123')
+        request: Contains css_classes array and replace mode
+
+    Returns:
+        ElementClassesResponse with updated classes list
+    """
+    try:
+        # Load presentation
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=404, detail=f"Slide {slide_index} not found")
+
+        slide = presentation["slides"][slide_index]
+
+        # Find element - check text_boxes first
+        element_found = False
+        element_type = None
+
+        text_boxes = slide.get("text_boxes", [])
+        for tb in text_boxes:
+            if tb.get("id") == element_id:
+                element_found = True
+                element_type = "textbox"
+                # Update css_classes
+                if request.replace:
+                    tb["css_classes"] = request.css_classes
+                else:
+                    existing = tb.get("css_classes", []) or []
+                    tb["css_classes"] = list(set(existing + request.css_classes))
+                break
+
+        # Check other element types (images, charts, etc.)
+        if not element_found:
+            for elem_type in ["images", "charts", "infographics", "diagrams"]:
+                elements = slide.get(elem_type, [])
+                for elem in elements:
+                    if elem.get("id") == element_id:
+                        element_found = True
+                        element_type = elem_type.rstrip("s")  # Remove plural 's'
+                        if request.replace:
+                            elem["css_classes"] = request.css_classes
+                        else:
+                            existing = elem.get("css_classes", []) or []
+                            elem["css_classes"] = list(set(existing + request.css_classes))
+                        break
+                if element_found:
+                    break
+
+        if not element_found:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Element {element_id} not found on slide {slide_index}"
+            )
+
+        # Save presentation
+        await storage.save(presentation_id, presentation)
+
+        # Get final css_classes for response
+        final_classes = []
+        if element_type == "textbox":
+            for tb in text_boxes:
+                if tb.get("id") == element_id:
+                    final_classes = tb.get("css_classes", [])
+                    break
+        else:
+            for elem in slide.get(f"{element_type}s", []):
+                if elem.get("id") == element_id:
+                    final_classes = elem.get("css_classes", [])
+                    break
+
+        return ElementClassesResponse(
+            success=True,
+            element_id=element_id,
+            css_classes=final_classes
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/element-properties/schema")
+async def get_element_properties_schema():
+    """
+    Return the schema for element properties.
+
+    This endpoint provides documentation for the frontend about
+    available element properties, their types, and valid values.
+    Useful for building properties panels and validation.
+    """
+    return {
+        "textbox_style": {
+            "background_color": {
+                "type": "string",
+                "description": "Background color (hex, rgba, or 'transparent')",
+                "examples": ["#ffffff", "rgba(255,255,255,0.8)", "transparent"]
+            },
+            "border_color": {
+                "type": "string",
+                "description": "Border color in hex format"
+            },
+            "border_width": {
+                "type": "integer",
+                "description": "Border width in pixels",
+                "min": 0,
+                "max": 20
+            },
+            "border": {
+                "type": "string",
+                "description": "Border shorthand (overrides border_width/border_color)",
+                "examples": ["1px solid #ddd", "2px dashed #333", "none"]
+            },
+            "border_radius": {
+                "type": "integer",
+                "description": "Border radius in pixels",
+                "min": 0,
+                "max": 50
+            },
+            "padding": {
+                "type": ["integer", "string"],
+                "description": "Padding - int (pixels) or shorthand string",
+                "examples": [16, "25px 0px", "10px 20px 10px 20px"]
+            },
+            "vertical_align": {
+                "type": "string",
+                "description": "Vertical alignment (maps to flexbox justify-content)",
+                "enum": ["top", "middle", "bottom"]
+            },
+            "opacity": {
+                "type": "number",
+                "description": "Opacity value",
+                "min": 0.0,
+                "max": 1.0
+            },
+            "box_shadow": {
+                "type": "string",
+                "description": "CSS box-shadow value"
+            }
+        },
+        "text_content_style": {
+            "color": {"type": "string", "description": "Text color"},
+            "font_family": {"type": "string", "description": "Font family"},
+            "font_size": {"type": "string", "description": "Font size with unit", "examples": ["32px", "1.5rem"]},
+            "font_weight": {"type": "string", "description": "Font weight", "examples": ["normal", "bold", "600"]},
+            "font_style": {"type": "string", "description": "Font style", "examples": ["normal", "italic"]},
+            "text_align": {"type": "string", "description": "Text alignment", "enum": ["left", "center", "right", "justify"]},
+            "line_height": {"type": "string", "description": "Line height", "examples": ["1.5", "24px"]},
+            "letter_spacing": {"type": "string", "description": "Letter spacing", "examples": ["0.5px", "0.1em"]},
+            "text_decoration": {"type": "string", "description": "Text decoration", "enum": ["none", "underline", "line-through"]},
+            "text_transform": {"type": "string", "description": "Text case", "enum": ["none", "uppercase", "lowercase", "capitalize"]}
+        },
+        "css_classes": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Custom CSS class names for additional styling",
+            "examples": [["slot-content", "slot-type-bod"], ["highlight-box"]]
+        },
+        "position": {
+            "grid_row": {"type": "string", "description": "CSS grid-row value", "examples": ["5/10", "8/12"]},
+            "grid_column": {"type": "string", "description": "CSS grid-column value", "examples": ["3/15", "10/25"]}
+        }
+    }
 
 
 @app.get("/p/{presentation_id}", response_class=HTMLResponse)

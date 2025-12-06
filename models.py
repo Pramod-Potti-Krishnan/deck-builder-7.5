@@ -169,6 +169,11 @@ class TextBoxStyle(BaseModel):
     Visual styling options for a text box.
 
     Default: Transparent overlay (no background, no border).
+
+    Supports both individual properties AND shorthand values:
+    - padding: Can be int (pixels) OR string shorthand like "25px 0px"
+    - border: Can use border_color/border_width OR border shorthand like "1px solid #ddd"
+    - vertical_align: Maps to flexbox justify-content ('top', 'middle', 'bottom')
     """
     background_color: Optional[str] = Field(
         default="transparent",
@@ -183,13 +188,24 @@ class TextBoxStyle(BaseModel):
         default=0, ge=0, le=20,
         description="Border width in pixels"
     )
+    border: Optional[str] = Field(
+        default=None,
+        description="Border shorthand (e.g., '1px solid #ddd'). Overrides border_width/border_color if set.",
+        examples=["1px solid #ddd", "2px dashed #333", "none"]
+    )
     border_radius: int = Field(
         default=0, ge=0, le=50,
         description="Border radius in pixels"
     )
-    padding: int = Field(
-        default=16, ge=0, le=100,
-        description="Internal padding in pixels"
+    padding: Optional[Union[int, str]] = Field(
+        default=16,
+        description="Padding - either int (pixels) or shorthand string (e.g., '25px 0px', '10px 20px 10px 20px')",
+        examples=[16, "25px 0px", "10px 20px 10px 20px"]
+    )
+    vertical_align: Optional[str] = Field(
+        default=None,
+        description="Vertical alignment of content ('top', 'middle', 'bottom'). Maps to flexbox justify-content.",
+        examples=["top", "middle", "bottom"]
     )
     opacity: float = Field(
         default=1.0, ge=0.0, le=1.0,
@@ -245,6 +261,11 @@ class TextContentStyle(BaseModel):
         default=None,
         description="Text decoration (e.g., 'none', 'underline')"
     )
+    text_transform: Optional[str] = Field(
+        default=None,
+        description="Text case transformation (e.g., 'uppercase', 'lowercase', 'capitalize', 'none')",
+        examples=["uppercase", "lowercase", "capitalize", "none"]
+    )
 
 
 class TextBox(BaseModel):
@@ -278,6 +299,11 @@ class TextBox(BaseModel):
     text_style: Optional[TextContentStyle] = Field(
         default=None,
         description="Text formatting styles (content: color, font, alignment, etc.)"
+    )
+    css_classes: Optional[List[str]] = Field(
+        default=None,
+        description="Custom CSS class names for additional styling (e.g., ['slot-content', 'slot-type-bod'])",
+        examples=[["slot-content", "slot-type-bod"], ["highlight-box"]]
     )
     locked: bool = Field(
         default=False,
@@ -904,6 +930,14 @@ class TextBoxUpdateRequest(BaseModel):
         None,
         description="Updated visual styling"
     )
+    text_style: Optional[TextContentStyle] = Field(
+        None,
+        description="Updated text content styling"
+    )
+    css_classes: Optional[List[str]] = Field(
+        None,
+        description="Updated CSS class names"
+    )
     z_index: Optional[int] = Field(
         None,
         description="Updated z-index layer"
@@ -916,6 +950,30 @@ class TextBoxUpdateRequest(BaseModel):
         None,
         description="Show/hide the text box"
     )
+
+
+class ElementClassesUpdateRequest(BaseModel):
+    """
+    Request model for updating CSS classes on any element.
+    """
+    css_classes: List[str] = Field(
+        ...,
+        description="List of CSS class names to apply",
+        examples=[["slot-content", "slot-type-bod"]]
+    )
+    replace: bool = Field(
+        default=True,
+        description="If true, replaces all custom classes; if false, adds to existing"
+    )
+
+
+class ElementClassesResponse(BaseModel):
+    """
+    Response model for element classes update.
+    """
+    success: bool
+    element_id: str
+    css_classes: List[str]
 
 
 class TextBoxResponse(BaseModel):

@@ -1330,77 +1330,10 @@ const TEMPLATE_REGISTRY = {
     id: 'B1-blank',
     name: 'Blank Canvas',
     category: 'blank',
-    description: 'Empty slide - place elements freely',
+    description: 'Empty slide - add elements freely using the toolbar',
     renderer: 'renderB1Blank',
     baseLayout: null,
-    slots: {
-      title: {
-        gridRow: '1/3',
-        gridColumn: '2/32',
-        tag: 'title',
-        accepts: ['text'],
-        style: {
-          fontSize: '48px',
-          fontFamily: 'Poppins, sans-serif',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
-        },
-        defaultText: null,
-        optional: true
-      },
-      subtitle: {
-        gridRow: '3/4',
-        gridColumn: '2/32',
-        tag: 'subtitle',
-        accepts: ['text'],
-        style: {
-          fontSize: '32px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start'
-        },
-        defaultText: null,
-        optional: true
-      },
-      canvas: {
-        gridRow: '4/18',
-        gridColumn: '2/32',
-        tag: 'canvas',
-        accepts: ['any'],
-        style: {
-          fontSize: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        },
-        defaultText: null,
-        description: 'Freeform content area - insert elements anywhere'
-      },
-      footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
-        tag: 'footer',
-        accepts: ['text'],
-        style: {},
-        defaultText: null,
-        optional: true
-      },
-      logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
-        tag: 'logo',
-        accepts: ['image', 'emoji'],
-        style: {
-          fontSize: '20px'
-        },
-        defaultText: 'Logo',
-        optional: true
-      }
-    },
+    slots: {},  // No pre-defined slots - truly blank canvas
     defaults: {},
     thumbnail: 'blank-canvas.svg'
   }

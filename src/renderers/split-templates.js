@@ -105,62 +105,18 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
 // ===========================================
 
 /**
- * B1-blank - Empty canvas for freeform content
- * Uses template-registry styles for proper layout.
+ * B1-blank - Truly blank canvas for freeform content
+ * No pre-defined elements - users add elements manually via the toolbar.
  */
 function renderB1Blank(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
-  const template = TEMPLATE_REGISTRY['B1-blank'];
+  const backgroundStyle = buildBackgroundStyle(slide, content, '#ffffff');
 
   return `
-    <section data-layout="B1-blank" data-template="B1-blank" class="blank-slide grid-container" style="${backgroundStyle}">
-      <!-- Title -->
-      <div class="slide-title"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'title')}">
-        ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
-      </div>
-
-      <!-- Subtitle -->
-      <div class="subtitle"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'subtitle')}">
-        ${content.subtitle || (template?.slots?.subtitle?.defaultText || '')}
-      </div>
-
-      <!-- Canvas -->
-      <div class="canvas"
-           ${buildSlotAttributes('canvas', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'canvas')}">
-        ${content.canvas_content || content.canvas || (template?.slots?.canvas?.defaultText || '')}
-      </div>
-
-      <!-- Footer -->
-      ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
-      <div class="footer"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'footer', {
-             'display': 'flex',
-             'align-items': 'center'
-           })}">
-        ${content.presentation_name || content.footer_text || content.footer || (template?.slots?.footer?.defaultText || '')}
-      </div>
-      ` : ''}
-
-      <!-- Logo -->
-      ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
-      <div class="logo"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle('B1-blank', 'logo', {
-             'display': 'flex',
-             'align-items': 'center',
-             'justify-content': 'center'
-           })}">
-        <div style="max-width: 80%; max-height: 80%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo || (template?.slots?.logo?.defaultText || '')}
-        </div>
-      </div>
-      ` : ''}
+    <section data-layout="B1-blank" data-template="B1-blank"
+             class="blank-slide grid-container"
+             data-slide-index="${slideIndex}"
+             style="${backgroundStyle}">
+      <!-- Truly blank - no pre-defined elements -->
     </section>
   `;
 }

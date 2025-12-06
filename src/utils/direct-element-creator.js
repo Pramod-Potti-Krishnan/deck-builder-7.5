@@ -94,8 +94,22 @@
       const existingElement = document.getElementById(elementId);
 
       if (existingElement) {
-        console.log(`[DirectElementCreator] Skipping ${slotName} - already restored from save`);
-        return;  // Skip - already created during restore phase
+        // IMPORTANT: Verify the element is actually on THIS slide, not a stale element
+        // from a different slide that had the same index before reordering/insertion
+        const elementSlideIndex = existingElement.dataset.slideIndex;
+        const elementParentSlide = existingElement.closest('section[data-slide-index]');
+        const parentSlideIndex = elementParentSlide?.dataset.slideIndex;
+
+        // Check if element is on the correct slide
+        if (parentSlideIndex === String(slideIndex)) {
+          console.log(`[DirectElementCreator] Skipping ${slotName} - already restored from save (on slide ${slideIndex})`);
+          return;  // Skip - already created during restore phase on correct slide
+        } else {
+          // Element exists but on wrong slide - this is a stale element from before reordering
+          // Remove the stale element and continue with creation
+          console.warn(`[DirectElementCreator] Found stale element ${elementId} on slide ${parentSlideIndex}, expected slide ${slideIndex}. Removing stale element.`);
+          existingElement.remove();
+        }
       }
 
       const elementType = getElementTypeForSlot(slotName, slotDef);

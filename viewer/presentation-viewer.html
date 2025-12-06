@@ -660,8 +660,8 @@
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
 
-        // Check for pending slide navigation (e.g., after adding a new slide)
-        checkPendingSlideNavigation();
+        // Note: checkPendingSlideNavigation() is now called from reveal-config.js onRevealReady()
+        // This ensures Reveal.js is fully initialized before we attempt navigation
       }, 300);  // Give scripts 300ms to execute
     }
 
@@ -716,6 +716,9 @@
         sessionStorage.removeItem('pendingSlideNavigation');
       }
     }
+
+    // Expose to global scope for reveal-config.js to call when Reveal.js is ready
+    window.checkPendingSlideNavigation = checkPendingSlideNavigation;
 
     /**
      * Show help text briefly

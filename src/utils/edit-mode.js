@@ -44,7 +44,23 @@ function initEditMode() {
     }
   });
 
+  // Auto-exit edit mode when entering fullscreen (Play mode)
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);  // Safari
+
   console.log('✅ Edit mode initialized');
+}
+
+/**
+ * Handle fullscreen changes - exit edit mode when entering fullscreen
+ */
+function handleFullscreenChange() {
+  const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+  if (isFullscreen && isEditMode) {
+    console.log('[EditMode] Exiting edit mode for fullscreen presentation');
+    exitEditMode();
+  }
 }
 
 /**

@@ -332,15 +332,31 @@
         textBox.content = contentEl.innerHTML;
       }
 
-      // Extract container styles (background, border, etc.)
+      // Helper to parse padding value from style (returns number or null)
+      const parsePaddingValue = (val) => {
+        if (!val) return null;
+        const num = parseInt(val);
+        return isNaN(num) ? null : num;
+      };
+
+      // Extract container styles (background, border, padding, flex, etc.)
       textBox.style = {
         background_color: el.style.backgroundColor || 'transparent',
         border_color: el.style.borderColor || 'transparent',
         border_width: parseInt(el.style.borderWidth) || 0,
         border_radius: parseInt(el.style.borderRadius) || 0,
-        padding: parseInt(el.style.padding) || 16,
         opacity: parseFloat(el.style.opacity) || 1.0,
-        box_shadow: el.style.boxShadow || null
+        box_shadow: el.style.boxShadow || null,
+        // Individual padding values for complete persistence
+        padding_top: parsePaddingValue(el.style.paddingTop),
+        padding_right: parsePaddingValue(el.style.paddingRight),
+        padding_bottom: parsePaddingValue(el.style.paddingBottom),
+        padding_left: parsePaddingValue(el.style.paddingLeft),
+        // Flex properties for alignment persistence (e.g., bottom-align titles)
+        display: el.style.display || null,
+        flex_direction: el.style.flexDirection || null,
+        justify_content: el.style.justifyContent || null,
+        align_items: el.style.alignItems || null
       };
 
       // Extract text formatting styles from content element

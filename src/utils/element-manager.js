@@ -1747,15 +1747,35 @@
     // alignItems controls horizontal when flexDirection is 'column'
     // Default to 'flex' instead of 'block' for better alignment support
     const display = style.display || 'flex';
-    const flexDirection = style.flexDirection || 'column';
+    // Flex properties - support both camelCase (template-registry) and snake_case (auto-save)
+    const flexDirection = style.flex_direction || style.flexDirection || 'column';
     // Support verticalAlign as a user-friendly property that maps to justifyContent
     const justifyContent = style.verticalAlign
       ? mapVerticalAlign(style.verticalAlign)
-      : (style.justifyContent || 'flex-start');
-    const alignItems = style.alignItems || 'flex-start';
+      : (style.justify_content || style.justifyContent || 'flex-start');
+    const alignItems = style.align_items || style.alignItems || 'flex-start';
 
-    // Parse padding - supports shorthand like "25px 0px"
-    const paddingValue = parsePadding(style.padding !== undefined ? style.padding : 16);
+    // Parse padding - supports individual properties OR shorthand
+    // Priority: individual properties > shorthand padding > default 16px
+    // Also support snake_case from auto-save (padding_top, padding_left, etc.)
+    const pt = style.padding_top !== undefined ? style.padding_top
+             : style.paddingTop !== undefined ? style.paddingTop : null;
+    const pr = style.padding_right !== undefined ? style.padding_right
+             : style.paddingRight !== undefined ? style.paddingRight : null;
+    const pb = style.padding_bottom !== undefined ? style.padding_bottom
+             : style.paddingBottom !== undefined ? style.paddingBottom : null;
+    const pl = style.padding_left !== undefined ? style.padding_left
+             : style.paddingLeft !== undefined ? style.paddingLeft : null;
+
+    let paddingValue;
+    if (pt !== null || pr !== null || pb !== null || pl !== null) {
+      // Use individual properties - defaultPad is the shorthand base or 16
+      const defaultPad = style.padding !== undefined ? style.padding : 16;
+      paddingValue = `${parsePadding(pt !== null ? pt : defaultPad)} ${parsePadding(pr !== null ? pr : defaultPad)} ${parsePadding(pb !== null ? pb : defaultPad)} ${parsePadding(pl !== null ? pl : defaultPad)}`;
+    } else {
+      // Use shorthand only
+      paddingValue = parsePadding(style.padding !== undefined ? style.padding : 16);
+    }
 
     // Parse border - supports shorthand like "1px solid #ddd"
     const borderParsed = parseBorder(style.border);

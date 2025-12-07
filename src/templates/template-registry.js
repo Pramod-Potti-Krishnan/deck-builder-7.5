@@ -983,6 +983,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left',
+          padding: '0',               // Reset default 16px to 0
           paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
@@ -1175,6 +1176,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left',
+          padding: '0',               // Reset default 16px to 0
           paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
@@ -1302,6 +1304,7 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left',
+          padding: '0',               // Reset default 16px to 0
           paddingLeft: '5px'
         },
         defaultText: 'Subtitle'

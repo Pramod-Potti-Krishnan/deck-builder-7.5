@@ -896,7 +896,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '5/19', gridColumn: '2/32' };
+    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');
@@ -1395,7 +1395,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '5/19', gridColumn: '2/32' };
+    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');

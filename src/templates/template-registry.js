@@ -736,7 +736,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/19',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'diagram',
         accepts: ['diagram'],
@@ -835,7 +835,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/19',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'image',
         accepts: ['image'],

@@ -317,7 +317,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'
         },
         defaultText: 'Slide Title'
       },
@@ -334,8 +336,10 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          justifyContent: 'flex-start', // TOP align (vertical) - sits right below title
+          textAlign: 'left',
+          padding: '0',
+          paddingTop: '4px'
         },
         defaultText: 'Subtitle'
       },
@@ -416,7 +420,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'
         },
         defaultText: 'Slide Title'
       },
@@ -433,8 +439,10 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          justifyContent: 'flex-start', // TOP align (vertical)
+          textAlign: 'left',
+          padding: '0',
+          paddingTop: '4px'
         },
         defaultText: 'Subtitle'
       },
@@ -515,7 +523,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'
         },
         defaultText: 'Slide Title'
       },
@@ -532,8 +542,10 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          justifyContent: 'flex-start', // TOP align (vertical)
+          textAlign: 'left',
+          padding: '0',
+          paddingTop: '4px'
         },
         defaultText: 'Subtitle'
       },
@@ -614,7 +626,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'
         },
         defaultText: 'Slide Title'
       },
@@ -631,8 +645,10 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          justifyContent: 'flex-start', // TOP align (vertical)
+          textAlign: 'left',
+          padding: '0',
+          paddingTop: '4px'
         },
         defaultText: 'Subtitle'
       },
@@ -713,7 +729,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'
         },
         defaultText: 'Slide Title'
       },
@@ -730,8 +748,10 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          justifyContent: 'flex-start', // TOP align (vertical)
+          textAlign: 'left',
+          padding: '0',
+          paddingTop: '4px'
         },
         defaultText: 'Subtitle'
       },
@@ -812,7 +832,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'
         },
         defaultText: 'Slide Title'
       },
@@ -829,8 +851,10 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          justifyContent: 'flex-start', // TOP align (vertical)
+          textAlign: 'left',
+          padding: '0',
+          paddingTop: '4px'
         },
         defaultText: 'Subtitle'
       },

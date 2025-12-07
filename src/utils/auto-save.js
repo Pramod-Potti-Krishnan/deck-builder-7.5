@@ -217,7 +217,8 @@
     // Collect content based on layout
     if (layout === 'L29') {
       // Hero layout - full content
-      const heroContent = slideElement.querySelector('.hero-content, [data-section="hero"]');
+      // L29.js uses class="hero-content-area" and data-section-type="hero"
+      const heroContent = slideElement.querySelector('.hero-content-area, [data-section-type="hero"]');
       if (heroContent) {
         update.hero_content = heroContent.innerHTML;
       }

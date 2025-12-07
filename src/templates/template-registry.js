@@ -319,7 +319,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'
+          paddingBottom: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -339,7 +340,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align (vertical) - sits right below title
           textAlign: 'left',
           padding: '0',
-          paddingTop: '4px'
+          paddingTop: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -357,7 +359,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
           textAlign: 'left',
-          padding: '20px 0px'
+          padding: '20px 0px',
+          paddingLeft: '5px'
         },
         defaultText: 'Content Area',
         description: 'Main text content area'
@@ -375,7 +378,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Footer'
       },
@@ -422,7 +426,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'
+          paddingBottom: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -442,7 +447,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingTop: '4px'
+          paddingTop: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -460,7 +466,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
           textAlign: 'left',
-          padding: '20px 0px'
+          padding: '20px 0px',
+          paddingLeft: '5px'
         },
         defaultText: 'Table Area',
         description: 'Table content area'
@@ -478,7 +485,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Footer'
       },
@@ -525,7 +533,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'
+          paddingBottom: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -545,7 +554,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingTop: '4px'
+          paddingTop: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -563,7 +573,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px'
+          padding: '20px 0px',
+          paddingLeft: '5px'
         },
         defaultText: 'Chart Area',
         description: 'Chart placeholder area'
@@ -581,7 +592,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Footer'
       },
@@ -628,7 +640,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'
+          paddingBottom: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -648,7 +661,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingTop: '4px'
+          paddingTop: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -666,7 +680,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px'
+          padding: '20px 0px',
+          paddingLeft: '5px'
         },
         defaultText: 'Infographic Area',
         description: 'Infographic placeholder area'
@@ -684,7 +699,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Footer'
       },
@@ -731,7 +747,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'
+          paddingBottom: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -751,7 +768,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingTop: '4px'
+          paddingTop: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -769,7 +787,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px'
+          padding: '20px 0px',
+          paddingLeft: '5px'
         },
         defaultText: 'Diagram Area',
         description: 'Diagram placeholder area'
@@ -787,7 +806,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Footer'
       },
@@ -834,7 +854,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'
+          paddingBottom: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -854,7 +875,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-start', // TOP align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingTop: '4px'
+          paddingTop: '4px',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -872,7 +894,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px'
+          padding: '20px 0px',
+          paddingLeft: '5px'
         },
         defaultText: 'Image Area',
         description: 'Image placeholder area'
@@ -890,7 +913,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Footer'
       },
@@ -940,7 +964,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'        // Minimal bottom padding (matches C1)
+          paddingBottom: '4px',       // Minimal bottom padding (matches C1)
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -957,7 +982,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -971,7 +997,8 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          paddingLeft: '5px'
         },
         defaultText: null,
         description: 'Visual element (900x720px)'
@@ -994,7 +1021,9 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
+        style: {
+          paddingLeft: '5px'
+        },
         defaultText: 'Footer'
       },
       logo: {
@@ -1127,7 +1156,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'        // Minimal bottom padding (matches C1)
+          paddingBottom: '4px',       // Minimal bottom padding (matches C1)
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -1144,7 +1174,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -1158,7 +1189,8 @@ const TEMPLATE_REGISTRY = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          paddingLeft: '5px'
         },
         defaultText: null,
         description: 'Left visual (840x540px)'
@@ -1186,7 +1218,8 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           textAlign: 'left',
-          padding: '10px 10px'
+          padding: '10px 10px',
+          paddingLeft: '5px'
         },
         defaultText: null,
         description: 'Left caption/description'
@@ -1209,7 +1242,9 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
+        style: {
+          paddingLeft: '5px'
+        },
         defaultText: 'Footer'
       },
       logo: {
@@ -1248,7 +1283,8 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px'        // Minimal bottom padding (matches C1)
+          paddingBottom: '4px',       // Minimal bottom padding (matches C1)
+          paddingLeft: '5px'
         },
         defaultText: 'Slide Title'
       },
@@ -1265,7 +1301,8 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
       },
@@ -1276,7 +1313,8 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '24px',
-          textTransform: 'uppercase'
+          textTransform: 'uppercase',
+          paddingLeft: '5px'
         },
         defaultText: null,
         description: 'Left column header (e.g., "Before", "Option A")'
@@ -1300,7 +1338,8 @@ const TEMPLATE_REGISTRY = {
         accepts: ['body', 'table', 'html', 'image', 'chart'],
         style: {
           fontSize: '24px',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
         defaultText: null,
         description: 'Left column content'
@@ -1322,7 +1361,9 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
+        style: {
+          paddingLeft: '5px'
+        },
         defaultText: 'Footer'
       },
       logo: {

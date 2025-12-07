@@ -938,7 +938,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'        // Minimal bottom padding (matches C1)
         },
         defaultText: 'Slide Title'
       },
@@ -1123,7 +1125,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'        // Minimal bottom padding (matches C1)
         },
         defaultText: 'Slide Title'
       },
@@ -1242,7 +1246,9 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
           justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left'
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px'        // Minimal bottom padding (matches C1)
         },
         defaultText: 'Slide Title'
       },

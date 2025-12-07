@@ -950,7 +950,7 @@ async def delete_slides_bulk(
     - remaining_slide_count: Number of slides remaining
     """
     try:
-        presentation = await storage.get(presentation_id)
+        presentation = await storage.load(presentation_id)
         if not presentation:
             raise HTTPException(status_code=404, detail="Presentation not found")
 

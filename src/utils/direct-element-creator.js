@@ -223,16 +223,27 @@
 
   /**
    * Determine element type for a slot
+   *
+   * Priority order (most specific first):
+   * 1. Check slot TAG - determines actual element type (body→textbox, chart→chart, content→content)
+   * 2. Check slot NAME - fallback for slots without explicit tag
+   * 3. Check accepts array
+   * 4. Default to textbox
+   *
+   * This ensures C-series templates work correctly:
+   * - C1-text: slot 'content' with tag 'body' → textbox (not content)
+   * - C3-chart: slot 'content' with tag 'chart' → chart (not content)
+   * - L25: slot 'content' with tag 'content' → content (Text Service)
    */
   function getElementTypeForSlot(slotName, slotDef) {
-    // First check by slot name
-    if (SLOT_TO_ELEMENT_TYPE[slotName]) {
-      return SLOT_TO_ELEMENT_TYPE[slotName];
-    }
-
-    // Then check by slot tag
+    // First check by slot TAG (more specific - determines actual element type)
     if (slotDef.tag && SLOT_TO_ELEMENT_TYPE[slotDef.tag]) {
       return SLOT_TO_ELEMENT_TYPE[slotDef.tag];
+    }
+
+    // Then check by slot name
+    if (SLOT_TO_ELEMENT_TYPE[slotName]) {
+      return SLOT_TO_ELEMENT_TYPE[slotName];
     }
 
     // Check accepts array

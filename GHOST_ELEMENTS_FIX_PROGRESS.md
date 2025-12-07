@@ -3,6 +3,27 @@
 **Last Updated:** 2025-12-07
 **Status:** COMPLETE ✅
 
+## Latest Fix: C1-C6 Element Type Mapping & Grid Positions
+- **Issue:** C1-C6 content elements incorrectly mapped to 'content' (Text Service) type
+- **Root Cause:** `getElementTypeForSlot()` checked slot NAME before TAG
+  - C-series uses slot name `content` with different tags (body, table, chart, etc.)
+  - `'content': 'content'` in SLOT_TO_ELEMENT_TYPE matched first ❌
+- **Fix 1:** Changed priority in `getElementTypeForSlot()` to check TAG before slot name ✅
+  - Now C3-chart: slot `content` with tag `chart` → creates chart element
+  - L25/L29: tag `content` → creates content element (Text Service)
+- **Fix 2:** Updated C1-C6 grid positions to match v7.4-template-builder ✅
+  - title: `gridRow: '1/3'` → `'2/3'`
+  - content: `gridRow: '4/17'` → `'5/17'`
+  - footer: `gridRow: '17/19'` → `'18/19'`, `gridColumn: '2/10'` → `'2/7'`
+  - logo: `gridRow: '17/19'` → `'18/19'`
+
+## Previous Fix: L29 Auto-Save Selector Mismatch (Commit f6cd245)
+- **Issue:** L29 hero content edits showed "Saved" but were lost on refresh
+- **Root Cause:** Selector mismatch in `auto-save.js` line 220
+  - L29.js uses: `class="hero-content-area"` and `data-section-type="hero"`
+  - auto-save.js looked for: `.hero-content, [data-section="hero"]` ❌
+- **Fix:** Updated selector to `.hero-content-area, [data-section-type="hero"]` ✅
+
 ## Completed Tasks
 
 ### 1. Backend Schema Changes (models.py) - COMPLETE ✅

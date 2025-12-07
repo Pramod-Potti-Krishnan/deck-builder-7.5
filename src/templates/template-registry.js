@@ -304,7 +304,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '1/3',
+        gridRow: '2/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -340,7 +340,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '4/17',
+        gridRow: '5/17',
         gridColumn: '2/32',
         tag: 'body',
         accepts: ['body', 'html'],
@@ -359,8 +359,8 @@ const TEMPLATE_REGISTRY = {
         description: 'Main text content area'
       },
       footer: {
-        gridRow: '17/19',
-        gridColumn: '2/10',
+        gridRow: '18/19',
+        gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -390,9 +390,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Logo'
       }
     },
-    defaults: {
-      background_color: '#ffffff'
-    },
+    defaults: {},
     thumbnail: 'content-text.svg'
   },
 
@@ -405,7 +403,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '1/3',
+        gridRow: '2/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -441,7 +439,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '4/17',
+        gridRow: '5/17',
         gridColumn: '2/32',
         tag: 'table',
         accepts: ['table', 'html'],
@@ -460,8 +458,8 @@ const TEMPLATE_REGISTRY = {
         description: 'Table content area'
       },
       footer: {
-        gridRow: '17/19',
-        gridColumn: '2/10',
+        gridRow: '18/19',
+        gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -491,9 +489,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Logo'
       }
     },
-    defaults: {
-      background_color: '#ffffff'
-    },
+    defaults: {},
     thumbnail: 'content-table.svg'
   },
 
@@ -506,7 +502,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '1/3',
+        gridRow: '2/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -542,7 +538,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '4/17',
+        gridRow: '5/17',
         gridColumn: '2/32',
         tag: 'chart',
         accepts: ['chart'],
@@ -561,8 +557,8 @@ const TEMPLATE_REGISTRY = {
         description: 'Chart placeholder area'
       },
       footer: {
-        gridRow: '17/19',
-        gridColumn: '2/10',
+        gridRow: '18/19',
+        gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -592,9 +588,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Logo'
       }
     },
-    defaults: {
-      background_color: '#ffffff'
-    },
+    defaults: {},
     thumbnail: 'content-chart.svg'
   },
 
@@ -607,7 +601,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '1/3',
+        gridRow: '2/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -643,7 +637,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '4/17',
+        gridRow: '5/17',
         gridColumn: '2/32',
         tag: 'infographic',
         accepts: ['infographic'],
@@ -662,8 +656,8 @@ const TEMPLATE_REGISTRY = {
         description: 'Infographic placeholder area'
       },
       footer: {
-        gridRow: '17/19',
-        gridColumn: '2/10',
+        gridRow: '18/19',
+        gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -693,9 +687,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Logo'
       }
     },
-    defaults: {
-      background_color: '#ffffff'
-    },
+    defaults: {},
     thumbnail: 'content-infographic.svg'
   },
 
@@ -708,7 +700,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '1/3',
+        gridRow: '2/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -744,7 +736,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '4/17',
+        gridRow: '5/17',
         gridColumn: '2/32',
         tag: 'diagram',
         accepts: ['diagram'],
@@ -763,8 +755,8 @@ const TEMPLATE_REGISTRY = {
         description: 'Diagram placeholder area'
       },
       footer: {
-        gridRow: '17/19',
-        gridColumn: '2/10',
+        gridRow: '18/19',
+        gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -780,7 +772,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
+        gridRow: '18/19',
         gridColumn: '30/32',
         tag: 'logo',
         accepts: ['image', 'emoji'],
@@ -794,9 +786,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Logo'
       }
     },
-    defaults: {
-      background_color: '#ffffff'
-    },
+    defaults: {},
     thumbnail: 'content-diagram.svg'
   },
 
@@ -809,7 +799,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '1/3',
+        gridRow: '2/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -845,7 +835,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '4/17',
+        gridRow: '5/17',
         gridColumn: '2/32',
         tag: 'image',
         accepts: ['image'],
@@ -864,8 +854,8 @@ const TEMPLATE_REGISTRY = {
         description: 'Image placeholder area'
       },
       footer: {
-        gridRow: '17/19',
-        gridColumn: '2/10',
+        gridRow: '18/19',
+        gridColumn: '2/7',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -881,7 +871,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
+        gridRow: '18/19',
         gridColumn: '30/32',
         tag: 'logo',
         accepts: ['image', 'emoji'],
@@ -895,9 +885,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Logo'
       }
     },
-    defaults: {
-      background_color: '#ffffff'
-    },
+    defaults: {},
     thumbnail: 'content-image.svg'
   },
 

@@ -280,13 +280,16 @@
       },
       content: textContent,
       style: {
+        // DEFAULTS FIRST (for new elements without template)
         backgroundColor: 'transparent',
         borderWidth: 0,
-        padding: 0,
+        padding: 16,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: slotStyle.justifyContent || 'flex-start',
-        alignItems: slotStyle.alignItems || 'flex-start'
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        // THEN spread slotStyle to OVERRIDE where template specifies
+        ...slotStyle
       },
       textStyle: {
         font_size: slotStyle.fontSize || '24px',

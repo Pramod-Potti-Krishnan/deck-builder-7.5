@@ -304,7 +304,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -340,7 +340,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'body',
         accepts: ['body', 'html'],
@@ -403,7 +403,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -439,7 +439,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'table',
         accepts: ['table', 'html'],
@@ -502,7 +502,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -538,7 +538,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'chart',
         accepts: ['chart'],
@@ -601,7 +601,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -637,7 +637,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'infographic',
         accepts: ['infographic'],
@@ -700,7 +700,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -736,7 +736,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'diagram',
         accepts: ['diagram'],
@@ -799,7 +799,7 @@ const TEMPLATE_REGISTRY = {
     baseLayout: 'L25',
     slots: {
       title: {
-        gridRow: '2/3',
+        gridRow: '1/3',
         gridColumn: '2/32',
         tag: 'title',
         accepts: ['text'],
@@ -835,7 +835,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/17',
+        gridRow: '5/18',
         gridColumn: '2/32',
         tag: 'image',
         accepts: ['image'],

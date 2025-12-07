@@ -75,7 +75,7 @@
   border: none;
   background: transparent;
   color: #1a1a1a;
-  font-weight: 600;
+  /* font-weight controlled by template-registry.js inline styles */
 }
 
 /* Rich content area - no default border (show only with 'B' toggle) */

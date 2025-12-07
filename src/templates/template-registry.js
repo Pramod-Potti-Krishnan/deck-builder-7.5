@@ -772,7 +772,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '18/19',
+        gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
         accepts: ['image', 'emoji'],
@@ -871,7 +871,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '18/19',
+        gridRow: '17/19',
         gridColumn: '30/32',
         tag: 'logo',
         accepts: ['image', 'emoji'],

@@ -275,10 +275,18 @@ class TextBox(BaseModel):
     Text boxes are overlay elements that float above the main layout content.
     They support rich HTML content with inline styling for multi-style text.
     Text boxes have elevated z-index (1000+) to appear above other elements.
+
+    UUID Architecture (v7.5.1):
+    - id: Stable UUID-based identifier (format: textbox_{uuid8})
+    - parent_slide_id: Foreign key to parent slide's slide_id (for cascade delete)
     """
     id: str = Field(
-        default_factory=lambda: f"textbox-{uuid4().hex[:12]}",
-        description="Unique identifier for the text box"
+        default_factory=lambda: f"textbox_{uuid4().hex[:8]}",
+        description="Unique identifier for the text box (UUID-based)"
+    )
+    parent_slide_id: Optional[str] = Field(
+        default=None,
+        description="Parent slide's slide_id (foreign key for cascade delete). Null for legacy elements."
     )
     position: TextBoxPosition = Field(
         ...,
@@ -339,10 +347,18 @@ class ImageElement(BaseModel):
     Supports two modes:
     1. Placeholder mode (no image_url) - Shows "Drag images here" UI
     2. Content mode (image_url provided) - Shows actual image
+
+    UUID Architecture (v7.5.1):
+    - id: Stable UUID-based identifier (format: image_{uuid8})
+    - parent_slide_id: Foreign key to parent slide's slide_id (for cascade delete)
     """
     id: str = Field(
-        default_factory=lambda: f"image-{uuid4().hex[:12]}",
-        description="Unique identifier for the image element"
+        default_factory=lambda: f"image_{uuid4().hex[:8]}",
+        description="Unique identifier for the image element (UUID-based)"
+    )
+    parent_slide_id: Optional[str] = Field(
+        default=None,
+        description="Parent slide's slide_id (foreign key for cascade delete). Null for legacy elements."
     )
     position: TextBoxPosition = Field(
         ...,
@@ -384,10 +400,18 @@ class ChartElement(BaseModel):
     Supports two modes:
     1. Placeholder mode (no chart_html/chart_config) - Shows chart placeholder UI
     2. Content mode (chart_html or chart_config provided) - Shows actual chart
+
+    UUID Architecture (v7.5.1):
+    - id: Stable UUID-based identifier (format: chart_{uuid8})
+    - parent_slide_id: Foreign key to parent slide's slide_id (for cascade delete)
     """
     id: str = Field(
-        default_factory=lambda: f"chart-{uuid4().hex[:12]}",
-        description="Unique identifier for the chart element"
+        default_factory=lambda: f"chart_{uuid4().hex[:8]}",
+        description="Unique identifier for the chart element (UUID-based)"
+    )
+    parent_slide_id: Optional[str] = Field(
+        default=None,
+        description="Parent slide's slide_id (foreign key for cascade delete). Null for legacy elements."
     )
     position: TextBoxPosition = Field(
         ...,
@@ -428,10 +452,18 @@ class InfographicElement(BaseModel):
     Supports two modes:
     1. Placeholder mode (no svg_content) - Shows infographic placeholder UI
     2. Content mode (svg_content provided) - Shows actual infographic
+
+    UUID Architecture (v7.5.1):
+    - id: Stable UUID-based identifier (format: infographic_{uuid8})
+    - parent_slide_id: Foreign key to parent slide's slide_id (for cascade delete)
     """
     id: str = Field(
-        default_factory=lambda: f"infographic-{uuid4().hex[:12]}",
-        description="Unique identifier for the infographic element"
+        default_factory=lambda: f"infographic_{uuid4().hex[:8]}",
+        description="Unique identifier for the infographic element (UUID-based)"
+    )
+    parent_slide_id: Optional[str] = Field(
+        default=None,
+        description="Parent slide's slide_id (foreign key for cascade delete). Null for legacy elements."
     )
     position: TextBoxPosition = Field(
         ...,
@@ -472,10 +504,18 @@ class DiagramElement(BaseModel):
     Supports two modes:
     1. Placeholder mode (no svg_content/mermaid_code) - Shows diagram placeholder UI
     2. Content mode (svg_content or mermaid_code provided) - Shows actual diagram
+
+    UUID Architecture (v7.5.1):
+    - id: Stable UUID-based identifier (format: diagram_{uuid8})
+    - parent_slide_id: Foreign key to parent slide's slide_id (for cascade delete)
     """
     id: str = Field(
-        default_factory=lambda: f"diagram-{uuid4().hex[:12]}",
-        description="Unique identifier for the diagram element"
+        default_factory=lambda: f"diagram_{uuid4().hex[:8]}",
+        description="Unique identifier for the diagram element (UUID-based)"
+    )
+    parent_slide_id: Optional[str] = Field(
+        default=None,
+        description="Parent slide's slide_id (foreign key for cascade delete). Null for legacy elements."
     )
     position: TextBoxPosition = Field(
         ...,
@@ -515,11 +555,75 @@ class DiagramElement(BaseModel):
     )
 
 
+# ==================== Content Element Models ====================
+
+class ContentElement(BaseModel):
+    """
+    A content element for L-series layouts (L25, L29, L01, L02, L03).
+
+    Content elements represent the main content area owned by Text Service.
+    They are read-only in the layout builder (cannot be dragged/edited).
+    Used for: rich_content, hero_content, charts, diagrams from L-series.
+
+    UUID Architecture (v7.5.1):
+    - id: Stable UUID-based identifier (format: content_{uuid8})
+    - parent_slide_id: Foreign key to parent slide's slide_id (for cascade delete)
+    """
+    id: str = Field(
+        default_factory=lambda: f"content_{uuid4().hex[:8]}",
+        description="Unique identifier for the content element (UUID-based)"
+    )
+    parent_slide_id: Optional[str] = Field(
+        default=None,
+        description="Parent slide's slide_id (foreign key for cascade delete). Null for legacy elements."
+    )
+    slot_name: str = Field(
+        ...,
+        description="Slot name from template registry (e.g., 'content', 'hero', 'chart', 'diagram')"
+    )
+    position: TextBoxPosition = Field(
+        ...,
+        description="Grid position and dimensions"
+    )
+    z_index: int = Field(
+        default=100, ge=1, le=10000,
+        description="Layer order (higher = on top)"
+    )
+    content_html: str = Field(
+        default="",
+        description="HTML content from Text Service or other content provider"
+    )
+    content_type: str = Field(
+        default="html",
+        description="Content type: html, chart, diagram, infographic"
+    )
+    format_owner: str = Field(
+        default="text_service",
+        description="Service that owns formatting: text_service, analytics_service, illustrator_service"
+    )
+    editable: bool = Field(
+        default=False,
+        description="Whether content can be edited in layout builder (usually False for Text Service content)"
+    )
+    locked: bool = Field(
+        default=True,
+        description="Prevent accidental edits when True (default True for content elements)"
+    )
+    visible: bool = Field(
+        default=True,
+        description="Show/hide without deleting"
+    )
+
+
 # ==================== Slide Model ====================
 
 class Slide(BaseModel):
     """
     Individual slide with layout, content, and overlay elements.
+
+    UUID Architecture (v7.5.1):
+    - slide_id: Stable UUID for this slide (format: slide_{uuid12})
+    - All child elements reference parent_slide_id for cascade delete
 
     Element types:
     - text_boxes: Overlay text elements with rich HTML content
@@ -527,9 +631,14 @@ class Slide(BaseModel):
     - charts: Chart elements (placeholder or actual Chart.js charts)
     - infographics: Infographic elements (placeholder or SVG content)
     - diagrams: Diagram elements (placeholder, Mermaid, or SVG content)
+    - contents: Content elements for L-series main content areas
 
     All element types are persisted and restored on load.
     """
+    slide_id: str = Field(
+        default_factory=lambda: f"slide_{uuid4().hex[:12]}",
+        description="Stable UUID for this slide (not index-based). Used by child elements for cascade delete."
+    )
     layout: ValidLayoutType = Field(
         ...,
         description="Layout identifier (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
@@ -565,6 +674,10 @@ class Slide(BaseModel):
     diagrams: List[DiagramElement] = Field(
         default_factory=list,
         description="List of diagram elements on this slide (max 10)"
+    )
+    contents: List[ContentElement] = Field(
+        default_factory=list,
+        description="List of content elements on this slide (L-series main content areas, max 5)"
     )
 
     @field_validator('text_boxes')
@@ -605,6 +718,14 @@ class Slide(BaseModel):
         """Limit diagrams per slide."""
         if len(v) > 10:
             raise ValueError("Maximum 10 diagrams per slide")
+        return v
+
+    @field_validator('contents')
+    @classmethod
+    def validate_contents_limit(cls, v: List[ContentElement]) -> List[ContentElement]:
+        """Limit content elements per slide."""
+        if len(v) > 5:
+            raise ValueError("Maximum 5 content elements per slide")
         return v
 
 
@@ -693,6 +814,11 @@ class SlideContentUpdate(BaseModel):
     diagrams: Optional[List[DiagramElement]] = Field(
         None,
         description="List of diagram elements on this slide"
+    )
+    # Content elements (L-series main content areas)
+    contents: Optional[List[ContentElement]] = Field(
+        None,
+        description="List of content elements on this slide (L-series main content areas)"
     )
 
 

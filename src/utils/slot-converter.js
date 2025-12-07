@@ -5,6 +5,11 @@
  * static slot-based HTML elements into fully interactive Element Type instances
  * with drag handles, resize handles, and format panel support.
  *
+ * v7.5.1 Changes:
+ * - UUID-based element IDs: {slide_id}_{type}_{uuid8} instead of slide-{index}-slot-{slot}-element
+ * - Elements now have parent_slide_id for cascade delete support
+ * - Elements have slot_name for slot mapping
+ *
  * Usage:
  *   convertHeroSlotsToElements(slideElement, slideIndex, 'H1-structured');
  *
@@ -13,6 +18,37 @@
 
 (function() {
   'use strict';
+
+  // ===== UUID GENERATION (v7.5.1) =====
+
+  /**
+   * Generate a UUID-based element ID
+   * Format: {slide_id}_{element_type}_{uuid8}
+   * Example: slide_a3f7e8c2d5b1_textbox_f8c2d5b1
+   *
+   * @param {string} slideId - The parent slide's UUID (e.g., 'slide_a3f7e8c2d5b1')
+   * @param {string} elementType - Element type (e.g., 'textbox', 'image')
+   * @returns {string} UUID-based element ID
+   */
+  function generateElementId(slideId, elementType) {
+    // Generate 8-char hex UUID
+    const uuid8 = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    return `${slideId}_${elementType}_${uuid8}`;
+  }
+
+  /**
+   * Generate a legacy-compatible element ID for backward compatibility
+   * Used during transition period when slides may not have slide_id yet
+   *
+   * @param {number} slideIndex - The slide index
+   * @param {string} slotName - The slot name
+   * @returns {string} Legacy element ID
+   */
+  function generateLegacyElementId(slideIndex, slotName) {
+    return `slide-${slideIndex}-slot-${slotName}-element`;
+  }
 
   // ===== CONFIGURATION =====
 
@@ -246,9 +282,30 @@
       return;
     }
 
-    console.log(`[SlotConverter] Converting slots for ${templateId} on slide ${slideIndex}`);
+    // v7.5.1: Get or generate slide_id for UUID-based element IDs
+    let slideId = slideElement.dataset.slideId;
+    const useLegacyIds = !slideId;
+
+    if (!slideId) {
+      // Backward compatibility: generate temporary slide_id for this session
+      // The backend will persist it on save
+      slideId = `slide_${Array.from(crypto.getRandomValues(new Uint8Array(6)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')}`;
+      slideElement.dataset.slideId = slideId;
+      console.log(`[SlotConverter] Generated slide_id: ${slideId} for slide ${slideIndex}`);
+    }
+
+    console.log(`[SlotConverter] Converting slots for ${templateId} on slide ${slideIndex} (slide_id: ${slideId}, legacy: ${useLegacyIds})`);
 
     const selectors = SLOT_CLASS_SELECTORS[templateId] || {};
+
+    // v7.5.1: Create conversion context
+    const conversionContext = {
+      slideIndex,
+      slideId,
+      useLegacyIds
+    };
 
     // Convert each slot defined in the template
     Object.entries(template.slots).forEach(([slotName, slotDef]) => {
@@ -271,11 +328,14 @@
       }
 
       // Check for existing converted element (restoration scenario)
-      // Instead of skipping, UPDATE the element to match template positions
-      const existingId = `slide-${slideIndex}-slot-${slotName}-element`;
-      const existingElement = document.getElementById(existingId);
+      // Check both legacy and new format IDs
+      const legacyId = generateLegacyElementId(slideIndex, slotName);
+      const existingLegacy = document.getElementById(legacyId);
+      const existingUUID = slideElement.querySelector(`[data-slot-name="${slotName}"][data-parent-slide-id="${slideId}"]`);
+      const existingElement = existingLegacy || existingUUID;
+
       if (existingElement) {
-        console.log(`[SlotConverter] Updating restored element ${existingId} to match template`);
+        console.log(`[SlotConverter] Updating restored element ${existingElement.id} to match template`);
         // UPDATE position to match template (restored elements may have saved positions)
         existingElement.style.gridRow = slotDef.gridRow;
         existingElement.style.gridColumn = slotDef.gridColumn;
@@ -283,6 +343,9 @@
         slotElement.classList.add('converted');
         existingElement.classList.add('converted-slot', `slot-${slotName}`);
         existingElement.dataset.originalSlot = slotName;
+        // v7.5.1: Ensure data attributes are set
+        existingElement.dataset.parentSlideId = slideId;
+        existingElement.dataset.slotName = slotName;
         // Apply slot-specific styling for background
         if (slotName === 'background') {
           existingElement.classList.add('slot-background');
@@ -298,7 +361,7 @@
 
       // Determine element type and convert
       const elementType = getElementTypeForSlot(slotName, slotDef);
-      convertSlotToElement(slotElement, slotDef, slotName, elementType, slideIndex);
+      convertSlotToElement(slotElement, slotDef, slotName, elementType, conversionContext);
     });
   }
 
@@ -338,29 +401,29 @@
    * @param {Object} slotDef - Slot definition from TEMPLATE_REGISTRY
    * @param {string} slotName - Name of the slot
    * @param {string} elementType - Target element type
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertSlotToElement(slotElement, slotDef, slotName, elementType, slideIndex) {
+  function convertSlotToElement(slotElement, slotDef, slotName, elementType, ctx) {
     console.log(`[SlotConverter] Converting slot '${slotName}' to ${elementType}`);
 
     switch (elementType) {
       case 'textbox':
-        convertToTextBox(slotElement, slotDef, slotName, slideIndex);
+        convertToTextBox(slotElement, slotDef, slotName, ctx);
         break;
       case 'image':
-        convertToImage(slotElement, slotDef, slotName, slideIndex);
+        convertToImage(slotElement, slotDef, slotName, ctx);
         break;
       case 'chart':
-        convertToChart(slotElement, slotDef, slotName, slideIndex);
+        convertToChart(slotElement, slotDef, slotName, ctx);
         break;
       case 'infographic':
-        convertToInfographic(slotElement, slotDef, slotName, slideIndex);
+        convertToInfographic(slotElement, slotDef, slotName, ctx);
         break;
       case 'diagram':
-        convertToDiagram(slotElement, slotDef, slotName, slideIndex);
+        convertToDiagram(slotElement, slotDef, slotName, ctx);
         break;
       case 'table':
-        convertToTable(slotElement, slotDef, slotName, slideIndex);
+        convertToTable(slotElement, slotDef, slotName, ctx);
         break;
       default:
         console.warn(`[SlotConverter] Unknown element type: ${elementType}`);
@@ -375,16 +438,18 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertToTextBox(slotElement, slotDef, slotName, slideIndex) {
+  function convertToTextBox(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId, useLegacyIds } = ctx;
+
     // Extract current content - trim and use defaultText as fallback
     const rawContent = slotElement.innerHTML?.trim();
     const content = rawContent || slotDef.defaultText || '';
 
     // Extract styles from slot definition and computed styles
     const computedStyle = window.getComputedStyle(slotElement);
-    const config = buildTextBoxConfigFromSlot(slotElement, slotDef, slotName, slideIndex, computedStyle);
+    const config = buildTextBoxConfigFromSlot(slotElement, slotDef, slotName, ctx, computedStyle);
     config.content = content;
 
     // Insert the TextBox element
@@ -402,6 +467,10 @@
       if (newElement) {
         newElement.classList.add('converted-slot', `slot-${slotName}`);
         newElement.dataset.originalSlot = slotName;
+
+        // v7.5.1: Set data attributes for UUID architecture
+        newElement.dataset.parentSlideId = slideId;
+        newElement.dataset.slotName = slotName;
 
         // FORCE template-defined grid position (in case defaults were used)
         newElement.style.gridRow = slotDef.gridRow;
@@ -441,11 +510,18 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    * @param {CSSStyleDeclaration} computedStyle - Computed styles
    * @returns {Object} TextBox configuration object
    */
-  function buildTextBoxConfigFromSlot(slotElement, slotDef, slotName, slideIndex, computedStyle) {
+  function buildTextBoxConfigFromSlot(slotElement, slotDef, slotName, ctx, computedStyle) {
+    const { slideIndex, slideId, useLegacyIds } = ctx;
+
+    // v7.5.1: Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'textbox');
+
     // Build position from slot definition
     const position = {
       gridRow: slotDef.gridRow || '1/19',
@@ -497,7 +573,9 @@
     };
 
     return {
-      id: `slide-${slideIndex}-slot-${slotName}-element`,  // Predictable ID for persistence
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: position,
       style: style,
       textStyle: textStyle,
@@ -516,16 +594,18 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertToImage(slotElement, slotDef, slotName, slideIndex) {
+  function convertToImage(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId } = ctx;
+
     // Extract image URL if present
     const imgElement = slotElement.querySelector('img');
     const imageUrl = imgElement?.src || null;
     const alt = imgElement?.alt || slotName;
 
     // Build configuration
-    const config = buildImageConfigFromSlot(slotElement, slotDef, slotName, slideIndex);
+    const config = buildImageConfigFromSlot(slotElement, slotDef, slotName, ctx);
     config.imageUrl = imageUrl;
     config.alt = alt;
 
@@ -544,6 +624,10 @@
       if (newElement) {
         newElement.classList.add('converted-slot', `slot-${slotName}`);
         newElement.dataset.originalSlot = slotName;
+
+        // v7.5.1: Set data attributes for UUID architecture
+        newElement.dataset.parentSlideId = slideId;
+        newElement.dataset.slotName = slotName;
 
         // FORCE template-defined grid position (in case insertImage used defaults)
         newElement.style.gridRow = slotDef.gridRow;
@@ -588,10 +672,17 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    * @returns {Object} Image configuration object
    */
-  function buildImageConfigFromSlot(slotElement, slotDef, slotName, slideIndex) {
+  function buildImageConfigFromSlot(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId, useLegacyIds } = ctx;
+
+    // v7.5.1: Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'image');
+
     // Build position from slot definition
     const position = {
       gridRow: slotDef.gridRow || '1/19',
@@ -605,7 +696,9 @@
     const customization = SLOT_IMAGE_CUSTOMIZATION[slotName] || {};
 
     return {
-      id: `slide-${slideIndex}-slot-${slotName}-element`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: position,
       objectFit: objectFit,
       draggable: slotName !== 'background',  // Background typically not draggable
@@ -625,18 +718,20 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertToChart(slotElement, slotDef, slotName, slideIndex) {
+  function convertToChart(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId } = ctx;
+
     // Build configuration
-    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'chart');
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, ctx, 'chart');
 
     // Insert the Chart element
     const result = window.ElementManager.insertChart(slideIndex, config);
 
     if (result.success) {
       console.log(`[SlotConverter] Created Chart ${result.elementId} for slot '${slotName}'`);
-      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId, slideId);
     } else {
       console.error(`[SlotConverter] Failed to create Chart for slot '${slotName}':`, result.error);
     }
@@ -650,18 +745,20 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertToInfographic(slotElement, slotDef, slotName, slideIndex) {
+  function convertToInfographic(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId } = ctx;
+
     // Build configuration
-    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'infographic');
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, ctx, 'infographic');
 
     // Insert the Infographic element
     const result = window.ElementManager.insertInfographic(slideIndex, config);
 
     if (result.success) {
       console.log(`[SlotConverter] Created Infographic ${result.elementId} for slot '${slotName}'`);
-      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId, slideId);
     } else {
       console.error(`[SlotConverter] Failed to create Infographic for slot '${slotName}':`, result.error);
     }
@@ -675,18 +772,20 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertToDiagram(slotElement, slotDef, slotName, slideIndex) {
+  function convertToDiagram(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId } = ctx;
+
     // Build configuration
-    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'diagram');
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, ctx, 'diagram');
 
     // Insert the Diagram element
     const result = window.ElementManager.insertDiagram(slideIndex, config);
 
     if (result.success) {
       console.log(`[SlotConverter] Created Diagram ${result.elementId} for slot '${slotName}'`);
-      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId, slideId);
     } else {
       console.error(`[SlotConverter] Failed to create Diagram for slot '${slotName}':`, result.error);
     }
@@ -700,18 +799,20 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    */
-  function convertToTable(slotElement, slotDef, slotName, slideIndex) {
+  function convertToTable(slotElement, slotDef, slotName, ctx) {
+    const { slideIndex, slideId } = ctx;
+
     // Build configuration
-    const config = buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, 'table');
+    const config = buildVisualElementConfig(slotElement, slotDef, slotName, ctx, 'table');
 
     // Insert the Table element
     const result = window.ElementManager.insertTable(slideIndex, config);
 
     if (result.success) {
       console.log(`[SlotConverter] Created Table ${result.elementId} for slot '${slotName}'`);
-      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId);
+      finalizeConvertedElement(slotElement, slotDef, slotName, result.elementId, slideId);
     } else {
       console.error(`[SlotConverter] Failed to create Table for slot '${slotName}':`, result.error);
     }
@@ -725,11 +826,18 @@
    * @param {HTMLElement} slotElement - Original slot element
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
-   * @param {number} slideIndex - Slide index
+   * @param {Object} ctx - Conversion context { slideIndex, slideId, useLegacyIds }
    * @param {string} elementType - Element type (chart, infographic, diagram, table)
    * @returns {Object} Configuration object
    */
-  function buildVisualElementConfig(slotElement, slotDef, slotName, slideIndex, elementType) {
+  function buildVisualElementConfig(slotElement, slotDef, slotName, ctx, elementType) {
+    const { slideIndex, slideId, useLegacyIds } = ctx;
+
+    // v7.5.1: Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, elementType);
+
     // Build position from slot definition
     const position = {
       gridRow: slotDef.gridRow || '4/17',
@@ -737,7 +845,9 @@
     };
 
     return {
-      id: `slide-${slideIndex}-slot-${slotName}-element`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: position,
       draggable: true,
       resizable: true,
@@ -752,8 +862,9 @@
    * @param {Object} slotDef - Slot definition
    * @param {string} slotName - Slot name
    * @param {string} elementId - New element's ID
+   * @param {string} slideId - Parent slide ID (v7.5.1)
    */
-  function finalizeConvertedElement(slotElement, slotDef, slotName, elementId) {
+  function finalizeConvertedElement(slotElement, slotDef, slotName, elementId, slideId) {
     // HIDE original slot (don't remove - prevents race condition on page reload)
     // CSS class .converted has display: none !important
     slotElement.classList.add('converted');
@@ -763,6 +874,10 @@
     if (newElement) {
       newElement.classList.add('converted-slot', `slot-${slotName}`);
       newElement.dataset.originalSlot = slotName;
+
+      // v7.5.1: Set data attributes for UUID architecture
+      newElement.dataset.parentSlideId = slideId;
+      newElement.dataset.slotName = slotName;
 
       // FORCE template-defined grid position
       newElement.style.gridRow = slotDef.gridRow;

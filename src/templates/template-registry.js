@@ -1336,6 +1336,459 @@ const TEMPLATE_REGISTRY = {
     slots: {},  // No pre-defined slots - truly blank canvas
     defaults: {},
     thumbnail: 'blank-canvas.svg'
+  },
+
+  // ===========================================
+  // L-SERIES BACKEND LAYOUTS (Director Service)
+  // Added for v7.5.1 UUID Architecture - Element Mapping
+  // These layouts are created by the Director Agent and Text Service
+  // ===========================================
+
+  'L25': {
+    id: 'L25',
+    name: 'Main Content Shell',
+    category: 'backend',
+    description: 'Standard content slide with title, subtitle, and rich content area (Text Service)',
+    renderer: 'renderL25',
+    baseLayout: null,
+    slots: {
+      title: {
+        gridRow: '2/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '42px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: 'Subtitle'
+      },
+      content: {
+        gridRow: '5/17',
+        gridColumn: '2/32',
+        tag: 'content',
+        accepts: ['content', 'html'],
+        style: {
+          fontSize: '20px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151'
+        },
+        defaultText: '',
+        description: 'Main content area (Text Service owns)',
+        formatOwner: 'text_service'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '18px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: ''
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: ''
+      }
+    },
+    defaults: {
+      background_color: '#ffffff'
+    }
+  },
+
+  'L29': {
+    id: 'L29',
+    name: 'Hero Full-Bleed',
+    category: 'backend',
+    description: 'Full-bleed hero slide for title/section/closing (Text Service)',
+    renderer: 'renderL29',
+    baseLayout: null,
+    slots: {
+      hero: {
+        gridRow: '1/19',
+        gridColumn: '1/33',
+        tag: 'content',
+        accepts: ['content', 'html', 'hero_content'],
+        style: {},
+        defaultText: '',
+        description: 'Full-slide hero content (Text Service owns)',
+        formatOwner: 'text_service'
+      }
+    },
+    defaults: {
+      background_color: '#1e3a5f'
+    }
+  },
+
+  'L27': {
+    id: 'L27',
+    name: 'Image Left with Content Right',
+    category: 'backend',
+    description: 'Full-height image on left, text content on right',
+    renderer: 'renderL27',
+    baseLayout: null,
+    slots: {
+      image: {
+        gridRow: '1/19',
+        gridColumn: '1/12',
+        tag: 'image',
+        accepts: ['image'],
+        style: {},
+        defaultText: '',
+        description: 'Full-height image area'
+      },
+      title: {
+        gridRow: '2/3',
+        gridColumn: '13/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '42px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '13/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: ''
+      },
+      text: {
+        gridRow: '5/17',
+        gridColumn: '13/32',
+        tag: 'body',
+        accepts: ['text', 'body', 'html'],
+        style: {
+          fontSize: '20px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151'
+        },
+        defaultText: '',
+        description: 'Main text content area'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '13/18',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '18px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: ''
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: ''
+      }
+    },
+    defaults: {
+      background_color: '#ffffff'
+    }
+  },
+
+  'L01': {
+    id: 'L01',
+    name: 'Centered Chart with Text Below',
+    category: 'backend',
+    description: 'Chart/diagram centered with text below',
+    renderer: 'renderL01',
+    baseLayout: null,
+    slots: {
+      title: {
+        gridRow: '2/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '42px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: ''
+      },
+      chart: {
+        gridRow: '5/15',
+        gridColumn: '2/32',
+        tag: 'content',
+        accepts: ['content', 'chart', 'html'],
+        style: {},
+        defaultText: '',
+        description: 'Chart/diagram area (Analytics Service)',
+        formatOwner: 'analytics_service'
+      },
+      body: {
+        gridRow: '15/17',
+        gridColumn: '2/32',
+        tag: 'body',
+        accepts: ['text', 'body'],
+        style: {
+          fontSize: '20px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151'
+        },
+        defaultText: '',
+        description: 'Text below chart'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '18px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: ''
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: ''
+      }
+    },
+    defaults: {
+      background_color: '#ffffff'
+    }
+  },
+
+  'L02': {
+    id: 'L02',
+    name: 'Left Diagram with Text Right',
+    category: 'backend',
+    description: 'Diagram/chart on left, observations/text on right',
+    renderer: 'renderL02',
+    baseLayout: null,
+    slots: {
+      title: {
+        gridRow: '2/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '42px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: ''
+      },
+      diagram: {
+        gridRow: '5/17',
+        gridColumn: '2/23',
+        tag: 'content',
+        accepts: ['content', 'diagram', 'chart', 'html'],
+        style: {},
+        defaultText: '',
+        description: 'Diagram/chart area (1260x720px)',
+        formatOwner: 'analytics_service'
+      },
+      text: {
+        gridRow: '5/17',
+        gridColumn: '23/32',
+        tag: 'body',
+        accepts: ['text', 'body', 'html'],
+        style: {
+          fontSize: '20px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151'
+        },
+        defaultText: '',
+        description: 'Observations/text area (540x720px)'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '18px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: ''
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: ''
+      }
+    },
+    defaults: {
+      background_color: '#ffffff'
+    }
+  },
+
+  'L03': {
+    id: 'L03',
+    name: 'Two Charts in Columns',
+    category: 'backend',
+    description: 'Two charts side by side with text below each',
+    renderer: 'renderL03',
+    baseLayout: null,
+    slots: {
+      title: {
+        gridRow: '2/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '42px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '24px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: ''
+      },
+      chart1: {
+        gridRow: '5/14',
+        gridColumn: '2/16',
+        tag: 'content',
+        accepts: ['content', 'chart', 'html'],
+        style: {},
+        defaultText: '',
+        description: 'Left chart area',
+        formatOwner: 'analytics_service'
+      },
+      chart2: {
+        gridRow: '5/14',
+        gridColumn: '17/31',
+        tag: 'content',
+        accepts: ['content', 'chart', 'html'],
+        style: {},
+        defaultText: '',
+        description: 'Right chart area',
+        formatOwner: 'analytics_service'
+      },
+      body_left: {
+        gridRow: '14/17',
+        gridColumn: '2/16',
+        tag: 'body',
+        accepts: ['text', 'body'],
+        style: {
+          fontSize: '20px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151'
+        },
+        defaultText: '',
+        description: 'Left text below chart'
+      },
+      body_right: {
+        gridRow: '14/17',
+        gridColumn: '17/31',
+        tag: 'body',
+        accepts: ['text', 'body'],
+        style: {
+          fontSize: '20px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#374151'
+        },
+        defaultText: '',
+        description: 'Right text below chart'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '18px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#1f2937'
+        },
+        defaultText: ''
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: ''
+      }
+    },
+    defaults: {
+      background_color: '#ffffff'
+    }
   }
 };
 

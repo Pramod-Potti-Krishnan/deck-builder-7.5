@@ -1,8 +1,13 @@
 /**
- * Direct Element Creator
+ * Direct Element Creator - v7.5.1 UUID Architecture
  *
  * Simple approach: Instead of converting HTML slot elements to Element Types,
  * directly create elements using ElementManager with properties from template registry.
+ *
+ * v7.5.1 Changes:
+ * - UUID-based element IDs: {slide_id}_{type}_{uuid8} instead of slide-{index}-{slot}
+ * - Elements now have parent_slide_id for cascade delete support
+ * - Added 'content' element type for L-series layouts (Text Service ownership)
  *
  * Flow:
  * 1. Renderer outputs blank grid container
@@ -17,6 +22,35 @@
   'use strict';
 
   /**
+   * Generate a UUID-based element ID
+   * Format: {slide_id}_{element_type}_{uuid8}
+   * Example: slide_a3f7e8c2d5b1_textbox_f8c2d5b1
+   *
+   * @param {string} slideId - The parent slide's UUID (e.g., 'slide_a3f7e8c2d5b1')
+   * @param {string} elementType - Element type (e.g., 'textbox', 'image', 'content')
+   * @returns {string} UUID-based element ID
+   */
+  function generateElementId(slideId, elementType) {
+    // Generate 8-char hex UUID
+    const uuid8 = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    return `${slideId}_${elementType}_${uuid8}`;
+  }
+
+  /**
+   * Generate a legacy-compatible element ID for backward compatibility
+   * Used during transition period when slides may not have slide_id yet
+   *
+   * @param {number} slideIndex - The slide index
+   * @param {string} slotName - The slot name
+   * @returns {string} Legacy element ID
+   */
+  function generateLegacyElementId(slideIndex, slotName) {
+    return `slide-${slideIndex}-${slotName}`;
+  }
+
+  /**
    * Mapping from slot names/tags to Element Types
    */
   const SLOT_TO_ELEMENT_TYPE = {
@@ -25,6 +59,9 @@
     'subtitle': 'textbox',
     'footer': 'textbox',
     'body': 'textbox',
+    'body_left': 'textbox',     // L03 left text below chart
+    'body_right': 'textbox',    // L03 right text below chart
+    'text': 'textbox',          // L27 main text area
 
     // Visual content slots -> Their element types
     'image': 'image',
@@ -49,10 +86,17 @@
     'section_number': 'textbox', // H2 large section number (180px)
     'contact_info': 'textbox',   // H3 contact information
 
-    // NOTE: 'content', 'content_left', 'content_right' slots are NOT mapped here
+    // L-series content slots -> 'content' element type (Text Service owns these)
+    'content': 'content',       // L25 main content area
+    'hero': 'content',          // L29 full-bleed hero content
+    'chart1': 'content',        // L03 left chart area
+    'chart2': 'content',        // L03 right chart area
+    'rich_content': 'content',  // Alternative name for L25 content
+
+    // NOTE: 'content_left', 'content_right' for C/S-series are NOT 'content' type
     // They use slotDef.tag to determine type:
     // - S1: content_left.tag='visual', content_right.tag='body'
-    // - S2: content.tag='body'
+    // - S2: content.tag='body' (becomes textbox)
     // - S3: content_left/right.tag='visual'
     // - S4: content_left/right.tag='body'
   };
@@ -83,20 +127,41 @@
       return;
     }
 
-    console.log(`[DirectElementCreator] Creating elements for ${templateId} on slide ${slideIndex}`);
+    // Get or generate slide_id for UUID-based element IDs
+    // New presentations will have slide_id in dataset, legacy ones won't
+    let slideId = slideElement.dataset.slideId;
+    const useLegacyIds = !slideId;
+
+    if (!slideId) {
+      // Backward compatibility: generate temporary slide_id for this session
+      // The backend will persist it on save
+      slideId = `slide_${Array.from(crypto.getRandomValues(new Uint8Array(6)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')}`;
+      slideElement.dataset.slideId = slideId;
+      console.log(`[DirectElementCreator] Generated slide_id: ${slideId} for slide ${slideIndex}`);
+    }
+
+    console.log(`[DirectElementCreator] Creating elements for ${templateId} on slide ${slideIndex} (slide_id: ${slideId}, legacy: ${useLegacyIds})`);
 
     // Create each element from the template slots
     Object.entries(template.slots).forEach(([slotName, slotDef]) => {
       // CHECK: Does this element already exist (from restore phase)?
       // If element was moved/modified and saved, it gets restored before this runs.
       // Skip creation to avoid duplicates.
-      const elementId = `slide-${slideIndex}-${slotName}`;
-      const existingElement = document.getElementById(elementId);
+
+      // Check for both legacy and new format element IDs
+      const legacyElementId = generateLegacyElementId(slideIndex, slotName);
+      const existingLegacy = document.getElementById(legacyElementId);
+
+      // Also check for UUID-based elements by data attribute
+      const existingUUID = slideElement.querySelector(`[data-slot-name="${slotName}"][data-parent-slide-id="${slideId}"]`);
+
+      const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
         // IMPORTANT: Verify the element is actually on THIS slide, not a stale element
         // from a different slide that had the same index before reordering/insertion
-        const elementSlideIndex = existingElement.dataset.slideIndex;
         const elementParentSlide = existingElement.closest('section[data-slide-index]');
         const parentSlideIndex = elementParentSlide?.dataset.slideIndex;
 
@@ -107,7 +172,7 @@
         } else {
           // Element exists but on wrong slide - this is a stale element from before reordering
           // Remove the stale element and continue with creation
-          console.warn(`[DirectElementCreator] Found stale element ${elementId} on slide ${parentSlideIndex}, expected slide ${slideIndex}. Removing stale element.`);
+          console.warn(`[DirectElementCreator] Found stale element for slot ${slotName} on slide ${parentSlideIndex}, expected slide ${slideIndex}. Removing stale element.`);
           existingElement.remove();
         }
       }
@@ -116,24 +181,37 @@
 
       console.log(`[DirectElementCreator] Creating ${elementType} for slot '${slotName}'`);
 
+      // Create element context for UUID architecture
+      const elementContext = {
+        slideIndex,
+        slideId,
+        slotName,
+        slotDef,
+        content,
+        useLegacyIds
+      };
+
       switch (elementType) {
         case 'textbox':
-          createTextBox(slideIndex, slotName, slotDef, content);
+          createTextBox(elementContext);
           break;
         case 'image':
-          createImage(slideIndex, slotName, slotDef, content);
+          createImage(elementContext);
           break;
         case 'chart':
-          createChart(slideIndex, slotName, slotDef, content);
+          createChart(elementContext);
           break;
         case 'infographic':
-          createInfographic(slideIndex, slotName, slotDef, content);
+          createInfographic(elementContext);
           break;
         case 'diagram':
-          createDiagram(slideIndex, slotName, slotDef, content);
+          createDiagram(elementContext);
           break;
         case 'table':
-          createTable(slideIndex, slotName, slotDef, content);
+          createTable(elementContext);
+          break;
+        case 'content':
+          createContent(elementContext);
           break;
         default:
           console.warn(`[DirectElementCreator] Unknown element type: ${elementType}`);
@@ -169,13 +247,22 @@
 
   /**
    * Create a TextBox element
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
-  function createTextBox(slideIndex, slotName, slotDef, content) {
+  function createTextBox(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
     const slotStyle = slotDef.style || {};
     const textContent = getTextContent(slotName, content, slotDef.defaultText);
 
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'textbox');
+
     const config = {
-      id: `slide-${slideIndex}-${slotName}`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: {
         gridRow: slotDef.gridRow,
         gridColumn: slotDef.gridColumn
@@ -216,6 +303,10 @@
         element.style.justifyContent = slotStyle.justifyContent || 'flex-start';
         element.style.alignItems = slotStyle.alignItems || 'flex-start';
 
+        // Set data attributes for UUID architecture
+        element.dataset.parentSlideId = slideId;
+        element.dataset.slotName = slotName;
+
         // Fix inner content div for flex alignment
         const contentDiv = element.querySelector('.textbox-content');
         if (contentDiv) {
@@ -233,13 +324,21 @@
 
   /**
    * Create an Image element
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
-  function createImage(slideIndex, slotName, slotDef, content) {
+  function createImage(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
     const imageUrl = getImageUrl(slotName, content);
+
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'image');
 
     console.log(`[DirectElementCreator] createImage() called:`, {
       slideIndex,
       slotName,
+      elementId,
       imageUrl,
       isPlaceholder: !imageUrl,
       contentImageUrl: content?.image_url,
@@ -247,7 +346,9 @@
     });
 
     const config = {
-      id: `slide-${slideIndex}-${slotName}`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: {
         gridRow: slotDef.gridRow,
         gridColumn: slotDef.gridColumn
@@ -269,6 +370,13 @@
 
     if (result.success) {
       console.log(`[DirectElementCreator] Created Image: ${result.elementId} (placeholder: ${!imageUrl})`);
+
+      // Set data attributes for UUID architecture
+      const element = document.getElementById(result.elementId);
+      if (element) {
+        element.dataset.parentSlideId = slideId;
+        element.dataset.slotName = slotName;
+      }
     } else {
       console.error(`[DirectElementCreator] Failed to create Image: ${result.error}`);
     }
@@ -276,10 +384,20 @@
 
   /**
    * Create a Chart element (placeholder)
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
-  function createChart(slideIndex, slotName, slotDef, content) {
+  function createChart(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
+
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'chart');
+
     const config = {
-      id: `slide-${slideIndex}-${slotName}`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: {
         gridRow: slotDef.gridRow,
         gridColumn: slotDef.gridColumn
@@ -293,6 +411,13 @@
 
     if (result.success) {
       console.log(`[DirectElementCreator] Created Chart: ${result.elementId}`);
+
+      // Set data attributes for UUID architecture
+      const element = document.getElementById(result.elementId);
+      if (element) {
+        element.dataset.parentSlideId = slideId;
+        element.dataset.slotName = slotName;
+      }
     } else {
       console.error(`[DirectElementCreator] Failed to create Chart: ${result.error}`);
     }
@@ -300,10 +425,20 @@
 
   /**
    * Create an Infographic element (placeholder)
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
-  function createInfographic(slideIndex, slotName, slotDef, content) {
+  function createInfographic(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
+
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'infographic');
+
     const config = {
-      id: `slide-${slideIndex}-${slotName}`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: {
         gridRow: slotDef.gridRow,
         gridColumn: slotDef.gridColumn
@@ -317,6 +452,13 @@
 
     if (result.success) {
       console.log(`[DirectElementCreator] Created Infographic: ${result.elementId}`);
+
+      // Set data attributes for UUID architecture
+      const element = document.getElementById(result.elementId);
+      if (element) {
+        element.dataset.parentSlideId = slideId;
+        element.dataset.slotName = slotName;
+      }
     } else {
       console.error(`[DirectElementCreator] Failed to create Infographic: ${result.error}`);
     }
@@ -324,10 +466,20 @@
 
   /**
    * Create a Diagram element (placeholder)
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
-  function createDiagram(slideIndex, slotName, slotDef, content) {
+  function createDiagram(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
+
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'diagram');
+
     const config = {
-      id: `slide-${slideIndex}-${slotName}`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: {
         gridRow: slotDef.gridRow,
         gridColumn: slotDef.gridColumn
@@ -341,6 +493,13 @@
 
     if (result.success) {
       console.log(`[DirectElementCreator] Created Diagram: ${result.elementId}`);
+
+      // Set data attributes for UUID architecture
+      const element = document.getElementById(result.elementId);
+      if (element) {
+        element.dataset.parentSlideId = slideId;
+        element.dataset.slotName = slotName;
+      }
     } else {
       console.error(`[DirectElementCreator] Failed to create Diagram: ${result.error}`);
     }
@@ -348,10 +507,20 @@
 
   /**
    * Create a Table element (placeholder)
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
-  function createTable(slideIndex, slotName, slotDef, content) {
+  function createTable(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
+
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'table');
+
     const config = {
-      id: `slide-${slideIndex}-${slotName}`,
+      id: elementId,
+      parent_slide_id: slideId,  // v7.5.1: For cascade delete
+      slot_name: slotName,       // v7.5.1: For slot mapping
       position: {
         gridRow: slotDef.gridRow,
         gridColumn: slotDef.gridColumn
@@ -365,9 +534,120 @@
 
     if (result.success) {
       console.log(`[DirectElementCreator] Created Table: ${result.elementId}`);
+
+      // Set data attributes for UUID architecture
+      const element = document.getElementById(result.elementId);
+      if (element) {
+        element.dataset.parentSlideId = slideId;
+        element.dataset.slotName = slotName;
+      }
     } else {
       console.error(`[DirectElementCreator] Failed to create Table: ${result.error}`);
     }
+  }
+
+  /**
+   * Create a Content element (L-series layouts - Text Service ownership)
+   *
+   * Content elements are:
+   * - Read-only in layout builder (Text Service owns the HTML)
+   * - Not draggable/resizable by default
+   * - Can contain rich HTML content from Text Service
+   *
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
+   */
+  function createContent(ctx) {
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
+
+    // Generate element ID based on architecture mode
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'content');
+
+    // Get content HTML from the appropriate field
+    const contentHtml = getContentHtml(slotName, content, slotDef);
+
+    // Determine format owner from slotDef (text_service, analytics_service, etc.)
+    const formatOwner = slotDef.formatOwner || 'text_service';
+
+    console.log(`[DirectElementCreator] Creating Content element:`, {
+      elementId,
+      slotName,
+      formatOwner,
+      hasContent: !!contentHtml
+    });
+
+    // Create the content element directly (no ElementManager.insertContent yet)
+    // For now, create a div container that renders the HTML content
+    const slideElement = document.querySelector(`section[data-slide-index="${slideIndex}"]`);
+    if (!slideElement) {
+      console.error(`[DirectElementCreator] Slide element not found for index ${slideIndex}`);
+      return;
+    }
+
+    // Create the content container
+    const contentElement = document.createElement('div');
+    contentElement.id = elementId;
+    contentElement.className = 'inserted-content content-element';
+    contentElement.dataset.elementType = 'content';
+    contentElement.dataset.parentSlideId = slideId;
+    contentElement.dataset.slotName = slotName;
+    contentElement.dataset.formatOwner = formatOwner;
+
+    // Apply grid positioning
+    contentElement.style.gridRow = slotDef.gridRow;
+    contentElement.style.gridColumn = slotDef.gridColumn;
+    contentElement.style.position = 'relative';
+    contentElement.style.overflow = 'hidden';
+    contentElement.style.zIndex = getZIndexForSlot(slotName);
+
+    // Content elements are NOT editable in layout builder
+    contentElement.contentEditable = 'false';
+    contentElement.dataset.editable = 'false';
+    contentElement.dataset.locked = 'true';
+
+    // Set the HTML content
+    contentElement.innerHTML = contentHtml || `
+      <div class="content-placeholder" style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: #f3f4f6;
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        color: #6b7280;
+        font-family: Poppins, sans-serif;
+        font-size: 18px;
+      ">
+        Content (${formatOwner})
+      </div>
+    `;
+
+    // Add to slide
+    slideElement.appendChild(contentElement);
+
+    console.log(`[DirectElementCreator] Created Content: ${elementId} (owner: ${formatOwner})`);
+  }
+
+  /**
+   * Get HTML content for content elements (L-series)
+   */
+  function getContentHtml(slotName, content, slotDef) {
+    if (!content) return '';
+
+    // Map slot names to content fields
+    const mapping = {
+      'content': content.rich_content || content.content_html || content.body,
+      'hero': content.hero_content || content.rich_content,
+      'chart': content.chart_html || content.element_4,
+      'chart1': content.chart_html_1 || content.element_4,
+      'chart2': content.chart_html_2 || content.element_2,
+      'diagram': content.diagram_html || content.element_3,
+      'rich_content': content.rich_content
+    };
+
+    return mapping[slotName] || '';
   }
 
   /**

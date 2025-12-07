@@ -43,6 +43,7 @@ function renderL25(content, slide = {}, slideIndex = 0) {
       <div class="slide-title"
            data-section-id="slide-${slideIndex}-section-title"
            data-section-type="title"
+           data-slot-name="title"
            data-slide-index="${slideIndex}"
            style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
         ${content.slide_title}
@@ -53,6 +54,7 @@ function renderL25(content, slide = {}, slideIndex = 0) {
       <div class="subtitle"
            data-section-id="slide-${slideIndex}-section-subtitle"
            data-section-type="subtitle"
+           data-slot-name="subtitle"
            data-slide-index="${slideIndex}"
            style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
         ${content.subtitle || content.element_1}
@@ -65,6 +67,7 @@ function renderL25(content, slide = {}, slideIndex = 0) {
       <div class="rich-content-area"
            data-section-id="slide-${slideIndex}-section-content"
            data-section-type="content"
+           data-slot-name="content"
            data-slide-index="${slideIndex}"
            style="grid-row: 5/17; grid-column: 2/32; overflow-y: auto; overflow-x: hidden;"
            data-format-owner="text_service"
@@ -77,7 +80,7 @@ function renderL25(content, slide = {}, slideIndex = 0) {
       <div class="footer-container" style="grid-row: 18/19; grid-column: 1/33; display: grid; grid-template-columns: repeat(32, 1fr); align-items: center;">
         <!-- Left Section: Presentation Name (columns 2-7, 6 grids) -->
         ${content.presentation_name ? `
-        <div class="footer-presentation-name" style="grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
+        <div class="footer-presentation-name" data-slot-name="footer" style="grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
           ${content.presentation_name}
         </div>
         ` : ''}
@@ -87,7 +90,7 @@ function renderL25(content, slide = {}, slideIndex = 0) {
 
       <!-- Company Logo: 2×2 grid in bottom-right corner (matching L27) -->
       ${content.company_logo ? `
-      <div class="footer-company-logo" style="grid-row: 17/19; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
+      <div class="footer-company-logo" data-slot-name="logo" style="grid-row: 17/19; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
         <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
           ${content.company_logo}
         </div>

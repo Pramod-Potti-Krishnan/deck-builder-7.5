@@ -10,6 +10,12 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.1 Changes:
+ * - Added parent_slide_id validation to prevent ghost elements
+ * - Added slide_id to save payload
+ * - Added content element collection for L-series layouts
+ * - Skip orphaned elements during collection
  */
 
 (function() {
@@ -191,9 +197,19 @@
 
   /**
    * Collect content from a slide element
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} index - The slide index
+   * @returns {Object} - Slide update object with slide_id and all elements
    */
   function collectSlideContent(slideElement, index) {
     const update = {};
+
+    // Get slide_id for parent ownership validation
+    // slide_id is set by direct-element-creator.js and stored as data attribute
+    const slideId = slideElement.getAttribute('data-slide-id');
+    if (slideId) {
+      update.slide_id = slideId;
+    }
 
     // Get layout type
     const layout = slideElement.getAttribute('data-layout') || 'L25';
@@ -239,35 +255,65 @@
     // Collect text boxes from this slide
     // IMPORTANT: Always include text_boxes array, even if empty
     // This ensures deletions are persisted to the backend
-    update.text_boxes = collectTextBoxes(slideElement, index);
+    update.text_boxes = collectTextBoxes(slideElement, index, slideId);
 
     // Collect images from this slide
-    update.images = collectImages(slideElement, index);
+    update.images = collectImages(slideElement, index, slideId);
 
     // Collect charts from this slide
-    update.charts = collectCharts(slideElement, index);
+    update.charts = collectCharts(slideElement, index, slideId);
 
     // Collect infographics from this slide
-    update.infographics = collectInfographics(slideElement, index);
+    update.infographics = collectInfographics(slideElement, index, slideId);
 
     // Collect diagrams from this slide
-    update.diagrams = collectDiagrams(slideElement, index);
+    update.diagrams = collectDiagrams(slideElement, index, slideId);
+
+    // Collect content elements from this slide (L-series layouts)
+    update.contents = collectContents(slideElement, index, slideId);
 
     return update;
   }
 
   /**
    * Collect text boxes from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of textbox objects
    */
-  function collectTextBoxes(slideElement, slideIndex) {
+  function collectTextBoxes(slideElement, slideIndex, slideId) {
     const textBoxes = [];
 
     // Find all text box elements in this slide
     const textBoxElements = slideElement.querySelectorAll('.inserted-textbox');
 
     textBoxElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned textbox ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy textbox ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
       const textBox = {
         id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
         position: {
           grid_row: el.style.gridRow || '5/10',
           grid_column: el.style.gridColumn || '3/15'
@@ -330,8 +376,12 @@
    * Collect images from a slide
    * NOTE: Skip placeholder images - they have no content and will be recreated
    * by DirectElementCreator from template registry on next load.
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of image objects
    */
-  function collectImages(slideElement, slideIndex) {
+  function collectImages(slideElement, slideIndex, slideId) {
     const images = [];
 
     // Find all image elements in this slide
@@ -345,8 +395,31 @@
         return;
       }
 
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned image ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy image ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
       const image = {
         id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
         position: {
           grid_row: el.style.gridRow || '4/14',
           grid_column: el.style.gridColumn || '8/24'
@@ -379,16 +452,43 @@
 
   /**
    * Collect charts from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of chart objects
    */
-  function collectCharts(slideElement, slideIndex) {
+  function collectCharts(slideElement, slideIndex, slideId) {
     const charts = [];
 
     // Find all chart elements in this slide
     const chartElements = slideElement.querySelectorAll('.inserted-chart');
 
     chartElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned chart ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy chart ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
       const chart = {
         id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
         position: {
           grid_row: el.style.gridRow || '4/15',
           grid_column: el.style.gridColumn || '3/30'
@@ -423,16 +523,43 @@
 
   /**
    * Collect infographics from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of infographic objects
    */
-  function collectInfographics(slideElement, slideIndex) {
+  function collectInfographics(slideElement, slideIndex, slideId) {
     const infographics = [];
 
     // Find all infographic elements in this slide
     const infographicElements = slideElement.querySelectorAll('.inserted-infographic');
 
     infographicElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned infographic ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy infographic ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
       const infographic = {
         id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
         position: {
           grid_row: el.style.gridRow || '4/16',
           grid_column: el.style.gridColumn || '5/28'
@@ -461,16 +588,43 @@
 
   /**
    * Collect diagrams from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of diagram objects
    */
-  function collectDiagrams(slideElement, slideIndex) {
+  function collectDiagrams(slideElement, slideIndex, slideId) {
     const diagrams = [];
 
     // Find all diagram elements in this slide
     const diagramElements = slideElement.querySelectorAll('.inserted-diagram');
 
     diagramElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned diagram ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy diagram ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
       const diagram = {
         id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
         position: {
           grid_row: el.style.gridRow || '4/16',
           grid_column: el.style.gridColumn || '5/28'
@@ -502,6 +656,72 @@
     });
 
     return diagrams;
+  }
+
+  /**
+   * Collect content elements from a slide (L-series layouts)
+   * Content elements are rich HTML areas owned by Text Service or Analytics Service.
+   * These include: hero content, main content, charts, diagrams for L-series layouts.
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of content objects
+   */
+  function collectContents(slideElement, slideIndex, slideId) {
+    const contents = [];
+
+    // Find all content elements in this slide
+    // Content elements have class 'inserted-content' (created by direct-element-creator.js)
+    const contentElements = slideElement.querySelectorAll('.inserted-content');
+
+    contentElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned content ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy content ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
+      const content = {
+        id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
+        format_owner: el.getAttribute('data-format-owner') || 'text_service',
+        position: {
+          grid_row: el.style.gridRow || '5/17',
+          grid_column: el.style.gridColumn || '2/32'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        content_html: null,
+        editable: el.contentEditable === 'true' || false,
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get HTML content
+      const contentEl = el.querySelector('.element-content') || el;
+      if (contentEl) {
+        content.content_html = contentEl.innerHTML;
+      }
+
+      contents.push(content);
+    });
+
+    return contents;
   }
 
   /**

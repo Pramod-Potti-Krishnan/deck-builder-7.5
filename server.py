@@ -829,6 +829,131 @@ async def restore_version(
         raise HTTPException(status_code=500, detail=f"Error restoring version: {str(e)}")
 
 
+# ==================== Ghost Element Cleanup (v7.5.1) ====================
+
+def is_element_valid_for_slide(element: dict, slide_id: str, slide_index: int) -> bool:
+    """
+    Check if an element belongs to this slide (supports both old and new ID formats).
+
+    New format: Uses parent_slide_id field
+    Old format: Uses index-based ID like 'slide-{N}-{slotName}'
+
+    Returns True if element is valid for this slide.
+    """
+    element_id = element.get('id', '')
+    parent_id = element.get('parent_slide_id')
+
+    # New format: check parent_slide_id (preferred)
+    if parent_id:
+        return parent_id == slide_id
+
+    # Old format: check if index in ID matches current slide index
+    # Pattern: slide-{N}-{slotName} or slide-{N}-section-{type}
+    if element_id.startswith('slide-'):
+        parts = element_id.split('-')
+        if len(parts) >= 2 and parts[1].isdigit():
+            element_slide_index = int(parts[1])
+            return element_slide_index == slide_index
+
+    # Unknown format or legacy element without parent reference
+    # Keep by default for backward compatibility
+    return True
+
+
+@app.post("/api/presentations/{presentation_id}/cleanup-orphans")
+async def cleanup_orphan_elements(presentation_id: str):
+    """
+    Remove orphaned elements from a corrupted presentation.
+
+    This endpoint fixes the "ghost elements" problem where elements from
+    deleted slides appear on other slides due to index-based ID corruption.
+
+    What it does:
+    1. Ensures all slides have a slide_id
+    2. Removes elements with parent_slide_id not matching any slide
+    3. Removes elements with old index-based IDs that don't match current slide
+    4. Logs all removed elements for audit
+
+    Returns:
+    - success: Whether cleanup succeeded
+    - removed_elements: Number of orphaned elements removed
+    - details: Breakdown by element type and slide
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        removed_count = 0
+        details = {"slides": []}
+
+        # Process each slide
+        for slide_index, slide in enumerate(presentation.get('slides', [])):
+            slide_details = {
+                "slide_index": slide_index,
+                "slide_id": slide.get('slide_id'),
+                "removed": {}
+            }
+
+            # Ensure slide has a slide_id (migration for old presentations)
+            if not slide.get('slide_id'):
+                from uuid import uuid4
+                slide['slide_id'] = f"slide_{uuid4().hex[:12]}"
+                slide_details["slide_id"] = slide['slide_id']
+                slide_details["generated_slide_id"] = True
+
+            slide_id = slide['slide_id']
+
+            # Clean each element type
+            for element_type in ['text_boxes', 'images', 'charts', 'infographics', 'diagrams', 'contents']:
+                original_elements = slide.get(element_type, [])
+                original_count = len(original_elements)
+
+                # Filter to only valid elements
+                valid_elements = [
+                    el for el in original_elements
+                    if is_element_valid_for_slide(el, slide_id, slide_index)
+                ]
+
+                # Track removed elements
+                removed = original_count - len(valid_elements)
+                if removed > 0:
+                    slide_details["removed"][element_type] = removed
+                    removed_count += removed
+
+                    # Log removed element IDs for debugging
+                    removed_ids = [
+                        el.get('id') for el in original_elements
+                        if not is_element_valid_for_slide(el, slide_id, slide_index)
+                    ]
+                    print(f"[Cleanup] Slide {slide_index} ({slide_id}): Removed {removed} {element_type}: {removed_ids}")
+
+                # Update slide with cleaned elements
+                slide[element_type] = valid_elements
+
+            if slide_details["removed"]:
+                details["slides"].append(slide_details)
+
+        # Save cleaned presentation if changes were made
+        if removed_count > 0:
+            await storage.update(presentation_id, presentation, {
+                "change_summary": f"Cleanup: removed {removed_count} orphaned elements",
+                "updated_by": "cleanup_service"
+            })
+
+        return {
+            "success": True,
+            "removed_elements": removed_count,
+            "details": details,
+            "message": f"Removed {removed_count} orphaned elements" if removed_count > 0 else "No orphaned elements found"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during cleanup: {str(e)}")
+
+
 @app.post("/api/presentations/{presentation_id}/regenerate-section", response_model=SectionRegenerationResponse)
 async def regenerate_section(
     presentation_id: str,

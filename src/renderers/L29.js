@@ -49,6 +49,7 @@ function renderL29(content, slide = {}, slideIndex = 0) {
       <div class="hero-content-area"
            data-section-id="slide-${slideIndex}-section-hero"
            data-section-type="hero"
+           data-slot-name="hero"
            data-slide-index="${slideIndex}"
            style="grid-row: 1/19; grid-column: 1/33; overflow: hidden; width: 100%; height: 100%;"
            data-format-owner="text_service"

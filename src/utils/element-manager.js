@@ -344,7 +344,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '5/14', gridColumn: '3/30' };
+    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');
@@ -503,7 +503,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '4/15', gridColumn: '3/30' };
+    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');
@@ -896,7 +896,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '4/14', gridColumn: '8/24' };
+    const position = config.position || { gridRow: '5/19', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');
@@ -1155,7 +1155,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '4/16', gridColumn: '5/28' };
+    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');
@@ -1395,7 +1395,7 @@
       }
     }
 
-    const position = config.position || { gridRow: '4/16', gridColumn: '5/28' };
+    const position = config.position || { gridRow: '5/19', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');

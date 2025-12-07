@@ -330,7 +330,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',           // Medium gray for subtitle
           display: 'flex',
@@ -433,7 +433,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
@@ -536,7 +536,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
@@ -639,7 +639,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
@@ -742,7 +742,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
@@ -845,7 +845,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           color: '#4b5563',
           display: 'flex',
@@ -949,7 +949,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
@@ -1055,7 +1055,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
@@ -1134,7 +1134,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',
@@ -1253,7 +1253,7 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
           display: 'flex',
           flexDirection: 'column',

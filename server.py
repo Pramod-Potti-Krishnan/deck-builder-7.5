@@ -835,25 +835,31 @@ def is_element_valid_for_slide(element: dict, slide_id: str, slide_index: int) -
     """
     Check if an element belongs to this slide (supports both old and new ID formats).
 
-    New format: Uses parent_slide_id field
+    New format: Uses parent_slide_id field AND UUID-based element IDs
     Old format: Uses index-based ID like 'slide-{N}-{slotName}'
+
+    IMPORTANT: For old-format IDs (slide-{N}-*), we ALWAYS check the index
+    even if parent_slide_id is set, because migration may have incorrectly
+    set parent_slide_id on ghost elements.
 
     Returns True if element is valid for this slide.
     """
     element_id = element.get('id', '')
     parent_id = element.get('parent_slide_id')
 
-    # New format: check parent_slide_id (preferred)
-    if parent_id:
-        return parent_id == slide_id
-
-    # Old format: check if index in ID matches current slide index
-    # Pattern: slide-{N}-{slotName} or slide-{N}-section-{type}
+    # Check old-format IDs FIRST (slide-{N}-{slotName})
+    # These are the source of ghost elements - index must match!
     if element_id.startswith('slide-'):
         parts = element_id.split('-')
         if len(parts) >= 2 and parts[1].isdigit():
             element_slide_index = int(parts[1])
+            # Ghost element if index doesn't match current slide
             return element_slide_index == slide_index
+
+    # New UUID format: check parent_slide_id
+    # Format: {slide_id}_{type}_{uuid} or just UUID-based
+    if parent_id:
+        return parent_id == slide_id
 
     # Unknown format or legacy element without parent reference
     # Keep by default for backward compatibility

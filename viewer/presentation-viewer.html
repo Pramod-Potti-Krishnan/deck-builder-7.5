@@ -891,6 +891,41 @@
     }
 
     /**
+     * Handle bulk deletion of multiple slides
+     * Supports both sequential ranges and scattered indices
+     */
+    async function handleBulkDeleteSlides(indices) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, action: 'deleteSlides', error: 'No presentation ID found' };
+      }
+
+      if (!Array.isArray(indices) || indices.length === 0) {
+        return { success: false, action: 'deleteSlides', error: 'indices must be a non-empty array' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/bulk`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ indices: indices })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to reflect deletions
+          window.location.reload();
+          return { success: true, action: 'deleteSlides', ...data };
+        } else {
+          return { success: false, action: 'deleteSlides', error: data.detail || 'Failed to delete slides' };
+        }
+      } catch (error) {
+        return { success: false, action: 'deleteSlides', error: error.message };
+      }
+    }
+
+    /**
      * Handle reordering slides
      */
     async function handleReorderSlides(fromIndex, toIndex) {
@@ -1120,6 +1155,37 @@
             }
             break;
 
+          case 'enterEditMode':
+            if (typeof enterEditMode === 'function') {
+              enterEditMode();
+              result.success = true;
+              result.isEditing = true;
+            } else if (document.body.getAttribute('data-mode') !== 'edit' && typeof toggleEditMode === 'function') {
+              // Fallback: use toggle if not already in edit mode
+              toggleEditMode();
+              result.success = true;
+              result.isEditing = true;
+            }
+            break;
+
+          case 'exitEditMode':
+            if (typeof exitEditMode === 'function') {
+              exitEditMode();
+              result.success = true;
+              result.isEditing = false;
+            } else if (document.body.getAttribute('data-mode') === 'edit' && typeof toggleEditMode === 'function') {
+              // Fallback: use toggle if currently in edit mode
+              toggleEditMode();
+              result.success = true;
+              result.isEditing = false;
+            }
+            break;
+
+          case 'isEditModeActive':
+            result.success = true;
+            result.isEditing = document.body.getAttribute('data-mode') === 'edit';
+            break;
+
           case 'saveAllChanges':
             if (typeof saveAllChanges === 'function') {
               saveAllChanges();
@@ -1243,19 +1309,80 @@
             }
             break;
 
-          // Debug functions
+          // Debug functions - Grid Overlay (G key)
           case 'toggleGridOverlay':
             if (typeof toggleGridOverlay === 'function') {
               toggleGridOverlay();
               result.success = true;
+              result.isGridActive = document.body.classList.contains('show-grid');
             }
             break;
 
+          case 'showGridOverlay':
+            if (!document.body.classList.contains('show-grid')) {
+              if (typeof toggleGridOverlay === 'function') {
+                toggleGridOverlay();
+              } else {
+                document.body.classList.add('show-grid');
+              }
+            }
+            result.success = true;
+            result.isGridActive = true;
+            break;
+
+          case 'hideGridOverlay':
+            if (document.body.classList.contains('show-grid')) {
+              if (typeof toggleGridOverlay === 'function') {
+                toggleGridOverlay();
+              } else {
+                document.body.classList.remove('show-grid');
+              }
+            }
+            result.success = true;
+            result.isGridActive = false;
+            break;
+
+          case 'isGridOverlayActive':
+            result.success = true;
+            result.isGridActive = document.body.classList.contains('show-grid');
+            break;
+
+          // Debug functions - Border Highlight (B key)
           case 'toggleBorderHighlight':
             if (typeof toggleBorderHighlight === 'function') {
               toggleBorderHighlight();
               result.success = true;
+              result.isBordersActive = document.body.classList.contains('show-borders');
             }
+            break;
+
+          case 'showBorderHighlight':
+            if (!document.body.classList.contains('show-borders')) {
+              if (typeof toggleBorderHighlight === 'function') {
+                toggleBorderHighlight();
+              } else {
+                document.body.classList.add('show-borders');
+              }
+            }
+            result.success = true;
+            result.isBordersActive = true;
+            break;
+
+          case 'hideBorderHighlight':
+            if (document.body.classList.contains('show-borders')) {
+              if (typeof toggleBorderHighlight === 'function') {
+                toggleBorderHighlight();
+              } else {
+                document.body.classList.remove('show-borders');
+              }
+            }
+            result.success = true;
+            result.isBordersActive = false;
+            break;
+
+          case 'isBorderHighlightActive':
+            result.success = true;
+            result.isBordersActive = document.body.classList.contains('show-borders');
             break;
 
           // Review mode functions
@@ -1312,6 +1439,14 @@
               result = await handleDeleteSlide(params.index);
             } else {
               result.error = 'index parameter is required';
+            }
+            break;
+
+          case 'deleteSlides':
+            if (params?.indices && Array.isArray(params.indices) && params.indices.length > 0) {
+              result = await handleBulkDeleteSlides(params.indices);
+            } else {
+              result.error = 'indices parameter is required (non-empty array of slide indices)';
             }
             break;
 

@@ -30,6 +30,7 @@ from models import (
     ReorderSlidesRequest,
     ChangeLayoutRequest,
     DuplicateSlideRequest,
+    BulkDeleteSlidesRequest,
     # Text Box models
     TextBox,
     TextBoxPosition,
@@ -979,6 +980,100 @@ async def delete_slide(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting slide: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/bulk")
+async def delete_slides_bulk(
+    presentation_id: str,
+    request: BulkDeleteSlidesRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Delete multiple slides at once from a presentation.
+
+    Supports both sequential ranges (e.g., slides 3-7) and scattered indices (e.g., slides 2, 5, 9).
+    Creates a single version backup before deletion.
+    Must leave at least 1 slide remaining.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+
+    Request Body:
+    - indices: List of 0-based slide indices to delete (can be in any order)
+
+    Returns:
+    - success: Boolean
+    - message: Status message
+    - deleted_count: Number of slides deleted
+    - deleted_indices: List of indices that were deleted (sorted)
+    - remaining_slide_count: Number of slides remaining
+    """
+    try:
+        presentation = await storage.get(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        slides = presentation.get("slides", [])
+        total_slides = len(slides)
+
+        # Remove duplicates and sort indices
+        unique_indices = list(set(request.indices))
+
+        # Validate: at least one index provided
+        if not unique_indices:
+            raise HTTPException(status_code=400, detail="At least one slide index is required")
+
+        # Validate: all indices are within range
+        invalid_indices = [i for i in unique_indices if i < 0 or i >= total_slides]
+        if invalid_indices:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide indices: {invalid_indices}. Valid range: 0-{total_slides - 1}"
+            )
+
+        # Validate: must leave at least 1 slide
+        if len(unique_indices) >= total_slides:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot delete all slides. Presentation has {total_slides} slides and you're trying to delete {len(unique_indices)}. At least 1 slide must remain."
+            )
+
+        # Sort indices in DESCENDING order to delete from end first
+        # This preserves valid indices during iteration
+        sorted_indices_desc = sorted(unique_indices, reverse=True)
+
+        # Collect deleted slides for response
+        deleted_slides = []
+        for idx in sorted_indices_desc:
+            deleted_slides.append(slides.pop(idx))
+
+        # Save with version tracking
+        summary = change_summary or f"Bulk deleted {len(unique_indices)} slides: indices {sorted(unique_indices)}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": slides},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"{len(unique_indices)} slide(s) deleted successfully",
+            "deleted_count": len(unique_indices),
+            "deleted_indices": sorted(unique_indices),
+            "remaining_slide_count": len(updated["slides"])
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error bulk deleting slides: {str(e)}")
 
 
 @app.post("/api/presentations/{presentation_id}/slides")

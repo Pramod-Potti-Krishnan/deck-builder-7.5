@@ -886,6 +886,17 @@ class DuplicateSlideRequest(BaseModel):
     )
 
 
+class BulkDeleteSlidesRequest(BaseModel):
+    """
+    Request model for deleting multiple slides at once.
+    Supports both sequential ranges and scattered indices.
+    """
+    indices: List[int] = Field(
+        ...,
+        description="List of 0-based slide indices to delete. Can be in any order."
+    )
+
+
 # ==================== Text Box CRUD Models ====================
 
 class TextBoxCreateRequest(BaseModel):

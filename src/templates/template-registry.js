@@ -940,7 +940,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -957,7 +957,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Subtitle'
       },
       content_left: {
         gridRow: '4/18',
@@ -993,7 +993,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {},
-        defaultText: null
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -1046,7 +1046,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'left',
           padding: '0px 25px'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -1064,7 +1064,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'left',
           padding: '0px 25px'
         },
-        defaultText: null
+        defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/18',
@@ -1085,7 +1085,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {},
-        defaultText: null
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -1125,7 +1125,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -1142,7 +1142,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Subtitle'
       },
       content_left: {
         gridRow: '4/14',
@@ -1206,7 +1206,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {},
-        defaultText: null
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',
@@ -1244,7 +1244,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'flex-end', // BOTTOM align (vertical)
           textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
@@ -1261,7 +1261,7 @@ const TEMPLATE_REGISTRY = {
           justifyContent: 'center',   // MIDDLE align (vertical)
           textAlign: 'left'
         },
-        defaultText: null
+        defaultText: 'Subtitle'
       },
       header_left: {
         gridRow: '4/5',
@@ -1317,7 +1317,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {},
-        defaultText: null
+        defaultText: 'Footer'
       },
       logo: {
         gridRow: '17/19',

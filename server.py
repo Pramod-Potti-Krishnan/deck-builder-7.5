@@ -1119,6 +1119,24 @@ async def delete_slides_bulk(
         for idx in sorted_indices_desc:
             deleted_slides.append(slides.pop(idx))
 
+        # Clean up ghost elements from remaining slides (v7.5.1)
+        # After deletion, slides shift down but element IDs don't update
+        ghost_count = 0
+        for idx, slide in enumerate(slides):
+            slide_id = slide.get('slide_id', '')
+            for element_type in ['text_boxes', 'images', 'charts', 'infographics', 'diagrams', 'contents']:
+                if element_type in slide and slide[element_type]:
+                    original_count = len(slide[element_type])
+                    slide[element_type] = [
+                        el for el in slide[element_type]
+                        if is_element_valid_for_slide(el, slide_id, idx)
+                    ]
+                    ghost_count += original_count - len(slide[element_type])
+
+        if ghost_count > 0:
+            logger.info(f"Cleaned {ghost_count} ghost elements after bulk slide deletion",
+                       presentation_id=presentation_id, deleted_indices=sorted(unique_indices))
+
         # Save with version tracking
         summary = change_summary or f"Bulk deleted {len(unique_indices)} slides: indices {sorted(unique_indices)}"
         updated = await storage.update(
@@ -1185,6 +1203,25 @@ async def delete_slide(
 
         # Remove the slide
         deleted_slide = presentation["slides"].pop(slide_index)
+
+        # Clean up ghost elements from remaining slides (v7.5.1)
+        # After deletion, slides shift down but element IDs don't update
+        # e.g., slide-6-title on what is now slide 5 is a ghost element
+        ghost_count = 0
+        for idx, slide in enumerate(presentation["slides"]):
+            slide_id = slide.get('slide_id', '')
+            for element_type in ['text_boxes', 'images', 'charts', 'infographics', 'diagrams', 'contents']:
+                if element_type in slide and slide[element_type]:
+                    original_count = len(slide[element_type])
+                    slide[element_type] = [
+                        el for el in slide[element_type]
+                        if is_element_valid_for_slide(el, slide_id, idx)
+                    ]
+                    ghost_count += original_count - len(slide[element_type])
+
+        if ghost_count > 0:
+            logger.info(f"Cleaned {ghost_count} ghost elements after slide deletion",
+                       presentation_id=presentation_id, deleted_slide_index=slide_index)
 
         # Save with version tracking
         summary = change_summary or f"Deleted slide {slide_index + 1}"

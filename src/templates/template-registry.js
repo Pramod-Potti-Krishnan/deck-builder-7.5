@@ -982,7 +982,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           textAlign: 'left',
-          padding: '25px 25px'
+          padding: '20px 25px 20px 10px'
         },
         defaultText: 'Key Insights',
         description: 'Text/observations (840x720px)'

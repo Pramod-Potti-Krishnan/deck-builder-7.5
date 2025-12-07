@@ -916,72 +916,8 @@ async def regenerate_section(
 
 # ==================== Slide CRUD Operations ====================
 
-@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}")
-async def delete_slide(
-    presentation_id: str,
-    slide_index: int,
-    created_by: str = "user",
-    change_summary: str = None
-):
-    """
-    Delete a slide at a specific index.
-
-    Creates a version backup before deleting.
-    Cannot delete the last remaining slide.
-
-    Path Parameters:
-    - presentation_id: Presentation UUID
-    - slide_index: Zero-based slide index to delete
-
-    Query Parameters:
-    - created_by: Who is making the change (default: "user")
-    - change_summary: Description of change
-    """
-    try:
-        presentation = await storage.load(presentation_id)
-        if not presentation:
-            raise HTTPException(status_code=404, detail="Presentation not found")
-
-        # Validate slide index
-        if slide_index < 0 or slide_index >= len(presentation["slides"]):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
-            )
-
-        # Prevent deleting the last slide
-        if len(presentation["slides"]) <= 1:
-            raise HTTPException(
-                status_code=400,
-                detail="Cannot delete the only slide. A presentation must have at least one slide."
-            )
-
-        # Remove the slide
-        deleted_slide = presentation["slides"].pop(slide_index)
-
-        # Save with version tracking
-        summary = change_summary or f"Deleted slide {slide_index + 1}"
-        updated = await storage.update(
-            presentation_id,
-            {"slides": presentation["slides"]},
-            created_by=created_by,
-            change_summary=summary,
-            create_version=True
-        )
-
-        return JSONResponse(content={
-            "success": True,
-            "message": f"Slide {slide_index + 1} deleted successfully",
-            "slide_count": len(updated["slides"]),
-            "deleted_slide": deleted_slide
-        })
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error deleting slide: {str(e)}")
-
-
+# IMPORTANT: Bulk delete must be defined BEFORE single delete
+# because "/slides/bulk" would otherwise match "/slides/{slide_index}"
 @app.delete("/api/presentations/{presentation_id}/slides/bulk")
 async def delete_slides_bulk(
     presentation_id: str,
@@ -1074,6 +1010,72 @@ async def delete_slides_bulk(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error bulk deleting slides: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}")
+async def delete_slide(
+    presentation_id: str,
+    slide_index: int,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Delete a slide at a specific index.
+
+    Creates a version backup before deleting.
+    Cannot delete the last remaining slide.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+    - slide_index: Zero-based slide index to delete
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation["slides"]):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid slide index {slide_index}. Presentation has {len(presentation['slides'])} slides"
+            )
+
+        # Prevent deleting the last slide
+        if len(presentation["slides"]) <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete the only slide. A presentation must have at least one slide."
+            )
+
+        # Remove the slide
+        deleted_slide = presentation["slides"].pop(slide_index)
+
+        # Save with version tracking
+        summary = change_summary or f"Deleted slide {slide_index + 1}"
+        updated = await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Slide {slide_index + 1} deleted successfully",
+            "slide_count": len(updated["slides"]),
+            "deleted_slide": deleted_slide
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting slide: {str(e)}")
 
 
 @app.post("/api/presentations/{presentation_id}/slides")

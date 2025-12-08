@@ -151,8 +151,11 @@
       // Skip creation to avoid duplicates.
 
       // Check for both legacy and new format element IDs
+      // CRITICAL FIX: Only search within THIS slide, not globally
+      // Using document.getElementById() caused elements from adjacent slides to be incorrectly
+      // detected as "stale" and deleted when inserting new slides (slide indexes shift but IDs don't)
       const legacyElementId = generateLegacyElementId(slideIndex, slotName);
-      const existingLegacy = document.getElementById(legacyElementId);
+      const existingLegacy = slideElement.querySelector(`#${CSS.escape(legacyElementId)}`);
 
       // Also check for UUID-based elements by data attribute
       const existingUUID = slideElement.querySelector(`[data-slot-name="${slotName}"][data-parent-slide-id="${slideId}"]`);
@@ -160,21 +163,9 @@
       const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
-        // IMPORTANT: Verify the element is actually on THIS slide, not a stale element
-        // from a different slide that had the same index before reordering/insertion
-        const elementParentSlide = existingElement.closest('section[data-slide-index]');
-        const parentSlideIndex = elementParentSlide?.dataset.slideIndex;
-
-        // Check if element is on the correct slide
-        if (parentSlideIndex === String(slideIndex)) {
-          console.log(`[DirectElementCreator] Skipping ${slotName} - already restored from save (on slide ${slideIndex})`);
-          return;  // Skip - already created during restore phase on correct slide
-        } else {
-          // Element exists but on wrong slide - this is a stale element from before reordering
-          // Remove the stale element and continue with creation
-          console.warn(`[DirectElementCreator] Found stale element for slot ${slotName} on slide ${parentSlideIndex}, expected slide ${slideIndex}. Removing stale element.`);
-          existingElement.remove();
-        }
+        // Since we're only searching within THIS slide, if found it's definitely on the correct slide
+        console.log(`[DirectElementCreator] Skipping ${slotName} - already exists on slide ${slideIndex}`);
+        return;  // Skip - already created
       }
 
       const elementType = getElementTypeForSlot(slotName, slotDef);

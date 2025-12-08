@@ -329,8 +329,10 @@
 
       // Check for existing converted element (restoration scenario)
       // Check both legacy and new format IDs
+      // CRITICAL FIX: Only search within THIS slide, not globally
+      // Using document.getElementById() could find elements in adjacent slides
       const legacyId = generateLegacyElementId(slideIndex, slotName);
-      const existingLegacy = document.getElementById(legacyId);
+      const existingLegacy = slideElement.querySelector(`#${CSS.escape(legacyId)}`);
       const existingUUID = slideElement.querySelector(`[data-slot-name="${slotName}"][data-parent-slide-id="${slideId}"]`);
       const existingElement = existingLegacy || existingUUID;
 

@@ -163,18 +163,14 @@
 
     const id = config.id || generateId('shape');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    // Using document.getElementById() could find elements in adjacent slides
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] Shape ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        console.warn(`[ElementManager] Found stale Shape ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing.`);
-        existingElement.remove();
-      }
+      // Since we're only searching within THIS slide, if found it's definitely on the correct slide
+      console.log(`[ElementManager] Shape ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     const position = config.position || { gridRow: '8/12', gridColumn: '10/22' };

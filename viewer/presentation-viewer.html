@@ -257,8 +257,8 @@
   <script src="/src/templates/template-registry.js?v=20251208-author-info-fix"></script>
   <script src="/src/renderers/style-builder.js?v=20251208-author-info-fix"></script>
   <!-- Theme JS -->
-  <script src="/src/themes/theme-registry.js?v=20251208-author-info-fix"></script>
-  <script src="/src/themes/theme-manager.js?v=20251208-author-info-fix"></script>
+  <script src="/src/themes/theme-registry.js?v=20251208-theme-on-load"></script>
+  <script src="/src/themes/theme-manager.js?v=20251208-theme-on-load"></script>
   <script src="/src/renderers/hero-templates.js?v=20251208-author-info-fix"></script>
   <script src="/src/renderers/content-templates.js?v=20251208-author-info-fix"></script>
   <script src="/src/renderers/split-templates.js?v=20251208-author-info-fix"></script>
@@ -625,6 +625,32 @@
             hash: true,
             history: true
           });
+        }
+
+        // ============================================
+        // APPLY THEME ON LOAD
+        // ============================================
+        // Inject theme CSS variables when presentation loads
+        // This ensures hero slides display with correct theme colors immediately
+        if (data.theme_config?.theme_id) {
+          const themeId = data.theme_config.theme_id;
+          const colorOverrides = data.theme_config.color_overrides || {};
+          if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+            const theme = THEME_REGISTRY[themeId] || THEME_REGISTRY['corporate-blue'];
+            ThemeManager.injectThemeStyles(theme, colorOverrides);
+            console.log(`[Theming] Applied theme '${themeId}' on load`);
+          } else {
+            console.warn('[Theming] ThemeManager or THEME_REGISTRY not available for theme-on-load');
+          }
+        } else {
+          // Apply default theme if no theme_config exists
+          if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+            const defaultTheme = THEME_REGISTRY['corporate-blue'];
+            if (defaultTheme) {
+              ThemeManager.injectThemeStyles(defaultTheme, {});
+              console.log('[Theming] Applied default theme (corporate-blue) on load');
+            }
+          }
         }
 
         // Restore all dynamic elements from saved data

@@ -15,6 +15,81 @@ Key characteristics:
 
 ---
 
+## CRITICAL: Understanding Theme Actions
+
+**This section explains the key difference between theme API actions. Misunderstanding these is the most common source of issues.**
+
+| Action | Purpose | Applies CSS Variables? | Saves to Database? |
+|--------|---------|------------------------|-------------------|
+| `getTheme` | Get current theme DATA | NO | NO |
+| `previewTheme` | Preview a theme temporarily | YES | NO |
+| `setTheme` | Apply and save a theme | YES | YES |
+| `listThemes` | List available themes | NO | NO |
+
+### Common Mistake: Using getTheme to Apply Theme
+
+**WRONG:**
+```javascript
+// This ONLY returns data - does NOT apply visual changes!
+iframe.contentWindow.postMessage({ action: 'getTheme' }, origin);
+// The response will have themeConfig data, but slides won't change colors
+```
+
+**CORRECT:**
+```javascript
+// Use previewTheme to apply visual changes without saving
+iframe.contentWindow.postMessage({
+  action: 'previewTheme',
+  params: { themeId: 'dark-mode' }
+}, origin);
+
+// OR use setTheme to apply AND save to database
+iframe.contentWindow.postMessage({
+  action: 'setTheme',
+  params: { themeId: 'dark-mode' }
+}, origin);
+```
+
+### When to Use Each Action
+
+- **`getTheme`**: Use when you need to READ the current theme config (e.g., to display in a theme picker which theme is selected)
+- **`previewTheme`**: Use for live preview in a theme picker UI (user clicks a theme, sees instant preview)
+- **`setTheme`**: Use when user confirms their theme choice (e.g., clicks "Apply" button)
+- **`listThemes`**: Use when building a theme picker to get available options
+
+---
+
+## Theme Applied Automatically on Load
+
+**As of December 2024, themes are automatically applied when a presentation loads.**
+
+When the viewer loads a presentation:
+1. It checks if `theme_config.theme_id` exists in the presentation data
+2. If yes, it applies that theme's CSS variables automatically
+3. If no theme is configured, it applies the default theme (`corporate-blue`)
+
+**Frontend does NOT need to call any theme action on page load.** The iframe handles this automatically.
+
+---
+
+## Which Slides Respond to Themes
+
+**Only H-series (hero) templates currently respond to theme CSS variables:**
+
+| Template | Responds to Theme? | Description |
+|----------|-------------------|-------------|
+| `H1-generated` | YES | AI-generated hero slide |
+| `H1-structured` | YES | Manual title slide |
+| `H2-section` | YES | Section divider |
+| `H3-closing` | YES | Closing/thank you slide |
+| `C1-C6` | NO (yet) | Content templates |
+| `S1-S4` | NO (yet) | Split templates |
+| `B1-blank` | NO | Blank canvas |
+
+Content templates (C1-C6) will gain theme support in a future release.
+
+---
+
 ## Data Models
 
 ### PresentationThemeConfig
@@ -549,8 +624,100 @@ Run this migration in Supabase SQL Editor:
 
 ---
 
+## Troubleshooting
+
+### Issue: Theme Not Applying / No Visual Changes
+
+**Symptom:** You called a theme action but slides don't change colors.
+
+**Cause:** Using `getTheme` instead of `previewTheme` or `setTheme`.
+
+**Solution:**
+```javascript
+// WRONG - getTheme only returns data
+iframe.contentWindow.postMessage({ action: 'getTheme' }, origin);
+
+// CORRECT - previewTheme applies CSS variables
+iframe.contentWindow.postMessage({
+  action: 'previewTheme',
+  params: { themeId: 'dark-mode' }
+}, origin);
+```
+
+### Issue: Theme Works in Console But Not From Frontend
+
+**Symptom:** Theme works when you manually call it in browser console, but postMessage from frontend doesn't work.
+
+**Possible Causes:**
+1. Wrong `origin` in postMessage
+2. Missing `params` wrapper
+3. Iframe not fully loaded
+
+**Solution:**
+```javascript
+// Ensure params is wrapped correctly
+iframe.contentWindow.postMessage({
+  action: 'setTheme',
+  params: {                    // <-- params object is required
+    themeId: 'dark-mode',
+    colorOverrides: {}
+  }
+}, iframeOrigin);             // <-- Must match iframe origin exactly
+```
+
+### Issue: Only Some Slides Change Color
+
+**Cause:** Only H-series templates (H1, H2, H3) currently support theming.
+
+**Solution:** This is expected behavior. Content slides (C1-C6) don't respond to theme yet. Check the "Which Slides Respond to Themes" section above.
+
+### Issue: Theme Resets After Page Reload
+
+**Cause:** Theme was previewed but not saved.
+
+**Solution:** Use `setTheme` instead of `previewTheme` to persist the theme to the database.
+
+### Issue: Console Shows "ThemeManager not available"
+
+**Cause:** Theme scripts didn't load or loaded out of order.
+
+**Solution:** Check browser console for script loading errors. Ensure these scripts are loaded in order:
+1. `theme-registry.js`
+2. `theme-manager.js`
+
+---
+
+## Quick Reference: Theme Workflow
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    FRONTEND THEME WORKFLOW                    │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. PAGE LOAD                                                │
+│     └─► Theme auto-applied (no action needed)               │
+│                                                              │
+│  2. OPENING THEME PICKER                                     │
+│     └─► getTheme → Get current selection for UI             │
+│     └─► listThemes → Get available themes for dropdown      │
+│                                                              │
+│  3. USER CLICKS THEME OPTIONS                                │
+│     └─► previewTheme → Instant visual preview               │
+│                                                              │
+│  4. USER CLICKS "APPLY"                                      │
+│     └─► setTheme → Save to database + apply                 │
+│                                                              │
+│  5. USER CLICKS "CANCEL"                                     │
+│     └─► previewTheme(originalTheme) → Restore               │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Version
 
-- **API Version**: 1.0
+- **API Version**: 1.1
 - **Document Date**: December 2024
 - **Layout Service**: v7.5-main
+- **Last Updated**: Added theme-on-load, troubleshooting, clarification sections

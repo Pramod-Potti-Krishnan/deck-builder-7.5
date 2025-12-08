@@ -62,9 +62,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-hero-title-size, 48px)',
+          fontWeight: 'var(--theme-hero-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
@@ -81,8 +81,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-hero-subtitle-size, 32px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-secondary, #94a3b8)',
           display: 'flex',
           flexDirection: 'column',
@@ -100,8 +100,8 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '26px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
@@ -119,8 +119,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px',
-          fontWeight: 'bold',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
           textTransform: 'capitalize'
         },
         defaultText: 'Logo',
@@ -158,9 +158,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'section_number',
         accepts: ['text'],
         style: {
-          fontSize: '180px',  // Large section number
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: '180px',  // Large section number - decorative, not themed
+          fontWeight: 'var(--theme-hero-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
@@ -177,9 +177,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '64px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-hero-title-size, 64px)',
+          fontWeight: 'var(--theme-hero-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
@@ -223,9 +223,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-hero-title-size, 48px)',
+          fontWeight: 'var(--theme-hero-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
@@ -242,8 +242,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-hero-subtitle-size, 32px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-secondary, #94a3b8)',
           display: 'flex',
           flexDirection: 'column',
@@ -260,8 +260,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'contact',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
@@ -279,7 +279,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px',
+          fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -314,9 +314,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',           // Dark for content slides
           display: 'flex',
           flexDirection: 'column',
@@ -335,9 +335,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',           // Medium gray for subtitle
           display: 'flex',
           flexDirection: 'column',
@@ -356,8 +356,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'html'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)',           // Body text gray
           display: 'flex',
           flexDirection: 'column',
@@ -377,8 +377,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',           // Light gray for footer
           display: 'flex',
           flexDirection: 'column',
@@ -395,7 +395,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px',
+          fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -425,9 +425,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -446,9 +446,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -467,8 +467,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'chart',
         accepts: ['chart'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
@@ -488,8 +488,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           display: 'flex',
           flexDirection: 'column',
@@ -506,7 +506,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px',
+          fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -534,9 +534,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -555,9 +555,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -576,8 +576,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'infographic',
         accepts: ['infographic'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
@@ -597,8 +597,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           display: 'flex',
           flexDirection: 'column',
@@ -615,7 +615,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px',
+          fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -643,9 +643,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -664,9 +664,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -685,8 +685,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'diagram',
         accepts: ['diagram'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
@@ -706,8 +706,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           display: 'flex',
           flexDirection: 'column',
@@ -724,7 +724,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px',
+          fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -759,9 +759,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -780,9 +780,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -800,7 +800,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'image',
         accepts: ['image'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -816,7 +816,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '20px 25px 20px 10px'
         },
@@ -829,8 +829,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
@@ -864,9 +864,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -885,9 +885,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -905,7 +905,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'chart',
         accepts: ['chart'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -921,7 +921,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '20px 25px 20px 10px'
         },
@@ -934,8 +934,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
@@ -969,9 +969,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -990,9 +990,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -1010,7 +1010,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'diagram',
         accepts: ['diagram'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -1026,7 +1026,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '20px 25px 20px 10px'
         },
@@ -1039,8 +1039,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
@@ -1074,9 +1074,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -1095,9 +1095,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -1115,7 +1115,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'infographic',
         accepts: ['infographic'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -1131,7 +1131,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '20px 25px 20px 10px'
         },
@@ -1144,8 +1144,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
@@ -1198,9 +1198,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -1217,9 +1217,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -1236,7 +1236,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '25px 25px'
         },
@@ -1249,8 +1249,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
@@ -1261,7 +1261,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: 'var(--theme-body-size, 20px)'
         },
         defaultText: 'Logo'
       }
@@ -1299,9 +1299,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -1318,9 +1318,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -1337,7 +1337,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '25px 25px 25px 4px'
         },
@@ -1350,8 +1350,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
@@ -1362,7 +1362,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: 'var(--theme-body-size, 20px)'
         },
         defaultText: 'Logo'
       }
@@ -1400,9 +1400,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -1419,9 +1419,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -1438,7 +1438,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '25px 25px'
         },
@@ -1451,8 +1451,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
@@ -1463,7 +1463,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: 'var(--theme-body-size, 20px)'
         },
         defaultText: 'Logo'
       }
@@ -1501,9 +1501,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
@@ -1520,9 +1520,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
@@ -1539,7 +1539,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '25px 25px 25px 4px'
         },
@@ -1552,8 +1552,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 14px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
@@ -1564,7 +1564,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: 'var(--theme-body-size, 20px)'
         },
         defaultText: 'Logo'
       }
@@ -1595,9 +1595,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -1615,9 +1615,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -1634,7 +1634,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'visual',
         accepts: ['chart', 'infographic', 'diagram', 'image'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -1650,7 +1650,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'visual',
         accepts: ['chart', 'infographic', 'diagram', 'image'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -1665,7 +1665,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '0',
           paddingTop: '20px',
@@ -1680,7 +1680,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'html'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           padding: '0',
           paddingTop: '20px',
@@ -1727,9 +1727,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 48px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -1747,9 +1747,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-subtitle-size, 32px)',
+          fontWeight: 'var(--theme-subtitle-weight, normal)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -1766,7 +1766,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'header',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textTransform: 'uppercase',
           paddingLeft: '5px'
         },
@@ -1779,7 +1779,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'header',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textTransform: 'uppercase',
           paddingLeft: '5px'
         },
@@ -1792,7 +1792,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html', 'image', 'chart'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           paddingLeft: '5px'
         },
@@ -1805,7 +1805,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['body', 'table', 'html', 'image', 'chart'],
         style: {
-          fontSize: '24px',
+          fontSize: 'var(--theme-body-size, 24px)',
           textAlign: 'left',
           paddingLeft: '5px'
         },
@@ -1828,7 +1828,7 @@ const TEMPLATE_REGISTRY = {
         tag: 'logo',
         accepts: ['image', 'emoji'],
         style: {
-          fontSize: '20px'
+          fontSize: 'var(--theme-body-size, 20px)'
         },
         defaultText: null
       }
@@ -1873,9 +1873,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 42px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
@@ -1886,8 +1886,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Subtitle'
@@ -1898,8 +1898,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'content',
         accepts: ['content', 'html'],
         style: {
-          fontSize: '20px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
@@ -1912,8 +1912,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '18px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 18px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
@@ -1979,9 +1979,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 42px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
@@ -1992,8 +1992,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
@@ -2004,8 +2004,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'body', 'html'],
         style: {
-          fontSize: '20px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
@@ -2017,8 +2017,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '18px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 18px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
@@ -2051,9 +2051,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 42px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
@@ -2064,8 +2064,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
@@ -2086,8 +2086,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'body'],
         style: {
-          fontSize: '20px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
@@ -2099,8 +2099,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '18px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 18px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
@@ -2133,9 +2133,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 42px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
@@ -2146,8 +2146,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
@@ -2168,8 +2168,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'body', 'html'],
         style: {
-          fontSize: '20px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
@@ -2181,8 +2181,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '18px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 18px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
@@ -2215,9 +2215,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'title',
         accepts: ['text'],
         style: {
-          fontSize: '42px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-title-size, 42px)',
+          fontWeight: 'var(--theme-title-weight, bold)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
@@ -2228,8 +2228,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'subtitle',
         accepts: ['text'],
         style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 24px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
@@ -2260,8 +2260,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'body'],
         style: {
-          fontSize: '20px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
@@ -2273,8 +2273,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'body',
         accepts: ['text', 'body'],
         style: {
-          fontSize: '20px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-body-size, 20px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
@@ -2286,8 +2286,8 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
-          fontSize: '18px',
-          fontFamily: 'Poppins, sans-serif',
+          fontSize: 'var(--theme-footer-size, 18px)',
+          fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
           color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''

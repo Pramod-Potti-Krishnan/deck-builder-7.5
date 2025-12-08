@@ -24,8 +24,10 @@
  * Hero slides use dark backgrounds by default.
  */
 function buildBlankHeroSlide(templateId, content, slide, slideIndex) {
-  // Hero slides default to dark background
-  const defaultBg = templateId === 'H2-section' ? '#374151' : '#1e3a5f';
+  // Hero slides default to dark background - use CSS variable for theming
+  const defaultBg = templateId === 'H2-section'
+    ? 'var(--theme-hero-bg, #374151)'
+    : 'var(--theme-hero-bg, #1e3a5f)';
   const backgroundStyle = window.buildBackgroundStyle(slide, content, defaultBg);
 
   return `

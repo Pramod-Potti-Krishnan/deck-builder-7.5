@@ -27,7 +27,8 @@
  * - No slot HTML, no slot conversion, no race conditions
  */
 function buildBlankContentSlide(templateId, content, slide, slideIndex) {
-  const backgroundStyle = window.buildBackgroundStyle(slide, content, '#ffffff');
+  // Use CSS variable for theming
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, 'var(--theme-bg, #ffffff)');
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}"

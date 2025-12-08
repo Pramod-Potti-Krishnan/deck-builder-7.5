@@ -403,113 +403,7 @@ const TEMPLATE_REGISTRY = {
     thumbnail: 'content-text.svg'
   },
 
-  'C2-table': {
-    id: 'C2-table',
-    name: 'Table Slide',
-    category: 'content',
-    description: 'Slide with data table',
-    renderer: 'renderC2Table',
-    baseLayout: 'L25',
-    slots: {
-      title: {
-        gridRow: '1/3',
-        gridColumn: '2/32',
-        tag: 'title',
-        accepts: ['text'],
-        style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'flex-end', // BOTTOM align (vertical)
-          textAlign: 'left',
-          padding: '0',
-          paddingBottom: '4px',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Slide Title'
-      },
-      subtitle: {
-        gridRow: '3/4',
-        gridColumn: '2/32',
-        tag: 'subtitle',
-        accepts: ['text'],
-        style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'flex-start', // TOP align (vertical)
-          textAlign: 'left',
-          padding: '0',
-          paddingTop: '4px',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Subtitle'
-      },
-      content: {
-        gridRow: '4/18',
-        gridColumn: '2/32',
-        tag: 'table',
-        accepts: ['table', 'html'],
-        style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
-          color: '#374151',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
-          textAlign: 'left',
-          padding: '0',
-          paddingTop: '20px',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Table Area',
-        description: 'Table content area'
-      },
-      footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
-        tag: 'footer',
-        accepts: ['text'],
-        style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          textAlign: 'left',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Footer'
-      },
-      logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
-        tag: 'logo',
-        accepts: ['image', 'emoji'],
-        style: {
-          fontSize: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        },
-        defaultText: 'Logo'
-      }
-    },
-    defaults: {},
-    thumbnail: 'content-table.svg'
-  },
+  // C2-table REMOVED - merged into C1-text (tables are hypertext)
 
   'C3-chart': {
     id: 'C3-chart',
@@ -835,13 +729,20 @@ const TEMPLATE_REGISTRY = {
     thumbnail: 'content-diagram.svg'
   },
 
-  'C6-image': {
-    id: 'C6-image',
-    name: 'Single Image',
-    category: 'content',
-    description: 'Slide with one image and optional caption',
-    renderer: 'renderC6Image',
-    baseLayout: 'L25',
+  // C6-image REMOVED - use I series for image layouts
+
+  // ===========================================
+  // VISUAL + TEXT TEMPLATES (V Series)
+  // Visual element LEFT, text insights RIGHT
+  // ===========================================
+
+  'V1-image-text': {
+    id: 'V1-image-text',
+    name: 'Image + Text',
+    category: 'visual',
+    description: 'Image on left, text insights on right',
+    renderer: 'renderV1ImageText',
+    baseLayout: 'L02',
     slots: {
       title: {
         gridRow: '1/3',
@@ -855,8 +756,8 @@ const TEMPLATE_REGISTRY = {
           color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
           textAlign: 'left',
           padding: '0',
           paddingBottom: '4px',
@@ -876,120 +777,10 @@ const TEMPLATE_REGISTRY = {
           color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'flex-start', // TOP align (vertical)
-          textAlign: 'left',
-          padding: '0',
-          paddingTop: '4px',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Subtitle'
-      },
-      content: {
-        gridRow: '4/18',
-        gridColumn: '2/32',
-        tag: 'image',
-        accepts: ['image'],
-        style: {
-          fontSize: '24px',
-          fontFamily: 'Poppins, sans-serif',
-          color: '#374151',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '0',
-          paddingTop: '20px',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Image Area',
-        description: 'Image placeholder area'
-      },
-      footer: {
-        gridRow: '18/19',
-        gridColumn: '2/7',
-        tag: 'footer',
-        accepts: ['text'],
-        style: {
-          fontSize: '14px',
-          fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
-          display: 'flex',
-          flexDirection: 'column',
           alignItems: 'flex-start',
-          justifyContent: 'center',
-          textAlign: 'left',
-          paddingLeft: '5px'
-        },
-        defaultText: 'Footer'
-      },
-      logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
-        tag: 'logo',
-        accepts: ['image', 'emoji'],
-        style: {
-          fontSize: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        },
-        defaultText: 'Logo'
-      }
-    },
-    defaults: {},
-    thumbnail: 'content-image.svg'
-  },
-
-  // ===========================================
-  // SPLIT CONTENT TEMPLATES
-  // ===========================================
-
-  'S1-visual-text': {
-    id: 'S1-visual-text',
-    name: 'Visual + Text',
-    category: 'split',
-    description: 'Chart/Infographic/Diagram on left, text on right',
-    renderer: 'renderS1VisualText',
-    baseLayout: 'L02',
-    slots: {
-      title: {
-        gridRow: '1/3',
-        gridColumn: '2/32',
-        tag: 'title',
-        accepts: ['text'],
-        style: {
-          fontSize: '48px',
-          fontWeight: 'bold',
-          fontFamily: 'Poppins, sans-serif',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          justifyContent: 'flex-start',
           textAlign: 'left',
           padding: '0',
-          paddingBottom: '4px',       // Minimal bottom padding (matches C1)
-          paddingLeft: '5px'
-        },
-        defaultText: 'Slide Title'
-      },
-      subtitle: {
-        gridRow: '3/4',
-        gridColumn: '2/32',
-        tag: 'subtitle',
-        accepts: ['text'],
-        style: {
-          fontSize: '32px',
-          fontWeight: 'normal',
-          fontFamily: 'Poppins, sans-serif',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
-          textAlign: 'left',
-          padding: '0',               // Reset default 16px to 0
           paddingLeft: '5px'
         },
         defaultText: 'Subtitle'
@@ -997,8 +788,8 @@ const TEMPLATE_REGISTRY = {
       content_left: {
         gridRow: '4/18',
         gridColumn: '2/20',
-        tag: 'visual',
-        accepts: ['chart', 'infographic', 'diagram', 'image'],
+        tag: 'image',
+        accepts: ['image'],
         style: {
           fontSize: '24px',
           display: 'flex',
@@ -1008,7 +799,7 @@ const TEMPLATE_REGISTRY = {
           paddingLeft: '5px'
         },
         defaultText: null,
-        description: 'Visual element (900x720px)'
+        description: 'Image area (900x720px)'
       },
       content_right: {
         gridRow: '4/18',
@@ -1021,7 +812,7 @@ const TEMPLATE_REGISTRY = {
           padding: '20px 25px 20px 10px'
         },
         defaultText: 'Key Insights',
-        description: 'Text/observations (840x720px)'
+        description: 'Text/observations (600x720px)'
       },
       footer: {
         gridRow: '18/19',
@@ -1029,6 +820,9 @@ const TEMPLATE_REGISTRY = {
         tag: 'footer',
         accepts: ['text'],
         style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
           paddingLeft: '5px'
         },
         defaultText: 'Footer'
@@ -1043,15 +837,332 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {},
-    thumbnail: 'split-visual-text.svg'
+    thumbnail: 'visual-image-text.svg'
   },
 
-  'S2-image-content': {
-    id: 'S2-image-content',
-    name: 'Image + Content',
-    category: 'split',
-    description: 'Full-height image on left, content on right',
-    renderer: 'renderS2ImageContent',
+  'V2-chart-text': {
+    id: 'V2-chart-text',
+    name: 'Chart + Text',
+    category: 'visual',
+    description: 'Chart on left, text insights on right',
+    renderer: 'renderV2ChartText',
+    baseLayout: 'L02',
+    slots: {
+      title: {
+        gridRow: '1/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '48px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '32px',
+          fontWeight: 'normal',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left',
+          padding: '0',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Subtitle'
+      },
+      content_left: {
+        gridRow: '4/18',
+        gridColumn: '2/20',
+        tag: 'chart',
+        accepts: ['chart'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingLeft: '5px'
+        },
+        defaultText: null,
+        description: 'Chart area (900x720px)'
+      },
+      content_right: {
+        gridRow: '4/18',
+        gridColumn: '20/32',
+        tag: 'body',
+        accepts: ['body', 'table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '20px 25px 20px 10px'
+        },
+        defaultText: 'Key Insights',
+        description: 'Text/observations (600x720px)'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Footer'
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: null
+      }
+    },
+    defaults: {},
+    thumbnail: 'visual-chart-text.svg'
+  },
+
+  'V3-diagram-text': {
+    id: 'V3-diagram-text',
+    name: 'Diagram + Text',
+    category: 'visual',
+    description: 'Diagram on left, text insights on right',
+    renderer: 'renderV3DiagramText',
+    baseLayout: 'L02',
+    slots: {
+      title: {
+        gridRow: '1/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '48px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '32px',
+          fontWeight: 'normal',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left',
+          padding: '0',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Subtitle'
+      },
+      content_left: {
+        gridRow: '4/18',
+        gridColumn: '2/20',
+        tag: 'diagram',
+        accepts: ['diagram'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingLeft: '5px'
+        },
+        defaultText: null,
+        description: 'Diagram area (900x720px)'
+      },
+      content_right: {
+        gridRow: '4/18',
+        gridColumn: '20/32',
+        tag: 'body',
+        accepts: ['body', 'table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '20px 25px 20px 10px'
+        },
+        defaultText: 'Key Insights',
+        description: 'Text/observations (600x720px)'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Footer'
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: null
+      }
+    },
+    defaults: {},
+    thumbnail: 'visual-diagram-text.svg'
+  },
+
+  'V4-infographic-text': {
+    id: 'V4-infographic-text',
+    name: 'Infographic + Text',
+    category: 'visual',
+    description: 'Infographic on left, text insights on right',
+    renderer: 'renderV4InfographicText',
+    baseLayout: 'L02',
+    slots: {
+      title: {
+        gridRow: '1/3',
+        gridColumn: '2/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '48px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left',
+          padding: '0',
+          paddingBottom: '4px',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '2/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '32px',
+          fontWeight: 'normal',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          textAlign: 'left',
+          padding: '0',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Subtitle'
+      },
+      content_left: {
+        gridRow: '4/18',
+        gridColumn: '2/20',
+        tag: 'infographic',
+        accepts: ['infographic'],
+        style: {
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingLeft: '5px'
+        },
+        defaultText: null,
+        description: 'Infographic area (900x720px)'
+      },
+      content_right: {
+        gridRow: '4/18',
+        gridColumn: '20/32',
+        tag: 'body',
+        accepts: ['body', 'table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '20px 25px 20px 10px'
+        },
+        defaultText: 'Key Insights',
+        description: 'Text/observations (600x720px)'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280',
+          paddingLeft: '5px'
+        },
+        defaultText: 'Footer'
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {},
+        defaultText: null
+      }
+    },
+    defaults: {},
+    thumbnail: 'visual-infographic-text.svg'
+  },
+
+  // ===========================================
+  // IMAGE SPLIT TEMPLATES (I Series)
+  // Full-height image with content
+  // ===========================================
+
+  'I1-image-left': {
+    id: 'I1-image-left',
+    name: 'Image Left (Wide)',
+    category: 'image',
+    description: 'Full-height image on left (12 cols), content on right',
+    renderer: 'renderI1ImageLeft',
     baseLayout: 'L27',
     slots: {
       image: {
@@ -1077,10 +1188,11 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'flex-end', // BOTTOM align (vertical)
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
           textAlign: 'left',
           padding: '0px 25px'
         },
@@ -1095,10 +1207,11 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',   // LEFT align (horizontal)
-          justifyContent: 'center',   // MIDDLE align (vertical)
+          alignItems: 'flex-start',
+          justifyContent: 'center',
           textAlign: 'left',
           padding: '0px 25px'
         },
@@ -1122,7 +1235,11 @@ const TEMPLATE_REGISTRY = {
         gridColumn: '12/17',
         tag: 'footer',
         accepts: ['text'],
-        style: {},
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
         defaultText: 'Footer'
       },
       logo: {
@@ -1137,8 +1254,315 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {},
-    thumbnail: 'split-image-content.svg'
+    thumbnail: 'image-left-wide.svg'
   },
+
+  'I2-image-right': {
+    id: 'I2-image-right',
+    name: 'Image Right (Wide)',
+    category: 'image',
+    description: 'Full-height image on right (12 cols), content on left',
+    renderer: 'renderI2ImageRight',
+    baseLayout: null,
+    slots: {
+      image: {
+        gridRow: '1/19',
+        gridColumn: '21/33',
+        tag: 'image',
+        accepts: ['image'],
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
+        description: 'Full-height image (660x1080px)'
+      },
+      title: {
+        gridRow: '1/3',
+        gridColumn: '1/21',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '48px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left',
+          padding: '0px 25px'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '1/21',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '32px',
+          fontWeight: 'normal',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left',
+          padding: '0px 25px'
+        },
+        defaultText: 'Subtitle'
+      },
+      content: {
+        gridRow: '4/18',
+        gridColumn: '1/21',
+        tag: 'body',
+        accepts: ['body', 'table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 25px'
+        },
+        defaultText: null,
+        description: 'Main content area'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: 'Footer'
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '18/20',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
+      }
+    },
+    defaults: {},
+    thumbnail: 'image-right-wide.svg'
+  },
+
+  'I3-image-left-narrow': {
+    id: 'I3-image-left-narrow',
+    name: 'Image Left (Narrow)',
+    category: 'image',
+    description: 'Full-height narrow image on left (6 cols), content on right',
+    renderer: 'renderI3ImageLeftNarrow',
+    baseLayout: null,
+    slots: {
+      image: {
+        gridRow: '1/19',
+        gridColumn: '1/7',
+        tag: 'image',
+        accepts: ['image'],
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
+        description: 'Full-height narrow image (330x1080px)'
+      },
+      title: {
+        gridRow: '1/3',
+        gridColumn: '7/32',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '48px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left',
+          padding: '0px 25px'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '7/32',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '32px',
+          fontWeight: 'normal',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left',
+          padding: '0px 25px'
+        },
+        defaultText: 'Subtitle'
+      },
+      content: {
+        gridRow: '4/18',
+        gridColumn: '7/32',
+        tag: 'body',
+        accepts: ['body', 'table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 25px'
+        },
+        defaultText: null,
+        description: 'Main content area'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '7/12',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: 'Footer'
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '30/32',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
+      }
+    },
+    defaults: {},
+    thumbnail: 'image-left-narrow.svg'
+  },
+
+  'I4-image-right-narrow': {
+    id: 'I4-image-right-narrow',
+    name: 'Image Right (Narrow)',
+    category: 'image',
+    description: 'Full-height narrow image on right (6 cols), content on left',
+    renderer: 'renderI4ImageRightNarrow',
+    baseLayout: null,
+    slots: {
+      image: {
+        gridRow: '1/19',
+        gridColumn: '26/33',
+        tag: 'image',
+        accepts: ['image'],
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        },
+        defaultText: null,
+        description: 'Full-height narrow image (330x1080px)'
+      },
+      title: {
+        gridRow: '1/3',
+        gridColumn: '1/26',
+        tag: 'title',
+        accepts: ['text'],
+        style: {
+          fontSize: '48px',
+          fontWeight: 'bold',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#111827',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-end',
+          textAlign: 'left',
+          padding: '0px 25px'
+        },
+        defaultText: 'Slide Title'
+      },
+      subtitle: {
+        gridRow: '3/4',
+        gridColumn: '1/26',
+        tag: 'subtitle',
+        accepts: ['text'],
+        style: {
+          fontSize: '32px',
+          fontWeight: 'normal',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#4b5563',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          textAlign: 'left',
+          padding: '0px 25px'
+        },
+        defaultText: 'Subtitle'
+      },
+      content: {
+        gridRow: '4/18',
+        gridColumn: '1/26',
+        tag: 'body',
+        accepts: ['body', 'table', 'html'],
+        style: {
+          fontSize: '24px',
+          textAlign: 'left',
+          padding: '25px 25px'
+        },
+        defaultText: null,
+        description: 'Main content area'
+      },
+      footer: {
+        gridRow: '18/19',
+        gridColumn: '2/7',
+        tag: 'footer',
+        accepts: ['text'],
+        style: {
+          fontSize: '14px',
+          fontFamily: 'Poppins, sans-serif',
+          color: '#6b7280'
+        },
+        defaultText: 'Footer'
+      },
+      logo: {
+        gridRow: '17/19',
+        gridColumn: '23/25',
+        tag: 'logo',
+        accepts: ['image', 'emoji'],
+        style: {
+          fontSize: '20px'
+        },
+        defaultText: 'Logo'
+      }
+    },
+    defaults: {},
+    thumbnail: 'image-right-narrow.svg'
+  },
+
+  // ===========================================
+  // SPLIT CONTENT TEMPLATES (S Series)
+  // ===========================================
+
+  // S1-visual-text REMOVED - replaced by V series (V1-V4)
+  // S2-image-content REMOVED - replaced by I series (I1-I4)
 
   'S3-two-visuals': {
     id: 'S3-two-visuals',
@@ -1878,12 +2302,22 @@ const TEMPLATE_CATEGORIES = {
   content: {
     name: 'Content Slides',
     description: 'Single content area slides',
-    templates: ['C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image']
+    templates: ['C1-text', 'C3-chart', 'C4-infographic', 'C5-diagram']
+  },
+  visual: {
+    name: 'Visual + Text',
+    description: 'Visual element on left with text insights on right',
+    templates: ['V1-image-text', 'V2-chart-text', 'V3-diagram-text', 'V4-infographic-text']
+  },
+  image: {
+    name: 'Image Split',
+    description: 'Full-height image with content area',
+    templates: ['I1-image-left', 'I2-image-right', 'I3-image-left-narrow', 'I4-image-right-narrow']
   },
   split: {
     name: 'Split Layout Slides',
     description: 'Two-column and multi-element layouts',
-    templates: ['S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison']
+    templates: ['S3-two-visuals', 'S4-comparison']
   },
   blank: {
     name: 'Blank',

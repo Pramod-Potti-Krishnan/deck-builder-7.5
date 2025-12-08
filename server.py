@@ -4,8 +4,10 @@ FastAPI server for v7.5-main: Simplified Layout Architecture
 Port: 8504
 Backend Layouts: L01, L02, L03, L25, L27, L29
 Frontend Templates: H1-generated, H1-structured, H2-section, H3-closing,
-                   C1-text, C2-table, C3-chart, C4-infographic, C5-diagram, C6-image,
-                   S1-visual-text, S2-image-content, S3-two-visuals, S4-comparison, B1-blank
+                   C1-text, C3-chart, C4-infographic, C5-diagram,
+                   V1-image-text, V2-chart-text, V3-diagram-text, V4-infographic-text,
+                   I1-image-left, I2-image-right, I3-image-left-narrow, I4-image-right-narrow,
+                   S3-two-visuals, S4-comparison, B1-blank
 """
 
 import os
@@ -128,13 +130,7 @@ def get_default_content(layout: str) -> dict:
             "footer_text": "Footer",
             "company_logo": "Logo"
         },
-        "C2-table": {
-            "slide_title": "Table Title",
-            "subtitle": "Subtitle",
-            "table_html": "Table Area",
-            "footer_text": "Footer",
-            "company_logo": "Logo"
-        },
+        # C2-table REMOVED - merged into C1-text (tables are hypertext)
         "C3-chart": {
             "slide_title": "Chart Title",
             "subtitle": "Subtitle",
@@ -156,32 +152,79 @@ def get_default_content(layout: str) -> dict:
             "footer_text": "Footer",
             "company_logo": "Logo"
         },
-        "C6-image": {
-            "slide_title": "Image Title",
-            "subtitle": "Subtitle",
-            "image_url": "Image Area",
-            "footer_text": "Footer",
-            "company_logo": "Logo"
-        },
+        # C6-image REMOVED - use I series for image layouts
 
-        # ========== FRONTEND TEMPLATES - SPLIT ==========
-        # Default text values should match Template Builder v7.4 placeholders
-        "S1-visual-text": {
+        # ========== FRONTEND TEMPLATES - VISUAL + TEXT (V Series) ==========
+        "V1-image-text": {
             "slide_title": "Slide Title",
             "subtitle": "Subtitle",
-            "visual_content": "Visual Area",
+            "image_url": "",
             "body": "Key Insights",
             "footer_text": "Footer",
             "company_logo": "Logo"
         },
-        "S2-image-content": {
+        "V2-chart-text": {
             "slide_title": "Slide Title",
             "subtitle": "Subtitle",
-            "image_url": "",
-            "body": "Content Area",
+            "chart_html": "",
+            "body": "Key Insights",
             "footer_text": "Footer",
             "company_logo": "Logo"
         },
+        "V3-diagram-text": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "diagram_svg": "",
+            "body": "Key Insights",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
+        },
+        "V4-infographic-text": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "infographic_svg": "",
+            "body": "Key Insights",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
+        },
+
+        # ========== FRONTEND TEMPLATES - IMAGE SPLIT (I Series) ==========
+        "I1-image-left": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "image_url": "",
+            "body": "",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
+        },
+        "I2-image-right": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "image_url": "",
+            "body": "",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
+        },
+        "I3-image-left-narrow": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "image_url": "",
+            "body": "",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
+        },
+        "I4-image-right-narrow": {
+            "slide_title": "Slide Title",
+            "subtitle": "Subtitle",
+            "image_url": "",
+            "body": "",
+            "footer_text": "Footer",
+            "company_logo": "Logo"
+        },
+
+        # ========== FRONTEND TEMPLATES - SPLIT (S Series) ==========
+        # S1-visual-text REMOVED - replaced by V series (V1-V4)
+        # S2-image-content REMOVED - replaced by I series (I1-I4)
         "S3-two-visuals": {
             "slide_title": "Slide Title",
             "subtitle": "Subtitle",
@@ -283,8 +326,10 @@ async def root():
             "backend": ["L01", "L02", "L03", "L25", "L27", "L29"],
             "frontend": {
                 "hero": ["H1-generated", "H1-structured", "H2-section", "H3-closing"],
-                "content": ["C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image"],
-                "split": ["S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison"],
+                "content": ["C1-text", "C3-chart", "C4-infographic", "C5-diagram"],
+                "visual": ["V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text"],
+                "image": ["I1-image-left", "I2-image-right", "I3-image-left-narrow", "I4-image-right-narrow"],
+                "split": ["S3-two-visuals", "S4-comparison"],
                 "blank": ["B1-blank"]
             }
         },
@@ -362,9 +407,13 @@ async def create_presentation(request: Presentation):
             # Frontend templates - Hero
             "H1-generated", "H1-structured", "H2-section", "H3-closing",
             # Frontend templates - Content
-            "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
+            "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
+            # Frontend templates - Visual + Text (V series)
+            "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
+            # Frontend templates - Image Split (I series)
+            "I1-image-left", "I2-image-right", "I3-image-left-narrow", "I4-image-right-narrow",
             # Frontend templates - Split
-            "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+            "S3-two-visuals", "S4-comparison",
             # Frontend templates - Blank
             "B1-blank"
         ]
@@ -1282,8 +1331,10 @@ async def add_slide(
         valid_layouts = [
             "L01", "L02", "L03", "L25", "L27", "L29",
             "H1-generated", "H1-structured", "H2-section", "H3-closing",
-            "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
-            "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+            "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
+            "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
+            "I1-image-left", "I2-image-right", "I3-image-left-narrow", "I4-image-right-narrow",
+            "S3-two-visuals", "S4-comparison",
             "B1-blank"
         ]
         if request.layout not in valid_layouts:
@@ -1451,8 +1502,10 @@ async def change_slide_layout(
         valid_layouts = [
             "L01", "L02", "L03", "L25", "L27", "L29",
             "H1-generated", "H1-structured", "H2-section", "H3-closing",
-            "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
-            "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+            "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
+            "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
+            "I1-image-left", "I2-image-right", "I3-image-left-narrow", "I4-image-right-narrow",
+            "S3-two-visuals", "S4-comparison",
             "B1-blank"
         ]
         if request.new_layout not in valid_layouts:

@@ -17,7 +17,7 @@ import re
 
 
 # ==================== Valid Layout Types ====================
-# All supported layouts: Backend (L01-L29) + Frontend Templates (H1-H3, C1-C6, S1-S4, B1)
+# All supported layouts: Backend (L01-L29) + Frontend Templates (H1-H3, C1-C5, V1-V4, I1-I4, S3-S4, B1)
 
 ValidLayoutType = Literal[
     # Backend layouts
@@ -25,9 +25,13 @@ ValidLayoutType = Literal[
     # Frontend templates - Hero
     "H1-generated", "H1-structured", "H2-section", "H3-closing",
     # Frontend templates - Content
-    "C1-text", "C2-table", "C3-chart", "C4-infographic", "C5-diagram", "C6-image",
+    "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
+    # Frontend templates - Visual + Text (V series)
+    "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
+    # Frontend templates - Image Split (I series)
+    "I1-image-left", "I2-image-right", "I3-image-left-narrow", "I4-image-right-narrow",
     # Frontend templates - Split
-    "S1-visual-text", "S2-image-content", "S3-two-visuals", "S4-comparison",
+    "S3-two-visuals", "S4-comparison",
     # Frontend templates - Blank
     "B1-blank"
 ]

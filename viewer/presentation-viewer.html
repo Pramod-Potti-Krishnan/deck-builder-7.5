@@ -268,7 +268,7 @@
     // Presentation data (injected by server)
     const PRESENTATION_DATA = null;
 
-    // Renderer registry - Backend layouts (6) + Frontend templates (15)
+    // Renderer registry - Backend layouts (6) + Frontend templates (19)
     const RENDERERS = {
       // Backend layouts (continue to work as-is)
       'L01': window.renderL01,
@@ -284,22 +284,36 @@
       'H2-section': window.renderH2Section,
       'H3-closing': window.renderH3Closing,
 
-      // Frontend templates - Content (6)
+      // Frontend templates - Content (4)
       'C1-text': window.renderC1Text,
-      'C2-table': window.renderC2Table,
       'C3-chart': window.renderC3Chart,
       'C4-infographic': window.renderC4Infographic,
       'C5-diagram': window.renderC5Diagram,
-      'C6-image': window.renderC6Image,
 
-      // Frontend templates - Split (4)
-      'S1-visual-text': window.renderS1VisualText,
-      'S2-image-content': window.renderS2ImageContent,
+      // Frontend templates - Visual + Text (4) NEW
+      'V1-image-text': window.renderV1ImageText,
+      'V2-chart-text': window.renderV2ChartText,
+      'V3-diagram-text': window.renderV3DiagramText,
+      'V4-infographic-text': window.renderV4InfographicText,
+
+      // Frontend templates - Image Split (4) NEW
+      'I1-image-left': window.renderI1ImageLeft,
+      'I2-image-right': window.renderI2ImageRight,
+      'I3-image-left-narrow': window.renderI3ImageLeftNarrow,
+      'I4-image-right-narrow': window.renderI4ImageRightNarrow,
+
+      // Frontend templates - Split (2)
       'S3-two-visuals': window.renderS3TwoVisuals,
       'S4-comparison': window.renderS4Comparison,
 
       // Frontend templates - Blank (1)
-      'B1-blank': window.renderB1Blank
+      'B1-blank': window.renderB1Blank,
+
+      // Legacy templates (kept for backward compatibility)
+      'C2-table': window.renderC1Text,        // Tables work in C1-text
+      'C6-image': window.renderI1ImageLeft,   // Use I1 for single images
+      'S1-visual-text': window.renderV1ImageText,  // Generic visual -> V1
+      'S2-image-content': window.renderI1ImageLeft // Image+content -> I1
     };
 
     /**

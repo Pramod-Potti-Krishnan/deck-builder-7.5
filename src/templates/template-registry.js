@@ -346,7 +346,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/18',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'body',
         accepts: ['body', 'html'],
@@ -359,7 +359,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
           textAlign: 'left',
-          padding: '20px 0px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
         defaultText: 'Content Area',
@@ -453,7 +454,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/18',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'table',
         accepts: ['table', 'html'],
@@ -466,7 +467,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
           textAlign: 'left',
-          padding: '20px 0px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
         defaultText: 'Table Area',
@@ -560,7 +562,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/18',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'chart',
         accepts: ['chart'],
@@ -573,7 +575,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
         defaultText: 'Chart Area',
@@ -667,7 +670,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/18',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'infographic',
         accepts: ['infographic'],
@@ -680,7 +683,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
         defaultText: 'Infographic Area',
@@ -774,7 +778,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/18',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'diagram',
         accepts: ['diagram'],
@@ -787,7 +791,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
         defaultText: 'Diagram Area',
@@ -881,7 +886,7 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Subtitle'
       },
       content: {
-        gridRow: '5/18',
+        gridRow: '4/18',
         gridColumn: '2/32',
         tag: 'image',
         accepts: ['image'],
@@ -894,7 +899,8 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '20px 0px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
         defaultText: 'Image Area',

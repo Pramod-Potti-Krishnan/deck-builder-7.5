@@ -1226,10 +1226,11 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           textAlign: 'left',
-          padding: '10px 10px',
+          padding: '0',
+          paddingTop: '20px',
           paddingLeft: '5px'
         },
-        defaultText: null,
+        defaultText: 'Key Insights 1',
         description: 'Left caption/description'
       },
       caption_right: {
@@ -1240,9 +1241,11 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           textAlign: 'left',
-          padding: '10px 10px'
+          padding: '0',
+          paddingTop: '20px',
+          paddingLeft: '5px'
         },
-        defaultText: null,
+        defaultText: 'Key Insights 2',
         description: 'Right caption/description'
       },
       footer: {
@@ -1325,7 +1328,7 @@ const TEMPLATE_REGISTRY = {
           textTransform: 'uppercase',
           paddingLeft: '5px'
         },
-        defaultText: null,
+        defaultText: 'Option A',
         description: 'Left column header (e.g., "Before", "Option A")'
       },
       header_right: {
@@ -1335,9 +1338,10 @@ const TEMPLATE_REGISTRY = {
         accepts: ['text'],
         style: {
           fontSize: '24px',
-          textTransform: 'uppercase'
+          textTransform: 'uppercase',
+          paddingLeft: '5px'
         },
-        defaultText: null,
+        defaultText: 'Option B',
         description: 'Right column header (e.g., "After", "Option B")'
       },
       content_left: {
@@ -1350,7 +1354,7 @@ const TEMPLATE_REGISTRY = {
           textAlign: 'left',
           paddingLeft: '5px'
         },
-        defaultText: null,
+        defaultText: 'Content 1',
         description: 'Left column content'
       },
       content_right: {
@@ -1360,9 +1364,10 @@ const TEMPLATE_REGISTRY = {
         accepts: ['body', 'table', 'html', 'image', 'chart'],
         style: {
           fontSize: '24px',
-          textAlign: 'left'
+          textAlign: 'left',
+          paddingLeft: '5px'
         },
-        defaultText: null,
+        defaultText: 'Content 2',
         description: 'Right column content'
       },
       footer: {

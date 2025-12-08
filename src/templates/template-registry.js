@@ -2331,56 +2331,6 @@ const TEMPLATE_CATEGORIES = {
 };
 
 // ===========================================
-// SLOT STYLE DEFAULTS (for theming)
-// ===========================================
-
-const SLOT_STYLE_DEFAULTS = {
-  // Standard slide styles
-  standard: {
-    title: {
-      fontSize: '42px',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      lineHeight: '1.2'
-    },
-    subtitle: {
-      fontSize: '24px',
-      fontWeight: 'normal',
-      color: '#6b7280',
-      lineHeight: '1.4'
-    },
-    body: {
-      fontSize: '20px',
-      color: '#374151',
-      lineHeight: '1.6'
-    },
-    footer: {
-      fontSize: '18px',
-      fontWeight: '500',
-      color: '#1f2937'
-    }
-  },
-  // Hero slide styles (larger, usually light text on dark)
-  hero: {
-    title: {
-      fontSize: '72px',
-      fontWeight: 'bold',
-      color: '#ffffff',
-      textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-    },
-    subtitle: {
-      fontSize: '32px',
-      fontWeight: 'normal',
-      color: '#e5e7eb'
-    },
-    footer: {
-      fontSize: '18px',
-      color: '#d1d5db'
-    }
-  }
-};
-
-// ===========================================
 // HELPER FUNCTIONS
 // ===========================================
 
@@ -2421,7 +2371,6 @@ function slotAccepts(templateId, slotName, contentType) {
 if (typeof window !== 'undefined') {
   window.TEMPLATE_REGISTRY = TEMPLATE_REGISTRY;
   window.TEMPLATE_CATEGORIES = TEMPLATE_CATEGORIES;
-  window.SLOT_STYLE_DEFAULTS = SLOT_STYLE_DEFAULTS;
   window.getTemplate = getTemplate;
   window.getTemplatesByCategory = getTemplatesByCategory;
   window.getAllTemplateIds = getAllTemplateIds;
@@ -2433,7 +2382,6 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     TEMPLATE_REGISTRY,
     TEMPLATE_CATEGORIES,
-    SLOT_STYLE_DEFAULTS,
     getTemplate,
     getTemplatesByCategory,
     getAllTemplateIds,

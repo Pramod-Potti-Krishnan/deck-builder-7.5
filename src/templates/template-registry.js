@@ -33,7 +33,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#1f2937'
+      background_color: 'var(--theme-text-primary, #1f2937)'
     },
     thumbnail: 'hero-generated.svg'
   },
@@ -65,7 +65,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',
+          color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',    // LEFT (horizontal cross-axis)
@@ -83,7 +83,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '32px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#94a3b8',
+          color: 'var(--theme-hero-text-secondary, #94a3b8)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',    // LEFT (horizontal cross-axis)
@@ -102,7 +102,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '26px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',
+          color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -161,7 +161,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '180px',  // Large section number
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',
+          color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',      // CENTER (horizontal)
@@ -180,7 +180,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '64px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',
+          color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',    // LEFT (horizontal)
@@ -194,7 +194,7 @@ const TEMPLATE_REGISTRY = {
       // NOTE: No subtitle in Template Builder design for H2-section
     },
     defaults: {
-      background_color: '#374151'
+      background_color: 'var(--theme-text-body, #374151)'
     },
     thumbnail: 'section-divider.svg'
   },
@@ -226,7 +226,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',
+          color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',        // CENTER (horizontal)
@@ -244,7 +244,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '32px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#94a3b8',
+          color: 'var(--theme-hero-text-secondary, #94a3b8)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',        // CENTER (horizontal)
@@ -262,7 +262,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',
+          color: 'var(--theme-hero-text-primary, #ffffff)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',        // CENTER (horizontal)
@@ -306,6 +306,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Standard slide with body text (paragraphs, bullets)',
     renderer: 'renderC1Text',
     baseLayout: 'L25',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -316,7 +317,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',           // Dark for content slides
+          color: 'var(--theme-text-primary, #111827)',           // Dark for content slides
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -337,7 +338,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',           // Medium gray for subtitle
+          color: 'var(--theme-text-secondary, #4b5563)',           // Medium gray for subtitle
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -357,7 +358,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151',           // Body text gray
+          color: 'var(--theme-text-body, #374151)',           // Body text gray
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -378,7 +379,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',           // Light gray for footer
+          color: 'var(--theme-footer-text, #6b7280)',           // Light gray for footer
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -416,6 +417,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Slide with one chart visualization',
     renderer: 'renderC3Chart',
     baseLayout: 'L25',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -426,7 +428,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -447,7 +449,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -467,7 +469,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151',
+          color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -488,7 +490,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -524,6 +526,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Slide with one infographic',
     renderer: 'renderC4Infographic',
     baseLayout: 'L25',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -534,7 +537,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -555,7 +558,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -575,7 +578,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151',
+          color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -596,7 +599,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -632,6 +635,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Slide with one diagram',
     renderer: 'renderC5Diagram',
     baseLayout: 'L25',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -642,7 +646,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -663,7 +667,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',   // LEFT align (horizontal)
@@ -683,7 +687,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151',
+          color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -704,7 +708,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -747,6 +751,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Image on left, text insights on right',
     renderer: 'renderV1ImageText',
     baseLayout: 'L02',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -757,7 +762,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -778,7 +783,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -826,7 +831,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
         defaultText: 'Footer'
@@ -851,6 +856,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Chart on left, text insights on right',
     renderer: 'renderV2ChartText',
     baseLayout: 'L02',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -861,7 +867,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -882,7 +888,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -930,7 +936,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
         defaultText: 'Footer'
@@ -955,6 +961,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Diagram on left, text insights on right',
     renderer: 'renderV3DiagramText',
     baseLayout: 'L02',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -965,7 +972,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -986,7 +993,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1034,7 +1041,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
         defaultText: 'Footer'
@@ -1059,6 +1066,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Infographic on left, text insights on right',
     renderer: 'renderV4InfographicText',
     baseLayout: 'L02',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -1069,7 +1077,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1090,7 +1098,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1138,7 +1146,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280',
+          color: 'var(--theme-footer-text, #6b7280)',
           paddingLeft: '5px'
         },
         defaultText: 'Footer'
@@ -1168,6 +1176,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Full-height image on left (12 cols), content on right',
     renderer: 'renderI1ImageLeft',
     baseLayout: 'L27',
+    themingEnabled: true,
     slots: {
       image: {
         gridRow: '1/19',
@@ -1192,7 +1201,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1211,7 +1220,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1242,7 +1251,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
       },
@@ -1268,6 +1277,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Full-height image on right (12 cols), content on left',
     renderer: 'renderI2ImageRight',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       image: {
         gridRow: '1/19',
@@ -1292,7 +1302,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1311,7 +1321,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1342,7 +1352,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
       },
@@ -1368,6 +1378,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Full-height narrow image on left (6 cols), content on right',
     renderer: 'renderI3ImageLeftNarrow',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       image: {
         gridRow: '1/19',
@@ -1392,7 +1403,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1411,7 +1422,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1442,7 +1453,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
       },
@@ -1468,6 +1479,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Full-height narrow image on right (6 cols), content on left',
     renderer: 'renderI4ImageRightNarrow',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       image: {
         gridRow: '1/19',
@@ -1492,7 +1504,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '48px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#111827',
+          color: 'var(--theme-text-primary, #111827)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1511,7 +1523,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '32px',
           fontWeight: 'normal',
           fontFamily: 'Poppins, sans-serif',
-          color: '#4b5563',
+          color: 'var(--theme-text-secondary, #4b5563)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
@@ -1542,7 +1554,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '14px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Footer'
       },
@@ -1575,6 +1587,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Two charts/diagrams/infographics side by side',
     renderer: 'renderS3TwoVisuals',
     baseLayout: 'L03',
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -1706,6 +1719,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Two columns for comparing items (before/after, pros/cons)',
     renderer: 'renderS4Comparison',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       title: {
         gridRow: '1/3',
@@ -1862,7 +1876,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '42px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
       },
@@ -1874,7 +1888,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: 'Subtitle'
       },
@@ -1886,7 +1900,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '20px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151'
+          color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
         description: 'Main content area (Text Service owns)',
@@ -1900,7 +1914,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '18px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
       },
@@ -1914,7 +1928,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#ffffff'
+      background_color: 'var(--theme-hero-text-primary, #ffffff)'
     }
   },
 
@@ -1968,7 +1982,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '42px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
       },
@@ -1980,7 +1994,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
       },
@@ -1992,7 +2006,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '20px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151'
+          color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
         description: 'Main text content area'
@@ -2005,7 +2019,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '18px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
       },
@@ -2019,7 +2033,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#ffffff'
+      background_color: 'var(--theme-hero-text-primary, #ffffff)'
     }
   },
 
@@ -2040,7 +2054,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '42px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
       },
@@ -2052,7 +2066,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
       },
@@ -2074,7 +2088,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '20px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151'
+          color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
         description: 'Text below chart'
@@ -2087,7 +2101,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '18px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
       },
@@ -2101,7 +2115,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#ffffff'
+      background_color: 'var(--theme-hero-text-primary, #ffffff)'
     }
   },
 
@@ -2122,7 +2136,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '42px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
       },
@@ -2134,7 +2148,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
       },
@@ -2156,7 +2170,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '20px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151'
+          color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
         description: 'Observations/text area (540x720px)'
@@ -2169,7 +2183,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '18px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
       },
@@ -2183,7 +2197,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#ffffff'
+      background_color: 'var(--theme-hero-text-primary, #ffffff)'
     }
   },
 
@@ -2204,7 +2218,7 @@ const TEMPLATE_REGISTRY = {
           fontSize: '42px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: 'Slide Title'
       },
@@ -2216,7 +2230,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '24px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#6b7280'
+          color: 'var(--theme-footer-text, #6b7280)'
         },
         defaultText: ''
       },
@@ -2248,7 +2262,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '20px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151'
+          color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
         description: 'Left text below chart'
@@ -2261,7 +2275,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '20px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#374151'
+          color: 'var(--theme-text-body, #374151)'
         },
         defaultText: '',
         description: 'Right text below chart'
@@ -2274,7 +2288,7 @@ const TEMPLATE_REGISTRY = {
         style: {
           fontSize: '18px',
           fontFamily: 'Poppins, sans-serif',
-          color: '#1f2937'
+          color: 'var(--theme-text-primary, #1f2937)'
         },
         defaultText: ''
       },
@@ -2288,7 +2302,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#ffffff'
+      background_color: 'var(--theme-hero-text-primary, #ffffff)'
     }
   }
 };

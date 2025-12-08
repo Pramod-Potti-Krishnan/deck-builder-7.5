@@ -1281,7 +1281,7 @@ const TEMPLATE_REGISTRY = {
       },
       title: {
         gridRow: '1/3',
-        gridColumn: '1/21',
+        gridColumn: '2/21',
         tag: 'title',
         accepts: ['text'],
         style: {
@@ -1294,13 +1294,13 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'flex-end',
           textAlign: 'left',
-          padding: '0px 25px'
+          padding: '0px 25px 0px 4px'
         },
         defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
-        gridColumn: '1/21',
+        gridColumn: '2/21',
         tag: 'subtitle',
         accepts: ['text'],
         style: {
@@ -1313,19 +1313,19 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'center',
           textAlign: 'left',
-          padding: '0px 25px'
+          padding: '0px 25px 0px 4px'
         },
         defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/18',
-        gridColumn: '1/21',
+        gridColumn: '2/21',
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
           fontSize: '24px',
           textAlign: 'left',
-          padding: '25px 25px'
+          padding: '25px 25px 25px 4px'
         },
         defaultText: null,
         description: 'Main content area'
@@ -1481,7 +1481,7 @@ const TEMPLATE_REGISTRY = {
       },
       title: {
         gridRow: '1/3',
-        gridColumn: '1/26',
+        gridColumn: '2/26',
         tag: 'title',
         accepts: ['text'],
         style: {
@@ -1494,13 +1494,13 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'flex-end',
           textAlign: 'left',
-          padding: '0px 25px'
+          padding: '0px 25px 0px 4px'
         },
         defaultText: 'Slide Title'
       },
       subtitle: {
         gridRow: '3/4',
-        gridColumn: '1/26',
+        gridColumn: '2/26',
         tag: 'subtitle',
         accepts: ['text'],
         style: {
@@ -1513,19 +1513,19 @@ const TEMPLATE_REGISTRY = {
           alignItems: 'flex-start',
           justifyContent: 'center',
           textAlign: 'left',
-          padding: '0px 25px'
+          padding: '0px 25px 0px 4px'
         },
         defaultText: 'Subtitle'
       },
       content: {
         gridRow: '4/18',
-        gridColumn: '1/26',
+        gridColumn: '2/26',
         tag: 'body',
         accepts: ['body', 'table', 'html'],
         style: {
           fontSize: '24px',
           textAlign: 'left',
-          padding: '25px 25px'
+          padding: '25px 25px 25px 4px'
         },
         defaultText: null,
         description: 'Main content area'

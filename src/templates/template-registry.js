@@ -128,7 +128,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#1e3a5f',
+      background_color: 'var(--theme-hero-bg, #1e3a5f)',
       background_image: null
     },
     thumbnail: 'hero-structured.svg'
@@ -290,7 +290,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#1e3a5f'
+      background_color: 'var(--theme-hero-bg, #1e3a5f)'
     },
     thumbnail: 'closing-slide.svg'
   },
@@ -1928,7 +1928,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: 'var(--theme-hero-text-primary, #ffffff)'
+      background_color: 'var(--theme-bg, #ffffff)'
     }
   },
 
@@ -1952,7 +1952,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: '#1e3a5f'
+      background_color: 'var(--theme-hero-bg, #1e3a5f)'
     }
   },
 
@@ -2033,7 +2033,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: 'var(--theme-hero-text-primary, #ffffff)'
+      background_color: 'var(--theme-bg, #ffffff)'
     }
   },
 
@@ -2115,7 +2115,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: 'var(--theme-hero-text-primary, #ffffff)'
+      background_color: 'var(--theme-bg, #ffffff)'
     }
   },
 
@@ -2197,7 +2197,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: 'var(--theme-hero-text-primary, #ffffff)'
+      background_color: 'var(--theme-bg, #ffffff)'
     }
   },
 
@@ -2302,7 +2302,7 @@ const TEMPLATE_REGISTRY = {
       }
     },
     defaults: {
-      background_color: 'var(--theme-hero-text-primary, #ffffff)'
+      background_color: 'var(--theme-bg, #ffffff)'
     }
   }
 };

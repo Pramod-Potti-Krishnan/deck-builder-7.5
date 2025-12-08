@@ -326,18 +326,12 @@
 
     const id = config.id || generateId('table');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] Table ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        console.warn(`[ElementManager] Found stale Table ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing.`);
-        existingElement.remove();
-      }
+      console.log(`[ElementManager] Table ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
@@ -485,18 +479,12 @@
     const isPlaceholderMode = !config.chartHtml && !config.chartConfig;
     const id = config.id || generateId('chart');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] Chart ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        console.warn(`[ElementManager] Found stale Chart ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing.`);
-        existingElement.remove();
-      }
+      console.log(`[ElementManager] Chart ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
@@ -875,21 +863,12 @@
     const isPlaceholderMode = !config.imageUrl;
     const id = config.id || generateId('image');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      // Verify the element is on the correct slide before skipping
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] Image ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        // Element exists but on wrong slide - this is a stale element, remove it
-        console.warn(`[ElementManager] Found stale Image ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing stale element.`);
-        existingElement.remove();
-      }
+      console.log(`[ElementManager] Image ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
@@ -1137,18 +1116,12 @@
     const isPlaceholderMode = !config.svgContent;
     const id = config.id || generateId('infographic');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] Infographic ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        console.warn(`[ElementManager] Found stale Infographic ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing.`);
-        existingElement.remove();
-      }
+      console.log(`[ElementManager] Infographic ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
@@ -1377,18 +1350,12 @@
     const isPlaceholderMode = !config.svgContent && !config.mermaidCode;
     const id = config.id || generateId('diagram');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] Diagram ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        console.warn(`[ElementManager] Found stale Diagram ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing.`);
-        existingElement.remove();
-      }
+      console.log(`[ElementManager] Diagram ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
@@ -1704,22 +1671,14 @@
     // Use provided id (for restoration) or generate new one
     const id = config.id || generateId('textbox');
 
-    // DUPLICATE PREVENTION: Skip if element already exists ON THE CORRECT SLIDE
-    // This prevents double-creation during restore + createElementsForTemplate race
-    const existingElement = document.getElementById(id);
+    // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
+    // CRITICAL FIX: Only search within THIS slide, not globally
+    // Using document.getElementById() caused elements from adjacent slides to be incorrectly
+    // detected as "stale" and deleted when inserting new slides (slide indexes shift but IDs don't)
+    const existingElement = slide.querySelector(`#${CSS.escape(id)}`);
     if (existingElement) {
-      // Verify the element is on the correct slide before skipping
-      const existingSlide = existingElement.closest('section[data-slide-index]');
-      const existingSlideIndex = existingSlide?.dataset.slideIndex;
-
-      if (existingSlideIndex === String(slideIndex)) {
-        console.log(`[ElementManager] TextBox ${id} already exists on slide ${slideIndex}, skipping creation`);
-        return { success: true, elementId: id, alreadyExists: true };
-      } else {
-        // Element exists but on wrong slide - this is a stale element, remove it
-        console.warn(`[ElementManager] Found stale TextBox ${id} on slide ${existingSlideIndex}, expected slide ${slideIndex}. Removing stale element.`);
-        existingElement.remove();
-      }
+      console.log(`[ElementManager] TextBox ${id} already exists on slide ${slideIndex}, skipping creation`);
+      return { success: true, elementId: id, alreadyExists: true };
     }
 
     // Support both nested position object and direct gridRow/gridColumn

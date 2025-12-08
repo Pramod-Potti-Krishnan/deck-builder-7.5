@@ -93,25 +93,25 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Presentation Subtitle',
         description: 'Subtitle or tagline'
       },
-      footer: {
+      author_info: {
         gridRow: '16/18',
-        gridColumn: '3/17',  // LEFT HALF (was 3/15)
-        tag: 'footer',
+        gridColumn: '3/17',
+        tag: 'author_info',
         accepts: ['text'],
         style: {
-          fontSize: '26px',  // (was 18px)
+          fontSize: '26px',
           fontWeight: 'bold',
           fontFamily: 'Poppins, sans-serif',
-          color: '#ffffff',              // White text for hero slide
+          color: '#ffffff',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',      // LEFT (horizontal)
-          justifyContent: 'flex-start',  // TOP (vertical)
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
           textAlign: 'left',
           textTransform: 'uppercase'
         },
         defaultText: 'AUTHOR | DATE',
-        description: 'Date, presenter name, or other info'
+        description: 'Presenter name, date, or other info'
       },
       logo: {
         gridRow: '16/18',

@@ -58,6 +58,7 @@
     'title': 'textbox',
     'subtitle': 'textbox',
     'footer': 'textbox',
+    'author_info': 'textbox',  // H1-structured presenter/author info (NOT footer)
     'body': 'textbox',
     'body_left': 'textbox',     // L03 left text below chart
     'body_right': 'textbox',    // L03 right text below chart
@@ -735,7 +736,8 @@
 
       // Hero template specific slots (H1-H3)
       'section_number': content.section_number || content.chapter_number,
-      'contact_info': content.contact_info || content.contact || content.email
+      'contact_info': content.contact_info || content.contact || content.email,
+      'author_info': content.author_info || content.author || content.presenter
     };
 
     return mapping[slotName] || defaultText || '';
@@ -815,7 +817,8 @@
       // Hero template slots (H1-H3)
       'background': 1,         // Full-bleed background - behind everything
       'section_number': 1014,  // H2 large section number
-      'contact_info': 1015     // H3 contact information
+      'contact_info': 1015,    // H3 contact information
+      'author_info': 1014      // H1-structured author/presenter info
     };
     return zIndexMap[slotName] || 1010;
   }

@@ -27,7 +27,7 @@
  * - No slot HTML, no slot conversion, no race conditions
  */
 function buildBlankContentSlide(templateId, content, slide, slideIndex) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '#ffffff');
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, '#ffffff');
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}"
@@ -52,29 +52,29 @@ function buildBlankContentSlide(templateId, content, slide, slideIndex) {
  * For NEW approach using direct element creation, use buildBlankContentSlide().
  */
 function buildContentSlide(templateId, content, slide, slideIndex, contentSlotName, contentHtml) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, '');
   const template = TEMPLATE_REGISTRY[templateId];
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}" class="content-slide grid-container" style="${backgroundStyle}">
       <!-- Title -->
       <div class="slide-title"
-           ${buildSlotAttributes('title', slideIndex)}
-           style="${buildSlotStyle(templateId, 'title')}">
+           ${window.buildSlotAttributes('title', slideIndex)}
+           style="${window.buildSlotStyle(templateId, 'title')}">
         ${content.slide_title || content.title || (template?.slots?.title?.defaultText || '')}
       </div>
 
       <!-- Subtitle -->
       <div class="subtitle"
-           ${buildSlotAttributes('subtitle', slideIndex)}
-           style="${buildSlotStyle(templateId, 'subtitle')}">
+           ${window.buildSlotAttributes('subtitle', slideIndex)}
+           style="${window.buildSlotStyle(templateId, 'subtitle')}">
         ${content.subtitle || content.element_1 || (template?.slots?.subtitle?.defaultText || '')}
       </div>
 
       <!-- Main Content Area -->
       <div class="content-area"
-           ${buildSlotAttributes(contentSlotName, slideIndex)}
-           style="${buildSlotStyle(templateId, 'content', {
+           ${window.buildSlotAttributes(contentSlotName, slideIndex)}
+           style="${window.buildSlotStyle(templateId, 'content', {
              'overflow-y': 'auto',
              'overflow-x': 'hidden'
            })}"
@@ -86,8 +86,8 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
       <!-- Footer -->
       ${(content.presentation_name || content.footer_text || content.footer || template?.slots?.footer?.defaultText) ? `
       <div class="footer"
-           ${buildSlotAttributes('footer', slideIndex)}
-           style="${buildSlotStyle(templateId, 'footer', {
+           ${window.buildSlotAttributes('footer', slideIndex)}
+           style="${window.buildSlotStyle(templateId, 'footer', {
              'display': 'flex',
              'align-items': 'center'
            })}">
@@ -98,8 +98,8 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
       <!-- Company Logo -->
       ${(content.company_logo || template?.slots?.logo?.defaultText) ? `
       <div class="logo"
-           ${buildSlotAttributes('logo', slideIndex)}
-           style="${buildSlotStyle(templateId, 'logo', {
+           ${window.buildSlotAttributes('logo', slideIndex)}
+           style="${window.buildSlotStyle(templateId, 'logo', {
              'display': 'flex',
              'align-items': 'center',
              'justify-content': 'center'

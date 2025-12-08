@@ -44,7 +44,7 @@
  * - No slot HTML, no slot conversion, no race conditions
  */
 function buildBlankSplitSlide(templateId, content, slide, slideIndex) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '');
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, '');
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}"
@@ -217,7 +217,7 @@ function renderS4Comparison(content, slide = {}, slideIndex = 0) {
  * No pre-defined elements - users add elements manually via the toolbar.
  */
 function renderB1Blank(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, '#ffffff');
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, '#ffffff');
 
   return `
     <section data-layout="B1-blank" data-template="B1-blank"

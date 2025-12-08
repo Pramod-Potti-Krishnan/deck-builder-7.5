@@ -26,7 +26,7 @@
 function buildBlankHeroSlide(templateId, content, slide, slideIndex) {
   // Hero slides default to dark background
   const defaultBg = templateId === 'H2-section' ? '#374151' : '#1e3a5f';
-  const backgroundStyle = buildBackgroundStyle(slide, content, defaultBg);
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, defaultBg);
 
   return `
     <section data-layout="${templateId}" data-template="${templateId}"
@@ -49,14 +49,14 @@ function buildBlankHeroSlide(templateId, content, slide, slideIndex) {
  * because AI generates the complete hero_content HTML.
  */
 function renderH1Generated(content, slide = {}, slideIndex = 0) {
-  const backgroundStyle = buildBackgroundStyle(slide, content, getTemplateDefaultBackground('H1-generated'));
+  const backgroundStyle = window.buildBackgroundStyle(slide, content, window.getTemplateDefaultBackground('H1-generated'));
 
   return `
     <section data-layout="H1-generated" data-template="H1-generated" class="hero-slide grid-container" style="${backgroundStyle}">
       <!-- Hero Content Area (full-bleed) -->
       <div class="hero-content-area"
-           ${buildSlotAttributes('hero', slideIndex)}
-           style="${buildSlotStyle('H1-generated', 'hero', {
+           ${window.buildSlotAttributes('hero', slideIndex)}
+           style="${window.buildSlotStyle('H1-generated', 'hero', {
              'overflow': 'hidden',
              'width': '100%',
              'height': '100%'

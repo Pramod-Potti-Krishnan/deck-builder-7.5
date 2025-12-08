@@ -196,7 +196,9 @@ class SupabasePresentationStorage:
                 "metadata": {
                     "slide_count": len(presentation_data.get("slides", [])),
                     "source": "layout_builder"
-                }
+                },
+                "derivative_elements": presentation_data.get("derivative_elements"),
+                "theme_config": presentation_data.get("theme_config")
             }).execute()
 
             logger.info("Presentation saved to PostgreSQL",
@@ -265,7 +267,9 @@ class SupabasePresentationStorage:
                 "updated_at": row.get("updated_at"),
                 "updated_by": row.get("updated_by"),
                 "restored_from": row.get("restored_from"),
-                "metadata": row.get("metadata", {})
+                "metadata": row.get("metadata", {}),
+                "derivative_elements": row.get("derivative_elements"),
+                "theme_config": row.get("theme_config")
             }
 
             # Update cache
@@ -455,7 +459,9 @@ class SupabasePresentationStorage:
                 "slides": current.get("slides"),
                 "updated_at": current["updated_at"],
                 "updated_by": created_by,
-                "metadata": current.get("metadata", {})
+                "metadata": current.get("metadata", {}),
+                "derivative_elements": current.get("derivative_elements"),
+                "theme_config": current.get("theme_config")
             }).eq("id", presentation_id).execute()
 
             # Update Storage backup

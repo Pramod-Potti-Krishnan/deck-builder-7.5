@@ -733,10 +733,257 @@ class Slide(BaseModel):
         return v
 
 
+# ==================== Derivative Elements Models ====================
+
+class FooterConfig(BaseModel):
+    """
+    Configuration for presentation-level footer.
+
+    Footer content is defined ONCE at the presentation level and automatically
+    rendered on ALL slides. Supports template variables that are substituted
+    at render time.
+
+    Template Variables:
+    - {title}: Presentation title or custom title value
+    - {page}: Current slide number (auto-populated, 1-indexed)
+    - {total}: Total number of slides (auto-populated)
+    - {date}: Date value (user-defined)
+    - {author}: Author name (user-defined)
+
+    Example template: "{title} | Page {page} of {total} | {date}"
+    Example output: "Q4 Business Review | Page 3 of 12 | December 2024"
+    """
+    template: str = Field(
+        default="{title} | Page {page}",
+        max_length=200,
+        description="Footer template with variables like {title}, {page}, {total}, {date}, {author}"
+    )
+    values: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Variable values: {'title': 'My Presentation', 'date': 'Dec 2024', 'author': 'John'}"
+    )
+    style: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Optional style overrides for footer text (fontSize, color, fontFamily, etc.)"
+    )
+
+
+class LogoConfig(BaseModel):
+    """
+    Configuration for presentation-level logo.
+
+    Logo is defined ONCE at the presentation level and automatically
+    rendered on ALL slides. The position is determined by each template's
+    logo slot definition.
+
+    The logo image is shared across all slides, but its grid position
+    may vary based on the template (e.g., bottom-right corner for most
+    templates, but different position for hero slides).
+    """
+    image_url: Optional[str] = Field(
+        default=None,
+        description="Logo image URL. If None, logo slot shows placeholder or is hidden."
+    )
+    alt_text: str = Field(
+        default="Logo",
+        max_length=100,
+        description="Alt text for accessibility"
+    )
+
+
+class DerivativeElements(BaseModel):
+    """
+    Presentation-level elements that are rendered consistently across all slides.
+
+    "Derivative elements" are elements whose content/image derives from a single
+    source at the presentation level, not from individual slide data.
+
+    - Footer: Same text template (with auto page numbers) across all slides
+    - Logo: Same image across all slides (position varies by template)
+
+    When a user edits footer/logo on ANY slide, it updates the presentation-level
+    config and instantly syncs to all other slides.
+    """
+    footer: Optional[FooterConfig] = Field(
+        default=None,
+        description="Presentation-level footer configuration. If set, overrides per-slide footer content."
+    )
+    logo: Optional[LogoConfig] = Field(
+        default=None,
+        description="Presentation-level logo configuration. If set, overrides per-slide logo content."
+    )
+
+
+# ==================== Theme Models ====================
+
+class ThemeColors(BaseModel):
+    """
+    Color palette for a presentation theme.
+
+    Defines colors for both standard (light) and hero (dark) slide profiles.
+    All colors are optional with sensible defaults for a professional blue theme.
+    """
+    # Primary brand colors
+    primary: str = Field(
+        default="#1e40af",
+        description="Main brand color"
+    )
+    primary_light: Optional[str] = Field(
+        default="#3b82f6",
+        description="Lighter variant of primary"
+    )
+    primary_dark: Optional[str] = Field(
+        default="#1e3a8a",
+        description="Darker variant of primary"
+    )
+    accent: Optional[str] = Field(
+        default="#f59e0b",
+        description="Accent/highlight color"
+    )
+
+    # Background colors
+    background: str = Field(
+        default="#ffffff",
+        description="Main background color"
+    )
+    background_alt: Optional[str] = Field(
+        default="#f8fafc",
+        description="Alternate/subtle background"
+    )
+
+    # Text colors - Standard profile (dark text on light background)
+    text_primary: str = Field(
+        default="#1f2937",
+        description="Primary text color (titles, headings)"
+    )
+    text_secondary: str = Field(
+        default="#6b7280",
+        description="Secondary text color (subtitles, captions)"
+    )
+    text_body: str = Field(
+        default="#374151",
+        description="Body text color"
+    )
+
+    # Text colors - Hero profile (light text on dark background)
+    hero_text_primary: str = Field(
+        default="#ffffff",
+        description="Hero slide primary text (white)"
+    )
+    hero_text_secondary: str = Field(
+        default="#e5e7eb",
+        description="Hero slide secondary text"
+    )
+    hero_background: str = Field(
+        default="#1e3a5f",
+        description="Hero slide background color"
+    )
+
+    # Footer color
+    footer_text: Optional[str] = Field(
+        default="#6b7280",
+        description="Footer text color"
+    )
+
+    # Border color
+    border: Optional[str] = Field(
+        default="#e5e7eb",
+        description="Border/divider color"
+    )
+
+
+class ThemeTypographySlot(BaseModel):
+    """Typography settings for a specific slot type."""
+    font_size: Optional[str] = None
+    font_weight: Optional[str] = None
+    line_height: Optional[str] = None
+    text_shadow: Optional[str] = None
+
+
+class ThemeTypography(BaseModel):
+    """Typography settings for standard and hero profiles."""
+    font_family: str = Field(
+        default="Poppins, sans-serif",
+        description="Primary font family"
+    )
+    standard: Optional[Dict[str, ThemeTypographySlot]] = Field(
+        default=None,
+        description="Typography for standard slides: {title, subtitle, body, footer}"
+    )
+    hero: Optional[Dict[str, ThemeTypographySlot]] = Field(
+        default=None,
+        description="Typography for hero slides: {title, subtitle, footer}"
+    )
+
+
+class ThemeConfig(BaseModel):
+    """
+    Complete theme configuration.
+
+    Used for defining predefined themes in the theme registry.
+    Contains colors, typography, and content styles.
+    """
+    id: str = Field(
+        ...,
+        description="Unique theme identifier (e.g., 'corporate-blue')"
+    )
+    name: str = Field(
+        ...,
+        description="Display name (e.g., 'Corporate Blue')"
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="Theme description"
+    )
+    colors: ThemeColors = Field(
+        default_factory=ThemeColors,
+        description="Color palette"
+    )
+    typography: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Typography settings (fontFamily, standard profile, hero profile)"
+    )
+    content_styles: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Content body styles for h1/h2/h3/p tags"
+    )
+    is_custom: bool = Field(
+        default=False,
+        description="Whether this is a user-created theme"
+    )
+
+
+class PresentationThemeConfig(BaseModel):
+    """
+    Presentation-level theme configuration.
+
+    References a theme by ID and allows color overrides for customization.
+    This is what gets stored on each presentation.
+    """
+    theme_id: str = Field(
+        default="corporate-blue",
+        description="Reference to global theme ID"
+    )
+    color_overrides: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Per-presentation color overrides: {'primary': '#custom', 'accent': '#custom'}"
+    )
+
+
 # ==================== Presentation Model ====================
 
 class Presentation(BaseModel):
-    """Complete presentation with multiple slides."""
+    """
+    Complete presentation with multiple slides.
+
+    Derivative Elements (v7.5.2):
+    The derivative_elements field contains presentation-level footer and logo
+    configurations that are automatically rendered across all slides.
+
+    Theme System (v7.5.3):
+    The theme_config field references a theme from the global registry with
+    optional color overrides for presentation-level customization.
+    """
     title: str = Field(
         ...,
         max_length=200,
@@ -746,6 +993,14 @@ class Presentation(BaseModel):
         ...,
         min_items=1,
         description="List of slides"
+    )
+    derivative_elements: Optional[DerivativeElements] = Field(
+        default=None,
+        description="Presentation-level footer and logo that appear on all slides"
+    )
+    theme_config: Optional[PresentationThemeConfig] = Field(
+        default=None,
+        description="Theme configuration with optional color overrides"
     )
 
 

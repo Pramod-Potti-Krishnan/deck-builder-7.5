@@ -1,0 +1,118 @@
+/**
+ * Theme Variables CSS
+ *
+ * Defines CSS custom properties for theming support.
+ * These variables are updated dynamically by theme-manager.js when a theme is applied.
+ *
+ * Usage:
+ * - Elements should reference these variables instead of hardcoded colors
+ * - Example: color: var(--theme-text-primary);
+ *
+ * The default values here match the "corporate-blue" theme.
+ */
+
+:root {
+  /* ========== COLOR VARIABLES ========== */
+
+  /* Primary brand colors */
+  --theme-primary: #1e40af;
+  --theme-primary-light: #3b82f6;
+  --theme-primary-dark: #1e3a8a;
+  --theme-accent: #f59e0b;
+
+  /* Backgrounds */
+  --theme-bg: #ffffff;
+  --theme-bg-alt: #f8fafc;
+
+  /* Standard profile text colors (for C, V, I, S, B series) */
+  --theme-text-primary: #1f2937;
+  --theme-text-secondary: #6b7280;
+  --theme-text-body: #374151;
+
+  /* Hero profile text colors (for H series) */
+  --theme-hero-text-primary: #ffffff;
+  --theme-hero-text-secondary: #e5e7eb;
+  --theme-hero-bg: #1e3a5f;
+
+  /* Footer and borders */
+  --theme-footer-text: #6b7280;
+  --theme-border: #e5e7eb;
+
+  /* ========== TYPOGRAPHY VARIABLES ========== */
+
+  --theme-font-family: 'Poppins', sans-serif;
+
+  /* Standard profile sizes */
+  --theme-title-size: 42px;
+  --theme-title-weight: bold;
+  --theme-title-line-height: 1.2;
+
+  --theme-subtitle-size: 24px;
+  --theme-subtitle-weight: normal;
+  --theme-subtitle-line-height: 1.4;
+
+  --theme-body-size: 20px;
+  --theme-body-line-height: 1.6;
+
+  --theme-footer-size: 18px;
+  --theme-footer-weight: 500;
+
+  /* Hero profile sizes */
+  --theme-hero-title-size: 72px;
+  --theme-hero-title-weight: bold;
+  --theme-hero-title-shadow: 0 2px 4px rgba(0,0,0,0.3);
+
+  --theme-hero-subtitle-size: 32px;
+  --theme-hero-subtitle-weight: normal;
+
+  /* Content hierarchy (for body slots with rich HTML) */
+  --theme-body-h1-size: 36px;
+  --theme-body-h2-size: 28px;
+  --theme-body-h3-size: 22px;
+  --theme-body-p-size: 20px;
+}
+
+/* ========== HERO SLIDE OVERRIDES ========== */
+/*
+ * Hero slides (H1, H2, H3) use different text colors.
+ * These selectors automatically switch variables for hero templates.
+ */
+.hero-slide,
+[data-template^="H1"],
+[data-template^="H2"],
+[data-template^="H3"] {
+  --theme-text-primary: var(--theme-hero-text-primary);
+  --theme-text-secondary: var(--theme-hero-text-secondary);
+  --theme-title-size: var(--theme-hero-title-size);
+  --theme-title-weight: var(--theme-hero-title-weight);
+  --theme-subtitle-size: var(--theme-hero-subtitle-size);
+  --theme-subtitle-weight: var(--theme-hero-subtitle-weight);
+}
+
+/* ========== DARK MODE ADJUSTMENTS ========== */
+/*
+ * When dark-mode theme is active, adjust backgrounds and borders.
+ * The theme-manager.js will add this class to the root element.
+ */
+:root.theme-dark-mode {
+  --theme-bg: #111827;
+  --theme-bg-alt: #1f2937;
+  --theme-border: #374151;
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Text color utilities */
+.text-theme-primary { color: var(--theme-text-primary); }
+.text-theme-secondary { color: var(--theme-text-secondary); }
+.text-theme-body { color: var(--theme-text-body); }
+.text-theme-accent { color: var(--theme-accent); }
+
+/* Background utilities */
+.bg-theme { background-color: var(--theme-bg); }
+.bg-theme-alt { background-color: var(--theme-bg-alt); }
+.bg-theme-primary { background-color: var(--theme-primary); }
+.bg-theme-hero { background-color: var(--theme-hero-bg); }
+
+/* Border utilities */
+.border-theme { border-color: var(--theme-border); }

@@ -46,10 +46,178 @@ from models import (
     # Element property models
     ElementClassesUpdateRequest,
     ElementClassesResponse,
-    TextContentStyle
+    TextContentStyle,
+    # Derivative Elements models (presentation-level footer/logo)
+    DerivativeElements,
+    FooterConfig,
+    LogoConfig,
+    # Theme models
+    ThemeColors,
+    ThemeConfig,
+    PresentationThemeConfig
 )
 from storage import storage
 import copy
+
+
+# ==================== Predefined Themes ====================
+
+PREDEFINED_THEMES: dict[str, ThemeConfig] = {
+    "corporate-blue": ThemeConfig(
+        id="corporate-blue",
+        name="Corporate Blue",
+        description="Professional blue theme for business presentations",
+        colors=ThemeColors(
+            primary="#1e40af",
+            primary_light="#3b82f6",
+            primary_dark="#1e3a8a",
+            accent="#f59e0b",
+            background="#ffffff",
+            background_alt="#f8fafc",
+            text_primary="#1f2937",
+            text_secondary="#6b7280",
+            text_body="#374151",
+            hero_text_primary="#ffffff",
+            hero_text_secondary="#e5e7eb",
+            hero_background="#1e3a5f",
+            footer_text="#6b7280",
+            border="#e5e7eb"
+        ),
+        typography={
+            "fontFamily": "Poppins, sans-serif",
+            "standard": {
+                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "body": {"fontSize": "20px", "lineHeight": "1.6"},
+                "footer": {"fontSize": "18px", "fontWeight": "500"}
+            },
+            "hero": {
+                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.3)"},
+                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
+                "footer": {"fontSize": "18px"}
+            }
+        },
+        content_styles={
+            "h1": {"fontSize": "36px", "fontWeight": "bold", "marginBottom": "16px"},
+            "h2": {"fontSize": "28px", "fontWeight": "600", "marginBottom": "12px"},
+            "h3": {"fontSize": "22px", "fontWeight": "600", "marginBottom": "8px"},
+            "p": {"fontSize": "20px", "lineHeight": "1.6", "marginBottom": "12px"},
+            "ul": {"paddingLeft": "24px", "marginBottom": "12px"},
+            "li": {"marginBottom": "6px"}
+        },
+        is_custom=False
+    ),
+    "minimal-gray": ThemeConfig(
+        id="minimal-gray",
+        name="Minimal Gray",
+        description="Clean, minimalist gray theme for modern presentations",
+        colors=ThemeColors(
+            primary="#374151",
+            primary_light="#6b7280",
+            primary_dark="#1f2937",
+            accent="#10b981",
+            background="#ffffff",
+            background_alt="#f9fafb",
+            text_primary="#111827",
+            text_secondary="#6b7280",
+            text_body="#374151",
+            hero_text_primary="#ffffff",
+            hero_text_secondary="#d1d5db",
+            hero_background="#1f2937",
+            footer_text="#9ca3af",
+            border="#e5e7eb"
+        ),
+        typography={
+            "fontFamily": "Poppins, sans-serif",
+            "standard": {
+                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "body": {"fontSize": "20px", "lineHeight": "1.6"},
+                "footer": {"fontSize": "18px", "fontWeight": "500"}
+            },
+            "hero": {
+                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.3)"},
+                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
+                "footer": {"fontSize": "18px"}
+            }
+        },
+        is_custom=False
+    ),
+    "vibrant-orange": ThemeConfig(
+        id="vibrant-orange",
+        name="Vibrant Orange",
+        description="Energetic orange theme for creative presentations",
+        colors=ThemeColors(
+            primary="#ea580c",
+            primary_light="#f97316",
+            primary_dark="#c2410c",
+            accent="#0891b2",
+            background="#ffffff",
+            background_alt="#fff7ed",
+            text_primary="#1c1917",
+            text_secondary="#78716c",
+            text_body="#44403c",
+            hero_text_primary="#ffffff",
+            hero_text_secondary="#fed7aa",
+            hero_background="#9a3412",
+            footer_text="#a8a29e",
+            border="#e7e5e4"
+        ),
+        typography={
+            "fontFamily": "Poppins, sans-serif",
+            "standard": {
+                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "body": {"fontSize": "20px", "lineHeight": "1.6"},
+                "footer": {"fontSize": "18px", "fontWeight": "500"}
+            },
+            "hero": {
+                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.3)"},
+                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
+                "footer": {"fontSize": "18px"}
+            }
+        },
+        is_custom=False
+    ),
+    "dark-mode": ThemeConfig(
+        id="dark-mode",
+        name="Dark Mode",
+        description="Dark theme for low-light environments",
+        colors=ThemeColors(
+            primary="#60a5fa",
+            primary_light="#93c5fd",
+            primary_dark="#3b82f6",
+            accent="#fbbf24",
+            background="#111827",
+            background_alt="#1f2937",
+            text_primary="#f9fafb",
+            text_secondary="#d1d5db",
+            text_body="#e5e7eb",
+            hero_text_primary="#ffffff",
+            hero_text_secondary="#9ca3af",
+            hero_background="#030712",
+            footer_text="#6b7280",
+            border="#374151"
+        ),
+        typography={
+            "fontFamily": "Poppins, sans-serif",
+            "standard": {
+                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "body": {"fontSize": "20px", "lineHeight": "1.6"},
+                "footer": {"fontSize": "18px", "fontWeight": "500"}
+            },
+            "hero": {
+                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.5)"},
+                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
+                "footer": {"fontSize": "18px"}
+            }
+        },
+        is_custom=False
+    )
+}
+
+DEFAULT_THEME_ID = "corporate-blue"
 
 
 # ==================== Helper Functions ====================
@@ -334,7 +502,23 @@ async def root():
             }
         },
         "philosophy": "Text Service owns content creation, Layout Builder provides structure",
-        "features": ["Content editing", "Version history", "Undo/restore capabilities"],
+        "features": [
+            "Content editing",
+            "Version history",
+            "Undo/restore capabilities",
+            "Derivative elements (presentation-level footer/logo)"
+        ],
+        "derivative_elements": {
+            "description": "Footer and logo that appear consistently across all slides",
+            "footer": {
+                "template": "Template string with variables: {title}, {page}, {total}, {date}, {author}",
+                "values": "Dictionary of variable values",
+                "example": "{title} | Page {page} | {date}"
+            },
+            "logo": {
+                "image_url": "URL of logo image to display on all slides"
+            }
+        },
         "endpoints": {
             "create_presentation": "POST /api/presentations",
             "get_presentation_data": "GET /api/presentations/{id}",
@@ -351,6 +535,7 @@ async def root():
             "view_presentation": "GET /p/{id}",
             "list_presentations": "GET /api/presentations",
             "delete_presentation": "DELETE /api/presentations/{id}",
+            "update_derivative_elements": "PUT /api/presentations/{id}/derivative-elements",
             "api_tester": "GET /tester",
             "docs": "/docs"
         }
@@ -537,6 +722,335 @@ async def update_presentation_metadata(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating presentation: {str(e)}")
+
+
+# ==================== Derivative Elements (Presentation-Level Footer/Logo) ====================
+
+@app.put("/api/presentations/{presentation_id}/derivative-elements")
+async def update_derivative_elements(
+    presentation_id: str,
+    derivative_elements: DerivativeElements,
+    created_by: str = "user",
+    change_summary: str = "Updated derivative elements"
+):
+    """
+    Update presentation-level derivative elements (footer and logo).
+
+    Derivative elements are rendered consistently across all slides:
+    - Footer: Uses template with variables like {title}, {page}, {date}
+    - Logo: Same image displayed in logo slot on all slides
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Query Parameters:
+    - created_by: Who is making the update (default: "user")
+    - change_summary: Description of changes
+
+    Request Body (DerivativeElements):
+    {
+        "footer": {
+            "template": "{title} | Page {page} | {date}",
+            "values": {
+                "title": "Q4 Business Review",
+                "date": "December 2024",
+                "author": "John Smith"
+            },
+            "style": {
+                "color": "#6b7280",
+                "fontSize": "14px"
+            }
+        },
+        "logo": {
+            "image_url": "https://storage.example.com/logo.png",
+            "alt_text": "Company Logo"
+        }
+    }
+
+    Footer Template Variables:
+    - {title}: Value from footer.values.title
+    - {page}: Auto-populated slide number (1-indexed)
+    - {total}: Auto-populated total slide count
+    - {date}: Value from footer.values.date
+    - {author}: Value from footer.values.author
+
+    Returns:
+    - success: Boolean
+    - derivative_elements: Updated derivative elements configuration
+    - message: Status message
+    """
+    try:
+        # Load presentation
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Convert to dict for storage
+        derivative_data = derivative_elements.model_dump(exclude_none=True)
+
+        # Update with version tracking
+        updated = await storage.update(
+            presentation_id,
+            {"derivative_elements": derivative_data},
+            created_by=created_by,
+            change_summary=change_summary,
+            create_version=True
+        )
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Failed to update presentation")
+
+        return JSONResponse(content={
+            "success": True,
+            "derivative_elements": updated.get("derivative_elements"),
+            "message": "Derivative elements updated successfully"
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating derivative elements: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/derivative-elements")
+async def get_derivative_elements(presentation_id: str):
+    """
+    Get presentation-level derivative elements (footer and logo).
+
+    Returns the current derivative elements configuration for the presentation.
+    If not set, returns null for footer and logo.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Returns:
+    - derivative_elements: Current configuration (or null if not set)
+    - slide_count: Total number of slides (useful for {total} variable)
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        return JSONResponse(content={
+            "derivative_elements": presentation.get("derivative_elements"),
+            "slide_count": len(presentation.get("slides", []))
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting derivative elements: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/derivative-elements")
+async def clear_derivative_elements(
+    presentation_id: str,
+    created_by: str = "user",
+    change_summary: str = "Cleared derivative elements"
+):
+    """
+    Clear all derivative elements from a presentation.
+
+    This removes both footer and logo configuration, reverting to
+    per-slide content for these elements.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Update with version tracking
+        updated = await storage.update(
+            presentation_id,
+            {"derivative_elements": None},
+            created_by=created_by,
+            change_summary=change_summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Derivative elements cleared"
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error clearing derivative elements: {str(e)}")
+
+
+# ==================== Themes (Presentation Styling) ====================
+
+@app.get("/api/themes")
+async def list_themes():
+    """
+    List all available predefined themes.
+
+    Returns:
+    - predefined: List of theme IDs
+    - default: Default theme ID
+    - themes: Full theme configurations
+    """
+    return JSONResponse(content={
+        "predefined": list(PREDEFINED_THEMES.keys()),
+        "default": DEFAULT_THEME_ID,
+        "themes": {
+            theme_id: theme.model_dump()
+            for theme_id, theme in PREDEFINED_THEMES.items()
+        }
+    })
+
+
+@app.get("/api/themes/{theme_id}")
+async def get_theme(theme_id: str):
+    """
+    Get a specific theme by ID.
+
+    Path Parameters:
+    - theme_id: Theme identifier (e.g., "corporate-blue")
+
+    Returns:
+    - Full theme configuration including colors, typography, and content styles
+    """
+    theme = PREDEFINED_THEMES.get(theme_id)
+    if not theme:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Theme '{theme_id}' not found. Available themes: {list(PREDEFINED_THEMES.keys())}"
+        )
+    return JSONResponse(content=theme.model_dump())
+
+
+@app.get("/api/presentations/{presentation_id}/theme")
+async def get_presentation_theme(presentation_id: str):
+    """
+    Get the current theme configuration for a presentation.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Returns:
+    - theme_config: Presentation's theme reference and overrides
+    - resolved_theme: Full theme with overrides applied
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Get theme config or default
+        theme_config = presentation.get("theme_config") or {"theme_id": DEFAULT_THEME_ID}
+
+        # Resolve full theme with overrides
+        base_theme = PREDEFINED_THEMES.get(theme_config.get("theme_id", DEFAULT_THEME_ID))
+        if not base_theme:
+            base_theme = PREDEFINED_THEMES[DEFAULT_THEME_ID]
+
+        resolved_theme = base_theme.model_dump()
+
+        # Apply color overrides if present
+        color_overrides = theme_config.get("color_overrides")
+        if color_overrides:
+            for key, value in color_overrides.items():
+                if key in resolved_theme["colors"]:
+                    resolved_theme["colors"][key] = value
+
+        return JSONResponse(content={
+            "theme_config": theme_config,
+            "resolved_theme": resolved_theme
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting presentation theme: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/theme")
+async def set_presentation_theme(
+    presentation_id: str,
+    theme_config: PresentationThemeConfig,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """
+    Set the theme for a presentation.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Query Parameters:
+    - created_by: Who is making the change (default: "user")
+    - change_summary: Description of change
+
+    Request Body:
+    - theme_id: Theme identifier (e.g., "corporate-blue")
+    - color_overrides: Optional color overrides (e.g., {"primary": "#ff0000"})
+
+    Example:
+    {
+        "theme_id": "corporate-blue",
+        "color_overrides": {
+            "primary": "#2563eb",
+            "accent": "#dc2626"
+        }
+    }
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate theme_id exists
+        if theme_config.theme_id not in PREDEFINED_THEMES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid theme_id '{theme_config.theme_id}'. Available themes: {list(PREDEFINED_THEMES.keys())}"
+            )
+
+        # Create change summary if not provided
+        if not change_summary:
+            change_summary = f"Set theme to '{theme_config.theme_id}'"
+            if theme_config.color_overrides:
+                change_summary += f" with {len(theme_config.color_overrides)} color override(s)"
+
+        # Update presentation with theme config
+        updated = await storage.update(
+            presentation_id,
+            {"theme_config": theme_config.model_dump()},
+            created_by=created_by,
+            change_summary=change_summary,
+            create_version=True
+        )
+
+        # Resolve full theme with overrides
+        base_theme = PREDEFINED_THEMES[theme_config.theme_id]
+        resolved_theme = base_theme.model_dump()
+
+        if theme_config.color_overrides:
+            for key, value in theme_config.color_overrides.items():
+                if key in resolved_theme["colors"]:
+                    resolved_theme["colors"][key] = value
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Theme set to '{theme_config.theme_id}'",
+            "theme_config": theme_config.model_dump(),
+            "resolved_theme": resolved_theme
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error setting presentation theme: {str(e)}")
 
 
 # ==================== Reorder Slides (must come before {slide_index} routes) ====================

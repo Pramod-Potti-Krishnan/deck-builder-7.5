@@ -108,8 +108,10 @@
    * @param {number} slideIndex - 0-based slide index
    * @param {string} templateId - Template ID (e.g., 'C6-image')
    * @param {Object} content - Content object from slide data
+   * @param {Object} [presentation] - Optional presentation data (for derivative elements)
+   * @param {number} [totalSlides] - Optional total slide count (for footer {total} variable)
    */
-  function createElementsForTemplate(slideElement, slideIndex, templateId, content) {
+  function createElementsForTemplate(slideElement, slideIndex, templateId, content, presentation = null, totalSlides = 0) {
     // Check dependencies
     if (typeof TEMPLATE_REGISTRY === 'undefined') {
       console.error('[DirectElementCreator] TEMPLATE_REGISTRY not available');
@@ -179,7 +181,9 @@
         slotName,
         slotDef,
         content,
-        useLegacyIds
+        useLegacyIds,
+        presentation,   // For derivative elements (footer/logo)
+        totalSlides     // For footer {total} variable
       };
 
       switch (elementType) {
@@ -248,13 +252,55 @@
   }
 
   /**
+   * Render footer content from derivative elements configuration
+   * Replaces template variables with actual values
+   *
+   * Template Variables:
+   * - {title}: Presentation title from footer.values.title
+   * - {page}: Current slide number (1-indexed)
+   * - {total}: Total number of slides
+   * - {date}: Date from footer.values.date
+   * - {author}: Author from footer.values.author
+   *
+   * @param {Object} footerConfig - Footer configuration from derivative_elements
+   * @param {number} slideIndex - 0-based slide index
+   * @param {number} totalSlides - Total number of slides
+   * @returns {string} Rendered footer content
+   */
+  function renderFooterFromDerivative(footerConfig, slideIndex, totalSlides) {
+    if (!footerConfig || !footerConfig.template) return '';
+
+    const { template, values = {} } = footerConfig;
+    const pageNumber = slideIndex + 1;  // 1-indexed
+
+    return template
+      .replace(/\{title\}/g, values.title || '')
+      .replace(/\{page\}/g, pageNumber.toString())
+      .replace(/\{total\}/g, totalSlides.toString())
+      .replace(/\{date\}/g, values.date || '')
+      .replace(/\{author\}/g, values.author || '');
+  }
+
+  /**
    * Create a TextBox element
-   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, totalSlides }
    */
   function createTextBox(ctx) {
-    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, totalSlides } = ctx;
     const slotStyle = slotDef.style || {};
-    const textContent = getTextContent(slotName, content, slotDef.defaultText);
+
+    // Check for derivative footer (presentation-level footer config)
+    let textContent;
+    if (slotName === 'footer' && presentation?.derivative_elements?.footer) {
+      textContent = renderFooterFromDerivative(
+        presentation.derivative_elements.footer,
+        slideIndex,
+        totalSlides
+      );
+      console.log(`[DirectElementCreator] Using derivative footer for slide ${slideIndex}: "${textContent}"`);
+    } else {
+      textContent = getTextContent(slotName, content, slotDef.defaultText);
+    }
 
     // Generate element ID based on architecture mode
     const elementId = useLegacyIds
@@ -329,11 +375,19 @@
 
   /**
    * Create an Image element
-   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, totalSlides }
    */
   function createImage(ctx) {
-    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
-    const imageUrl = getImageUrl(slotName, content);
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation } = ctx;
+
+    // Check for derivative logo (presentation-level logo config)
+    let imageUrl;
+    if (slotName === 'logo' && presentation?.derivative_elements?.logo?.image_url) {
+      imageUrl = presentation.derivative_elements.logo.image_url;
+      console.log(`[DirectElementCreator] Using derivative logo for slide ${slideIndex}: "${imageUrl}"`);
+    } else {
+      imageUrl = getImageUrl(slotName, content);
+    }
 
     // Generate element ID based on architecture mode
     const elementId = useLegacyIds
@@ -766,9 +820,64 @@
     return zIndexMap[slotName] || 1010;
   }
 
+  // ===== DERIVATIVE ELEMENTS SYNC =====
+
+  /**
+   * Sync derivative elements (footer/logo) across all slides
+   *
+   * Call this when derivative_elements config changes to update all footer/logo
+   * elements across all slides without re-rendering everything.
+   *
+   * @param {Object} presentation - Presentation data with derivative_elements
+   * @param {number} totalSlides - Total number of slides
+   */
+  function syncDerivativeElements(presentation, totalSlides) {
+    console.log('[DirectElementCreator] Syncing derivative elements across slides');
+
+    if (!presentation?.derivative_elements) {
+      console.log('[DirectElementCreator] No derivative elements to sync');
+      return;
+    }
+
+    const { footer, logo } = presentation.derivative_elements;
+    const slides = document.querySelectorAll('.reveal .slides > section');
+
+    slides.forEach((slideElement, slideIndex) => {
+      // Sync footer
+      if (footer) {
+        const footerElement = slideElement.querySelector('[data-slot-name="footer"]');
+        if (footerElement) {
+          const footerContent = renderFooterFromDerivative(footer, slideIndex, totalSlides);
+          const contentDiv = footerElement.querySelector('.textbox-content');
+          if (contentDiv) {
+            contentDiv.innerHTML = footerContent;
+            console.log(`[DirectElementCreator] Updated footer on slide ${slideIndex}: "${footerContent}"`);
+          }
+        }
+      }
+
+      // Sync logo
+      if (logo?.image_url) {
+        const logoElement = slideElement.querySelector('[data-slot-name="logo"]');
+        if (logoElement) {
+          const img = logoElement.querySelector('img');
+          if (img) {
+            img.src = logo.image_url;
+            if (logo.alt_text) img.alt = logo.alt_text;
+            console.log(`[DirectElementCreator] Updated logo on slide ${slideIndex}`);
+          }
+        }
+      }
+    });
+
+    console.log(`[DirectElementCreator] Synced derivative elements across ${slides.length} slides`);
+  }
+
   // ===== EXPOSE TO GLOBAL SCOPE =====
 
   window.createElementsForTemplate = createElementsForTemplate;
+  window.syncDerivativeElements = syncDerivativeElements;
+  window.renderFooterFromDerivative = renderFooterFromDerivative;  // Expose for UI preview
 
   console.log('[DirectElementCreator] Module loaded. Use createElementsForTemplate() to create elements.');
 

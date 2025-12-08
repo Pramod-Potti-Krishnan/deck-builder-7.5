@@ -28,6 +28,9 @@
   <link rel="stylesheet" href="/src/styles/textbox.css?v=20251206-solid">
   <link rel="stylesheet" href="/src/styles/elements.css?v=20251206-solid">
   <link rel="stylesheet" href="/src/styles/slot-converter.css?v=20251206-solid">
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="/src/styles/theme-variables.css?v=20251207">
+  <link rel="stylesheet" href="/src/styles/content-typography.css?v=20251207">
 
   <style>
     /* Minimal additional styling */
@@ -252,7 +255,10 @@
 
   <!-- Frontend Template System (NEW - does not replace backend layouts) -->
   <script src="/src/templates/template-registry.js?v=20251205-v3"></script>
-  <script src="/src/renderers/style-builder.js?v=20251205-v3"></script>
+  <script src="/src/renderers/style-builder.js?v=20251207-theming"></script>
+  <!-- Theme JS -->
+  <script src="/src/themes/theme-registry.js?v=20251207"></script>
+  <script src="/src/themes/theme-manager.js?v=20251207"></script>
   <script src="/src/renderers/hero-templates.js?v=20251205-v3"></script>
   <script src="/src/renderers/content-templates.js?v=20251205-v3"></script>
   <script src="/src/renderers/split-templates.js?v=20251205-v3"></script>
@@ -509,6 +515,10 @@
       });
     }
 
+    // Global presentation data for derivative elements support
+    // This is updated when presentation is loaded and used by handleAddSlide
+    window.currentPresentationData = null;
+
     /**
      * Render presentation from data
      */
@@ -517,6 +527,9 @@
         console.error('Invalid presentation data');
         return;
       }
+
+      // Store presentation data globally for derivative elements support
+      window.currentPresentationData = data;
 
       const slidesContainer = document.getElementById('slides-container');
       slidesContainer.innerHTML = '';
@@ -658,7 +671,8 @@
             // NEW approach: Create elements directly using ElementManager
             if (typeof createElementsForTemplate === 'function') {
               console.log(`[DirectElementCreator] Creating elements for slide ${index} (${slide.layout})`);
-              createElementsForTemplate(slideElement, index, slide.layout, slide.content);
+              // Pass presentation data for derivative elements (footer/logo) support
+              createElementsForTemplate(slideElement, index, slide.layout, slide.content, data, data.slides.length);
             } else {
               console.warn('[DirectElementCreator] createElementsForTemplate not available');
             }
@@ -842,7 +856,9 @@
           // 6. Create elements for the new slide
           if (typeof createElementsForTemplate === 'function') {
             console.log(`[handleAddSlide] Creating elements for slide ${newSlideIndex} (${layout})`);
-            createElementsForTemplate(newSection, newSlideIndex, layout, content);
+            // Use global presentation data for derivative elements (footer/logo)
+            const totalSlides = slidesContainer.querySelectorAll(':scope > section').length;
+            createElementsForTemplate(newSection, newSlideIndex, layout, content, window.currentPresentationData, totalSlides);
           } else {
             console.warn('[handleAddSlide] createElementsForTemplate not available');
           }
@@ -2449,6 +2465,321 @@
               }
             } else {
               result.error = 'elementId and gridRow or gridColumn parameters required';
+            }
+            break;
+
+          // ===== DERIVATIVE ELEMENTS (Presentation-level Footer & Logo) =====
+
+          // Get current derivative elements configuration
+          case 'getDerivativeElements':
+            if (window.currentPresentationData?.derivative_elements) {
+              result.success = true;
+              result.derivativeElements = window.currentPresentationData.derivative_elements;
+            } else {
+              result.success = true;
+              result.derivativeElements = null;
+              result.message = 'No derivative elements configured';
+            }
+            break;
+
+          // Update derivative elements (footer and/or logo) - calls API and syncs all slides
+          case 'updateDerivativeElements':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Build the update payload
+                const updatePayload = {};
+                if (params?.footer !== undefined) {
+                  updatePayload.footer = params.footer; // { template, values, style }
+                }
+                if (params?.logo !== undefined) {
+                  updatePayload.logo = params.logo; // { image_url, alt_text }
+                }
+
+                // Call the API to persist changes
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/derivative-elements`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updatePayload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  // Update local presentation data
+                  if (window.currentPresentationData) {
+                    window.currentPresentationData.derivative_elements = data.derivative_elements;
+                  }
+
+                  // Sync all slides to show updated footer/logo
+                  const totalSlides = document.querySelectorAll('.slides > section').length;
+                  if (typeof window.syncDerivativeElements === 'function') {
+                    window.syncDerivativeElements(window.currentPresentationData, totalSlides);
+                  }
+
+                  result.success = true;
+                  result.derivativeElements = data.derivative_elements;
+                  result.message = 'Derivative elements updated and synced across all slides';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to update derivative elements';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Clear derivative elements (remove footer and/or logo)
+          case 'clearDerivativeElements':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Determine what to clear (defaults to both)
+                const clearFooter = params?.clearFooter !== false;
+                const clearLogo = params?.clearLogo !== false;
+
+                // Call the API to clear derivative elements
+                const url = new URL(`${getApiBaseUrl()}/api/presentations/${presId}/derivative-elements`);
+                if (!clearFooter || !clearLogo) {
+                  // Partial clear - update with null values
+                  const updatePayload = {};
+                  if (clearFooter) updatePayload.footer = null;
+                  if (clearLogo) updatePayload.logo = null;
+
+                  const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatePayload)
+                  });
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    if (window.currentPresentationData) {
+                      window.currentPresentationData.derivative_elements = data.derivative_elements;
+                    }
+                    result.success = true;
+                    result.derivativeElements = data.derivative_elements;
+                  } else {
+                    result.success = false;
+                    result.error = data.detail || 'Failed to clear derivative elements';
+                  }
+                } else {
+                  // Full clear - use DELETE
+                  const response = await fetch(url, { method: 'DELETE' });
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    if (window.currentPresentationData) {
+                      window.currentPresentationData.derivative_elements = null;
+                    }
+                    result.success = true;
+                    result.derivativeElements = null;
+                    result.message = data.message;
+                  } else {
+                    result.success = false;
+                    result.error = data.detail || 'Failed to clear derivative elements';
+                  }
+                }
+
+                // Sync all slides to remove footer/logo
+                const totalSlides = document.querySelectorAll('.slides > section').length;
+                if (typeof window.syncDerivativeElements === 'function') {
+                  window.syncDerivativeElements(window.currentPresentationData, totalSlides);
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Sync derivative elements across all slides (re-render without API call)
+          case 'syncDerivativeElements':
+            try {
+              const totalSlides = document.querySelectorAll('.slides > section').length;
+              if (typeof window.syncDerivativeElements === 'function' && window.currentPresentationData) {
+                window.syncDerivativeElements(window.currentPresentationData, totalSlides);
+                result.success = true;
+                result.message = `Synced derivative elements across ${totalSlides} slides`;
+                result.derivativeElements = window.currentPresentationData.derivative_elements;
+              } else {
+                result.success = false;
+                result.error = 'syncDerivativeElements function not available or no presentation data';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // Preview footer with given config (without saving)
+          case 'previewFooter':
+            if (params?.footer && params?.slideIndex !== undefined) {
+              try {
+                const totalSlides = document.querySelectorAll('.slides > section').length;
+                if (typeof window.renderFooterFromDerivative === 'function') {
+                  const previewText = window.renderFooterFromDerivative(
+                    params.footer,
+                    params.slideIndex,
+                    totalSlides
+                  );
+                  result.success = true;
+                  result.previewText = previewText;
+                  result.slideIndex = params.slideIndex;
+                  result.totalSlides = totalSlides;
+                } else {
+                  result.success = false;
+                  result.error = 'renderFooterFromDerivative function not available';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+            } else {
+              result.success = false;
+              result.error = 'footer config and slideIndex parameters required';
+            }
+            break;
+
+          // ===== THEMING (Presentation-level Theme Configuration) =====
+
+          // Get current theme configuration
+          case 'getTheme':
+            try {
+              const themeConfig = window.currentPresentationData?.theme_config || { theme_id: 'corporate-blue' };
+              result.success = true;
+              result.themeConfig = themeConfig;
+
+              // Include resolved theme if THEME_REGISTRY is available
+              if (typeof THEME_REGISTRY !== 'undefined') {
+                const theme = THEME_REGISTRY[themeConfig.theme_id] || THEME_REGISTRY['corporate-blue'];
+                const resolvedTheme = { ...theme };
+                if (themeConfig.color_overrides) {
+                  resolvedTheme.colors = { ...theme.colors, ...themeConfig.color_overrides };
+                }
+                result.resolvedTheme = resolvedTheme;
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // Set theme for presentation - calls API and applies CSS variables
+          case 'setTheme':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Build the update payload
+                const themePayload = {
+                  theme_id: params?.themeId || params?.theme_id || 'corporate-blue',
+                  color_overrides: params?.colorOverrides || params?.color_overrides || null
+                };
+
+                // Call the API to persist theme changes
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(themePayload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  // Update local presentation data
+                  if (window.currentPresentationData) {
+                    window.currentPresentationData.theme_config = data.theme_config;
+                  }
+
+                  // Apply theme via ThemeManager
+                  if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+                    const theme = THEME_REGISTRY[themePayload.theme_id] || THEME_REGISTRY['corporate-blue'];
+                    ThemeManager.injectThemeStyles(theme, themePayload.color_overrides || {});
+                  }
+
+                  result.success = true;
+                  result.themeConfig = data.theme_config;
+                  result.resolvedTheme = data.resolved_theme;
+                  result.message = `Theme set to '${themePayload.theme_id}'`;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to set theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Preview theme without saving (for live preview in settings UI)
+          case 'previewTheme':
+            try {
+              const themeId = params?.themeId || params?.theme_id || 'corporate-blue';
+              const colorOverrides = params?.colorOverrides || params?.color_overrides || {};
+
+              if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+                const theme = THEME_REGISTRY[themeId] || THEME_REGISTRY['corporate-blue'];
+                ThemeManager.injectThemeStyles(theme, colorOverrides);
+                result.success = true;
+                result.message = `Previewing theme '${themeId}'`;
+                result.themeId = themeId;
+              } else {
+                result.success = false;
+                result.error = 'ThemeManager or THEME_REGISTRY not available';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // List available themes
+          case 'listThemes':
+            try {
+              if (typeof THEME_REGISTRY !== 'undefined') {
+                result.success = true;
+                result.themes = Object.keys(THEME_REGISTRY);
+                result.defaultTheme = 'corporate-blue';
+                result.themeDetails = {};
+                for (const [id, theme] of Object.entries(THEME_REGISTRY)) {
+                  result.themeDetails[id] = {
+                    id: theme.id,
+                    name: theme.name,
+                    description: theme.description
+                  };
+                }
+              } else {
+                result.success = false;
+                result.error = 'THEME_REGISTRY not available';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
             }
             break;
 

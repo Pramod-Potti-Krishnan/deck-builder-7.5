@@ -22,6 +22,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Full-bleed title slide - AI generates entire design',
     renderer: 'renderH1Generated',
     baseLayout: 'L29',
+    themingEnabled: true,
     slots: {
       hero: {
         gridRow: '1/19',
@@ -44,6 +45,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Structured title slide with editable title, subtitle, and customizable background',
     renderer: 'renderH1Structured',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       background: {
         gridRow: '1/19',
@@ -139,6 +141,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Chapter/section break slide',
     renderer: 'renderH2Section',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       background: {
         gridRow: '1/19',
@@ -203,6 +206,7 @@ const TEMPLATE_REGISTRY = {
     description: 'Thank you / closing slide with contact info',
     renderer: 'renderH3Closing',
     baseLayout: null,
+    themingEnabled: true,
     slots: {
       background: {
         gridRow: '1/19',

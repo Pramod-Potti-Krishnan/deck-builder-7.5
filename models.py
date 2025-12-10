@@ -906,6 +906,10 @@ class ThemeTypography(BaseModel):
         default="Poppins, sans-serif",
         description="Primary font family"
     )
+    font_family_heading: Optional[str] = Field(
+        default=None,
+        description="Font family for headings (falls back to font_family if not set)"
+    )
     standard: Optional[Dict[str, ThemeTypographySlot]] = Field(
         default=None,
         description="Typography for standard slides: {title, subtitle, body, footer}"
@@ -916,12 +920,92 @@ class ThemeTypography(BaseModel):
     )
 
 
+class ThemeSpacing(BaseModel):
+    """
+    Spacing configuration for a theme.
+
+    Controls padding and gaps between elements.
+    """
+    slide_padding: str = Field(
+        default="60px",
+        description="Padding around slide content"
+    )
+    element_gap: str = Field(
+        default="24px",
+        description="Gap between elements"
+    )
+    section_gap: str = Field(
+        default="48px",
+        description="Gap between major sections"
+    )
+
+
+class ThemeEffects(BaseModel):
+    """
+    Visual effects configuration for a theme.
+
+    Controls shadows, border radius, and other visual effects.
+    """
+    border_radius: str = Field(
+        default="8px",
+        description="Default border radius for elements"
+    )
+    shadow_small: str = Field(
+        default="0 1px 3px rgba(0,0,0,0.1)",
+        description="Small shadow for subtle depth"
+    )
+    shadow_medium: str = Field(
+        default="0 4px 6px rgba(0,0,0,0.1)",
+        description="Medium shadow for cards and panels"
+    )
+    shadow_large: str = Field(
+        default="0 10px 15px rgba(0,0,0,0.1)",
+        description="Large shadow for modals and dropdowns"
+    )
+
+
+class ThemeContentStyles(BaseModel):
+    """
+    Content styles for rich HTML elements.
+
+    Defines styling for headings, paragraphs, lists, etc.
+    """
+    h1: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="H1 heading styles: {fontSize, fontWeight, color, marginBottom}"
+    )
+    h2: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="H2 heading styles"
+    )
+    h3: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="H3 heading styles"
+    )
+    p: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Paragraph styles"
+    )
+    ul: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Unordered list styles"
+    )
+    li: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="List item styles"
+    )
+    blockquote: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Blockquote styles"
+    )
+
+
 class ThemeConfig(BaseModel):
     """
     Complete theme configuration.
 
     Used for defining predefined themes in the theme registry.
-    Contains colors, typography, and content styles.
+    Contains colors, typography, spacing, effects, and content styles.
     """
     id: str = Field(
         ...,
@@ -943,6 +1027,14 @@ class ThemeConfig(BaseModel):
         default=None,
         description="Typography settings (fontFamily, standard profile, hero profile)"
     )
+    spacing: Optional[ThemeSpacing] = Field(
+        default=None,
+        description="Spacing configuration"
+    )
+    effects: Optional[ThemeEffects] = Field(
+        default=None,
+        description="Visual effects (shadows, border-radius)"
+    )
     content_styles: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Content body styles for h1/h2/h3/p tags"
@@ -953,21 +1045,207 @@ class ThemeConfig(BaseModel):
     )
 
 
+class ThemeOverrides(BaseModel):
+    """
+    Granular theme overrides for presentation-level customization.
+
+    Allows overriding any aspect of a theme without creating a full custom theme.
+    All fields are optional - only provided fields override the base theme.
+    """
+    colors: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Color overrides: {'primary': '#custom', 'accent': '#custom', ...}"
+    )
+    typography: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Typography overrides: {'font_family': 'Inter', 'title_size': '52px', ...}"
+    )
+    spacing: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Spacing overrides: {'slide_padding': '40px', 'element_gap': '32px', ...}"
+    )
+    effects: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Effects overrides: {'border_radius': '12px', 'shadow_small': '...', ...}"
+    )
+    content_styles: Optional[Dict[str, Dict[str, str]]] = Field(
+        default=None,
+        description="Content style overrides: {'h1': {'fontSize': '40px'}, ...}"
+    )
+
+
 class PresentationThemeConfig(BaseModel):
     """
     Presentation-level theme configuration.
 
-    References a theme by ID and allows color overrides for customization.
+    References a theme by ID (predefined or custom UUID) and allows granular overrides.
     This is what gets stored on each presentation.
+
+    Enhanced in v7.5.4 to support:
+    - Custom theme IDs (UUIDs from ls_user_themes)
+    - Full theme overrides (colors, typography, spacing, effects)
     """
     theme_id: str = Field(
         default="corporate-blue",
-        description="Reference to global theme ID"
+        description="Reference to predefined theme ID or custom theme UUID"
     )
+    is_custom: bool = Field(
+        default=False,
+        description="True if theme_id references a user custom theme (UUID)"
+    )
+    overrides: Optional[ThemeOverrides] = Field(
+        default=None,
+        description="Granular theme overrides (colors, typography, spacing, effects)"
+    )
+    # Legacy support - mapped to overrides.colors internally
     color_overrides: Optional[Dict[str, str]] = Field(
         default=None,
-        description="Per-presentation color overrides: {'primary': '#custom', 'accent': '#custom'}"
+        description="[LEGACY] Per-presentation color overrides. Use 'overrides.colors' instead."
     )
+
+
+# ==================== User Custom Theme Models ====================
+
+class UserCustomThemeCreate(BaseModel):
+    """
+    Request model for creating a user custom theme.
+
+    Can create either a fully custom theme or inherit from a predefined theme.
+    """
+    name: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Theme name"
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="Theme description"
+    )
+    base_theme_id: Optional[str] = Field(
+        default=None,
+        description="Base theme to inherit from (e.g., 'corporate-blue'). NULL for fully custom."
+    )
+    colors: Optional[ThemeColors] = Field(
+        default=None,
+        description="Color configuration (required for fully custom themes)"
+    )
+    typography: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Typography configuration"
+    )
+    spacing: Optional[ThemeSpacing] = Field(
+        default=None,
+        description="Spacing configuration"
+    )
+    effects: Optional[ThemeEffects] = Field(
+        default=None,
+        description="Visual effects configuration"
+    )
+    content_styles: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Content styles for HTML elements"
+    )
+
+
+class UserCustomThemeUpdate(BaseModel):
+    """
+    Request model for updating a user custom theme.
+
+    All fields are optional - only provided fields will be updated.
+    """
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+        description="Updated theme name"
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="Updated theme description"
+    )
+    colors: Optional[ThemeColors] = Field(
+        default=None,
+        description="Updated color configuration"
+    )
+    typography: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Updated typography configuration"
+    )
+    spacing: Optional[ThemeSpacing] = Field(
+        default=None,
+        description="Updated spacing configuration"
+    )
+    effects: Optional[ThemeEffects] = Field(
+        default=None,
+        description="Updated visual effects configuration"
+    )
+    content_styles: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Updated content styles"
+    )
+    is_public: Optional[bool] = Field(
+        default=None,
+        description="Make theme public in gallery"
+    )
+
+
+class UserCustomTheme(BaseModel):
+    """
+    Complete user custom theme model (from database).
+
+    Represents a theme stored in ls_user_themes table.
+    """
+    id: str = Field(
+        ...,
+        description="Theme UUID"
+    )
+    user_id: str = Field(
+        ...,
+        description="Owner user ID"
+    )
+    name: str = Field(
+        ...,
+        description="Theme name"
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="Theme description"
+    )
+    base_theme_id: Optional[str] = Field(
+        default=None,
+        description="Base theme ID if inheriting"
+    )
+    theme_config: Dict[str, Any] = Field(
+        ...,
+        description="Full theme configuration JSONB"
+    )
+    created_at: str = Field(
+        ...,
+        description="Creation timestamp"
+    )
+    updated_at: str = Field(
+        ...,
+        description="Last update timestamp"
+    )
+    is_public: bool = Field(
+        default=False,
+        description="Whether theme is public"
+    )
+
+
+class UserCustomThemeResponse(BaseModel):
+    """Response model for user custom theme operations."""
+    success: bool = Field(..., description="Whether operation succeeded")
+    theme: Optional[UserCustomTheme] = Field(None, description="Theme data")
+    message: str = Field(..., description="Success or error message")
+
+
+class UserCustomThemeListResponse(BaseModel):
+    """Response model for listing user themes."""
+    success: bool = Field(..., description="Whether operation succeeded")
+    themes: List[UserCustomTheme] = Field(..., description="List of themes")
+    count: int = Field(..., description="Number of themes")
 
 
 # ==================== Presentation Model ====================

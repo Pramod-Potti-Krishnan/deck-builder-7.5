@@ -57,117 +57,145 @@ const THEME_REGISTRY = {
         }
     },
 
-    'minimal-gray': {
-        id: 'minimal-gray',
-        name: 'Minimal Gray',
-        description: 'Clean, minimalist gray theme for modern presentations',
+    'elegant-emerald': {
+        id: 'elegant-emerald',
+        name: 'Elegant Emerald',
+        description: 'Sophisticated theme with nature-inspired elegance',
 
         colors: {
-            primary: '#374151',
-            primaryLight: '#6b7280',
-            primaryDark: '#1f2937',
-            accent: '#10b981',
-            background: '#ffffff',
-            backgroundAlt: '#f9fafb',
-            textPrimary: '#111827',
-            textSecondary: '#6b7280',
-            textBody: '#374151',
-            heroTextPrimary: '#ffffff',
-            heroTextSecondary: '#d1d5db',
-            heroBackground: '#1f2937',
-            footerText: '#9ca3af',
-            border: '#e5e7eb'
+            primary: '#059669',
+            primaryLight: '#10b981',
+            primaryDark: '#047857',
+            accent: '#fbbf24',
+            background: '#f0fdf4',
+            backgroundAlt: '#ecfdf5',
+            textPrimary: '#064e3b',
+            textSecondary: '#047857',
+            textBody: '#065f46',
+            heroTextPrimary: '#ecfdf5',
+            heroTextSecondary: '#a7f3d0',
+            heroBackground: '#064e3b',
+            footerText: '#059669',
+            border: '#d1fae5'
         },
 
         typography: {
-            fontFamily: 'Poppins, sans-serif',
+            fontFamily: 'Lato, sans-serif',
+            fontFamilyHeading: 'Playfair Display, serif',
             standard: {
-                title: { fontSize: '42px', fontWeight: 'bold', lineHeight: '1.2' },
-                subtitle: { fontSize: '24px', fontWeight: 'normal', lineHeight: '1.4' },
+                title: { fontSize: '46px', fontWeight: '700', lineHeight: '1.2' },
+                subtitle: { fontSize: '22px', fontWeight: 'normal', lineHeight: '1.4' },
                 body: { fontSize: '20px', lineHeight: '1.6' },
-                footer: { fontSize: '18px', fontWeight: '500' }
+                footer: { fontSize: '16px', fontWeight: '500' }
             },
             hero: {
-                title: { fontSize: '72px', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.3)' },
-                subtitle: { fontSize: '32px', fontWeight: 'normal' },
-                footer: { fontSize: '18px' }
+                title: { fontSize: '70px', fontWeight: '700', textShadow: '0 2px 4px rgba(0,0,0,0.2)' },
+                subtitle: { fontSize: '28px', fontWeight: 'normal' },
+                footer: { fontSize: '16px' }
             }
+        },
+
+        contentStyles: {
+            h1: { fontSize: '38px', fontWeight: '700', marginBottom: '16px' },
+            h2: { fontSize: '30px', fontWeight: '600', marginBottom: '12px' },
+            h3: { fontSize: '24px', fontWeight: '600', marginBottom: '8px' },
+            p: { fontSize: '20px', lineHeight: '1.6', marginBottom: '12px' },
+            ul: { paddingLeft: '24px', marginBottom: '12px' },
+            li: { marginBottom: '6px' }
         }
     },
 
     'vibrant-orange': {
         id: 'vibrant-orange',
         name: 'Vibrant Orange',
-        description: 'Energetic orange theme for creative presentations',
+        description: 'Energetic, bold theme for creative presentations',
 
         colors: {
             primary: '#ea580c',
             primaryLight: '#f97316',
             primaryDark: '#c2410c',
             accent: '#0891b2',
-            background: '#ffffff',
-            backgroundAlt: '#fff7ed',
-            textPrimary: '#1c1917',
-            textSecondary: '#78716c',
-            textBody: '#44403c',
+            background: '#fff7ed',  // Warm cream instead of white
+            backgroundAlt: '#ffedd5',
+            textPrimary: '#7c2d12',  // Dark brown-orange
+            textSecondary: '#9a3412',  // Rust
+            textBody: '#78350f',
             heroTextPrimary: '#ffffff',
-            heroTextSecondary: '#fed7aa',
-            heroBackground: '#9a3412',
+            heroTextSecondary: '#fed7aa',  // Peach
+            heroBackground: '#c2410c',  // Burnt orange
             footerText: '#a8a29e',
-            border: '#e7e5e4'
+            border: '#fdba74'
         },
 
         typography: {
-            fontFamily: 'Poppins, sans-serif',
+            fontFamily: 'Montserrat, sans-serif',
             standard: {
-                title: { fontSize: '42px', fontWeight: 'bold', lineHeight: '1.2' },
-                subtitle: { fontSize: '24px', fontWeight: 'normal', lineHeight: '1.4' },
+                title: { fontSize: '44px', fontWeight: '700', lineHeight: '1.2' },
+                subtitle: { fontSize: '26px', fontWeight: '500', lineHeight: '1.4' },
                 body: { fontSize: '20px', lineHeight: '1.6' },
                 footer: { fontSize: '18px', fontWeight: '500' }
             },
             hero: {
-                title: { fontSize: '72px', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.3)' },
-                subtitle: { fontSize: '32px', fontWeight: 'normal' },
+                title: { fontSize: '76px', fontWeight: '800', textShadow: '0 3px 6px rgba(0,0,0,0.4)' },
+                subtitle: { fontSize: '34px', fontWeight: '500' },
                 footer: { fontSize: '18px' }
             }
+        },
+
+        contentStyles: {
+            h1: { fontSize: '40px', fontWeight: '700', marginBottom: '16px' },
+            h2: { fontSize: '32px', fontWeight: '600', marginBottom: '12px' },
+            h3: { fontSize: '26px', fontWeight: '600', marginBottom: '8px' },
+            p: { fontSize: '20px', lineHeight: '1.6', marginBottom: '12px' },
+            ul: { paddingLeft: '24px', marginBottom: '12px' },
+            li: { marginBottom: '6px' }
         }
     },
 
     'dark-mode': {
         id: 'dark-mode',
         name: 'Dark Mode',
-        description: 'Dark theme for low-light environments',
+        description: 'Modern, elegant dark theme with dramatic contrast',
 
         colors: {
             primary: '#60a5fa',
             primaryLight: '#93c5fd',
             primaryDark: '#3b82f6',
-            accent: '#fbbf24',
-            background: '#111827',
+            accent: '#fbbf24',  // Amber accent
+            background: '#111827',  // Charcoal
             backgroundAlt: '#1f2937',
-            textPrimary: '#f9fafb',
-            textSecondary: '#d1d5db',
+            textPrimary: '#f9fafb',  // Near white
+            textSecondary: '#d1d5db',  // Light gray
             textBody: '#e5e7eb',
             heroTextPrimary: '#ffffff',
-            heroTextSecondary: '#9ca3af',
-            heroBackground: '#030712',
+            heroTextSecondary: '#9ca3af',  // Muted gray
+            heroBackground: '#030712',  // Near black
             footerText: '#6b7280',
             border: '#374151'
         },
 
         typography: {
-            fontFamily: 'Poppins, sans-serif',
+            fontFamily: 'Inter, sans-serif',
             standard: {
-                title: { fontSize: '42px', fontWeight: 'bold', lineHeight: '1.2' },
-                subtitle: { fontSize: '24px', fontWeight: 'normal', lineHeight: '1.4' },
+                title: { fontSize: '40px', fontWeight: '600', lineHeight: '1.2' },
+                subtitle: { fontSize: '22px', fontWeight: 'normal', lineHeight: '1.4' },
                 body: { fontSize: '20px', lineHeight: '1.6' },
-                footer: { fontSize: '18px', fontWeight: '500' }
+                footer: { fontSize: '16px', fontWeight: '500' }
             },
             hero: {
-                title: { fontSize: '72px', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.5)' },
-                subtitle: { fontSize: '32px', fontWeight: 'normal' },
-                footer: { fontSize: '18px' }
+                title: { fontSize: '68px', fontWeight: '600', textShadow: '0 4px 8px rgba(0,0,0,0.6)' },
+                subtitle: { fontSize: '30px', fontWeight: 'normal' },
+                footer: { fontSize: '16px' }
             }
+        },
+
+        contentStyles: {
+            h1: { fontSize: '36px', fontWeight: '600', marginBottom: '16px' },
+            h2: { fontSize: '28px', fontWeight: '500', marginBottom: '12px' },
+            h3: { fontSize: '22px', fontWeight: '500', marginBottom: '8px' },
+            p: { fontSize: '20px', lineHeight: '1.6', marginBottom: '12px' },
+            ul: { paddingLeft: '24px', marginBottom: '12px' },
+            li: { marginBottom: '6px' }
         }
     }
 };

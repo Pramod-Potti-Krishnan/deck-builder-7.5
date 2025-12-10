@@ -54,7 +54,16 @@ from models import (
     # Theme models
     ThemeColors,
     ThemeConfig,
-    PresentationThemeConfig
+    ThemeSpacing,
+    ThemeEffects,
+    ThemeOverrides,
+    PresentationThemeConfig,
+    # User Custom Theme models (v7.5.4)
+    UserCustomTheme,
+    UserCustomThemeCreate,
+    UserCustomThemeUpdate,
+    UserCustomThemeResponse,
+    UserCustomThemeListResponse
 )
 from storage import storage
 import copy
@@ -107,111 +116,136 @@ PREDEFINED_THEMES: dict[str, ThemeConfig] = {
         },
         is_custom=False
     ),
-    "minimal-gray": ThemeConfig(
-        id="minimal-gray",
-        name="Minimal Gray",
-        description="Clean, minimalist gray theme for modern presentations",
+    "elegant-emerald": ThemeConfig(
+        id="elegant-emerald",
+        name="Elegant Emerald",
+        description="Sophisticated theme with nature-inspired elegance",
         colors=ThemeColors(
-            primary="#374151",
-            primary_light="#6b7280",
-            primary_dark="#1f2937",
-            accent="#10b981",
-            background="#ffffff",
-            background_alt="#f9fafb",
-            text_primary="#111827",
-            text_secondary="#6b7280",
-            text_body="#374151",
-            hero_text_primary="#ffffff",
-            hero_text_secondary="#d1d5db",
-            hero_background="#1f2937",
-            footer_text="#9ca3af",
-            border="#e5e7eb"
+            primary="#059669",
+            primary_light="#10b981",
+            primary_dark="#047857",
+            accent="#fbbf24",
+            background="#f0fdf4",
+            background_alt="#ecfdf5",
+            text_primary="#064e3b",
+            text_secondary="#047857",
+            text_body="#065f46",
+            hero_text_primary="#ecfdf5",
+            hero_text_secondary="#a7f3d0",
+            hero_background="#064e3b",
+            footer_text="#059669",
+            border="#d1fae5"
         ),
         typography={
-            "fontFamily": "Poppins, sans-serif",
+            "fontFamily": "Lato, sans-serif",
+            "fontFamilyHeading": "Playfair Display, serif",
             "standard": {
-                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
-                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "title": {"fontSize": "46px", "fontWeight": "700", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "22px", "fontWeight": "normal", "lineHeight": "1.4"},
                 "body": {"fontSize": "20px", "lineHeight": "1.6"},
-                "footer": {"fontSize": "18px", "fontWeight": "500"}
+                "footer": {"fontSize": "16px", "fontWeight": "500"}
             },
             "hero": {
-                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.3)"},
-                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
-                "footer": {"fontSize": "18px"}
+                "title": {"fontSize": "70px", "fontWeight": "700", "textShadow": "0 2px 4px rgba(0,0,0,0.2)"},
+                "subtitle": {"fontSize": "28px", "fontWeight": "normal"},
+                "footer": {"fontSize": "16px"}
             }
+        },
+        content_styles={
+            "h1": {"fontSize": "38px", "fontWeight": "700", "marginBottom": "16px"},
+            "h2": {"fontSize": "30px", "fontWeight": "600", "marginBottom": "12px"},
+            "h3": {"fontSize": "24px", "fontWeight": "600", "marginBottom": "8px"},
+            "p": {"fontSize": "20px", "lineHeight": "1.6", "marginBottom": "12px"},
+            "ul": {"paddingLeft": "24px", "marginBottom": "12px"},
+            "li": {"marginBottom": "6px"}
         },
         is_custom=False
     ),
     "vibrant-orange": ThemeConfig(
         id="vibrant-orange",
         name="Vibrant Orange",
-        description="Energetic orange theme for creative presentations",
+        description="Energetic, bold theme for creative presentations",
         colors=ThemeColors(
             primary="#ea580c",
             primary_light="#f97316",
             primary_dark="#c2410c",
             accent="#0891b2",
-            background="#ffffff",
-            background_alt="#fff7ed",
-            text_primary="#1c1917",
-            text_secondary="#78716c",
-            text_body="#44403c",
+            background="#fff7ed",  # Warm cream instead of white
+            background_alt="#ffedd5",
+            text_primary="#7c2d12",  # Dark brown-orange
+            text_secondary="#9a3412",  # Rust
+            text_body="#78350f",
             hero_text_primary="#ffffff",
-            hero_text_secondary="#fed7aa",
-            hero_background="#9a3412",
+            hero_text_secondary="#fed7aa",  # Peach
+            hero_background="#c2410c",  # Burnt orange
             footer_text="#a8a29e",
-            border="#e7e5e4"
+            border="#fdba74"
         ),
         typography={
-            "fontFamily": "Poppins, sans-serif",
+            "fontFamily": "Montserrat, sans-serif",
             "standard": {
-                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
-                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "title": {"fontSize": "44px", "fontWeight": "700", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "26px", "fontWeight": "500", "lineHeight": "1.4"},
                 "body": {"fontSize": "20px", "lineHeight": "1.6"},
                 "footer": {"fontSize": "18px", "fontWeight": "500"}
             },
             "hero": {
-                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.3)"},
-                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
+                "title": {"fontSize": "76px", "fontWeight": "800", "textShadow": "0 3px 6px rgba(0,0,0,0.4)"},
+                "subtitle": {"fontSize": "34px", "fontWeight": "500"},
                 "footer": {"fontSize": "18px"}
             }
+        },
+        content_styles={
+            "h1": {"fontSize": "40px", "fontWeight": "700", "marginBottom": "16px"},
+            "h2": {"fontSize": "32px", "fontWeight": "600", "marginBottom": "12px"},
+            "h3": {"fontSize": "26px", "fontWeight": "600", "marginBottom": "8px"},
+            "p": {"fontSize": "20px", "lineHeight": "1.6", "marginBottom": "12px"},
+            "ul": {"paddingLeft": "24px", "marginBottom": "12px"},
+            "li": {"marginBottom": "6px"}
         },
         is_custom=False
     ),
     "dark-mode": ThemeConfig(
         id="dark-mode",
         name="Dark Mode",
-        description="Dark theme for low-light environments",
+        description="Modern, elegant dark theme with dramatic contrast",
         colors=ThemeColors(
             primary="#60a5fa",
             primary_light="#93c5fd",
             primary_dark="#3b82f6",
-            accent="#fbbf24",
-            background="#111827",
+            accent="#fbbf24",  # Amber accent
+            background="#111827",  # Charcoal
             background_alt="#1f2937",
-            text_primary="#f9fafb",
-            text_secondary="#d1d5db",
+            text_primary="#f9fafb",  # Near white
+            text_secondary="#d1d5db",  # Light gray
             text_body="#e5e7eb",
             hero_text_primary="#ffffff",
-            hero_text_secondary="#9ca3af",
-            hero_background="#030712",
+            hero_text_secondary="#9ca3af",  # Muted gray
+            hero_background="#030712",  # Near black
             footer_text="#6b7280",
             border="#374151"
         ),
         typography={
-            "fontFamily": "Poppins, sans-serif",
+            "fontFamily": "Inter, sans-serif",
             "standard": {
-                "title": {"fontSize": "42px", "fontWeight": "bold", "lineHeight": "1.2"},
-                "subtitle": {"fontSize": "24px", "fontWeight": "normal", "lineHeight": "1.4"},
+                "title": {"fontSize": "40px", "fontWeight": "600", "lineHeight": "1.2"},
+                "subtitle": {"fontSize": "22px", "fontWeight": "normal", "lineHeight": "1.4"},
                 "body": {"fontSize": "20px", "lineHeight": "1.6"},
-                "footer": {"fontSize": "18px", "fontWeight": "500"}
+                "footer": {"fontSize": "16px", "fontWeight": "500"}
             },
             "hero": {
-                "title": {"fontSize": "72px", "fontWeight": "bold", "textShadow": "0 2px 4px rgba(0,0,0,0.5)"},
-                "subtitle": {"fontSize": "32px", "fontWeight": "normal"},
-                "footer": {"fontSize": "18px"}
+                "title": {"fontSize": "68px", "fontWeight": "600", "textShadow": "0 4px 8px rgba(0,0,0,0.6)"},
+                "subtitle": {"fontSize": "30px", "fontWeight": "normal"},
+                "footer": {"fontSize": "16px"}
             }
+        },
+        content_styles={
+            "h1": {"fontSize": "36px", "fontWeight": "600", "marginBottom": "16px"},
+            "h2": {"fontSize": "28px", "fontWeight": "500", "marginBottom": "12px"},
+            "h3": {"fontSize": "22px", "fontWeight": "500", "marginBottom": "8px"},
+            "p": {"fontSize": "20px", "lineHeight": "1.6", "marginBottom": "12px"},
+            "ul": {"paddingLeft": "24px", "marginBottom": "12px"},
+            "li": {"marginBottom": "6px"}
         },
         is_custom=False
     )
@@ -909,6 +943,65 @@ async def list_themes():
     })
 
 
+@app.get("/api/themes/public")
+async def list_public_themes():
+    """
+    List all public themes available in the gallery.
+
+    Returns predefined themes + public user themes.
+    Note: This endpoint must be defined before /api/themes/{theme_id}
+          to avoid being matched by the parameterized route.
+    """
+    try:
+        # Start with predefined themes
+        all_themes = {
+            "predefined": [
+                {
+                    "id": theme_id,
+                    "name": theme.name,
+                    "description": theme.description,
+                    "is_predefined": True,
+                    "colors": theme.colors.model_dump()
+                }
+                for theme_id, theme in PREDEFINED_THEMES.items()
+            ],
+            "user_public": []
+        }
+
+        # Add public user themes if Supabase available and table exists
+        if hasattr(storage, 'supabase') and storage.supabase is not None:
+            try:
+                result = storage.supabase.client.table("ls_user_themes").select(
+                    "id, name, description, theme_config, user_id, created_at"
+                ).eq("is_public", True).order("created_at", desc=True).execute()
+
+                if result.data:
+                    all_themes["user_public"] = [
+                        {
+                            "id": t["id"],
+                            "name": t["name"],
+                            "description": t.get("description"),
+                            "is_predefined": False,
+                            "colors": t["theme_config"].get("colors", {}),
+                            "created_at": t["created_at"]
+                        }
+                        for t in result.data
+                    ]
+            except Exception as table_error:
+                # Table might not exist yet - that's okay, just return predefined themes
+                print(f"[ThemeManager] Warning: Could not query user themes table: {table_error}")
+
+        return JSONResponse(content={
+            "success": True,
+            "predefined_count": len(all_themes["predefined"]),
+            "public_count": len(all_themes["user_public"]),
+            "themes": all_themes
+        })
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing public themes: {str(e)}")
+
+
 @app.get("/api/themes/{theme_id}")
 async def get_theme(theme_id: str):
     """
@@ -1051,6 +1144,655 @@ async def set_presentation_theme(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error setting presentation theme: {str(e)}")
+
+
+# ==================== User Custom Themes (v7.5.4) ====================
+
+@app.post("/api/user/themes")
+async def create_user_theme(
+    theme: UserCustomThemeCreate,
+    user_id: str = "anonymous"  # In production, this would come from auth
+):
+    """
+    Create a new custom theme for a user.
+
+    Query Parameters:
+    - user_id: User identifier (required in production)
+
+    Request Body:
+    - name: Theme name (required)
+    - description: Optional description
+    - base_theme_id: ID of predefined theme to inherit from (optional)
+    - colors: Color configuration (required for fully custom themes)
+    - typography: Typography configuration (optional)
+    - spacing: Spacing configuration (optional)
+    - effects: Visual effects configuration (optional)
+    - content_styles: Content styles for HTML elements (optional)
+
+    Example - Inherit from predefined:
+    {
+        "name": "My Corporate Blue",
+        "base_theme_id": "corporate-blue",
+        "colors": {"primary": "#2563eb", "accent": "#dc2626"}
+    }
+
+    Example - Fully custom:
+    {
+        "name": "Brand Theme",
+        "colors": {
+            "primary": "#ff5500",
+            "background": "#ffffff",
+            "text_primary": "#1f2937",
+            "hero_background": "#1a1a2e"
+        }
+    }
+    """
+    try:
+        # Build theme_config JSONB
+        theme_config = {}
+
+        # If inheriting from base theme, merge with base
+        if theme.base_theme_id:
+            if theme.base_theme_id not in PREDEFINED_THEMES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Base theme '{theme.base_theme_id}' not found. Available: {list(PREDEFINED_THEMES.keys())}"
+                )
+            # Start with base theme config
+            base = PREDEFINED_THEMES[theme.base_theme_id]
+            theme_config = {
+                "colors": base.colors.model_dump(),
+                "typography": base.typography,
+                "content_styles": base.content_styles
+            }
+
+        # Apply provided configurations (override base if present)
+        if theme.colors:
+            if "colors" in theme_config:
+                theme_config["colors"].update(theme.colors.model_dump(exclude_none=True))
+            else:
+                theme_config["colors"] = theme.colors.model_dump()
+
+        if theme.typography:
+            theme_config["typography"] = theme.typography
+
+        if theme.spacing:
+            theme_config["spacing"] = theme.spacing.model_dump()
+
+        if theme.effects:
+            theme_config["effects"] = theme.effects.model_dump()
+
+        if theme.content_styles:
+            theme_config["content_styles"] = theme.content_styles
+
+        # Validate: fully custom themes must have colors
+        if not theme.base_theme_id and "colors" not in theme_config:
+            raise HTTPException(
+                status_code=400,
+                detail="Fully custom themes must provide colors configuration"
+            )
+
+        # Check if storage supports user themes (Supabase only)
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            # Filesystem fallback - store in memory or return error
+            raise HTTPException(
+                status_code=501,
+                detail="User custom themes require Supabase storage. Currently using filesystem fallback."
+            )
+
+        # Insert into ls_user_themes table
+        result = storage.supabase.client.table("ls_user_themes").insert({
+            "user_id": user_id,
+            "name": theme.name,
+            "description": theme.description,
+            "base_theme_id": theme.base_theme_id,
+            "theme_config": theme_config,
+            "is_public": False
+        }).execute()
+
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=500, detail="Failed to create theme")
+
+        created_theme = result.data[0]
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Custom theme '{theme.name}' created",
+            "theme": {
+                "id": created_theme["id"],
+                "user_id": created_theme["user_id"],
+                "name": created_theme["name"],
+                "description": created_theme.get("description"),
+                "base_theme_id": created_theme.get("base_theme_id"),
+                "theme_config": created_theme["theme_config"],
+                "created_at": created_theme["created_at"],
+                "updated_at": created_theme["updated_at"],
+                "is_public": created_theme.get("is_public", False)
+            }
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating custom theme: {str(e)}")
+
+
+@app.get("/api/user/themes")
+async def list_user_themes(user_id: str = "anonymous"):
+    """
+    List all custom themes for a user.
+
+    Query Parameters:
+    - user_id: User identifier
+
+    Returns:
+    - themes: List of user's custom themes
+    - count: Number of themes
+    """
+    try:
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            return JSONResponse(content={
+                "success": True,
+                "themes": [],
+                "count": 0,
+                "message": "User themes require Supabase storage"
+            })
+
+        result = storage.supabase.client.table("ls_user_themes").select("*").eq(
+            "user_id", user_id
+        ).order("created_at", desc=True).execute()
+
+        themes = result.data or []
+
+        return JSONResponse(content={
+            "success": True,
+            "themes": themes,
+            "count": len(themes)
+        })
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing user themes: {str(e)}")
+
+
+@app.get("/api/user/themes/{theme_id}")
+async def get_user_theme(theme_id: str, user_id: str = "anonymous"):
+    """
+    Get a specific user custom theme by ID.
+
+    Path Parameters:
+    - theme_id: Theme UUID
+
+    Query Parameters:
+    - user_id: User identifier
+
+    Returns:
+    - theme: Full theme configuration
+    - resolved_theme: Theme with base theme values merged in
+    """
+    try:
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            raise HTTPException(status_code=501, detail="User themes require Supabase storage")
+
+        result = storage.supabase.client.table("ls_user_themes").select("*").eq(
+            "id", theme_id
+        ).execute()
+
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=404, detail=f"Theme '{theme_id}' not found")
+
+        theme = result.data[0]
+
+        # Check access: user owns it or it's public
+        if theme["user_id"] != user_id and not theme.get("is_public", False):
+            raise HTTPException(status_code=403, detail="Access denied to this theme")
+
+        # Resolve theme: merge with base if applicable
+        resolved_theme = theme["theme_config"].copy()
+        if theme.get("base_theme_id"):
+            base = PREDEFINED_THEMES.get(theme["base_theme_id"])
+            if base:
+                # Merge base theme with custom overrides
+                base_config = {
+                    "colors": base.colors.model_dump(),
+                    "typography": base.typography,
+                    "content_styles": base.content_styles
+                }
+                # Deep merge: base values + custom overrides
+                for key, value in base_config.items():
+                    if key not in resolved_theme:
+                        resolved_theme[key] = value
+                    elif isinstance(value, dict) and isinstance(resolved_theme.get(key), dict):
+                        merged = value.copy()
+                        merged.update(resolved_theme[key])
+                        resolved_theme[key] = merged
+
+        return JSONResponse(content={
+            "success": True,
+            "theme": theme,
+            "resolved_theme": resolved_theme
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting user theme: {str(e)}")
+
+
+@app.put("/api/user/themes/{theme_id}")
+async def update_user_theme(
+    theme_id: str,
+    update: UserCustomThemeUpdate,
+    user_id: str = "anonymous"
+):
+    """
+    Update a user custom theme.
+
+    Path Parameters:
+    - theme_id: Theme UUID
+
+    Query Parameters:
+    - user_id: User identifier
+
+    Request Body (all optional):
+    - name: Updated theme name
+    - description: Updated description
+    - colors: Updated color configuration
+    - typography: Updated typography
+    - spacing: Updated spacing
+    - effects: Updated effects
+    - content_styles: Updated content styles
+    - is_public: Make theme public
+    """
+    try:
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            raise HTTPException(status_code=501, detail="User themes require Supabase storage")
+
+        # Verify ownership
+        existing = storage.supabase.client.table("ls_user_themes").select("*").eq(
+            "id", theme_id
+        ).eq("user_id", user_id).execute()
+
+        if not existing.data or len(existing.data) == 0:
+            raise HTTPException(status_code=404, detail="Theme not found or access denied")
+
+        current_theme = existing.data[0]
+
+        # Build update payload
+        updates = {}
+
+        if update.name is not None:
+            updates["name"] = update.name
+
+        if update.description is not None:
+            updates["description"] = update.description
+
+        if update.is_public is not None:
+            updates["is_public"] = update.is_public
+
+        # Update theme_config if any config fields provided
+        theme_config = current_theme["theme_config"].copy()
+        config_updated = False
+
+        if update.colors is not None:
+            theme_config["colors"] = update.colors.model_dump()
+            config_updated = True
+
+        if update.typography is not None:
+            theme_config["typography"] = update.typography
+            config_updated = True
+
+        if update.spacing is not None:
+            theme_config["spacing"] = update.spacing.model_dump()
+            config_updated = True
+
+        if update.effects is not None:
+            theme_config["effects"] = update.effects.model_dump()
+            config_updated = True
+
+        if update.content_styles is not None:
+            theme_config["content_styles"] = update.content_styles
+            config_updated = True
+
+        if config_updated:
+            updates["theme_config"] = theme_config
+
+        if not updates:
+            return JSONResponse(content={
+                "success": True,
+                "message": "No changes provided",
+                "theme": current_theme
+            })
+
+        # Update in database
+        result = storage.supabase.client.table("ls_user_themes").update(
+            updates
+        ).eq("id", theme_id).execute()
+
+        updated_theme = result.data[0] if result.data else current_theme
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Theme '{updated_theme['name']}' updated",
+            "theme": updated_theme
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating user theme: {str(e)}")
+
+
+@app.delete("/api/user/themes/{theme_id}")
+async def delete_user_theme(theme_id: str, user_id: str = "anonymous"):
+    """
+    Delete a user custom theme.
+
+    Path Parameters:
+    - theme_id: Theme UUID
+
+    Query Parameters:
+    - user_id: User identifier
+    """
+    try:
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            raise HTTPException(status_code=501, detail="User themes require Supabase storage")
+
+        # Delete (RLS will ensure user owns it)
+        result = storage.supabase.client.table("ls_user_themes").delete().eq(
+            "id", theme_id
+        ).eq("user_id", user_id).execute()
+
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=404, detail="Theme not found or access denied")
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Theme deleted"
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting user theme: {str(e)}")
+
+
+@app.post("/api/user/themes/{theme_id}/duplicate")
+async def duplicate_user_theme(
+    theme_id: str,
+    user_id: str = "anonymous",
+    new_name: str = None
+):
+    """
+    Duplicate an existing theme (own or public).
+
+    Path Parameters:
+    - theme_id: Theme UUID to duplicate
+
+    Query Parameters:
+    - user_id: User identifier
+    - new_name: Name for the duplicated theme (optional)
+    """
+    try:
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            raise HTTPException(status_code=501, detail="User themes require Supabase storage")
+
+        # Get source theme
+        result = storage.supabase.client.table("ls_user_themes").select("*").eq(
+            "id", theme_id
+        ).execute()
+
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=404, detail="Theme not found")
+
+        source = result.data[0]
+
+        # Check access: user owns it or it's public
+        if source["user_id"] != user_id and not source.get("is_public", False):
+            raise HTTPException(status_code=403, detail="Access denied to this theme")
+
+        # Create duplicate
+        duplicate_name = new_name or f"{source['name']} (Copy)"
+
+        new_result = storage.supabase.client.table("ls_user_themes").insert({
+            "user_id": user_id,
+            "name": duplicate_name,
+            "description": source.get("description"),
+            "base_theme_id": source.get("base_theme_id"),
+            "theme_config": source["theme_config"],
+            "is_public": False
+        }).execute()
+
+        new_theme = new_result.data[0]
+
+        return JSONResponse(content={
+            "success": True,
+            "message": f"Theme duplicated as '{duplicate_name}'",
+            "theme": new_theme
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error duplicating theme: {str(e)}")
+
+
+@app.post("/api/user/themes/{theme_id}/publish")
+async def publish_user_theme(theme_id: str, user_id: str = "anonymous"):
+    """
+    Make a user theme public in the gallery.
+
+    Path Parameters:
+    - theme_id: Theme UUID
+
+    Query Parameters:
+    - user_id: User identifier
+    """
+    try:
+        if not hasattr(storage, 'supabase') or storage.supabase is None:
+            raise HTTPException(status_code=501, detail="User themes require Supabase storage")
+
+        result = storage.supabase.client.table("ls_user_themes").update({
+            "is_public": True
+        }).eq("id", theme_id).eq("user_id", user_id).execute()
+
+        if not result.data or len(result.data) == 0:
+            raise HTTPException(status_code=404, detail="Theme not found or access denied")
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Theme is now public",
+            "theme": result.data[0]
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error publishing theme: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/theme/css-variables")
+async def get_presentation_theme_css_variables(presentation_id: str):
+    """
+    Get CSS variables for a presentation's theme.
+
+    Returns all CSS custom properties that should be injected into :root
+    for the presentation's theme to take effect.
+
+    Path Parameters:
+    - presentation_id: Presentation UUID
+
+    Returns:
+    - css_variables: Dictionary of CSS variable name -> value
+    - css_string: Ready-to-inject CSS string
+    """
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Get theme config
+        theme_config = presentation.get("theme_config") or {"theme_id": DEFAULT_THEME_ID}
+        theme_id = theme_config.get("theme_id", DEFAULT_THEME_ID)
+        is_custom = theme_config.get("is_custom", False)
+
+        # Get base theme
+        if is_custom and hasattr(storage, 'supabase') and storage.supabase:
+            # Load custom theme from database
+            result = storage.supabase.client.table("ls_user_themes").select("*").eq(
+                "id", theme_id
+            ).execute()
+            if result.data:
+                custom_theme = result.data[0]
+                resolved_config = custom_theme["theme_config"]
+                # Merge with base if applicable
+                if custom_theme.get("base_theme_id"):
+                    base = PREDEFINED_THEMES.get(custom_theme["base_theme_id"])
+                    if base:
+                        base_config = {
+                            "colors": base.colors.model_dump(),
+                            "typography": base.typography
+                        }
+                        for key, value in base_config.items():
+                            if key not in resolved_config:
+                                resolved_config[key] = value
+            else:
+                # Fallback to predefined
+                base_theme = PREDEFINED_THEMES.get(DEFAULT_THEME_ID)
+                resolved_config = {
+                    "colors": base_theme.colors.model_dump(),
+                    "typography": base_theme.typography
+                }
+        else:
+            base_theme = PREDEFINED_THEMES.get(theme_id, PREDEFINED_THEMES[DEFAULT_THEME_ID])
+            resolved_config = {
+                "colors": base_theme.colors.model_dump(),
+                "typography": base_theme.typography,
+                "spacing": base_theme.spacing.model_dump() if base_theme.spacing else None,
+                "effects": base_theme.effects.model_dump() if base_theme.effects else None
+            }
+
+        # Apply overrides
+        overrides = theme_config.get("overrides") or {}
+        legacy_color_overrides = theme_config.get("color_overrides")
+
+        # Handle legacy color_overrides
+        if legacy_color_overrides and not overrides.get("colors"):
+            overrides["colors"] = legacy_color_overrides
+
+        # Apply color overrides
+        if overrides.get("colors"):
+            for key, value in overrides["colors"].items():
+                if "colors" in resolved_config and key in resolved_config["colors"]:
+                    resolved_config["colors"][key] = value
+
+        # Apply typography overrides
+        if overrides.get("typography"):
+            if "typography" not in resolved_config:
+                resolved_config["typography"] = {}
+            resolved_config["typography"].update(overrides["typography"])
+
+        # Apply spacing overrides
+        if overrides.get("spacing"):
+            if "spacing" not in resolved_config:
+                resolved_config["spacing"] = {}
+            resolved_config["spacing"].update(overrides["spacing"])
+
+        # Apply effects overrides
+        if overrides.get("effects"):
+            if "effects" not in resolved_config:
+                resolved_config["effects"] = {}
+            resolved_config["effects"].update(overrides["effects"])
+
+        # Build CSS variables
+        css_variables = {}
+        colors = resolved_config.get("colors", {})
+
+        # Color variables
+        color_mapping = {
+            "primary": "--theme-primary",
+            "primary_light": "--theme-primary-light",
+            "primary_dark": "--theme-primary-dark",
+            "accent": "--theme-accent",
+            "background": "--theme-bg",
+            "background_alt": "--theme-bg-alt",
+            "text_primary": "--theme-text-primary",
+            "text_secondary": "--theme-text-secondary",
+            "text_body": "--theme-text-body",
+            "hero_text_primary": "--theme-hero-text-primary",
+            "hero_text_secondary": "--theme-hero-text-secondary",
+            "hero_background": "--theme-hero-bg",
+            "footer_text": "--theme-footer-text",
+            "border": "--theme-border"
+        }
+
+        for color_key, css_var in color_mapping.items():
+            if color_key in colors and colors[color_key]:
+                css_variables[css_var] = colors[color_key]
+
+        # Typography variables
+        typography = resolved_config.get("typography") or {}
+        if typography:
+            if typography.get("fontFamily"):
+                css_variables["--theme-font-family"] = typography["fontFamily"]
+            # Standard profile
+            standard = typography.get("standard", {})
+            if standard.get("title", {}).get("fontSize"):
+                css_variables["--theme-title-size"] = standard["title"]["fontSize"]
+            if standard.get("title", {}).get("fontWeight"):
+                css_variables["--theme-title-weight"] = standard["title"]["fontWeight"]
+            if standard.get("subtitle", {}).get("fontSize"):
+                css_variables["--theme-subtitle-size"] = standard["subtitle"]["fontSize"]
+            if standard.get("body", {}).get("fontSize"):
+                css_variables["--theme-body-size"] = standard["body"]["fontSize"]
+            if standard.get("footer", {}).get("fontSize"):
+                css_variables["--theme-footer-size"] = standard["footer"]["fontSize"]
+            # Hero profile
+            hero = typography.get("hero", {})
+            if hero.get("title", {}).get("fontSize"):
+                css_variables["--theme-hero-title-size"] = hero["title"]["fontSize"]
+            if hero.get("title", {}).get("fontWeight"):
+                css_variables["--theme-hero-title-weight"] = hero["title"]["fontWeight"]
+            if hero.get("subtitle", {}).get("fontSize"):
+                css_variables["--theme-hero-subtitle-size"] = hero["subtitle"]["fontSize"]
+
+        # Spacing variables
+        spacing = resolved_config.get("spacing") or {}
+        if spacing:
+            if spacing.get("slide_padding"):
+                css_variables["--theme-slide-padding"] = spacing["slide_padding"]
+            if spacing.get("element_gap"):
+                css_variables["--theme-element-gap"] = spacing["element_gap"]
+            if spacing.get("section_gap"):
+                css_variables["--theme-section-gap"] = spacing["section_gap"]
+
+        # Effects variables
+        effects = resolved_config.get("effects") or {}
+        if effects:
+            if effects.get("border_radius"):
+                css_variables["--theme-border-radius"] = effects["border_radius"]
+            if effects.get("shadow_small"):
+                css_variables["--theme-shadow-small"] = effects["shadow_small"]
+            if effects.get("shadow_medium"):
+                css_variables["--theme-shadow-medium"] = effects["shadow_medium"]
+            if effects.get("shadow_large"):
+                css_variables["--theme-shadow-large"] = effects["shadow_large"]
+
+        # Build CSS string
+        css_lines = [f"  {var}: {value};" for var, value in css_variables.items()]
+        css_string = ":root {\n" + "\n".join(css_lines) + "\n}"
+
+        return JSONResponse(content={
+            "success": True,
+            "css_variables": css_variables,
+            "css_string": css_string,
+            "theme_id": theme_id,
+            "is_custom": is_custom
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting theme CSS variables: {str(e)}")
 
 
 # ==================== Reorder Slides (must come before {slide_index} routes) ====================

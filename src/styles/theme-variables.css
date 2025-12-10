@@ -41,6 +41,7 @@
   /* ========== TYPOGRAPHY VARIABLES ========== */
 
   --theme-font-family: 'Poppins', sans-serif;
+  --theme-font-family-heading: var(--theme-font-family);  /* Defaults to body font, can be overridden */
 
   /* Standard profile sizes */
   --theme-title-size: 42px;

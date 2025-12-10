@@ -8,7 +8,7 @@
   <!-- Google Fonts - All fonts used in templates -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <!-- Reveal.js Core -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
@@ -2709,6 +2709,7 @@
             break;
 
           // Set theme for presentation - calls API and applies CSS variables
+          // Enhanced in v7.5.4 to support full overrides (colors, typography, spacing, effects)
           case 'setTheme':
             (async () => {
               try {
@@ -2720,11 +2721,21 @@
                   return;
                 }
 
-                // Build the update payload
+                // Build the update payload - supports full overrides (v7.5.4)
                 const themePayload = {
                   theme_id: params?.themeId || params?.theme_id || 'corporate-blue',
-                  color_overrides: params?.colorOverrides || params?.color_overrides || null
+                  is_custom: params?.isCustom || params?.is_custom || false
                 };
+
+                // Support both legacy color_overrides and new full overrides
+                if (params?.overrides) {
+                  themePayload.overrides = params.overrides;
+                } else if (params?.colorOverrides || params?.color_overrides) {
+                  // Legacy support - convert to new format
+                  themePayload.overrides = {
+                    colors: params?.colorOverrides || params?.color_overrides
+                  };
+                }
 
                 // Call the API to persist theme changes
                 const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme`, {
@@ -2740,10 +2751,14 @@
                     window.currentPresentationData.theme_config = data.theme_config;
                   }
 
-                  // Apply theme via ThemeManager
+                  // Apply theme via ThemeManager with full overrides support
                   if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
                     const theme = THEME_REGISTRY[themePayload.theme_id] || THEME_REGISTRY['corporate-blue'];
-                    ThemeManager.injectThemeStyles(theme, themePayload.color_overrides || {});
+                    if (themePayload.overrides) {
+                      ThemeManager.injectFullTheme(theme, themePayload.overrides);
+                    } else {
+                      ThemeManager.injectThemeStyles(theme);
+                    }
                   }
 
                   result.success = true;
@@ -2763,14 +2778,22 @@
             return; // Don't send response synchronously
 
           // Preview theme without saving (for live preview in settings UI)
+          // Enhanced in v7.5.4 to support full overrides
           case 'previewTheme':
             try {
               const themeId = params?.themeId || params?.theme_id || 'corporate-blue';
+              const overrides = params?.overrides || null;
               const colorOverrides = params?.colorOverrides || params?.color_overrides || {};
 
               if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
                 const theme = THEME_REGISTRY[themeId] || THEME_REGISTRY['corporate-blue'];
-                ThemeManager.injectThemeStyles(theme, colorOverrides);
+                if (overrides) {
+                  ThemeManager.injectFullTheme(theme, overrides);
+                } else if (Object.keys(colorOverrides).length > 0) {
+                  ThemeManager.injectThemeStyles(theme, colorOverrides);
+                } else {
+                  ThemeManager.injectThemeStyles(theme);
+                }
                 result.success = true;
                 result.message = `Previewing theme '${themeId}'`;
                 result.themeId = themeId;
@@ -2802,6 +2825,378 @@
               } else {
                 result.success = false;
                 result.error = 'THEME_REGISTRY not available';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // ==================== v7.5.4 User Theme Management ====================
+
+          // Create a custom theme in user's library
+          case 'createCustomTheme':
+            (async () => {
+              try {
+                const themeData = {
+                  name: params?.name || 'My Custom Theme',
+                  description: params?.description || null,
+                  base_theme_id: params?.baseThemeId || params?.base_theme_id || null
+                };
+
+                // Add theme properties if provided
+                if (params?.colors) themeData.colors = params.colors;
+                if (params?.typography) themeData.typography = params.typography;
+                if (params?.spacing) themeData.spacing = params.spacing;
+                if (params?.effects) themeData.effects = params.effects;
+                if (params?.contentStyles || params?.content_styles) {
+                  themeData.content_styles = params.contentStyles || params.content_styles;
+                }
+
+                // Also accept overrides format and flatten it
+                if (params?.overrides) {
+                  if (params.overrides.colors) themeData.colors = params.overrides.colors;
+                  if (params.overrides.typography) themeData.typography = params.overrides.typography;
+                  if (params.overrides.spacing) themeData.spacing = params.overrides.spacing;
+                  if (params.overrides.effects) themeData.effects = params.overrides.effects;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(themeData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                  result.message = `Custom theme '${themeData.name}' created`;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to create custom theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get user's custom themes library
+          case 'getUserThemes':
+            (async () => {
+              try {
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.themes = data.themes || [];
+                  result.count = data.count || 0;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to fetch user themes';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get a specific custom theme by ID
+          case 'getCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Theme not found';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Update a custom theme
+          case 'updateCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const updateData = {};
+                if (params?.name) updateData.name = params.name;
+                if (params?.description !== undefined) updateData.description = params.description;
+                if (params?.colors) updateData.colors = params.colors;
+                if (params?.typography) updateData.typography = params.typography;
+                if (params?.spacing) updateData.spacing = params.spacing;
+                if (params?.effects) updateData.effects = params.effects;
+                if (params?.contentStyles || params?.content_styles) {
+                  updateData.content_styles = params.contentStyles || params.content_styles;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                  result.message = 'Theme updated successfully';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to update theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Delete a custom theme
+          case 'deleteCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}`, {
+                  method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.message = data.message || 'Theme deleted';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to delete theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Duplicate a custom theme
+          case 'duplicateCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const duplicateData = {};
+                if (params?.newName || params?.new_name) {
+                  duplicateData.new_name = params.newName || params.new_name;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}/duplicate`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(duplicateData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                  result.message = data.message || 'Theme duplicated';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to duplicate theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Save current presentation theme to user's library
+          case 'saveThemeToLibrary':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // First, get the current presentation theme
+                const themeResponse = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme`);
+                const themeData = await themeResponse.json();
+
+                if (!themeResponse.ok) {
+                  result.success = false;
+                  result.error = 'Failed to get current theme';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Create custom theme from current settings
+                const customThemeData = {
+                  name: params?.name || `Theme from ${presId.substring(0, 8)}`,
+                  description: params?.description || 'Saved from presentation',
+                  base_theme_id: themeData.theme_config?.theme_id || null
+                };
+
+                // Include resolved colors if available
+                if (themeData.resolved_theme?.colors) {
+                  customThemeData.colors = themeData.resolved_theme.colors;
+                }
+                // Include any overrides
+                if (themeData.theme_config?.overrides) {
+                  if (themeData.theme_config.overrides.typography) {
+                    customThemeData.typography = themeData.theme_config.overrides.typography;
+                  }
+                  if (themeData.theme_config.overrides.spacing) {
+                    customThemeData.spacing = themeData.theme_config.overrides.spacing;
+                  }
+                  if (themeData.theme_config.overrides.effects) {
+                    customThemeData.effects = themeData.theme_config.overrides.effects;
+                  }
+                }
+
+                // Create the custom theme
+                const createResponse = await fetch(`${getApiBaseUrl()}/api/user/themes`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(customThemeData)
+                });
+                const createData = await createResponse.json();
+
+                if (createResponse.ok) {
+                  result.success = true;
+                  result.theme = createData.theme;
+                  result.message = `Theme saved to library as '${customThemeData.name}'`;
+                } else {
+                  result.success = false;
+                  result.error = createData.detail || 'Failed to save theme to library';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get public themes (predefined + user-shared)
+          case 'getPublicThemes':
+            (async () => {
+              try {
+                const response = await fetch(`${getApiBaseUrl()}/api/themes/public`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.predefinedThemes = data.predefined_themes || [];
+                  result.userThemes = data.user_themes || [];
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to fetch public themes';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get CSS variables for current theme (useful for external styling)
+          case 'getThemeCssVariables':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme/css-variables`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.cssVariables = data.css_variables || {};
+                  result.cssString = data.css_string || '';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to get CSS variables';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Apply CSS variables directly (for advanced use cases)
+          case 'applyCssVariables':
+            try {
+              const cssVariables = params?.cssVariables || params?.css_variables;
+              if (!cssVariables || typeof cssVariables !== 'object') {
+                result.success = false;
+                result.error = 'CSS variables object is required';
+                break;
+              }
+
+              if (typeof ThemeManager !== 'undefined') {
+                ThemeManager.applyCssVariables(cssVariables);
+                result.success = true;
+                result.message = `Applied ${Object.keys(cssVariables).length} CSS variables`;
+              } else {
+                result.success = false;
+                result.error = 'ThemeManager not available';
               }
             } catch (error) {
               result.success = false;

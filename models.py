@@ -18,6 +18,7 @@ import re
 
 # ==================== Valid Layout Types ====================
 # All supported layouts: Backend (L01-L29) + Frontend Templates (H1-H3, C1-C5, V1-V4, I1-I4, S3-S4, B1)
+# Plus dynamic X-series layouts (X1-X5 with hash suffix)
 
 ValidLayoutType = Literal[
     # Backend layouts
@@ -35,6 +36,37 @@ ValidLayoutType = Literal[
     # Frontend templates - Blank
     "B1-blank"
 ]
+
+# Set of all predefined layout IDs for validation
+PREDEFINED_LAYOUTS = {
+    "L01", "L02", "L03", "L25", "L27", "L29",
+    "H1-generated", "H1-structured", "H2-section", "H3-closing",
+    "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
+    "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
+    "I1-image-left", "I2-image-right", "I3-image-left-narrow", "I4-image-right-narrow",
+    "S3-two-visuals", "S4-comparison",
+    "B1-blank"
+}
+
+# X-Series pattern: X{1-5}-{8 hex characters}
+X_SERIES_PATTERN = re.compile(r'^X[1-5]-[a-f0-9]{8}$')
+
+
+def validate_layout_id(layout_id: str) -> str:
+    """
+    Validate a layout ID - accepts predefined layouts and X-series dynamic layouts.
+
+    Valid formats:
+    - Predefined: L01, C1-text, H1-structured, etc.
+    - X-Series: X1-a3f7e8c2, X2-b4c9d1e3, etc.
+    """
+    if layout_id in PREDEFINED_LAYOUTS:
+        return layout_id
+    if X_SERIES_PATTERN.match(layout_id):
+        return layout_id
+    raise ValueError(
+        f"Invalid layout ID: {layout_id}. Must be a predefined layout or X-series format (X[1-5]-[hash8])"
+    )
 
 
 # ==================== L25: Main Content Shell ====================
@@ -643,10 +675,17 @@ class Slide(BaseModel):
         default_factory=lambda: f"slide_{uuid4().hex[:12]}",
         description="Stable UUID for this slide (not index-based). Used by child elements for cascade delete."
     )
-    layout: ValidLayoutType = Field(
+    layout: str = Field(
         ...,
-        description="Layout identifier (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
+        description="Layout identifier: predefined (L01-L29, H1-H3, C1-C5, etc.) or X-series dynamic (X1-a3f7e8c2)"
     )
+
+    @field_validator('layout')
+    @classmethod
+    def validate_layout_field(cls, v: str) -> str:
+        """Validate layout ID - accepts predefined layouts and X-series dynamic layouts."""
+        return validate_layout_id(v)
+
     content: Union[L25Content, L29Content, Dict[str, Any]] = Field(
         ...,
         description="Layout-specific content (structured for L25/L29, flexible dict for others)"
@@ -997,6 +1036,174 @@ class ThemeContentStyles(BaseModel):
     blockquote: Optional[Dict[str, str]] = Field(
         default=None,
         description="Blockquote styles"
+    )
+
+
+# ==================== Typography Response Models (Text Service) ====================
+
+class TypographyToken(BaseModel):
+    """
+    Typography token for a text element type.
+
+    Used by Text Service to calculate character constraints
+    and apply consistent styling.
+    """
+    size: int = Field(
+        ...,
+        description="Font size in pixels (numeric)"
+    )
+    size_px: str = Field(
+        ...,
+        description="Font size as CSS value (e.g., '72px')"
+    )
+    weight: int = Field(
+        default=400,
+        description="Font weight (100-900)"
+    )
+    line_height: float = Field(
+        default=1.4,
+        description="Line height multiplier"
+    )
+    letter_spacing: str = Field(
+        default="0",
+        description="Letter spacing (e.g., '-0.02em', '0')"
+    )
+    color: str = Field(
+        ...,
+        description="Text color as hex"
+    )
+    text_transform: str = Field(
+        default="none",
+        description="Text transform: none, uppercase, lowercase, capitalize"
+    )
+
+
+class EmphasisToken(BaseModel):
+    """Typography token for emphasized text (bold, strong)."""
+    weight: int = Field(
+        default=600,
+        description="Font weight for emphasis"
+    )
+    color: str = Field(
+        ...,
+        description="Emphasis text color as hex"
+    )
+    style: str = Field(
+        default="normal",
+        description="Font style: normal, italic"
+    )
+
+
+class ListStylesToken(BaseModel):
+    """Styling tokens for list elements."""
+    bullet_type: str = Field(
+        default="disc",
+        description="Bullet type: disc, circle, square, dash, arrow, check, none"
+    )
+    bullet_color: str = Field(
+        ...,
+        description="Bullet color (typically theme primary)"
+    )
+    bullet_size: str = Field(
+        default="0.4em",
+        description="Bullet size relative to text"
+    )
+    list_indent: str = Field(
+        default="1.5em",
+        description="List indentation from left"
+    )
+    item_spacing: str = Field(
+        default="0.5em",
+        description="Space between list items"
+    )
+    numbered_style: str = Field(
+        default="decimal",
+        description="Numbered list format: decimal, lower-alpha, upper-alpha, lower-roman, upper-roman"
+    )
+    nested_indent: str = Field(
+        default="1.5em",
+        description="Additional indent for nested lists"
+    )
+
+
+class TextboxDefaultsToken(BaseModel):
+    """Default styling for text box containers."""
+    background: str = Field(
+        default="transparent",
+        description="Background color"
+    )
+    background_gradient: Optional[str] = Field(
+        default=None,
+        description="CSS gradient string or null"
+    )
+    border_width: str = Field(
+        default="0px",
+        description="Border width"
+    )
+    border_color: str = Field(
+        default="transparent",
+        description="Border color"
+    )
+    border_radius: str = Field(
+        default="8px",
+        description="Corner radius"
+    )
+    padding: str = Field(
+        default="16px",
+        description="Inner padding"
+    )
+    box_shadow: str = Field(
+        default="none",
+        description="Box shadow"
+    )
+
+
+class TypographyTokens(BaseModel):
+    """Collection of all typography tokens."""
+    h1: TypographyToken
+    h2: TypographyToken
+    h3: TypographyToken
+    h4: TypographyToken
+    body: TypographyToken
+    subtitle: TypographyToken
+    caption: TypographyToken
+    emphasis: EmphasisToken
+
+
+class ThemeTypographyResponse(BaseModel):
+    """
+    Response model for GET /api/themes/{theme_id}/typography.
+
+    Provides complete typography tokens for Text Service to calculate
+    character constraints and apply theme-consistent styling.
+    """
+    theme_id: str = Field(
+        ...,
+        description="Theme identifier"
+    )
+    font_family: str = Field(
+        ...,
+        description="Primary font family"
+    )
+    font_family_heading: str = Field(
+        ...,
+        description="Heading font family (may equal font_family)"
+    )
+    tokens: TypographyTokens = Field(
+        ...,
+        description="Typography tokens for each text element type"
+    )
+    list_styles: ListStylesToken = Field(
+        ...,
+        description="List/bullet styling tokens"
+    )
+    textbox_defaults: TextboxDefaultsToken = Field(
+        ...,
+        description="Default text box container styling"
+    )
+    char_width_ratio: float = Field(
+        ...,
+        description="Average character width / font size ratio for this font"
     )
 
 
@@ -1477,9 +1684,9 @@ class AddSlideRequest(BaseModel):
     The slide will be inserted at the specified position, or appended
     at the end if no position is provided.
     """
-    layout: ValidLayoutType = Field(
+    layout: str = Field(
         ...,
-        description="Layout type for the new slide (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
+        description="Layout type: predefined (L01-L29, H1-H3, C1-C5, etc.) or X-series dynamic (X1-a3f7e8c2)"
     )
     position: Optional[int] = Field(
         None,
@@ -1498,6 +1705,12 @@ class AddSlideRequest(BaseModel):
         None,
         description="Background image URL or data URI"
     )
+
+    @field_validator('layout')
+    @classmethod
+    def validate_add_layout(cls, v: str) -> str:
+        """Validate layout ID - accepts predefined layouts and X-series dynamic layouts."""
+        return validate_layout_id(v)
 
 
 class ReorderSlidesRequest(BaseModel):
@@ -1525,9 +1738,9 @@ class ChangeLayoutRequest(BaseModel):
 
     Optionally preserves compatible content fields when switching layouts.
     """
-    new_layout: ValidLayoutType = Field(
+    new_layout: str = Field(
         ...,
-        description="New layout type for the slide (backend L01-L29 or frontend H1-H3, C1-C6, S1-S4, B1)"
+        description="New layout type: predefined (L01-L29, H1-H3, C1-C5, etc.) or X-series dynamic (X1-a3f7e8c2)"
     )
     preserve_content: bool = Field(
         True,
@@ -1537,6 +1750,12 @@ class ChangeLayoutRequest(BaseModel):
         None,
         description="Manual field mapping from old to new layout: {'old_field': 'new_field'}"
     )
+
+    @field_validator('new_layout')
+    @classmethod
+    def validate_change_layout(cls, v: str) -> str:
+        """Validate layout ID - accepts predefined layouts and X-series dynamic layouts."""
+        return validate_layout_id(v)
 
 
 class DuplicateSlideRequest(BaseModel):
@@ -1715,3 +1934,333 @@ class TextGenerationResponse(BaseModel):
         description="Generation metadata: tokens_used, model, generation_time_ms"
     )
     error: Optional[str] = Field(None, description="Error message if failed")
+
+
+# ==================== Director Service Integration Models ====================
+# These models support the 5 new endpoints for Director Service coordination
+
+
+class SlotPixels(BaseModel):
+    """Pixel dimensions for a slot."""
+    x: float = Field(..., description="X position in pixels")
+    y: float = Field(..., description="Y position in pixels")
+    width: float = Field(..., description="Width in pixels")
+    height: float = Field(..., description="Height in pixels")
+
+
+class SlotDefinition(BaseModel):
+    """Definition of a single slot within a template."""
+    grid_row: str = Field(..., description="CSS grid row (e.g., '4/18')")
+    grid_column: str = Field(..., description="CSS grid column (e.g., '2/32')")
+    tag: str = Field(..., description="Content tag (title, body, chart, etc.)")
+    accepts: List[str] = Field(..., description="Accepted content types")
+    required: Optional[bool] = Field(default=False, description="Whether slot is required")
+    description: Optional[str] = Field(default=None, description="Slot description")
+    default_text: Optional[str] = Field(default=None, description="Default placeholder text")
+    format_owner: Optional[str] = Field(default=None, description="Service that owns format (text_service, analytics_service)")
+    pixels: Optional[SlotPixels] = Field(default=None, description="Computed pixel dimensions")
+
+
+class LayoutSummary(BaseModel):
+    """Summary of a layout for listing endpoints."""
+    layout_id: str = Field(..., description="Layout ID (e.g., L25, C1-text)")
+    name: str = Field(..., description="Human-readable name")
+    series: str = Field(..., description="Layout series (H, C, V, I, S, B, L)")
+    category: str = Field(..., description="Category (hero, content, visual, image, split, blank, backend)")
+    description: str = Field(..., description="Layout description")
+    theming_enabled: bool = Field(..., description="Whether theming is supported")
+    base_layout: Optional[str] = Field(default=None, description="Base backend layout ID if applicable")
+    primary_content_types: List[str] = Field(default=[], description="Primary content types this layout is designed for")
+    main_content_dimensions: Optional[SlotPixels] = Field(default=None, description="Dimensions of main content area")
+
+
+class LayoutDetailResponse(BaseModel):
+    """Detailed layout response with full slot definitions."""
+    layout_id: str = Field(..., description="Layout ID")
+    name: str = Field(..., description="Human-readable name")
+    series: str = Field(..., description="Layout series")
+    category: str = Field(..., description="Category")
+    description: str = Field(..., description="Layout description")
+    theming_enabled: bool = Field(..., description="Whether theming is supported")
+    base_layout: Optional[str] = Field(default=None, description="Base backend layout ID")
+    slide_dimensions: Dict[str, Any] = Field(
+        default={"width": 1920, "height": 1080, "unit": "pixels"},
+        description="Slide dimensions"
+    )
+    slots: Dict[str, SlotDefinition] = Field(..., description="All slots with definitions")
+    defaults: Dict[str, Any] = Field(default={}, description="Default values")
+
+
+class LayoutListResponse(BaseModel):
+    """Response for listing all layouts."""
+    layouts: List[LayoutSummary] = Field(..., description="List of layout summaries")
+    total: int = Field(..., description="Total number of layouts")
+    categories: Dict[str, List[str]] = Field(default={}, description="Templates grouped by category")
+
+
+class LayoutRecommendationRequest(BaseModel):
+    """Request for layout recommendation."""
+    content_type: str = Field(
+        ...,
+        description="Type of content: chart, diagram, text, hero, comparison, image, infographic"
+    )
+    topic_count: int = Field(
+        default=1, ge=1, le=10,
+        description="Number of topics/items to display"
+    )
+    service: str = Field(
+        default="director",
+        description="Requesting service: director, text-service, analytics-service"
+    )
+    variant: Optional[str] = Field(
+        default=None,
+        description="Content variant: single, split, comparison, etc."
+    )
+    preferences: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Additional preferences: image_position, chart_type, etc."
+    )
+
+
+class LayoutRecommendation(BaseModel):
+    """A single layout recommendation."""
+    layout_id: str = Field(..., description="Recommended layout ID")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score (0-1)")
+    reason: str = Field(..., description="Reason for recommendation")
+    main_content_slots: List[Dict[str, Any]] = Field(
+        default=[],
+        description="Main content slots with pixel dimensions"
+    )
+
+
+class LayoutRecommendationResponse(BaseModel):
+    """Response for layout recommendation."""
+    recommended_layouts: List[LayoutRecommendation] = Field(
+        ...,
+        description="List of recommended layouts in order of preference"
+    )
+    fallback: str = Field(
+        default="L25",
+        description="Universal fallback layout if none match"
+    )
+    request_summary: Dict[str, Any] = Field(
+        default={},
+        description="Summary of the request parameters"
+    )
+
+
+class CanFitRequest(BaseModel):
+    """Request to check if content can fit in a layout."""
+    layout_id: str = Field(..., description="Layout ID to check")
+    content_zones_needed: int = Field(
+        default=1, ge=1, le=10,
+        description="Number of content zones needed"
+    )
+    content_type: str = Field(
+        ...,
+        description="Type of content to fit: text, chart, diagram, image, etc."
+    )
+
+
+class CanFitResponse(BaseModel):
+    """Response for can-fit check."""
+    can_fit: bool = Field(..., description="Whether content can fit")
+    layout_id: str = Field(..., description="Layout that was checked")
+    content_zones_available: int = Field(..., description="Available zones for this content type")
+    content_zones_needed: int = Field(..., description="Zones requested")
+    suggested_layout: Optional[str] = Field(
+        default=None,
+        description="Alternative layout suggestion if content doesn't fit"
+    )
+    reason: str = Field(..., description="Explanation of the result")
+
+
+class CapabilitiesResponse(BaseModel):
+    """Response for service capabilities endpoint."""
+    service: str = Field(default="layout-service", description="Service name")
+    version: str = Field(..., description="Service version")
+    status: str = Field(default="healthy", description="Service status")
+    capabilities: Dict[str, Any] = Field(..., description="Service capabilities")
+    template_series: Dict[str, Dict[str, Any]] = Field(
+        ...,
+        description="Information about each template series"
+    )
+    standard_zones: Dict[str, Dict[str, Any]] = Field(
+        ...,
+        description="Standard zone definitions"
+    )
+    endpoints: Dict[str, str] = Field(..., description="Available endpoints")
+
+
+# ==================== X-Series: Dynamic Layout Models ====================
+# X-series layouts dynamically split the content area of base templates (C1, I1-I4)
+# into sub-zones based on content analysis.
+
+# Valid base layouts for X-series
+ValidXSeriesBase = Literal[
+    "C1-text",              # X1 base - full content area
+    "I1-image-left",        # X2 base - content right of image
+    "I2-image-right",       # X3 base - content left of image
+    "I3-image-left-narrow", # X4 base - wider content area
+    "I4-image-right-narrow" # X5 base - wider content area
+]
+
+# Valid split directions
+ValidSplitDirection = Literal["horizontal", "vertical", "grid"]
+
+
+class ZonePixels(BaseModel):
+    """Pixel coordinates for a zone within the content area."""
+    x: int = Field(..., description="X position in pixels from slide left edge")
+    y: int = Field(..., description="Y position in pixels from slide top edge")
+    width: int = Field(..., description="Zone width in pixels")
+    height: int = Field(..., description="Zone height in pixels")
+
+
+class ZoneDefinition(BaseModel):
+    """
+    Definition of a sub-zone within the content area.
+
+    Note: This is distinct from SlotDefinition which defines template slots.
+    ZoneDefinition defines dynamic sub-zones created by splitting a content area.
+    """
+    zone_id: str = Field(..., description="Zone identifier (zone_1, zone_2, etc.)")
+    label: Optional[str] = Field(default=None, description="Human-readable zone label")
+    grid_row: str = Field(..., description="CSS grid row (e.g., '4/9')")
+    grid_column: str = Field(..., description="CSS grid column (e.g., '2/32')")
+    pixels: ZonePixels = Field(..., description="Pixel coordinates and dimensions")
+    content_type_hint: Optional[str] = Field(
+        default=None,
+        description="Suggested content type: heading, bullets, paragraph, highlight, etc."
+    )
+    z_index: int = Field(default=100, description="Z-index for layering")
+
+
+class DynamicLayoutRequest(BaseModel):
+    """
+    Request to generate a dynamic X-series layout.
+
+    X-series layouts split the main content area of base templates into
+    multiple sub-zones based on content requirements.
+
+    X-Series Mapping:
+    - X1 → C1-text (1800×840px content area)
+    - X2 → I1-image-left (1200×840px content area)
+    - X3 → I2-image-right (1140×840px content area)
+    - X4 → I3-image-left-narrow (1500×840px content area)
+    - X5 → I4-image-right-narrow (1440×840px content area)
+    """
+    base_layout: ValidXSeriesBase = Field(
+        ...,
+        description="Base layout to use (C1-text, I1-I4)"
+    )
+    content_type: str = Field(
+        ...,
+        description="Content type: agenda, use_case, comparison, features, timeline, process, custom"
+    )
+    zone_count: int = Field(
+        default=3,
+        ge=2, le=8,
+        description="Number of zones to create (2-8)"
+    )
+    split_direction: Optional[ValidSplitDirection] = Field(
+        default=None,
+        description="Preferred split direction: horizontal, vertical, or grid"
+    )
+    split_pattern: Optional[str] = Field(
+        default=None,
+        description="Named split pattern (e.g., agenda-3-item, comparison-2col)"
+    )
+    zone_labels: Optional[List[str]] = Field(
+        default=None,
+        description="Optional labels for each zone"
+    )
+    custom_ratios: Optional[List[float]] = Field(
+        default=None,
+        description="Custom split ratios (must sum to 1.0)"
+    )
+
+    @field_validator('custom_ratios')
+    @classmethod
+    def validate_ratios(cls, v, info):
+        if v is not None:
+            if abs(sum(v) - 1.0) > 0.01:
+                raise ValueError('custom_ratios must sum to 1.0')
+            zone_count = info.data.get('zone_count', 3)
+            if len(v) != zone_count:
+                raise ValueError(f'custom_ratios length must match zone_count ({zone_count})')
+        return v
+
+
+class DynamicLayoutResponse(BaseModel):
+    """
+    Response containing a generated dynamic X-series layout.
+
+    The layout_id follows the pattern X{series}-{hash8} where:
+    - series: 1-5 corresponding to base layout
+    - hash8: 8-character hash of the zone configuration
+
+    This layout_id can be used like any other layout (C1, I1, etc.)
+    for content generation and rendering.
+    """
+    layout_id: str = Field(
+        ...,
+        description="Unique layout ID (e.g., X1-a3f7e8c2)"
+    )
+    base_layout: ValidXSeriesBase = Field(
+        ...,
+        description="Base layout that was split"
+    )
+    name: str = Field(
+        ...,
+        description="Human-readable layout name"
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="Layout description"
+    )
+    content_type: str = Field(
+        ...,
+        description="Content type this layout is optimized for"
+    )
+    zones: List[ZoneDefinition] = Field(
+        ...,
+        description="List of zone definitions"
+    )
+    split_pattern: str = Field(
+        ...,
+        description="Split pattern used (preconfigured or custom)"
+    )
+    split_direction: ValidSplitDirection = Field(
+        ...,
+        description="Direction of the split"
+    )
+    content_area: ZonePixels = Field(
+        ...,
+        description="Original content area that was split"
+    )
+    reusable: bool = Field(
+        default=True,
+        description="Whether this layout can be reused"
+    )
+    created_at: Optional[str] = Field(
+        default=None,
+        description="ISO timestamp of creation"
+    )
+
+
+class DynamicLayoutListResponse(BaseModel):
+    """Response for listing dynamic layouts."""
+    layouts: List[DynamicLayoutResponse] = Field(
+        ...,
+        description="List of dynamic layouts"
+    )
+    total: int = Field(..., description="Total number of layouts")
+    by_base: Dict[str, int] = Field(
+        default={},
+        description="Count of layouts by base template"
+    )
+    by_content_type: Dict[str, int] = Field(
+        default={},
+        description="Count of layouts by content type"
+    )

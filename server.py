@@ -2,7 +2,7 @@
 FastAPI server for v7.5-main: Simplified Layout Architecture
 
 Port: 8504
-Backend Layouts: L01, L02, L03, L25, L27, L29
+Backend Layouts: L02, L25, L29 (L01, L03, L27 decommissioned)
 Frontend Templates: H1-generated, H1-structured, H2-section, H3-closing,
                    C1-text, C3-chart, C4-infographic, C5-diagram,
                    V1-image-text, V2-chart-text, V3-diagram-text, V4-infographic-text,
@@ -12,6 +12,7 @@ Frontend Templates: H1-generated, H1-structured, H2-section, H3-closing,
 
 import os
 import json
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -63,9 +64,52 @@ from models import (
     UserCustomThemeCreate,
     UserCustomThemeUpdate,
     UserCustomThemeResponse,
-    UserCustomThemeListResponse
+    UserCustomThemeListResponse,
+    # Director Service Integration models (v7.5.5)
+    LayoutSummary,
+    LayoutDetailResponse,
+    LayoutListResponse,
+    LayoutRecommendationRequest,
+    LayoutRecommendationResponse,
+    LayoutRecommendation,
+    CanFitRequest,
+    CanFitResponse,
+    CapabilitiesResponse,
+    SlotDefinition,
+    SlotPixels,
+    # X-Series Dynamic Layout models (v7.5.7)
+    DynamicLayoutRequest,
+    DynamicLayoutResponse,
+    DynamicLayoutListResponse,
+    ZoneDefinition,
+    ZonePixels
 )
 from storage import storage
+from src.layout_registry import (
+    TEMPLATE_REGISTRY,
+    TEMPLATE_CATEGORIES,
+    get_template,
+    get_template_with_pixels,
+    get_templates_by_category,
+    get_all_template_ids,
+    get_main_content_slots,
+    count_slots_accepting,
+    grid_to_pixels,
+    SLIDE_WIDTH,
+    SLIDE_HEIGHT,
+    # X-Series Dynamic Layout support (v7.5.7)
+    CONTENT_AREAS,
+    SPLIT_PATTERNS,
+    X_SERIES_MAP,
+    generate_layout_id,
+    get_content_area,
+    get_x_series_number,
+    get_split_pattern,
+    list_split_patterns,
+    suggest_pattern_for_content_type,
+    create_zones_from_pattern,
+    create_custom_zones
+)
 import copy
 
 
@@ -253,6 +297,236 @@ PREDEFINED_THEMES: dict[str, ThemeConfig] = {
 
 DEFAULT_THEME_ID = "corporate-blue"
 
+# Character width ratios for common fonts (used by Text Service)
+# These ratios represent: average character width / font size
+FONT_CHAR_WIDTH_RATIOS: dict[str, float] = {
+    "Poppins": 0.50,
+    "Inter": 0.48,
+    "Roboto": 0.47,
+    "Open Sans": 0.49,
+    "Montserrat": 0.52,
+    "Lato": 0.47,
+    "Playfair Display": 0.45,
+    "default": 0.50
+}
+
+
+def get_char_width_ratio(font_family: str) -> float:
+    """
+    Get character width ratio for a font family.
+
+    Args:
+        font_family: CSS font-family string (e.g., "Poppins, sans-serif")
+
+    Returns:
+        Float ratio (0.45-0.55 typical range)
+    """
+    # Extract primary font name from CSS font-family
+    primary_font = font_family.split(",")[0].strip().strip("'\"")
+    return FONT_CHAR_WIDTH_RATIOS.get(primary_font, FONT_CHAR_WIDTH_RATIOS["default"])
+
+
+def build_typography_response(theme: ThemeConfig) -> dict:
+    """
+    Transform ThemeConfig into ThemeTypographyResponse format.
+
+    Extracts and normalizes typography data from theme configuration
+    into the format required by Text Service.
+
+    Args:
+        theme: ThemeConfig object (predefined or custom)
+
+    Returns:
+        Dictionary matching ThemeTypographyResponse schema
+    """
+    colors = theme.colors
+    typography = theme.typography or {}
+    content_styles = theme.content_styles or {}
+    effects = theme.effects
+
+    # Extract font families
+    font_family = typography.get("fontFamily", "Poppins, sans-serif")
+    font_family_heading = typography.get("fontFamilyHeading") or font_family
+
+    # Helper to parse fontSize string to int
+    def parse_size(size_str: str, default: int = 20) -> int:
+        if not size_str:
+            return default
+        try:
+            return int(str(size_str).replace("px", "").strip())
+        except (ValueError, AttributeError):
+            return default
+
+    # Helper to parse fontWeight to int
+    def parse_weight(weight_str, default: int = 400) -> int:
+        if not weight_str:
+            return default
+        weight_map = {"normal": 400, "bold": 700, "light": 300}
+        if isinstance(weight_str, int):
+            return weight_str
+        if isinstance(weight_str, str):
+            if weight_str in weight_map:
+                return weight_map[weight_str]
+            try:
+                return int(weight_str)
+            except ValueError:
+                return default
+        return default
+
+    # Helper to parse lineHeight to float
+    def parse_line_height(lh_str, default: float = 1.4) -> float:
+        if not lh_str:
+            return default
+        try:
+            return float(lh_str)
+        except (ValueError, TypeError):
+            return default
+
+    # Build h1 token - from hero title (largest) for presentation titles
+    hero_title = typography.get("hero", {}).get("title", {})
+    h1_size = parse_size(hero_title.get("fontSize"), 72)
+    h1_token = {
+        "size": h1_size,
+        "size_px": f"{h1_size}px",
+        "weight": parse_weight(hero_title.get("fontWeight"), 700),
+        "line_height": 1.2,
+        "letter_spacing": "-0.02em",
+        "color": colors.text_primary,
+        "text_transform": "none"
+    }
+
+    # Build h2 token - from standard title (slide titles)
+    standard_title = typography.get("standard", {}).get("title", {})
+    content_h2 = content_styles.get("h2", {})
+    h2_size = parse_size(standard_title.get("fontSize") or content_h2.get("fontSize"), 42)
+    h2_token = {
+        "size": h2_size,
+        "size_px": f"{h2_size}px",
+        "weight": parse_weight(standard_title.get("fontWeight") or content_h2.get("fontWeight"), 600),
+        "line_height": 1.3,
+        "letter_spacing": "-0.01em",
+        "color": colors.text_primary,
+        "text_transform": "none"
+    }
+
+    # Build h3 token - from content_styles.h3 (subsection headings)
+    content_h3 = content_styles.get("h3", {})
+    h3_size = parse_size(content_h3.get("fontSize"), 22)
+    h3_token = {
+        "size": h3_size,
+        "size_px": f"{h3_size}px",
+        "weight": parse_weight(content_h3.get("fontWeight"), 600),
+        "line_height": 1.4,
+        "letter_spacing": "0",
+        "color": colors.text_primary,
+        "text_transform": "none"
+    }
+
+    # Build h4 token - derived from h3 pattern (smaller)
+    h4_size = max(h3_size - 4, 18)  # h4 is typically 4px smaller than h3
+    h4_token = {
+        "size": h4_size,
+        "size_px": f"{h4_size}px",
+        "weight": 600,
+        "line_height": 1.4,
+        "letter_spacing": "0",
+        "color": colors.text_body,
+        "text_transform": "none"
+    }
+
+    # Build body token - from standard body or content_styles.p
+    standard_body = typography.get("standard", {}).get("body", {})
+    content_p = content_styles.get("p", {})
+    body_size = parse_size(standard_body.get("fontSize") or content_p.get("fontSize"), 20)
+    body_token = {
+        "size": body_size,
+        "size_px": f"{body_size}px",
+        "weight": 400,
+        "line_height": parse_line_height(standard_body.get("lineHeight") or content_p.get("lineHeight"), 1.6),
+        "letter_spacing": "0",
+        "color": colors.text_body
+    }
+
+    # Build subtitle token - from standard subtitle
+    standard_subtitle = typography.get("standard", {}).get("subtitle", {})
+    subtitle_size = parse_size(standard_subtitle.get("fontSize"), 24)
+    subtitle_token = {
+        "size": subtitle_size,
+        "size_px": f"{subtitle_size}px",
+        "weight": parse_weight(standard_subtitle.get("fontWeight"), 400),
+        "line_height": 1.5,
+        "letter_spacing": "0",
+        "color": colors.text_secondary,
+        "text_transform": "none"
+    }
+
+    # Build caption token - derived from body pattern (smaller)
+    caption_size = max(body_size - 4, 14)  # Caption is smaller than body
+    caption_token = {
+        "size": caption_size,
+        "size_px": f"{caption_size}px",
+        "weight": 400,
+        "line_height": 1.4,
+        "letter_spacing": "0.01em",
+        "color": colors.text_secondary
+    }
+
+    # Build emphasis token
+    emphasis_token = {
+        "weight": 600,
+        "color": colors.text_primary,
+        "style": "normal"
+    }
+
+    # Build list_styles - from ul/li content_styles + primary color
+    content_ul = content_styles.get("ul", {})
+    content_li = content_styles.get("li", {})
+    list_styles = {
+        "bullet_type": "disc",
+        "bullet_color": colors.primary,
+        "bullet_size": "0.4em",
+        "list_indent": content_ul.get("paddingLeft", "1.5em"),
+        "item_spacing": content_li.get("marginBottom", "0.5em"),
+        "numbered_style": "decimal",
+        "nested_indent": "1.5em"
+    }
+
+    # Build textbox_defaults - from effects or defaults
+    border_radius = "8px"
+    if effects:
+        border_radius = effects.border_radius
+    textbox_defaults = {
+        "background": "transparent",
+        "background_gradient": None,
+        "border_width": "0px",
+        "border_color": "transparent",
+        "border_radius": border_radius,
+        "padding": "16px",
+        "box_shadow": "none"
+    }
+
+    # Get char_width_ratio
+    char_width_ratio = get_char_width_ratio(font_family)
+
+    return {
+        "theme_id": theme.id,
+        "font_family": font_family,
+        "font_family_heading": font_family_heading,
+        "tokens": {
+            "h1": h1_token,
+            "h2": h2_token,
+            "h3": h3_token,
+            "h4": h4_token,
+            "body": body_token,
+            "subtitle": subtitle_token,
+            "caption": caption_token,
+            "emphasis": emphasis_token
+        },
+        "list_styles": list_styles,
+        "textbox_defaults": textbox_defaults,
+        "char_width_ratio": char_width_ratio
+    }
+
 
 # ==================== Helper Functions ====================
 
@@ -261,39 +535,20 @@ def get_default_content(layout: str) -> dict:
     Get default content template for a layout type.
 
     These defaults provide a starting point for new slides.
-    Supports both backend layouts (L01-L29) and frontend templates (H1, C1, S1, B1).
+    Supports both backend layouts (L02, L25, L29) and frontend templates (H1, C1, S1, B1).
     """
     defaults = {
-        # ========== BACKEND LAYOUTS ==========
-        "L01": {
-            "slide_title": "Chart Title",
-            "element_1": "Subtitle",
-            "element_4": "<div style='width:100%;height:400px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Chart placeholder</span></div>",
-            "element_3": "Add descriptive text here"
-        },
+        # ========== BACKEND LAYOUTS (L01, L03, L27 decommissioned) ==========
         "L02": {
             "slide_title": "Diagram Title",
             "element_1": "Diagram Label",
             "element_4": "<div style='width:100%;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Diagram placeholder</span></div>",
             "element_2": "<ul><li>Key point one</li><li>Key point two</li><li>Key point three</li></ul>"
         },
-        "L03": {
-            "slide_title": "Comparison View",
-            "element_1": "Left Chart Title",
-            "element_4": "<div style='width:100%;height:350px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Chart 1</span></div>",
-            "element_2": "Right Chart Title",
-            "element_5": "<div style='width:100%;height:350px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;'><span style='color:#64748b;'>Chart 2</span></div>",
-            "element_3": "Analysis and insights"
-        },
         "L25": {
             "slide_title": "Slide Title",
             "subtitle": "Subtitle goes here",
             "rich_content": "<div style='padding: 20px;'><h2 style='color: #1f2937; margin-bottom: 16px;'>Content Heading</h2><p style='color: #374151; line-height: 1.6;'>Add your content here. This layout provides a large content area for rich text, lists, and formatted content.</p><ul style='margin-top: 16px; color: #374151;'><li>First point</li><li>Second point</li><li>Third point</li></ul></div>"
-        },
-        "L27": {
-            "slide_title": "Image & Content",
-            "element_1": "<div style='width:100%;height:600px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);border-radius:8px;'><span style='color:white;font-size:24px;'>Image placeholder</span></div>",
-            "element_2": "<h3 style='color:#1f2937;margin-bottom:12px;'>Description</h3><p style='color:#374151;line-height:1.6;'>Add descriptive content about the image on the left.</p>"
         },
         "L29": {
             "hero_content": "<div style='width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);'><h1 style='color:white;font-size:64px;font-weight:bold;text-shadow:2px 2px 8px rgba(0,0,0,0.3);margin-bottom:24px;'>Hero Title</h1><p style='color:rgba(255,255,255,0.8);font-size:24px;'>Subtitle or tagline goes here</p></div>"
@@ -487,7 +742,7 @@ def map_content_to_layout(old_content: dict, old_layout: str, new_layout: str) -
     # Preserve element fields for flexible layouts
     for i in range(1, 6):
         field = f"element_{i}"
-        if field in old_content and new_layout in ["L01", "L02", "L03", "L27"]:
+        if field in old_content and new_layout in ["L02"]:
             result[field] = old_content[field]
 
     return result
@@ -525,7 +780,7 @@ async def root():
         "message": "v7.5-main: Simplified Layout Builder API with Content Editing",
         "version": "7.5.0",
         "layouts": {
-            "backend": ["L01", "L02", "L03", "L25", "L27", "L29"],
+            "backend": ["L02", "L25", "L29"],
             "frontend": {
                 "hero": ["H1-generated", "H1-structured", "H2-section", "H3-closing"],
                 "content": ["C1-text", "C3-chart", "C4-infographic", "C5-diagram"],
@@ -621,8 +876,8 @@ async def create_presentation(request: Presentation):
 
         # Validate layouts (backend + frontend templates)
         valid_layouts = [
-            # Backend layouts
-            "L01", "L02", "L03", "L25", "L27", "L29",
+            # Backend layouts (L01, L03, L27 decommissioned)
+            "L02", "L25", "L29",
             # Frontend templates - Hero
             "H1-generated", "H1-structured", "H2-section", "H3-closing",
             # Frontend templates - Content
@@ -1000,6 +1255,114 @@ async def list_public_themes():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing public themes: {str(e)}")
+
+
+# NOTE: This typography endpoint must come BEFORE the general /{theme_id} route
+@app.get("/api/themes/{theme_id}/typography")
+async def get_theme_typography(theme_id: str):
+    """
+    Get typography tokens for a theme.
+
+    Returns complete typography configuration optimized for Text Service
+    character constraint calculations and theme-aware text generation.
+
+    Path Parameters:
+    - theme_id: Theme identifier (predefined ID like 'corporate-blue' or custom theme UUID)
+
+    Returns:
+    - font_family: Primary font family
+    - font_family_heading: Heading font family
+    - tokens: Typography tokens for h1-h4, body, subtitle, caption, emphasis
+    - list_styles: Bullet and list styling tokens
+    - textbox_defaults: Default text container styling
+    - char_width_ratio: Font character width ratio for constraint calculations
+
+    Example:
+    ```json
+    {
+        "theme_id": "corporate-blue",
+        "font_family": "Poppins, sans-serif",
+        "tokens": {
+            "h1": {"size": 72, "size_px": "72px", "weight": 700, ...},
+            "body": {"size": 20, "size_px": "20px", "weight": 400, ...}
+        },
+        "list_styles": {"bullet_type": "disc", "bullet_color": "#1e40af", ...},
+        "char_width_ratio": 0.5
+    }
+    ```
+    """
+    # First, check if it's a predefined theme
+    theme = PREDEFINED_THEMES.get(theme_id)
+
+    if theme:
+        # Build typography response from predefined theme
+        response = build_typography_response(theme)
+        return JSONResponse(content=response)
+
+    # If not predefined, check for custom user theme (UUID format)
+    if hasattr(storage, 'supabase') and storage.supabase:
+        try:
+            result = storage.supabase.client.table("ls_user_themes").select("*").eq(
+                "id", theme_id
+            ).execute()
+
+            if result.data:
+                custom_theme_data = result.data[0]
+                theme_config = custom_theme_data.get("theme_config", {})
+                base_theme_id = custom_theme_data.get("base_theme_id")
+
+                # Start with base theme if specified
+                if base_theme_id and base_theme_id in PREDEFINED_THEMES:
+                    base = PREDEFINED_THEMES[base_theme_id]
+                    # Create merged theme
+                    merged_colors = base.colors.model_dump()
+                    if "colors" in theme_config:
+                        merged_colors.update(theme_config["colors"])
+
+                    merged_typography = base.typography.copy() if base.typography else {}
+                    if "typography" in theme_config:
+                        merged_typography.update(theme_config["typography"])
+
+                    merged_content_styles = base.content_styles.copy() if base.content_styles else {}
+                    if "content_styles" in theme_config:
+                        merged_content_styles.update(theme_config["content_styles"])
+
+                    merged_effects = base.effects
+
+                    # Create a synthetic ThemeConfig for the helper
+                    synthetic_theme = ThemeConfig(
+                        id=theme_id,
+                        name=custom_theme_data.get("name", "Custom Theme"),
+                        colors=ThemeColors(**merged_colors),
+                        typography=merged_typography,
+                        content_styles=merged_content_styles,
+                        effects=merged_effects,
+                        is_custom=True
+                    )
+                    response = build_typography_response(synthetic_theme)
+                    return JSONResponse(content=response)
+                else:
+                    # Fully custom theme without base
+                    colors_data = theme_config.get("colors", ThemeColors().model_dump())
+                    synthetic_theme = ThemeConfig(
+                        id=theme_id,
+                        name=custom_theme_data.get("name", "Custom Theme"),
+                        colors=ThemeColors(**colors_data),
+                        typography=theme_config.get("typography"),
+                        content_styles=theme_config.get("content_styles"),
+                        is_custom=True
+                    )
+                    response = build_typography_response(synthetic_theme)
+                    return JSONResponse(content=response)
+        except Exception as e:
+            # Log error but continue to 404
+            print(f"[ThemeTypography] Error fetching custom theme {theme_id}: {e}")
+
+    # Theme not found
+    raise HTTPException(
+        status_code=404,
+        detail=f"Theme '{theme_id}' not found. Available predefined themes: {list(PREDEFINED_THEMES.keys())}"
+    )
 
 
 @app.get("/api/themes/{theme_id}")
@@ -2287,7 +2650,7 @@ async def regenerate_section(
     - section_type: Type of section (title, subtitle, body, etc.)
     - user_instruction: How to regenerate the section
     - current_content: Current HTML content of the section
-    - layout: Layout type (L01, L02, L03, L25, L27, L29)
+    - layout: Layout type (L02, L25, L29)
 
     Returns:
     - success: Whether regeneration succeeded
@@ -2572,7 +2935,7 @@ async def add_slide(
     - change_summary: Description of change
 
     Request Body:
-    - layout: Layout type (L01, L02, L03, L25, L27, L29)
+    - layout: Layout type (L02, L25, L29)
     - position: Where to insert (optional, defaults to end)
     - content: Initial content (optional, uses defaults)
     - background_color: Background color (optional)
@@ -2585,7 +2948,7 @@ async def add_slide(
 
         # Validate layout (backend + frontend templates)
         valid_layouts = [
-            "L01", "L02", "L03", "L25", "L27", "L29",
+            "L02", "L25", "L29",
             "H1-generated", "H1-structured", "H2-section", "H3-closing",
             "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
             "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
@@ -2738,7 +3101,7 @@ async def change_slide_layout(
     - change_summary: Description of change
 
     Request Body:
-    - new_layout: New layout type (L01, L02, L03, L25, L27, L29)
+    - new_layout: New layout type (L02, L25, L29)
     - preserve_content: Attempt to preserve compatible fields (default: True)
     - content_mapping: Manual field mapping {'old_field': 'new_field'}
     """
@@ -2756,7 +3119,7 @@ async def change_slide_layout(
 
         # Validate new layout (backend + frontend templates)
         valid_layouts = [
-            "L01", "L02", "L03", "L25", "L27", "L29",
+            "L02", "L25", "L29",
             "H1-generated", "H1-structured", "H2-section", "H3-closing",
             "C1-text", "C3-chart", "C4-infographic", "C5-diagram",
             "V1-image-text", "V2-chart-text", "V3-diagram-text", "V4-infographic-text",
@@ -3394,6 +3757,994 @@ async def api_tester():
 
     with open(tester_path, "r") as f:
         return HTMLResponse(content=f.read())
+
+
+# ==================== Director Service Coordination Endpoints (v7.5.5) ====================
+# These endpoints enable the Director Service to coordinate with the Layout Service
+# for content-to-layout mapping based on grid dimensions.
+
+
+@app.get("/capabilities", response_model=CapabilitiesResponse, tags=["Director Integration"])
+async def get_capabilities():
+    """
+    Get Layout Service capabilities for Director coordination.
+
+    Returns service capabilities including:
+    - Supported template series (H, C, V, I, S, B, L)
+    - Total template count
+    - Standard zone definitions
+    - Available endpoints
+    """
+    return {
+        "service": "layout-service",
+        "version": "7.5.5",
+        "status": "healthy",
+        "capabilities": {
+            "template_series": ["H", "C", "V", "I", "S", "B", "L"],
+            "total_templates": len(TEMPLATE_REGISTRY),
+            "supports_themes": True,
+            "theme_count": len(PREDEFINED_THEMES),
+            "exposes_grid_size": True,
+            "grid_system": {
+                "columns": 32,
+                "rows": 18,
+                "slide_width": SLIDE_WIDTH,
+                "slide_height": SLIDE_HEIGHT
+            }
+        },
+        "template_series": {
+            "H": {
+                "name": "Hero Series",
+                "description": "Full-bleed title, section, and closing slides",
+                "count": len(TEMPLATE_CATEGORIES["hero"]["templates"]),
+                "use_for": ["title_slides", "section_dividers", "closing_slides"]
+            },
+            "C": {
+                "name": "Content Series",
+                "description": "Single content area slides",
+                "count": len(TEMPLATE_CATEGORIES["content"]["templates"]),
+                "use_for": ["text_content", "single_chart", "single_diagram", "infographic"]
+            },
+            "V": {
+                "name": "Visual + Text Series",
+                "description": "Visual element with text insights",
+                "count": len(TEMPLATE_CATEGORIES["visual"]["templates"]),
+                "use_for": ["chart_analysis", "diagram_explanation", "image_description"]
+            },
+            "I": {
+                "name": "Image Split Series",
+                "description": "Full-height image with content",
+                "count": len(TEMPLATE_CATEGORIES["image"]["templates"]),
+                "use_for": ["image_heavy_content", "photo_stories"]
+            },
+            "S": {
+                "name": "Split Series",
+                "description": "Two-column layouts",
+                "count": len(TEMPLATE_CATEGORIES["split"]["templates"]),
+                "use_for": ["comparisons", "before_after", "two_charts"]
+            },
+            "B": {
+                "name": "Blank Series",
+                "description": "Empty canvas",
+                "count": len(TEMPLATE_CATEGORIES["blank"]["templates"]),
+                "use_for": ["custom_layouts", "freeform"]
+            },
+            "L": {
+                "name": "Backend Layout Series",
+                "description": "Core backend layouts for Director/Text Service",
+                "count": len(TEMPLATE_CATEGORIES["backend"]["templates"]),
+                "use_for": ["director_generated", "text_service", "analytics_service"]
+            }
+        },
+        "standard_zones": {
+            "title": {"required": True, "description": "Slide title area"},
+            "subtitle": {"required": False, "description": "Optional subtitle"},
+            "content": {"required": True, "description": "Primary content area"},
+            "footer": {"required": False, "description": "Footer area"},
+            "logo": {"required": False, "description": "Company logo area"}
+        },
+        "endpoints": {
+            "capabilities": "GET /capabilities",
+            "list_layouts": "GET /api/layouts",
+            "get_layout": "GET /api/layouts/{layout_id}",
+            "recommend_layout": "POST /api/recommend-layout",
+            "can_fit": "POST /api/can-fit"
+        }
+    }
+
+
+@app.get("/api/layouts", response_model=LayoutListResponse, tags=["Director Integration"])
+async def list_layouts(category: str = None):
+    """
+    List all available layouts/templates with metadata.
+
+    Query Parameters:
+    - category: Filter by category (hero, content, visual, image, split, blank, backend)
+
+    Returns all 26 templates with:
+    - Basic metadata (id, name, series, category)
+    - Primary content types
+    - Main content dimensions
+    """
+    layouts = []
+
+    template_ids = get_all_template_ids()
+    if category:
+        category_def = TEMPLATE_CATEGORIES.get(category)
+        if category_def:
+            template_ids = category_def["templates"]
+
+    for template_id in template_ids:
+        template = TEMPLATE_REGISTRY.get(template_id)
+        if not template:
+            continue
+
+        # Get main content slot dimensions
+        main_slots = get_main_content_slots(template_id)
+        main_dimensions = None
+        primary_content_types = []
+
+        if main_slots:
+            # Use the first main content slot for dimensions
+            first_slot = main_slots[0]
+            if "pixels" in first_slot:
+                main_dimensions = SlotPixels(
+                    x=first_slot["pixels"]["x"],
+                    y=first_slot["pixels"]["y"],
+                    width=first_slot["pixels"]["width"],
+                    height=first_slot["pixels"]["height"]
+                )
+            # Collect content types from all main slots
+            for slot in main_slots:
+                primary_content_types.extend(slot.get("accepts", []))
+            primary_content_types = list(set(primary_content_types))
+
+        layouts.append(LayoutSummary(
+            layout_id=template_id,
+            name=template["name"],
+            series=template["series"],
+            category=template["category"],
+            description=template["description"],
+            theming_enabled=template.get("theming_enabled", True),
+            base_layout=template.get("base_layout"),
+            primary_content_types=primary_content_types,
+            main_content_dimensions=main_dimensions
+        ))
+
+    # Build categories dict
+    categories = {}
+    for cat_name, cat_def in TEMPLATE_CATEGORIES.items():
+        categories[cat_name] = cat_def["templates"]
+
+    return LayoutListResponse(
+        layouts=layouts,
+        total=len(layouts),
+        categories=categories
+    )
+
+
+@app.get("/api/layouts/{layout_id}", response_model=LayoutDetailResponse, tags=["Director Integration"])
+async def get_layout_details(layout_id: str):
+    """
+    Get detailed layout specification with exact content zone dimensions.
+
+    This is the CRITICAL endpoint for Director Service - returns:
+    - Full slot definitions with grid positions
+    - Pixel dimensions for each slot
+    - Content type constraints
+    - Format ownership information
+
+    Path Parameters:
+    - layout_id: Layout/template ID (e.g., L25, C1-text, H1-structured)
+    """
+    template = get_template_with_pixels(layout_id)
+    if not template:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Layout '{layout_id}' not found. Valid layouts: {get_all_template_ids()}"
+        )
+
+    # Convert slots to SlotDefinition format
+    slots_dict = {}
+    for slot_name, slot_def in template.get("slots", {}).items():
+        slot_data = {
+            "grid_row": slot_def.get("grid_row", "1/19"),
+            "grid_column": slot_def.get("grid_column", "1/33"),
+            "tag": slot_def.get("tag", "content"),
+            "accepts": slot_def.get("accepts", ["content"]),
+            "required": slot_def.get("required", False),
+            "description": slot_def.get("description"),
+            "default_text": slot_def.get("default_text"),
+            "format_owner": slot_def.get("format_owner")
+        }
+        # Add pixel dimensions if available
+        if "pixels" in slot_def:
+            slot_data["pixels"] = SlotPixels(
+                x=slot_def["pixels"]["x"],
+                y=slot_def["pixels"]["y"],
+                width=slot_def["pixels"]["width"],
+                height=slot_def["pixels"]["height"]
+            )
+        slots_dict[slot_name] = slot_data
+
+    return LayoutDetailResponse(
+        layout_id=layout_id,
+        name=template["name"],
+        series=template["series"],
+        category=template["category"],
+        description=template["description"],
+        theming_enabled=template.get("theming_enabled", True),
+        base_layout=template.get("base_layout"),
+        slide_dimensions={
+            "width": SLIDE_WIDTH,
+            "height": SLIDE_HEIGHT,
+            "unit": "pixels"
+        },
+        slots=slots_dict,
+        defaults=template.get("defaults", {})
+    )
+
+
+@app.post("/api/recommend-layout", response_model=LayoutRecommendationResponse, tags=["Director Integration"])
+async def recommend_layout(request: LayoutRecommendationRequest):
+    """
+    Recommend best layout for given content type and requirements.
+
+    Request Body:
+    - content_type: Type of content (chart, diagram, text, hero, comparison, image, infographic)
+    - topic_count: Number of topics/items to display (1-10)
+    - service: Requesting service (director, text-service, analytics-service)
+    - variant: Content variant (single, split, comparison, etc.)
+    - preferences: Additional preferences
+
+    Returns ranked layout recommendations with confidence scores.
+    """
+    recommendations = []
+
+    # Hero content
+    if request.content_type == "hero":
+        recommendations.append(LayoutRecommendation(
+            layout_id="H1-structured",
+            confidence=0.95,
+            reason="Structured hero slide with title, subtitle, and author info",
+            main_content_slots=get_main_content_slots("H1-structured")
+        ))
+        recommendations.append(LayoutRecommendation(
+            layout_id="L29",
+            confidence=0.90,
+            reason="Full-bleed hero canvas for AI-generated content",
+            main_content_slots=get_main_content_slots("L29")
+        ))
+
+    # Section divider
+    elif request.content_type == "section":
+        recommendations.append(LayoutRecommendation(
+            layout_id="H2-section",
+            confidence=0.95,
+            reason="Section divider with large number and title",
+            main_content_slots=get_main_content_slots("H2-section")
+        ))
+
+    # Closing slide
+    elif request.content_type == "closing":
+        recommendations.append(LayoutRecommendation(
+            layout_id="H3-closing",
+            confidence=0.95,
+            reason="Thank you slide with contact info",
+            main_content_slots=get_main_content_slots("H3-closing")
+        ))
+
+    # Chart content
+    elif request.content_type == "chart":
+        if request.topic_count == 1:
+            recommendations.append(LayoutRecommendation(
+                layout_id="C3-chart",
+                confidence=0.95,
+                reason="Single chart with full-width content area",
+                main_content_slots=get_main_content_slots("C3-chart")
+            ))
+        elif request.topic_count == 2:
+            recommendations.append(LayoutRecommendation(
+                layout_id="S3-two-visuals",
+                confidence=0.95,
+                reason="Two charts side-by-side with captions",
+                main_content_slots=get_main_content_slots("S3-two-visuals")
+            ))
+        # Chart with analysis text
+        if request.variant == "with_analysis":
+            recommendations.insert(0, LayoutRecommendation(
+                layout_id="V2-chart-text",
+                confidence=0.98,
+                reason="Chart on left with text insights on right",
+                main_content_slots=get_main_content_slots("V2-chart-text")
+            ))
+
+    # Diagram content
+    elif request.content_type == "diagram":
+        if request.variant == "with_analysis":
+            recommendations.append(LayoutRecommendation(
+                layout_id="V3-diagram-text",
+                confidence=0.95,
+                reason="Diagram on left with text insights on right",
+                main_content_slots=get_main_content_slots("V3-diagram-text")
+            ))
+        else:
+            recommendations.append(LayoutRecommendation(
+                layout_id="C5-diagram",
+                confidence=0.95,
+                reason="Full-width diagram area",
+                main_content_slots=get_main_content_slots("C5-diagram")
+            ))
+            recommendations.append(LayoutRecommendation(
+                layout_id="L02",
+                confidence=0.85,
+                reason="Diagram left with text right (backend layout)",
+                main_content_slots=get_main_content_slots("L02")
+            ))
+
+    # Text content
+    elif request.content_type == "text":
+        recommendations.append(LayoutRecommendation(
+            layout_id="C1-text",
+            confidence=0.95,
+            reason="Full-width text content area with title and subtitle",
+            main_content_slots=get_main_content_slots("C1-text")
+        ))
+        recommendations.append(LayoutRecommendation(
+            layout_id="L25",
+            confidence=0.90,
+            reason="Main content shell (backend layout for Text Service)",
+            main_content_slots=get_main_content_slots("L25")
+        ))
+
+    # Infographic content
+    elif request.content_type == "infographic":
+        if request.variant == "with_analysis":
+            recommendations.append(LayoutRecommendation(
+                layout_id="V4-infographic-text",
+                confidence=0.95,
+                reason="Infographic on left with text insights on right",
+                main_content_slots=get_main_content_slots("V4-infographic-text")
+            ))
+        else:
+            recommendations.append(LayoutRecommendation(
+                layout_id="C4-infographic",
+                confidence=0.95,
+                reason="Full-width infographic area",
+                main_content_slots=get_main_content_slots("C4-infographic")
+            ))
+
+    # Image content
+    elif request.content_type == "image":
+        image_position = request.preferences.get("image_position", "left") if request.preferences else "left"
+        if image_position == "left":
+            recommendations.append(LayoutRecommendation(
+                layout_id="I1-image-left",
+                confidence=0.95,
+                reason="Full-height image on left with content on right",
+                main_content_slots=get_main_content_slots("I1-image-left")
+            ))
+        else:
+            recommendations.append(LayoutRecommendation(
+                layout_id="I2-image-right",
+                confidence=0.95,
+                reason="Full-height image on right with content on left",
+                main_content_slots=get_main_content_slots("I2-image-right")
+            ))
+        # Also suggest with analysis
+        recommendations.append(LayoutRecommendation(
+            layout_id="V1-image-text",
+            confidence=0.85,
+            reason="Image with text insights (smaller image area)",
+            main_content_slots=get_main_content_slots("V1-image-text")
+        ))
+
+    # Comparison content
+    elif request.content_type == "comparison":
+        recommendations.append(LayoutRecommendation(
+            layout_id="S4-comparison",
+            confidence=0.95,
+            reason="Two-column comparison layout with headers",
+            main_content_slots=get_main_content_slots("S4-comparison")
+        ))
+        recommendations.append(LayoutRecommendation(
+            layout_id="S3-two-visuals",
+            confidence=0.85,
+            reason="Two visuals side-by-side (for visual comparison)",
+            main_content_slots=get_main_content_slots("S3-two-visuals")
+        ))
+
+    # Default fallback
+    if not recommendations:
+        recommendations.append(LayoutRecommendation(
+            layout_id="L25",
+            confidence=0.70,
+            reason="Universal fallback - main content shell",
+            main_content_slots=get_main_content_slots("L25")
+        ))
+
+    return LayoutRecommendationResponse(
+        recommended_layouts=recommendations,
+        fallback="L25",
+        request_summary={
+            "content_type": request.content_type,
+            "topic_count": request.topic_count,
+            "service": request.service,
+            "variant": request.variant
+        }
+    )
+
+
+@app.post("/api/can-fit", response_model=CanFitResponse, tags=["Director Integration"])
+async def can_fit(request: CanFitRequest):
+    """
+    Validate if content can fit in the specified layout.
+
+    Request Body:
+    - layout_id: Layout to check
+    - content_zones_needed: Number of content zones required
+    - content_type: Type of content (text, chart, diagram, image, etc.)
+
+    Returns whether the content fits and suggests alternatives if not.
+    """
+    template = get_template(request.layout_id)
+    if not template:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Layout '{request.layout_id}' not found. Valid layouts: {get_all_template_ids()}"
+        )
+
+    # Count available zones that accept the content type
+    available_zones = count_slots_accepting(request.layout_id, request.content_type)
+
+    can_fit = available_zones >= request.content_zones_needed
+
+    # Suggest alternative if doesn't fit
+    suggested_layout = None
+    if not can_fit:
+        # Find a layout that can accommodate the content
+        if request.content_zones_needed >= 2:
+            # Need multiple zones - suggest split layouts
+            if request.content_type in ["chart", "diagram", "infographic", "image"]:
+                suggested_layout = "S3-two-visuals"
+            else:
+                suggested_layout = "S4-comparison"
+        else:
+            # Single zone needed - suggest based on content type
+            content_to_layout = {
+                "chart": "C3-chart",
+                "diagram": "C5-diagram",
+                "infographic": "C4-infographic",
+                "image": "I1-image-left",
+                "text": "C1-text",
+                "body": "C1-text",
+                "html": "L25"
+            }
+            suggested_layout = content_to_layout.get(request.content_type, "L25")
+
+    return CanFitResponse(
+        can_fit=can_fit,
+        layout_id=request.layout_id,
+        content_zones_available=available_zones,
+        content_zones_needed=request.content_zones_needed,
+        suggested_layout=suggested_layout,
+        reason=f"Layout '{request.layout_id}' has {available_zones} zone(s) accepting '{request.content_type}', need {request.content_zones_needed}"
+    )
+
+
+# ==================== X-Series Dynamic Layout Endpoints ====================
+# v7.5.7: Dynamic layout generation for intelligent content area splitting
+#
+# X-Series Mapping:
+# X1 → C1-text (1800×840px content area)
+# X2 → I1-image-left (1200×840px content area)
+# X3 → I2-image-right (1140×840px content area)
+# X4 → I3-image-left-narrow (1500×840px content area)
+# X5 → I4-image-right-narrow (1440×840px content area)
+
+# In-memory cache for dynamic layouts (fallback when Supabase unavailable)
+_dynamic_layouts_cache: dict[str, dict] = {}
+
+
+def _get_supabase_client():
+    """Get Supabase client if available, otherwise return None."""
+    try:
+        from supabase import create_client
+        from config import get_settings
+        settings = get_settings()
+        if settings.SUPABASE_URL and settings.SUPABASE_KEY:
+            return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+    except Exception:
+        pass
+    return None
+
+
+async def _save_dynamic_layout(layout_data: dict) -> bool:
+    """Save dynamic layout to Supabase or memory cache."""
+    layout_id = layout_data["layout_id"]
+
+    # Try Supabase first
+    client = _get_supabase_client()
+    if client:
+        try:
+            # Convert to database format
+            db_record = {
+                "layout_id": layout_id,
+                "base_layout": layout_data["base_layout"],
+                "name": layout_data["name"],
+                "description": layout_data.get("description"),
+                "content_type": layout_data["content_type"],
+                "split_pattern": layout_data["split_pattern"],
+                "split_direction": layout_data["split_direction"],
+                "zone_count": len(layout_data["zones"]),
+                "zones": layout_data["zones"],
+                "content_area": layout_data["content_area"],
+                "is_public": layout_data.get("reusable", True)
+            }
+            client.table("ls_dynamic_layouts").upsert(db_record).execute()
+            return True
+        except Exception as e:
+            print(f"Supabase save failed: {e}, using memory cache")
+
+    # Fallback to memory cache
+    _dynamic_layouts_cache[layout_id] = layout_data
+    return True
+
+
+async def _get_dynamic_layout(layout_id: str) -> dict | None:
+    """Get dynamic layout from Supabase or memory cache."""
+    # Try Supabase first
+    client = _get_supabase_client()
+    if client:
+        try:
+            result = client.table("ls_dynamic_layouts").select("*").eq("layout_id", layout_id).execute()
+            if result.data:
+                db_record = result.data[0]
+                # Convert from database format
+                return {
+                    "layout_id": db_record["layout_id"],
+                    "base_layout": db_record["base_layout"],
+                    "name": db_record["name"],
+                    "description": db_record.get("description"),
+                    "content_type": db_record["content_type"],
+                    "zones": db_record["zones"],
+                    "split_pattern": db_record["split_pattern"],
+                    "split_direction": db_record["split_direction"],
+                    "content_area": db_record["content_area"],
+                    "reusable": db_record.get("is_public", True),
+                    "created_at": db_record.get("created_at")
+                }
+        except Exception as e:
+            print(f"Supabase get failed: {e}, using memory cache")
+
+    # Fallback to memory cache
+    return _dynamic_layouts_cache.get(layout_id)
+
+
+async def _list_dynamic_layouts(base_layout: str = None, content_type: str = None) -> list[dict]:
+    """List all dynamic layouts with optional filters."""
+    layouts = []
+
+    # Try Supabase first
+    client = _get_supabase_client()
+    if client:
+        try:
+            query = client.table("ls_dynamic_layouts").select("*")
+            if base_layout:
+                query = query.eq("base_layout", base_layout)
+            if content_type:
+                query = query.eq("content_type", content_type)
+            result = query.execute()
+
+            for db_record in result.data:
+                layouts.append({
+                    "layout_id": db_record["layout_id"],
+                    "base_layout": db_record["base_layout"],
+                    "name": db_record["name"],
+                    "description": db_record.get("description"),
+                    "content_type": db_record["content_type"],
+                    "zones": db_record["zones"],
+                    "split_pattern": db_record["split_pattern"],
+                    "split_direction": db_record["split_direction"],
+                    "content_area": db_record["content_area"],
+                    "reusable": db_record.get("is_public", True),
+                    "created_at": db_record.get("created_at")
+                })
+            return layouts
+        except Exception as e:
+            print(f"Supabase list failed: {e}, using memory cache")
+
+    # Fallback to memory cache
+    for layout_data in _dynamic_layouts_cache.values():
+        if base_layout and layout_data.get("base_layout") != base_layout:
+            continue
+        if content_type and layout_data.get("content_type") != content_type:
+            continue
+        layouts.append(layout_data)
+
+    return layouts
+
+
+async def _delete_dynamic_layout(layout_id: str) -> bool:
+    """Delete a dynamic layout."""
+    # Try Supabase first
+    client = _get_supabase_client()
+    if client:
+        try:
+            client.table("ls_dynamic_layouts").delete().eq("layout_id", layout_id).execute()
+        except Exception as e:
+            print(f"Supabase delete failed: {e}")
+
+    # Also remove from memory cache
+    if layout_id in _dynamic_layouts_cache:
+        del _dynamic_layouts_cache[layout_id]
+        return True
+
+    return True
+
+
+@app.post("/api/dynamic-layouts/generate", response_model=DynamicLayoutResponse, tags=["X-Series Dynamic Layouts"])
+async def generate_dynamic_layout(request: DynamicLayoutRequest):
+    """
+    Generate a dynamic X-series layout by splitting the content area into zones.
+
+    This endpoint creates a new dynamic layout based on:
+    - base_layout: The template to split (C1-text, I1-I4)
+    - content_type: Type of content (agenda, use_case, comparison, features, etc.)
+    - zone_count: Number of zones to create (2-8)
+    - split_pattern: Named pattern or custom
+
+    The generated layout can be used like any other template for content generation.
+
+    Request Body:
+    - base_layout: Base template ID (C1-text, I1-I4)
+    - content_type: Content type for pattern suggestion
+    - zone_count: Number of zones (2-8)
+    - split_direction: Optional preferred direction
+    - split_pattern: Optional named pattern
+    - zone_labels: Optional custom labels
+    - custom_ratios: Optional custom split ratios
+
+    Returns:
+    - layout_id: Unique ID (e.g., X1-a3f7e8c2)
+    - zones: List of zone definitions with coordinates
+    - split_pattern: Pattern used
+    """
+    # Get content area for base layout
+    content_area = get_content_area(request.base_layout)
+    if not content_area:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid base layout: {request.base_layout}. Valid options: {list(CONTENT_AREAS.keys())}"
+        )
+
+    # Determine split pattern
+    pattern_name = request.split_pattern
+    if not pattern_name:
+        # Try to suggest based on content type
+        pattern_name = suggest_pattern_for_content_type(request.content_type, request.zone_count)
+
+    # Generate zones
+    zones_data = []
+    if pattern_name and get_split_pattern(pattern_name):
+        # Use preconfigured pattern
+        zones_data = create_zones_from_pattern(
+            request.base_layout,
+            pattern_name,
+            request.zone_labels
+        )
+    elif request.custom_ratios:
+        # Use custom ratios
+        direction = request.split_direction or "horizontal"
+        zones_data = create_custom_zones(
+            request.base_layout,
+            direction,
+            request.custom_ratios,
+            request.zone_labels
+        )
+        pattern_name = "custom"
+    else:
+        # Default: equal split in preferred direction
+        direction = request.split_direction or "horizontal"
+        equal_ratios = [1.0 / request.zone_count] * request.zone_count
+        zones_data = create_custom_zones(
+            request.base_layout,
+            direction,
+            equal_ratios,
+            request.zone_labels
+        )
+        pattern_name = f"equal-{request.zone_count}-{direction}"
+
+    # Create zone config for hash generation
+    zone_config = {
+        "base": request.base_layout,
+        "pattern": pattern_name,
+        "zones": len(zones_data),
+        "direction": request.split_direction or "horizontal"
+    }
+
+    # Generate unique layout ID
+    layout_id = generate_layout_id(request.base_layout, zone_config)
+
+    # Check if this layout already exists
+    existing = await _get_dynamic_layout(layout_id)
+    if existing:
+        # Return existing layout
+        zones = [ZoneDefinition(
+            zone_id=z["zone_id"],
+            label=z.get("label"),
+            grid_row=z["grid_row"],
+            grid_column=z["grid_column"],
+            pixels=ZonePixels(**z["pixels"]),
+            content_type_hint=z.get("content_type_hint"),
+            z_index=z.get("z_index", 100)
+        ) for z in existing["zones"]]
+
+        return DynamicLayoutResponse(
+            layout_id=layout_id,
+            base_layout=request.base_layout,
+            name=existing["name"],
+            description=existing.get("description"),
+            content_type=existing["content_type"],
+            zones=zones,
+            split_pattern=existing["split_pattern"],
+            split_direction=existing["split_direction"],
+            content_area=ZonePixels(**existing["content_area"]),
+            reusable=True,
+            created_at=existing.get("created_at")
+        )
+
+    # Build zone definitions
+    zones = [ZoneDefinition(
+        zone_id=z["zone_id"],
+        label=z.get("label"),
+        grid_row=z["grid_row"],
+        grid_column=z["grid_column"],
+        pixels=ZonePixels(**z["pixels"]),
+        content_type_hint=z.get("content_type_hint"),
+        z_index=z.get("z_index", 100)
+    ) for z in zones_data]
+
+    # Create layout name
+    x_series = get_x_series_number(request.base_layout)
+    layout_name = f"X{x_series} {request.content_type.title()} ({len(zones)} zones)"
+
+    # Get split direction
+    split_direction = request.split_direction
+    if not split_direction and pattern_name:
+        pattern = get_split_pattern(pattern_name)
+        if pattern:
+            split_direction = pattern.get("direction", "horizontal")
+    split_direction = split_direction or "horizontal"
+
+    # Create response
+    response = DynamicLayoutResponse(
+        layout_id=layout_id,
+        base_layout=request.base_layout,
+        name=layout_name,
+        description=f"Dynamic {request.content_type} layout based on {request.base_layout}",
+        content_type=request.content_type,
+        zones=zones,
+        split_pattern=pattern_name,
+        split_direction=split_direction,
+        content_area=ZonePixels(**content_area["pixels"]),
+        reusable=True,
+        created_at=datetime.utcnow().isoformat()
+    )
+
+    # Save to storage
+    layout_data = {
+        "layout_id": layout_id,
+        "base_layout": request.base_layout,
+        "name": layout_name,
+        "description": response.description,
+        "content_type": request.content_type,
+        "zones": zones_data,
+        "split_pattern": pattern_name,
+        "split_direction": split_direction,
+        "content_area": content_area["pixels"],
+        "reusable": True,
+        "created_at": response.created_at
+    }
+    await _save_dynamic_layout(layout_data)
+
+    return response
+
+
+# NOTE: These specific routes must come BEFORE the parameterized /{layout_id} route
+@app.get("/api/dynamic-layouts/patterns", tags=["X-Series Dynamic Layouts"])
+async def list_split_patterns_endpoint():
+    """
+    List all available preconfigured split patterns.
+
+    Returns a dictionary of pattern names with their configurations:
+    - direction: horizontal, vertical, or grid
+    - zone_count: Number of zones created
+    - ratios: Split ratios
+    - labels: Default zone labels
+    - description: Pattern description
+    """
+    return {
+        "patterns": SPLIT_PATTERNS,
+        "total": len(SPLIT_PATTERNS),
+        "by_direction": {
+            "horizontal": [p for p, d in SPLIT_PATTERNS.items() if d["direction"] == "horizontal"],
+            "vertical": [p for p, d in SPLIT_PATTERNS.items() if d["direction"] == "vertical"],
+            "grid": [p for p, d in SPLIT_PATTERNS.items() if d["direction"] == "grid"]
+        }
+    }
+
+
+@app.get("/api/dynamic-layouts/base-layouts", tags=["X-Series Dynamic Layouts"])
+async def list_base_layouts():
+    """
+    List all available base layouts for X-series dynamic layout generation.
+
+    Returns information about each base layout including:
+    - Content area dimensions
+    - X-series mapping
+    - Grid coordinates
+    """
+    base_layouts = []
+    for base_id, content_area in CONTENT_AREAS.items():
+        base_layouts.append({
+            "base_layout": base_id,
+            "x_series": f"X{X_SERIES_MAP.get(base_id, 0)}",
+            "content_area": {
+                "grid_row": content_area["grid_row"],
+                "grid_column": content_area["grid_column"],
+                "pixels": content_area["pixels"]
+            },
+            "description": TEMPLATE_REGISTRY.get(base_id, {}).get("description", "")
+        })
+
+    return {
+        "base_layouts": base_layouts,
+        "total": len(base_layouts),
+        "x_series_mapping": X_SERIES_MAP
+    }
+
+
+@app.get("/api/dynamic-layouts/{layout_id}", response_model=DynamicLayoutResponse, tags=["X-Series Dynamic Layouts"])
+async def get_dynamic_layout_details(layout_id: str):
+    """
+    Get details of a specific dynamic X-series layout.
+
+    Path Parameters:
+    - layout_id: Dynamic layout ID (e.g., X1-a3f7e8c2)
+
+    Returns the full layout specification including:
+    - Zone definitions with grid and pixel coordinates
+    - Split pattern used
+    - Content area dimensions
+    """
+    layout_data = await _get_dynamic_layout(layout_id)
+
+    if not layout_data:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Dynamic layout '{layout_id}' not found"
+        )
+
+    # Convert zones to ZoneDefinition models
+    zones = [ZoneDefinition(
+        zone_id=z["zone_id"],
+        label=z.get("label"),
+        grid_row=z["grid_row"],
+        grid_column=z["grid_column"],
+        pixels=ZonePixels(**z["pixels"]),
+        content_type_hint=z.get("content_type_hint"),
+        z_index=z.get("z_index", 100)
+    ) for z in layout_data["zones"]]
+
+    return DynamicLayoutResponse(
+        layout_id=layout_data["layout_id"],
+        base_layout=layout_data["base_layout"],
+        name=layout_data["name"],
+        description=layout_data.get("description"),
+        content_type=layout_data["content_type"],
+        zones=zones,
+        split_pattern=layout_data["split_pattern"],
+        split_direction=layout_data["split_direction"],
+        content_area=ZonePixels(**layout_data["content_area"]),
+        reusable=layout_data.get("reusable", True),
+        created_at=layout_data.get("created_at")
+    )
+
+
+@app.get("/api/dynamic-layouts", response_model=DynamicLayoutListResponse, tags=["X-Series Dynamic Layouts"])
+async def list_dynamic_layouts(
+    base_layout: str = None,
+    content_type: str = None
+):
+    """
+    List all dynamic X-series layouts with optional filters.
+
+    Query Parameters:
+    - base_layout: Filter by base template (C1-text, I1-I4)
+    - content_type: Filter by content type (agenda, use_case, etc.)
+
+    Returns:
+    - layouts: List of dynamic layouts
+    - total: Total count
+    - by_base: Counts grouped by base template
+    - by_content_type: Counts grouped by content type
+    """
+    layouts_data = await _list_dynamic_layouts(base_layout, content_type)
+
+    # Convert to response models
+    layouts = []
+    by_base: dict[str, int] = {}
+    by_content_type: dict[str, int] = {}
+
+    for data in layouts_data:
+        zones = [ZoneDefinition(
+            zone_id=z["zone_id"],
+            label=z.get("label"),
+            grid_row=z["grid_row"],
+            grid_column=z["grid_column"],
+            pixels=ZonePixels(**z["pixels"]),
+            content_type_hint=z.get("content_type_hint"),
+            z_index=z.get("z_index", 100)
+        ) for z in data["zones"]]
+
+        layouts.append(DynamicLayoutResponse(
+            layout_id=data["layout_id"],
+            base_layout=data["base_layout"],
+            name=data["name"],
+            description=data.get("description"),
+            content_type=data["content_type"],
+            zones=zones,
+            split_pattern=data["split_pattern"],
+            split_direction=data["split_direction"],
+            content_area=ZonePixels(**data["content_area"]),
+            reusable=data.get("reusable", True),
+            created_at=data.get("created_at")
+        ))
+
+        # Count by base layout
+        base = data["base_layout"]
+        by_base[base] = by_base.get(base, 0) + 1
+
+        # Count by content type
+        ct = data["content_type"]
+        by_content_type[ct] = by_content_type.get(ct, 0) + 1
+
+    return DynamicLayoutListResponse(
+        layouts=layouts,
+        total=len(layouts),
+        by_base=by_base,
+        by_content_type=by_content_type
+    )
+
+
+@app.delete("/api/dynamic-layouts/{layout_id}", tags=["X-Series Dynamic Layouts"])
+async def delete_dynamic_layout(layout_id: str):
+    """
+    Delete a dynamic X-series layout.
+
+    Path Parameters:
+    - layout_id: Dynamic layout ID to delete (e.g., X1-a3f7e8c2)
+
+    Note: This only deletes from storage. Slides already using this layout
+    will continue to work but the layout cannot be reused.
+    """
+    # Check if layout exists
+    layout_data = await _get_dynamic_layout(layout_id)
+    if not layout_data:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Dynamic layout '{layout_id}' not found"
+        )
+
+    # Delete
+    await _delete_dynamic_layout(layout_id)
+
+    return {
+        "success": True,
+        "message": f"Dynamic layout '{layout_id}' deleted",
+        "deleted_layout": layout_id
+    }
 
 
 if __name__ == "__main__":

@@ -876,12 +876,274 @@
     console.log(`[DirectElementCreator] Synced derivative elements across ${slides.length} slides`);
   }
 
+  // ===== X-SERIES DYNAMIC LAYOUT SUPPORT =====
+
+  /**
+   * Create elements for an X-series dynamic layout
+   *
+   * X-series layouts have:
+   * - Structural slots (title, subtitle, footer, logo, image) from the base template
+   * - Dynamic zones for the content area (fetched from the API)
+   *
+   * @param {HTMLElement} slideElement - The slide container element
+   * @param {number} slideIndex - 0-based slide index
+   * @param {string} layoutId - X-series layout ID (e.g., "X1-a3f7e8c2")
+   * @param {Object} content - Content object from slide data
+   * @param {Object} layoutData - Layout data with zones array
+   * @param {Object} [presentation] - Optional presentation data (for derivative elements)
+   * @param {number} [totalSlides] - Optional total slide count (for footer {total} variable)
+   */
+  function createElementsForDynamicTemplate(slideElement, slideIndex, layoutId, content, layoutData, presentation = null, totalSlides = 0) {
+    // Validate layout data
+    if (!layoutData || !layoutData.zones || !layoutData.base_layout) {
+      console.error(`[DirectElementCreator] Invalid layout data for ${layoutId}`);
+      return;
+    }
+
+    // Get or generate slide_id for UUID-based element IDs
+    let slideId = slideElement.dataset.slideId;
+    const useLegacyIds = !slideId;
+
+    if (!slideId) {
+      slideId = `slide_${Array.from(crypto.getRandomValues(new Uint8Array(6)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')}`;
+      slideElement.dataset.slideId = slideId;
+      console.log(`[DirectElementCreator] Generated slide_id: ${slideId} for dynamic layout slide ${slideIndex}`);
+    }
+
+    console.log(`[DirectElementCreator] Creating elements for X-series ${layoutId} on slide ${slideIndex} (base: ${layoutData.base_layout})`);
+
+    // Get the virtual template (registered by DynamicTemplates module)
+    let template = typeof TEMPLATE_REGISTRY !== 'undefined' ? TEMPLATE_REGISTRY[layoutId] : null;
+
+    // If not registered, create a virtual template on the fly
+    if (!template && typeof window.DynamicTemplates !== 'undefined') {
+      template = window.DynamicTemplates.createVirtualTemplate(layoutId, layoutData);
+    }
+
+    if (!template) {
+      console.error(`[DirectElementCreator] Could not get template for ${layoutId}`);
+      return;
+    }
+
+    // Create structural elements first (title, subtitle, footer, logo, image)
+    const structuralSlots = ['title', 'subtitle', 'footer', 'logo', 'image'];
+
+    for (const slotName of structuralSlots) {
+      const slotDef = template.slots[slotName];
+      if (!slotDef) continue;
+
+      // Check if element already exists
+      const legacyElementId = generateLegacyElementId(slideIndex, slotName);
+      const existingLegacy = slideElement.querySelector(`#${CSS.escape(legacyElementId)}`);
+      const existingUUID = slideElement.querySelector(`[data-slot-name="${slotName}"][data-parent-slide-id="${slideId}"]`);
+
+      if (existingLegacy || existingUUID) {
+        console.log(`[DirectElementCreator] Skipping ${slotName} - already exists`);
+        continue;
+      }
+
+      const elementType = getElementTypeForSlot(slotName, slotDef);
+      const elementContext = {
+        slideIndex,
+        slideId,
+        slotName,
+        slotDef,
+        content,
+        useLegacyIds,
+        presentation,
+        totalSlides
+      };
+
+      switch (elementType) {
+        case 'textbox':
+          createTextBox(elementContext);
+          break;
+        case 'image':
+          createImage(elementContext);
+          break;
+      }
+    }
+
+    // Now create zone elements for the dynamic content area
+    createZoneElements(slideElement, slideIndex, slideId, layoutData.zones, content, useLegacyIds);
+
+    console.log(`[DirectElementCreator] Finished creating elements for X-series ${layoutId}`);
+  }
+
+  /**
+   * Create zone elements for dynamic content areas
+   *
+   * @param {HTMLElement} slideElement - The slide container
+   * @param {number} slideIndex - Slide index
+   * @param {string} slideId - Slide UUID
+   * @param {Array} zones - Array of zone definitions
+   * @param {Object} content - Content object
+   * @param {boolean} useLegacyIds - Whether to use legacy IDs
+   */
+  function createZoneElements(slideElement, slideIndex, slideId, zones, content, useLegacyIds) {
+    zones.forEach((zone, zoneIndex) => {
+      const zoneId = zone.zone_id || `zone_${zoneIndex + 1}`;
+
+      // Check if zone element already exists
+      const existingZone = slideElement.querySelector(`[data-zone-id="${zoneId}"]`);
+      if (existingZone) {
+        console.log(`[DirectElementCreator] Skipping zone ${zoneId} - already exists`);
+        return;
+      }
+
+      // Create the zone container element
+      const zoneElement = document.createElement('div');
+      zoneElement.className = 'inserted-element dynamic-zone zone-element';
+      zoneElement.dataset.elementType = 'zone';
+      zoneElement.dataset.zoneId = zoneId;
+      zoneElement.dataset.zoneIndex = zoneIndex;
+      zoneElement.dataset.parentSlideId = slideId;
+      zoneElement.dataset.slotName = zoneId;
+
+      // Generate element ID
+      const elementId = useLegacyIds
+        ? `slide-${slideIndex}-${zoneId}`
+        : `${slideId}_zone_${Array.from(crypto.getRandomValues(new Uint8Array(4)))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('')}`;
+      zoneElement.id = elementId;
+
+      // Apply grid positioning
+      zoneElement.style.gridRow = zone.grid_row;
+      zoneElement.style.gridColumn = zone.grid_column;
+      zoneElement.style.position = 'relative';
+      zoneElement.style.zIndex = zone.z_index || (100 + zoneIndex);
+
+      // Apply zone styling
+      Object.assign(zoneElement.style, {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        padding: '10px',
+        overflow: 'hidden',
+        fontFamily: 'var(--theme-font-family, Poppins, sans-serif)',
+        fontSize: 'var(--theme-body-size, 24px)',
+        color: 'var(--theme-text-body, #374151)'
+      });
+
+      // Set zone metadata
+      if (zone.label) {
+        zoneElement.dataset.zoneLabel = zone.label;
+      }
+      if (zone.content_type_hint) {
+        zoneElement.dataset.contentTypeHint = zone.content_type_hint;
+      }
+
+      // Get zone content from content object
+      const zoneContent = getZoneContent(zoneId, zoneIndex, zone, content);
+
+      if (zoneContent) {
+        // If we have content, render it
+        zoneElement.innerHTML = zoneContent;
+      } else {
+        // Show placeholder
+        zoneElement.innerHTML = `
+          <div class="zone-placeholder" style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 16px;
+          ">
+            ${zone.label || `Zone ${zoneIndex + 1}`}
+          </div>
+        `;
+      }
+
+      // Add to slide
+      slideElement.appendChild(zoneElement);
+
+      console.log(`[DirectElementCreator] Created zone: ${elementId} (${zone.label || zoneId})`);
+    });
+  }
+
+  /**
+   * Get content for a specific zone from the content object
+   *
+   * @param {string} zoneId - Zone identifier
+   * @param {number} zoneIndex - Zone index
+   * @param {Object} zone - Zone definition
+   * @param {Object} content - Content object
+   * @returns {string|null} HTML content for the zone
+   */
+  function getZoneContent(zoneId, zoneIndex, zone, content) {
+    if (!content) return null;
+
+    // Check for direct zone content
+    if (content.zones && content.zones[zoneId]) {
+      return content.zones[zoneId];
+    }
+
+    // Check for indexed zone content
+    if (content.zones && content.zones[zoneIndex]) {
+      return content.zones[zoneIndex];
+    }
+
+    // Check for zone_X pattern
+    const zoneKey = `zone_${zoneIndex + 1}`;
+    if (content[zoneKey]) {
+      return content[zoneKey];
+    }
+
+    // Check for content_type_hint mapping
+    if (zone.content_type_hint && content[zone.content_type_hint]) {
+      return content[zone.content_type_hint];
+    }
+
+    return null;
+  }
+
+  /**
+   * Update a specific zone's content
+   *
+   * @param {HTMLElement} slideElement - The slide container
+   * @param {string} zoneId - Zone identifier
+   * @param {string} content - HTML content to set
+   */
+  function updateZoneContent(slideElement, zoneId, content) {
+    const zoneElement = slideElement.querySelector(`[data-zone-id="${zoneId}"]`);
+    if (!zoneElement) {
+      console.warn(`[DirectElementCreator] Zone ${zoneId} not found`);
+      return false;
+    }
+
+    zoneElement.innerHTML = content;
+    return true;
+  }
+
+  /**
+   * Get all zone elements from a slide
+   *
+   * @param {HTMLElement} slideElement - The slide container
+   * @returns {NodeListOf<Element>} List of zone elements
+   */
+  function getZoneElements(slideElement) {
+    return slideElement.querySelectorAll('.zone-element[data-zone-id]');
+  }
+
   // ===== EXPOSE TO GLOBAL SCOPE =====
 
   window.createElementsForTemplate = createElementsForTemplate;
+  window.createElementsForDynamicTemplate = createElementsForDynamicTemplate;
+  window.createZoneElements = createZoneElements;
+  window.updateZoneContent = updateZoneContent;
+  window.getZoneElements = getZoneElements;
   window.syncDerivativeElements = syncDerivativeElements;
   window.renderFooterFromDerivative = renderFooterFromDerivative;  // Expose for UI preview
 
-  console.log('[DirectElementCreator] Module loaded. Use createElementsForTemplate() to create elements.');
+  console.log('[DirectElementCreator] Module loaded. Use createElementsForTemplate() for standard layouts, createElementsForDynamicTemplate() for X-series.');
 
 })();

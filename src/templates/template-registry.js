@@ -2341,6 +2341,11 @@ const TEMPLATE_CATEGORIES = {
     name: 'Blank',
     description: 'Start from scratch',
     templates: ['B1-blank']
+  },
+  dynamic: {
+    name: 'Dynamic Layouts',
+    description: 'X-series layouts with dynamically generated content zones',
+    templates: []  // Populated dynamically from API - X1-X5 patterns
   }
 };
 
@@ -2381,6 +2386,64 @@ function slotAccepts(templateId, slotName, contentType) {
   return accepts.includes(contentType) || accepts.includes('any');
 }
 
+// ===========================================
+// X-SERIES DYNAMIC LAYOUT UTILITIES
+// ===========================================
+
+/**
+ * X-series pattern: X{1-5}-{8 hex characters}
+ * Example: X1-a3f7e8c2
+ */
+const X_SERIES_PATTERN = /^X[1-5]-[a-f0-9]{8}$/;
+
+/**
+ * X-series to base layout mapping
+ */
+const X_SERIES_BASE_MAP = {
+  1: 'C1-text',
+  2: 'I1-image-left',
+  3: 'I2-image-right',
+  4: 'I3-image-left-narrow',
+  5: 'I4-image-right-narrow'
+};
+
+/**
+ * Check if a layout ID is an X-series dynamic layout
+ */
+function isXSeriesLayout(layoutId) {
+  return X_SERIES_PATTERN.test(layoutId);
+}
+
+/**
+ * Get X-series number from layout ID
+ * Returns 1-5 or null if not an X-series layout
+ */
+function getXSeriesNumber(layoutId) {
+  if (!isXSeriesLayout(layoutId)) return null;
+  const match = layoutId.match(/^X(\d)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+/**
+ * Get base layout for an X-series layout
+ * Returns the base template ID (C1-text, I1-image-left, etc.)
+ */
+function getXSeriesBaseLayout(layoutId) {
+  const series = getXSeriesNumber(layoutId);
+  return series ? X_SERIES_BASE_MAP[series] : null;
+}
+
+/**
+ * Validate a layout ID (predefined or X-series)
+ */
+function isValidLayoutId(layoutId) {
+  // Check predefined templates
+  if (TEMPLATE_REGISTRY[layoutId]) return true;
+  // Check X-series pattern
+  if (isXSeriesLayout(layoutId)) return true;
+  return false;
+}
+
 // Export for browser
 if (typeof window !== 'undefined') {
   window.TEMPLATE_REGISTRY = TEMPLATE_REGISTRY;
@@ -2389,6 +2452,13 @@ if (typeof window !== 'undefined') {
   window.getTemplatesByCategory = getTemplatesByCategory;
   window.getAllTemplateIds = getAllTemplateIds;
   window.slotAccepts = slotAccepts;
+  // X-series utilities
+  window.X_SERIES_PATTERN = X_SERIES_PATTERN;
+  window.X_SERIES_BASE_MAP = X_SERIES_BASE_MAP;
+  window.isXSeriesLayout = isXSeriesLayout;
+  window.getXSeriesNumber = getXSeriesNumber;
+  window.getXSeriesBaseLayout = getXSeriesBaseLayout;
+  window.isValidLayoutId = isValidLayoutId;
 }
 
 // Export for Node.js
@@ -2399,6 +2469,13 @@ if (typeof module !== 'undefined' && module.exports) {
     getTemplate,
     getTemplatesByCategory,
     getAllTemplateIds,
-    slotAccepts
+    slotAccepts,
+    // X-series utilities
+    X_SERIES_PATTERN,
+    X_SERIES_BASE_MAP,
+    isXSeriesLayout,
+    getXSeriesNumber,
+    getXSeriesBaseLayout,
+    isValidLayoutId
   };
 }

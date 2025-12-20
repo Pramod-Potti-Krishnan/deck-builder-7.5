@@ -517,6 +517,10 @@ class InfographicElement(BaseModel):
         default=None,
         description="SVG content from Illustrator Service"
     )
+    html_content: Optional[str] = Field(
+        default=None,
+        description="Pre-rendered HTML content (alternative to svg_content)"
+    )
     items: Optional[List[Dict[str, Any]]] = Field(
         default=None,
         description="Data items for the infographic"
@@ -572,6 +576,10 @@ class DiagramElement(BaseModel):
     svg_content: Optional[str] = Field(
         default=None,
         description="Pre-rendered SVG content"
+    )
+    html_content: Optional[str] = Field(
+        default=None,
+        description="Pre-rendered HTML content (alternative to svg_content/mermaid_code)"
     )
     direction: str = Field(
         default="TB",

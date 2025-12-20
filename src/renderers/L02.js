@@ -10,7 +10,8 @@
 
 function renderL02(content, slide = {}, slideIndex = 0) {
   // Extract background settings from slide object
-  const backgroundColor = slide?.background_color || '';
+  // v7.5.4: Use theme background as default
+  const backgroundColor = slide?.background_color || 'var(--theme-bg, #ffffff)';
   const backgroundImage = slide?.background_image || '';
 
   // Build background style
@@ -45,23 +46,23 @@ function renderL02(content, slide = {}, slideIndex = 0) {
 
   return `
     <section data-layout="L02" class="content-slide grid-container" style="${backgroundStyle}">
-      <!-- Title (42px bold, matching L25) -->
+      <!-- Title (42px bold, matching L25) - v7.5.4: Uses theme CSS variables -->
       <div class="slide-title"
            data-section-id="slide-${slideIndex}-section-title"
            data-section-type="title"
            data-slot-name="title"
            data-slide-index="${slideIndex}"
-           style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
+           style="grid-row: 2/3; grid-column: 2/32; font-size: var(--theme-title-size, 42px); font-weight: var(--theme-title-weight, bold); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-primary, #1f2937); line-height: var(--theme-title-line-height, 1.2);">
         ${content.slide_title || ''}
       </div>
 
-      <!-- Subtitle (24px, matching L25) -->
+      <!-- Subtitle (24px, matching L25) - v7.5.4: Uses theme CSS variables -->
       <div class="subtitle"
            data-section-id="slide-${slideIndex}-section-subtitle"
            data-section-type="subtitle"
            data-slot-name="subtitle"
            data-slide-index="${slideIndex}"
-           style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
+           style="grid-row: 3/4; grid-column: 2/32; font-size: var(--theme-subtitle-size, 24px); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-secondary, #6b7280); line-height: var(--theme-subtitle-line-height, 1.4); margin-top: 8px;">
         ${content.element_1 || ''}
       </div>
 
@@ -86,9 +87,9 @@ function renderL02(content, slide = {}, slideIndex = 0) {
         ${element2Content}
       </div>
 
-      <!-- Footer: Presentation Name (18px, matching L25) -->
+      <!-- Footer: Presentation Name (18px, matching L25) - v7.5.4: Uses theme CSS variables -->
       ${content.presentation_name ? `
-      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
+      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/7; padding: 8px 14px; font-size: var(--theme-footer-size, 18px); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-primary, #1f2937); font-weight: var(--theme-footer-weight, 500); display: flex; align-items: center; height: 100%;">
         ${content.presentation_name}
       </div>
       ` : ''}

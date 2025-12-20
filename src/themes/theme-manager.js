@@ -4,9 +4,15 @@
  * Handles theme injection and application via CSS custom properties.
  * Works with theme-variables.css to provide dynamic theming.
  *
+ * Enhanced in v7.5.4 to support:
+ * - Full theme overrides (colors, typography, spacing, effects)
+ * - Custom user themes
+ * - Granular property updates
+ *
  * Usage:
  *   ThemeManager.injectThemeStyles(themeConfig);
- *   ThemeManager.injectThemeStyles(themeConfig, colorOverrides);
+ *   ThemeManager.injectThemeStyles(themeConfig, overrides);
+ *   ThemeManager.injectFullTheme(fullConfig);  // NEW
  *
  * @module ThemeManager
  */
@@ -53,6 +59,32 @@ const ThemeManager = (function() {
         footerText: '--theme-footer-text',
         footer_text: '--theme-footer-text',
         border: '--theme-border'
+    };
+
+    /**
+     * Map spacing keys to CSS variable names (v7.5.4)
+     */
+    const spacingToCssVar = {
+        slide_padding: '--theme-slide-padding',
+        slidePadding: '--theme-slide-padding',
+        element_gap: '--theme-element-gap',
+        elementGap: '--theme-element-gap',
+        section_gap: '--theme-section-gap',
+        sectionGap: '--theme-section-gap'
+    };
+
+    /**
+     * Map effects keys to CSS variable names (v7.5.4)
+     */
+    const effectsToCssVar = {
+        border_radius: '--theme-border-radius',
+        borderRadius: '--theme-border-radius',
+        shadow_small: '--theme-shadow-small',
+        shadowSmall: '--theme-shadow-small',
+        shadow_medium: '--theme-shadow-medium',
+        shadowMedium: '--theme-shadow-medium',
+        shadow_large: '--theme-shadow-large',
+        shadowLarge: '--theme-shadow-large'
     };
 
     /**
@@ -103,6 +135,14 @@ const ThemeManager = (function() {
         if (typography.fontFamily) {
             declarations.push(`--theme-font-family: ${typography.fontFamily};`);
         }
+        if (typography.font_family) {
+            declarations.push(`--theme-font-family: ${typography.font_family};`);
+        }
+
+        // Font family for headings (v7.5.4)
+        if (typography.fontFamilyHeading || typography.font_family_heading) {
+            declarations.push(`--theme-font-family-heading: ${typography.fontFamilyHeading || typography.font_family_heading};`);
+        }
 
         // Standard profile typography
         if (typography.standard) {
@@ -145,10 +185,50 @@ const ThemeManager = (function() {
     }
 
     /**
+     * Generate CSS variable declarations from spacing settings (v7.5.4)
+     * @param {Object} spacing - Theme spacing object
+     * @returns {string} CSS declarations
+     */
+    function generateSpacingCss(spacing) {
+        if (!spacing) return '';
+
+        const declarations = [];
+
+        for (const [key, value] of Object.entries(spacing)) {
+            const cssVar = spacingToCssVar[key];
+            if (cssVar && value) {
+                declarations.push(`${cssVar}: ${value};`);
+            }
+        }
+
+        return declarations.join('\n      ');
+    }
+
+    /**
+     * Generate CSS variable declarations from effects settings (v7.5.4)
+     * @param {Object} effects - Theme effects object
+     * @returns {string} CSS declarations
+     */
+    function generateEffectsCss(effects) {
+        if (!effects) return '';
+
+        const declarations = [];
+
+        for (const [key, value] of Object.entries(effects)) {
+            const cssVar = effectsToCssVar[key];
+            if (cssVar && value) {
+                declarations.push(`${cssVar}: ${value};`);
+            }
+        }
+
+        return declarations.join('\n      ');
+    }
+
+    /**
      * Inject theme styles into the document
      *
      * @param {Object} themeConfig - Full theme configuration object
-     * @param {Object} colorOverrides - Optional color overrides
+     * @param {Object} colorOverrides - Optional color overrides (legacy, use overrides.colors instead)
      */
     function injectThemeStyles(themeConfig, colorOverrides = {}) {
         if (!themeConfig) {
@@ -158,9 +238,11 @@ const ThemeManager = (function() {
 
         const styleEl = getStyleElement();
 
-        // Generate CSS
+        // Generate CSS for all theme sections
         const colorCss = generateColorCss(themeConfig.colors || {}, colorOverrides);
         const typographyCss = generateTypographyCss(themeConfig.typography);
+        const spacingCss = generateSpacingCss(themeConfig.spacing);
+        const effectsCss = generateEffectsCss(themeConfig.effects);
 
         // Build complete CSS
         styleEl.textContent = `
@@ -168,6 +250,8 @@ const ThemeManager = (function() {
     :root {
       ${colorCss}
       ${typographyCss}
+      ${spacingCss}
+      ${effectsCss}
     }
     `;
 
@@ -179,6 +263,112 @@ const ThemeManager = (function() {
         }
 
         console.log(`[ThemeManager] Applied theme: ${themeConfig.name || themeConfig.id}`);
+    }
+
+    /**
+     * Inject full theme with granular overrides (v7.5.4)
+     *
+     * @param {Object} themeConfig - Base theme configuration
+     * @param {Object} overrides - Granular overrides: {colors, typography, spacing, effects}
+     */
+    function injectFullTheme(themeConfig, overrides = {}) {
+        if (!themeConfig) {
+            console.warn('[ThemeManager] No theme config provided');
+            return;
+        }
+
+        const styleEl = getStyleElement();
+
+        // Merge base config with overrides
+        const mergedColors = { ...(themeConfig.colors || {}), ...(overrides.colors || {}) };
+        const mergedTypography = overrides.typography
+            ? { ...(themeConfig.typography || {}), ...overrides.typography }
+            : themeConfig.typography;
+        const mergedSpacing = overrides.spacing
+            ? { ...(themeConfig.spacing || {}), ...overrides.spacing }
+            : themeConfig.spacing;
+        const mergedEffects = overrides.effects
+            ? { ...(themeConfig.effects || {}), ...overrides.effects }
+            : themeConfig.effects;
+
+        // Generate CSS for all sections
+        const colorCss = generateColorCss(mergedColors, {});
+        const typographyCss = generateTypographyCss(mergedTypography);
+        const spacingCss = generateSpacingCss(mergedSpacing);
+        const effectsCss = generateEffectsCss(mergedEffects);
+
+        // Build complete CSS
+        styleEl.textContent = `
+    /* Theme: ${themeConfig.name || themeConfig.id || 'Custom'} (with overrides) */
+    :root {
+      ${colorCss}
+      ${typographyCss}
+      ${spacingCss}
+      ${effectsCss}
+    }
+    `;
+
+        // Handle dark mode
+        const isDarkMode = mergedColors.background && isColorDark(mergedColors.background);
+        if (themeConfig.id === 'dark-mode' || isDarkMode) {
+            document.documentElement.classList.add('theme-dark-mode');
+        } else {
+            document.documentElement.classList.remove('theme-dark-mode');
+        }
+
+        console.log(`[ThemeManager] Applied full theme with overrides:`, {
+            colors: Object.keys(overrides.colors || {}).length,
+            typography: !!overrides.typography,
+            spacing: !!overrides.spacing,
+            effects: !!overrides.effects
+        });
+    }
+
+    /**
+     * Check if a color is "dark" (for auto dark-mode detection)
+     * @param {string} color - Hex color string
+     * @returns {boolean}
+     */
+    function isColorDark(color) {
+        if (!color || !color.startsWith('#')) return false;
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        // Using luminance formula
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance < 0.5;
+    }
+
+    /**
+     * Apply CSS variables directly from a dictionary (v7.5.4)
+     * Used with the /theme/css-variables API endpoint
+     *
+     * @param {Object} cssVariables - Dictionary of CSS var name -> value
+     */
+    function applyCssVariables(cssVariables) {
+        if (!cssVariables || typeof cssVariables !== 'object') {
+            console.warn('[ThemeManager] Invalid CSS variables object');
+            return;
+        }
+
+        const styleEl = getStyleElement();
+        const declarations = [];
+
+        for (const [varName, value] of Object.entries(cssVariables)) {
+            if (varName.startsWith('--') && value) {
+                declarations.push(`${varName}: ${value};`);
+            }
+        }
+
+        styleEl.textContent = `
+    /* Theme: Applied via CSS Variables */
+    :root {
+      ${declarations.join('\n      ')}
+    }
+    `;
+
+        console.log(`[ThemeManager] Applied ${declarations.length} CSS variables`);
     }
 
     /**
@@ -223,10 +413,14 @@ const ThemeManager = (function() {
     // Public API
     return {
         injectThemeStyles,
+        injectFullTheme,
+        applyCssVariables,
         clearThemeStyles,
         getCurrentThemeValues,
         setCssVariable,
-        colorToCssVar
+        colorToCssVar,
+        spacingToCssVar,
+        effectsToCssVar
     };
 })();
 

@@ -29,7 +29,18 @@ const THEME_REGISTRY = {
             heroTextSecondary: '#e5e7eb',
             heroBackground: '#1e3a5f',
             footerText: '#6b7280',
-            border: '#e5e7eb'
+            border: '#e5e7eb',
+            // Tertiary colors
+            tertiary1: '#f8fafc',
+            tertiary2: '#e2e8f0',
+            tertiary3: '#94a3b8',
+            // Chart colors
+            chart1: '#3b82f6',
+            chart2: '#10b981',
+            chart3: '#f59e0b',
+            chart4: '#ef4444',
+            chart5: '#8b5cf6',
+            chart6: '#ec4899'
         },
 
         typography: {
@@ -76,7 +87,18 @@ const THEME_REGISTRY = {
             heroTextSecondary: '#a7f3d0',
             heroBackground: '#064e3b',
             footerText: '#059669',
-            border: '#d1fae5'
+            border: '#d1fae5',
+            // Tertiary colors
+            tertiary1: '#ecfdf5',
+            tertiary2: '#a7f3d0',
+            tertiary3: '#6ee7b7',
+            // Chart colors
+            chart1: '#10b981',
+            chart2: '#3b82f6',
+            chart3: '#f59e0b',
+            chart4: '#ef4444',
+            chart5: '#8b5cf6',
+            chart6: '#ec4899'
         },
 
         typography: {
@@ -124,7 +146,18 @@ const THEME_REGISTRY = {
             heroTextSecondary: '#fed7aa',  // Peach
             heroBackground: '#c2410c',  // Burnt orange
             footerText: '#a8a29e',
-            border: '#fdba74'
+            border: '#fdba74',
+            // Tertiary colors
+            tertiary1: '#fff7ed',
+            tertiary2: '#fed7aa',
+            tertiary3: '#fdba74',
+            // Chart colors
+            chart1: '#f97316',
+            chart2: '#3b82f6',
+            chart3: '#10b981',
+            chart4: '#ef4444',
+            chart5: '#8b5cf6',
+            chart6: '#ec4899'
         },
 
         typography: {
@@ -171,7 +204,18 @@ const THEME_REGISTRY = {
             heroTextSecondary: '#9ca3af',  // Muted gray
             heroBackground: '#030712',  // Near black
             footerText: '#6b7280',
-            border: '#374151'
+            border: '#374151',
+            // Tertiary colors
+            tertiary1: '#374151',
+            tertiary2: '#4b5563',
+            tertiary3: '#6b7280',
+            // Chart colors (brighter for dark background)
+            chart1: '#60a5fa',
+            chart2: '#34d399',
+            chart3: '#fbbf24',
+            chart4: '#f87171',
+            chart5: '#a78bfa',
+            chart6: '#f472b6'
         },
 
         typography: {

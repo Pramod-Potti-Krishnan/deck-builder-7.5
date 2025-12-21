@@ -938,6 +938,46 @@ class ThemeColors(BaseModel):
         description="Border/divider color"
     )
 
+    # Tertiary colors (for groupings, borders, dividers)
+    tertiary_1: Optional[str] = Field(
+        default="#f3f4f6",
+        description="Lightest tertiary color"
+    )
+    tertiary_2: Optional[str] = Field(
+        default="#d1d5db",
+        description="Medium tertiary color"
+    )
+    tertiary_3: Optional[str] = Field(
+        default="#9ca3af",
+        description="Darkest tertiary color"
+    )
+
+    # Chart colors (for data visualization)
+    chart_1: Optional[str] = Field(
+        default="#3b82f6",
+        description="Primary chart color"
+    )
+    chart_2: Optional[str] = Field(
+        default="#10b981",
+        description="Secondary chart color"
+    )
+    chart_3: Optional[str] = Field(
+        default="#f59e0b",
+        description="Third chart color"
+    )
+    chart_4: Optional[str] = Field(
+        default="#ef4444",
+        description="Fourth chart color"
+    )
+    chart_5: Optional[str] = Field(
+        default="#8b5cf6",
+        description="Fifth chart color"
+    )
+    chart_6: Optional[str] = Field(
+        default="#ec4899",
+        description="Sixth chart color"
+    )
+
 
 class ThemeTypographySlot(BaseModel):
     """Typography settings for a specific slot type."""

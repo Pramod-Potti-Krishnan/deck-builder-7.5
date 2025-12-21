@@ -58,7 +58,27 @@ const ThemeManager = (function() {
         hero_background: '--theme-hero-bg',
         footerText: '--theme-footer-text',
         footer_text: '--theme-footer-text',
-        border: '--theme-border'
+        border: '--theme-border',
+        // Tertiary colors (v7.5.5)
+        tertiary1: '--theme-tertiary-1',
+        tertiary_1: '--theme-tertiary-1',
+        tertiary2: '--theme-tertiary-2',
+        tertiary_2: '--theme-tertiary-2',
+        tertiary3: '--theme-tertiary-3',
+        tertiary_3: '--theme-tertiary-3',
+        // Chart colors (v7.5.5)
+        chart1: '--theme-chart-1',
+        chart_1: '--theme-chart-1',
+        chart2: '--theme-chart-2',
+        chart_2: '--theme-chart-2',
+        chart3: '--theme-chart-3',
+        chart_3: '--theme-chart-3',
+        chart4: '--theme-chart-4',
+        chart_4: '--theme-chart-4',
+        chart5: '--theme-chart-5',
+        chart_5: '--theme-chart-5',
+        chart6: '--theme-chart-6',
+        chart_6: '--theme-chart-6'
     };
 
     /**
@@ -410,6 +430,105 @@ const ThemeManager = (function() {
         document.documentElement.style.setProperty(varName, value);
     }
 
+    /**
+     * Generate CSS for deckster typography classes (v7.5.5)
+     * Used by Text Service when styling_mode is "css_classes"
+     *
+     * @param {string} themeId - Theme identifier
+     * @param {Object} theme - Theme configuration from THEME_REGISTRY
+     * @returns {string} CSS string with .deckster-* class definitions
+     */
+    function generateDecksterClasses(themeId, theme) {
+        const colors = theme.colors || {};
+        const contentStyles = theme.contentStyles || {};
+
+        return `
+/* Theme: ${themeId} - Deckster Typography Classes (v7.5.5) */
+/* Generated for Text Service CSS class-based styling */
+
+.theme-${themeId} .deckster-t1 {
+    font-size: ${contentStyles.h1?.fontSize || '36px'};
+    font-weight: ${contentStyles.h1?.fontWeight || 'bold'};
+    color: ${colors.textPrimary || '#1f2937'};
+    margin-bottom: ${contentStyles.h1?.marginBottom || '16px'};
+}
+
+.theme-${themeId} .deckster-t2 {
+    font-size: ${contentStyles.h2?.fontSize || '28px'};
+    font-weight: ${contentStyles.h2?.fontWeight || '600'};
+    color: ${colors.textPrimary || '#1f2937'};
+    margin-bottom: ${contentStyles.h2?.marginBottom || '12px'};
+}
+
+.theme-${themeId} .deckster-t3 {
+    font-size: ${contentStyles.h3?.fontSize || '22px'};
+    font-weight: ${contentStyles.h3?.fontWeight || '600'};
+    color: ${colors.textSecondary || '#6b7280'};
+    margin-bottom: ${contentStyles.h3?.marginBottom || '8px'};
+}
+
+.theme-${themeId} .deckster-t4 {
+    font-size: ${contentStyles.p?.fontSize || '20px'};
+    font-weight: 400;
+    color: ${colors.textBody || '#374151'};
+    line-height: ${contentStyles.p?.lineHeight || '1.6'};
+    margin-bottom: ${contentStyles.p?.marginBottom || '12px'};
+}
+
+.theme-${themeId} .deckster-emphasis {
+    color: ${colors.accent || '#f59e0b'};
+    font-weight: 600;
+}
+
+.theme-${themeId} .deckster-bullets {
+    padding-left: ${contentStyles.ul?.paddingLeft || '24px'};
+    list-style-type: disc;
+    margin-bottom: ${contentStyles.ul?.marginBottom || '12px'};
+}
+
+.theme-${themeId} .deckster-bullet-item {
+    margin-bottom: ${contentStyles.li?.marginBottom || '6px'};
+    color: ${colors.textBody || '#374151'};
+}
+
+.theme-${themeId} .deckster-bullets .deckster-bullet-item::marker {
+    color: ${colors.primary || '#1e40af'};
+}
+`;
+    }
+
+    /**
+     * Inject deckster classes for all registered themes
+     * @returns {string} Combined CSS for all themes
+     */
+    function generateAllDecksterClasses() {
+        const THEME_REGISTRY = window.THEME_REGISTRY || {};
+        let css = '';
+
+        for (const [themeId, theme] of Object.entries(THEME_REGISTRY)) {
+            css += generateDecksterClasses(themeId, theme);
+        }
+
+        return css;
+    }
+
+    /**
+     * Inject deckster classes into the document
+     */
+    function injectDecksterClasses() {
+        const css = generateAllDecksterClasses();
+        let styleEl = document.getElementById('deckster-typography-styles');
+
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'deckster-typography-styles';
+            document.head.appendChild(styleEl);
+        }
+
+        styleEl.textContent = css;
+        console.log('[ThemeManager] Deckster typography classes injected');
+    }
+
     // Public API
     return {
         injectThemeStyles,
@@ -420,7 +539,11 @@ const ThemeManager = (function() {
         setCssVariable,
         colorToCssVar,
         spacingToCssVar,
-        effectsToCssVar
+        effectsToCssVar,
+        // v7.5.5: Deckster typography classes for Text Service
+        generateDecksterClasses,
+        generateAllDecksterClasses,
+        injectDecksterClasses
     };
 })();
 

@@ -134,7 +134,18 @@ PREDEFINED_THEMES: dict[str, ThemeConfig] = {
             hero_text_secondary="#e5e7eb",
             hero_background="#1e3a5f",
             footer_text="#6b7280",
-            border="#e5e7eb"
+            border="#e5e7eb",
+            # Tertiary colors
+            tertiary_1="#f8fafc",
+            tertiary_2="#e2e8f0",
+            tertiary_3="#94a3b8",
+            # Chart colors
+            chart_1="#3b82f6",
+            chart_2="#10b981",
+            chart_3="#f59e0b",
+            chart_4="#ef4444",
+            chart_5="#8b5cf6",
+            chart_6="#ec4899"
         ),
         typography={
             "fontFamily": "Poppins, sans-serif",
@@ -178,7 +189,18 @@ PREDEFINED_THEMES: dict[str, ThemeConfig] = {
             hero_text_secondary="#a7f3d0",
             hero_background="#064e3b",
             footer_text="#059669",
-            border="#d1fae5"
+            border="#d1fae5",
+            # Tertiary colors
+            tertiary_1="#ecfdf5",
+            tertiary_2="#a7f3d0",
+            tertiary_3="#6ee7b7",
+            # Chart colors
+            chart_1="#10b981",
+            chart_2="#3b82f6",
+            chart_3="#f59e0b",
+            chart_4="#ef4444",
+            chart_5="#8b5cf6",
+            chart_6="#ec4899"
         ),
         typography={
             "fontFamily": "Lato, sans-serif",
@@ -223,7 +245,18 @@ PREDEFINED_THEMES: dict[str, ThemeConfig] = {
             hero_text_secondary="#fed7aa",  # Peach
             hero_background="#c2410c",  # Burnt orange
             footer_text="#a8a29e",
-            border="#fdba74"
+            border="#fdba74",
+            # Tertiary colors
+            tertiary_1="#fff7ed",
+            tertiary_2="#fed7aa",
+            tertiary_3="#fdba74",
+            # Chart colors
+            chart_1="#f97316",
+            chart_2="#3b82f6",
+            chart_3="#10b981",
+            chart_4="#ef4444",
+            chart_5="#8b5cf6",
+            chart_6="#ec4899"
         ),
         typography={
             "fontFamily": "Montserrat, sans-serif",
@@ -267,7 +300,18 @@ PREDEFINED_THEMES: dict[str, ThemeConfig] = {
             hero_text_secondary="#9ca3af",  # Muted gray
             hero_background="#030712",  # Near black
             footer_text="#6b7280",
-            border="#374151"
+            border="#374151",
+            # Tertiary colors
+            tertiary_1="#374151",
+            tertiary_2="#4b5563",
+            tertiary_3="#6b7280",
+            # Chart colors (brighter for dark background)
+            chart_1="#60a5fa",
+            chart_2="#34d399",
+            chart_3="#fbbf24",
+            chart_4="#f87171",
+            chart_5="#a78bfa",
+            chart_6="#f472b6"
         ),
         typography={
             "fontFamily": "Inter, sans-serif",
@@ -1255,6 +1299,42 @@ async def list_public_themes():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing public themes: {str(e)}")
+
+
+# NOTE: This sync endpoint must come BEFORE the general /{theme_id} route
+@app.get("/api/themes/sync")
+async def sync_themes():
+    """
+    Bulk sync endpoint for Text Service and Director.
+
+    Returns all predefined themes in a single response with version tracking.
+    Text Service calls this on startup to cache theme definitions.
+
+    Response format (snake_case for Python/Pydantic compatibility):
+    {
+        "themes": {
+            "corporate-blue": {"typography": {...}, "colors": {...}},
+            ...
+        },
+        "version": "1.0.0",
+        "last_updated": "2024-12-20T00:00:00Z"
+    }
+    """
+    from datetime import datetime
+
+    themes_data = {}
+    for theme_id, theme in PREDEFINED_THEMES.items():
+        themes_data[theme_id] = {
+            "typography": theme.typography,
+            "colors": theme.colors.model_dump(),  # Returns snake_case
+            "content_styles": theme.content_styles
+        }
+
+    return {
+        "themes": themes_data,
+        "version": "1.0.0",
+        "last_updated": datetime.utcnow().isoformat() + "Z"
+    }
 
 
 # NOTE: This typography endpoint must come BEFORE the general /{theme_id} route

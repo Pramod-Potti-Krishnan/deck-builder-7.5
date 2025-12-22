@@ -48,6 +48,36 @@ from models import (
     ElementClassesUpdateRequest,
     ElementClassesResponse,
     TextContentStyle,
+    # Image Element CRUD models
+    ImageElement,
+    ImageCreateRequest,
+    ImageUpdateRequest,
+    ImageResponse,
+    ImageListResponse,
+    # Chart Element CRUD models
+    ChartElement,
+    ChartCreateRequest,
+    ChartUpdateRequest,
+    ChartResponse,
+    ChartListResponse,
+    # Diagram Element CRUD models
+    DiagramElement,
+    DiagramCreateRequest,
+    DiagramUpdateRequest,
+    DiagramResponse,
+    DiagramListResponse,
+    # Infographic Element CRUD models
+    InfographicElement,
+    InfographicCreateRequest,
+    InfographicUpdateRequest,
+    InfographicResponse,
+    InfographicListResponse,
+    # Content Element CRUD models
+    ContentElement,
+    ContentCreateRequest,
+    ContentUpdateRequest,
+    ContentResponse,
+    ContentListResponse,
     # Derivative Elements models (presentation-level footer/logo)
     DerivativeElements,
     FooterConfig,
@@ -3513,6 +3543,1125 @@ async def delete_text_box(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting text box: {str(e)}")
+
+
+# ==================== Generic Element CRUD Helpers ====================
+
+def get_next_element_z_index(elements: list, base_z: int = 100) -> int:
+    """Get the next available z-index for a new element."""
+    if not elements:
+        return base_z
+    max_z = max(elem.get('z_index', base_z) for elem in elements)
+    return max_z + 1
+
+
+def find_element_by_id(elements: list, element_id: str):
+    """Find an element by ID in a list. Returns (index, element) or (None, None)."""
+    for idx, elem in enumerate(elements):
+        if elem.get("id") == element_id:
+            return idx, elem
+    return None, None
+
+
+# ==================== Image Element CRUD Endpoints ====================
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/images", response_model=ImageResponse)
+async def create_image(
+    presentation_id: str,
+    slide_index: int,
+    request: ImageCreateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Create a new image element on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        images = presentation["slides"][slide_index]["images"]
+
+        if len(images) >= 20:
+            raise HTTPException(status_code=400, detail="Maximum 20 images per slide")
+
+        # Get parent slide ID for cascade delete support
+        parent_slide_id = presentation["slides"][slide_index].get("slide_id")
+
+        new_image = ImageElement(
+            parent_slide_id=parent_slide_id,
+            position=request.position,
+            image_url=request.image_url,
+            alt_text=request.alt_text,
+            object_fit=request.object_fit or "cover",
+            z_index=request.z_index or get_next_element_z_index(images, 100)
+        )
+
+        images.append(new_image.model_dump())
+
+        summary = change_summary or f"Added image to slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return ImageResponse(
+            success=True,
+            image=new_image,
+            message=f"Image created on slide {slide_index + 1}"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating image: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/images", response_model=ImageListResponse)
+async def list_images(presentation_id: str, slide_index: int):
+    """Get all images on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        images = slide.get("images", [])
+
+        return ImageListResponse(
+            success=True,
+            slide_index=slide_index,
+            images=[ImageElement(**img) for img in images],
+            count=len(images)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing images: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/images/{image_id}", response_model=ImageResponse)
+async def get_image(presentation_id: str, slide_index: int, image_id: str):
+    """Get a specific image element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        images = slide.get("images", [])
+
+        _, image = find_element_by_id(images, image_id)
+        if image is None:
+            raise HTTPException(status_code=404, detail=f"Image not found: {image_id}")
+
+        return ImageResponse(
+            success=True,
+            image=ImageElement(**image),
+            message="Image found"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting image: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/images/{image_id}", response_model=ImageResponse)
+async def update_image(
+    presentation_id: str,
+    slide_index: int,
+    image_id: str,
+    request: ImageUpdateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Update an existing image element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        images = presentation["slides"][slide_index]["images"]
+
+        image_idx, image = find_element_by_id(images, image_id)
+        if image_idx is None:
+            raise HTTPException(status_code=404, detail=f"Image not found: {image_id}")
+
+        update_data = request.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            if value is not None:
+                if key == "position":
+                    image["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                else:
+                    image[key] = value
+
+        summary = change_summary or f"Updated image on slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return ImageResponse(
+            success=True,
+            image=ImageElement(**image),
+            message="Image updated"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating image: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}/images/{image_id}")
+async def delete_image(
+    presentation_id: str,
+    slide_index: int,
+    image_id: str,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Delete an image from a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        images = presentation["slides"][slide_index]["images"]
+
+        original_count = len(images)
+        images[:] = [img for img in images if img.get("id") != image_id]
+
+        if len(images) == original_count:
+            raise HTTPException(status_code=404, detail=f"Image not found: {image_id}")
+
+        summary = change_summary or f"Deleted image from slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Image deleted",
+            "image_id": image_id
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting image: {str(e)}")
+
+
+# ==================== Chart Element CRUD Endpoints ====================
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/charts", response_model=ChartResponse)
+async def create_chart(
+    presentation_id: str,
+    slide_index: int,
+    request: ChartCreateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Create a new chart element on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        charts = presentation["slides"][slide_index]["charts"]
+
+        if len(charts) >= 10:
+            raise HTTPException(status_code=400, detail="Maximum 10 charts per slide")
+
+        parent_slide_id = presentation["slides"][slide_index].get("slide_id")
+
+        new_chart = ChartElement(
+            parent_slide_id=parent_slide_id,
+            position=request.position,
+            chart_type=request.chart_type,
+            chart_config=request.chart_config,
+            chart_html=request.chart_html,
+            z_index=request.z_index or get_next_element_z_index(charts, 100)
+        )
+
+        charts.append(new_chart.model_dump())
+
+        summary = change_summary or f"Added chart to slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return ChartResponse(
+            success=True,
+            chart=new_chart,
+            message=f"Chart created on slide {slide_index + 1}"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating chart: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/charts", response_model=ChartListResponse)
+async def list_charts(presentation_id: str, slide_index: int):
+    """Get all charts on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        charts = slide.get("charts", [])
+
+        return ChartListResponse(
+            success=True,
+            slide_index=slide_index,
+            charts=[ChartElement(**c) for c in charts],
+            count=len(charts)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing charts: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/charts/{chart_id}", response_model=ChartResponse)
+async def get_chart(presentation_id: str, slide_index: int, chart_id: str):
+    """Get a specific chart element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        charts = slide.get("charts", [])
+
+        _, chart = find_element_by_id(charts, chart_id)
+        if chart is None:
+            raise HTTPException(status_code=404, detail=f"Chart not found: {chart_id}")
+
+        return ChartResponse(
+            success=True,
+            chart=ChartElement(**chart),
+            message="Chart found"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting chart: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/charts/{chart_id}", response_model=ChartResponse)
+async def update_chart(
+    presentation_id: str,
+    slide_index: int,
+    chart_id: str,
+    request: ChartUpdateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Update an existing chart element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        charts = presentation["slides"][slide_index]["charts"]
+
+        chart_idx, chart = find_element_by_id(charts, chart_id)
+        if chart_idx is None:
+            raise HTTPException(status_code=404, detail=f"Chart not found: {chart_id}")
+
+        update_data = request.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            if value is not None:
+                if key == "position":
+                    chart["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                else:
+                    chart[key] = value
+
+        summary = change_summary or f"Updated chart on slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return ChartResponse(
+            success=True,
+            chart=ChartElement(**chart),
+            message="Chart updated"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating chart: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}/charts/{chart_id}")
+async def delete_chart(
+    presentation_id: str,
+    slide_index: int,
+    chart_id: str,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Delete a chart from a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        charts = presentation["slides"][slide_index]["charts"]
+
+        original_count = len(charts)
+        charts[:] = [c for c in charts if c.get("id") != chart_id]
+
+        if len(charts) == original_count:
+            raise HTTPException(status_code=404, detail=f"Chart not found: {chart_id}")
+
+        summary = change_summary or f"Deleted chart from slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Chart deleted",
+            "chart_id": chart_id
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting chart: {str(e)}")
+
+
+# ==================== Diagram Element CRUD Endpoints ====================
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/diagrams", response_model=DiagramResponse)
+async def create_diagram(
+    presentation_id: str,
+    slide_index: int,
+    request: DiagramCreateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Create a new diagram element on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        diagrams = presentation["slides"][slide_index]["diagrams"]
+
+        if len(diagrams) >= 10:
+            raise HTTPException(status_code=400, detail="Maximum 10 diagrams per slide")
+
+        parent_slide_id = presentation["slides"][slide_index].get("slide_id")
+
+        new_diagram = DiagramElement(
+            parent_slide_id=parent_slide_id,
+            position=request.position,
+            diagram_type=request.diagram_type,
+            mermaid_code=request.mermaid_code,
+            svg_content=request.svg_content,
+            html_content=request.html_content,
+            direction=request.direction or "TB",
+            theme=request.theme or "default",
+            z_index=request.z_index or get_next_element_z_index(diagrams, 100)
+        )
+
+        diagrams.append(new_diagram.model_dump())
+
+        summary = change_summary or f"Added diagram to slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return DiagramResponse(
+            success=True,
+            diagram=new_diagram,
+            message=f"Diagram created on slide {slide_index + 1}"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating diagram: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/diagrams", response_model=DiagramListResponse)
+async def list_diagrams(presentation_id: str, slide_index: int):
+    """Get all diagrams on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        diagrams = slide.get("diagrams", [])
+
+        return DiagramListResponse(
+            success=True,
+            slide_index=slide_index,
+            diagrams=[DiagramElement(**d) for d in diagrams],
+            count=len(diagrams)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing diagrams: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/diagrams/{diagram_id}", response_model=DiagramResponse)
+async def get_diagram(presentation_id: str, slide_index: int, diagram_id: str):
+    """Get a specific diagram element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        diagrams = slide.get("diagrams", [])
+
+        _, diagram = find_element_by_id(diagrams, diagram_id)
+        if diagram is None:
+            raise HTTPException(status_code=404, detail=f"Diagram not found: {diagram_id}")
+
+        return DiagramResponse(
+            success=True,
+            diagram=DiagramElement(**diagram),
+            message="Diagram found"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting diagram: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/diagrams/{diagram_id}", response_model=DiagramResponse)
+async def update_diagram(
+    presentation_id: str,
+    slide_index: int,
+    diagram_id: str,
+    request: DiagramUpdateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Update an existing diagram element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        diagrams = presentation["slides"][slide_index]["diagrams"]
+
+        diagram_idx, diagram = find_element_by_id(diagrams, diagram_id)
+        if diagram_idx is None:
+            raise HTTPException(status_code=404, detail=f"Diagram not found: {diagram_id}")
+
+        update_data = request.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            if value is not None:
+                if key == "position":
+                    diagram["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                else:
+                    diagram[key] = value
+
+        summary = change_summary or f"Updated diagram on slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return DiagramResponse(
+            success=True,
+            diagram=DiagramElement(**diagram),
+            message="Diagram updated"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating diagram: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}/diagrams/{diagram_id}")
+async def delete_diagram(
+    presentation_id: str,
+    slide_index: int,
+    diagram_id: str,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Delete a diagram from a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        diagrams = presentation["slides"][slide_index]["diagrams"]
+
+        original_count = len(diagrams)
+        diagrams[:] = [d for d in diagrams if d.get("id") != diagram_id]
+
+        if len(diagrams) == original_count:
+            raise HTTPException(status_code=404, detail=f"Diagram not found: {diagram_id}")
+
+        summary = change_summary or f"Deleted diagram from slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Diagram deleted",
+            "diagram_id": diagram_id
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting diagram: {str(e)}")
+
+
+# ==================== Infographic Element CRUD Endpoints ====================
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/infographics", response_model=InfographicResponse)
+async def create_infographic(
+    presentation_id: str,
+    slide_index: int,
+    request: InfographicCreateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Create a new infographic element on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        infographics = presentation["slides"][slide_index]["infographics"]
+
+        if len(infographics) >= 10:
+            raise HTTPException(status_code=400, detail="Maximum 10 infographics per slide")
+
+        parent_slide_id = presentation["slides"][slide_index].get("slide_id")
+
+        new_infographic = InfographicElement(
+            parent_slide_id=parent_slide_id,
+            position=request.position,
+            infographic_type=request.infographic_type,
+            svg_content=request.svg_content,
+            html_content=request.html_content,
+            items=request.items,
+            z_index=request.z_index or get_next_element_z_index(infographics, 100)
+        )
+
+        infographics.append(new_infographic.model_dump())
+
+        summary = change_summary or f"Added infographic to slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return InfographicResponse(
+            success=True,
+            infographic=new_infographic,
+            message=f"Infographic created on slide {slide_index + 1}"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating infographic: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/infographics", response_model=InfographicListResponse)
+async def list_infographics(presentation_id: str, slide_index: int):
+    """Get all infographics on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        infographics = slide.get("infographics", [])
+
+        return InfographicListResponse(
+            success=True,
+            slide_index=slide_index,
+            infographics=[InfographicElement(**i) for i in infographics],
+            count=len(infographics)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing infographics: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/infographics/{infographic_id}", response_model=InfographicResponse)
+async def get_infographic(presentation_id: str, slide_index: int, infographic_id: str):
+    """Get a specific infographic element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        infographics = slide.get("infographics", [])
+
+        _, infographic = find_element_by_id(infographics, infographic_id)
+        if infographic is None:
+            raise HTTPException(status_code=404, detail=f"Infographic not found: {infographic_id}")
+
+        return InfographicResponse(
+            success=True,
+            infographic=InfographicElement(**infographic),
+            message="Infographic found"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting infographic: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/infographics/{infographic_id}", response_model=InfographicResponse)
+async def update_infographic(
+    presentation_id: str,
+    slide_index: int,
+    infographic_id: str,
+    request: InfographicUpdateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Update an existing infographic element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        infographics = presentation["slides"][slide_index]["infographics"]
+
+        infographic_idx, infographic = find_element_by_id(infographics, infographic_id)
+        if infographic_idx is None:
+            raise HTTPException(status_code=404, detail=f"Infographic not found: {infographic_id}")
+
+        update_data = request.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            if value is not None:
+                if key == "position":
+                    infographic["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                else:
+                    infographic[key] = value
+
+        summary = change_summary or f"Updated infographic on slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return InfographicResponse(
+            success=True,
+            infographic=InfographicElement(**infographic),
+            message="Infographic updated"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating infographic: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}/infographics/{infographic_id}")
+async def delete_infographic(
+    presentation_id: str,
+    slide_index: int,
+    infographic_id: str,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Delete an infographic from a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+        infographics = presentation["slides"][slide_index]["infographics"]
+
+        original_count = len(infographics)
+        infographics[:] = [i for i in infographics if i.get("id") != infographic_id]
+
+        if len(infographics) == original_count:
+            raise HTTPException(status_code=404, detail=f"Infographic not found: {infographic_id}")
+
+        summary = change_summary or f"Deleted infographic from slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Infographic deleted",
+            "infographic_id": infographic_id
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting infographic: {str(e)}")
+
+
+# ==================== Content Element CRUD Endpoints ====================
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/contents", response_model=ContentResponse)
+async def create_content(
+    presentation_id: str,
+    slide_index: int,
+    request: ContentCreateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Create a new content element on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+
+        # Ensure contents array exists
+        if 'contents' not in presentation["slides"][slide_index]:
+            presentation["slides"][slide_index]["contents"] = []
+        contents = presentation["slides"][slide_index]["contents"]
+
+        if len(contents) >= 5:
+            raise HTTPException(status_code=400, detail="Maximum 5 content elements per slide")
+
+        parent_slide_id = presentation["slides"][slide_index].get("slide_id")
+
+        new_content = ContentElement(
+            parent_slide_id=parent_slide_id,
+            slot_name=request.slot_name,
+            position=request.position,
+            content_html=request.content_html or "",
+            content_type=request.content_type or "html",
+            format_owner=request.format_owner or "text_service",
+            z_index=request.z_index or get_next_element_z_index(contents, 100)
+        )
+
+        contents.append(new_content.model_dump())
+
+        summary = change_summary or f"Added content element to slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return ContentResponse(
+            success=True,
+            content=new_content,
+            message=f"Content element created on slide {slide_index + 1}"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating content element: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/contents", response_model=ContentListResponse)
+async def list_contents(presentation_id: str, slide_index: int):
+    """Get all content elements on a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        contents = slide.get("contents", [])
+
+        return ContentListResponse(
+            success=True,
+            slide_index=slide_index,
+            contents=[ContentElement(**c) for c in contents],
+            count=len(contents)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing content elements: {str(e)}")
+
+
+@app.get("/api/presentations/{presentation_id}/slides/{slide_index}/contents/{content_id}", response_model=ContentResponse)
+async def get_content(presentation_id: str, slide_index: int, content_id: str):
+    """Get a specific content element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        slide = ensure_slide_elements(presentation["slides"][slide_index])
+        contents = slide.get("contents", [])
+
+        _, content = find_element_by_id(contents, content_id)
+        if content is None:
+            raise HTTPException(status_code=404, detail=f"Content element not found: {content_id}")
+
+        return ContentResponse(
+            success=True,
+            content=ContentElement(**content),
+            message="Content element found"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting content element: {str(e)}")
+
+
+@app.put("/api/presentations/{presentation_id}/slides/{slide_index}/contents/{content_id}", response_model=ContentResponse)
+async def update_content(
+    presentation_id: str,
+    slide_index: int,
+    content_id: str,
+    request: ContentUpdateRequest,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Update an existing content element."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+
+        if 'contents' not in presentation["slides"][slide_index]:
+            presentation["slides"][slide_index]["contents"] = []
+        contents = presentation["slides"][slide_index]["contents"]
+
+        content_idx, content = find_element_by_id(contents, content_id)
+        if content_idx is None:
+            raise HTTPException(status_code=404, detail=f"Content element not found: {content_id}")
+
+        update_data = request.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            if value is not None:
+                if key == "position":
+                    content["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
+                else:
+                    content[key] = value
+
+        summary = change_summary or f"Updated content element on slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return ContentResponse(
+            success=True,
+            content=ContentElement(**content),
+            message="Content element updated"
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating content element: {str(e)}")
+
+
+@app.delete("/api/presentations/{presentation_id}/slides/{slide_index}/contents/{content_id}")
+async def delete_content(
+    presentation_id: str,
+    slide_index: int,
+    content_id: str,
+    created_by: str = "user",
+    change_summary: str = None
+):
+    """Delete a content element from a slide."""
+    try:
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        presentation["slides"][slide_index] = ensure_slide_elements(presentation["slides"][slide_index])
+
+        if 'contents' not in presentation["slides"][slide_index]:
+            presentation["slides"][slide_index]["contents"] = []
+        contents = presentation["slides"][slide_index]["contents"]
+
+        original_count = len(contents)
+        contents[:] = [c for c in contents if c.get("id") != content_id]
+
+        if len(contents) == original_count:
+            raise HTTPException(status_code=404, detail=f"Content element not found: {content_id}")
+
+        summary = change_summary or f"Deleted content element from slide {slide_index + 1}"
+        await storage.update(
+            presentation_id,
+            {"slides": presentation["slides"]},
+            created_by=created_by,
+            change_summary=summary,
+            create_version=True
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "message": "Content element deleted",
+            "content_id": content_id
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting content element: {str(e)}")
 
 
 # ==================== AI Text Generation Endpoint ====================

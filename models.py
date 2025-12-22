@@ -1937,6 +1937,202 @@ class TextBoxListResponse(BaseModel):
     count: int = Field(..., description="Number of text boxes")
 
 
+# ==================== Image Element CRUD Models ====================
+
+class ImageCreateRequest(BaseModel):
+    """Request model for creating a new image element on a slide."""
+    position: TextBoxPosition = Field(..., description="Grid position for the image")
+    image_url: Optional[str] = Field(default=None, description="Image URL (null for placeholder mode)")
+    alt_text: Optional[str] = Field(default=None, max_length=500, description="Alt text for accessibility")
+    object_fit: str = Field(default="cover", description="CSS object-fit: cover, contain, fill, none, scale-down")
+    z_index: Optional[int] = Field(default=None, description="Z-index (auto-assigned if not provided)")
+
+
+class ImageUpdateRequest(BaseModel):
+    """Request model for updating an existing image element."""
+    position: Optional[TextBoxPosition] = None
+    image_url: Optional[str] = None
+    alt_text: Optional[str] = Field(default=None, max_length=500)
+    object_fit: Optional[str] = None
+    z_index: Optional[int] = None
+    locked: Optional[bool] = None
+    visible: Optional[bool] = None
+
+
+class ImageResponse(BaseModel):
+    """Response model for image element operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    image: Optional[ImageElement] = Field(None, description="The image element data")
+    message: str = Field(..., description="Success or error message")
+
+
+class ImageListResponse(BaseModel):
+    """Response model for listing images on a slide."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    slide_index: int = Field(..., description="The slide index")
+    images: List[ImageElement] = Field(..., description="List of image elements")
+    count: int = Field(..., description="Number of images")
+
+
+# ==================== Chart Element CRUD Models ====================
+
+class ChartCreateRequest(BaseModel):
+    """Request model for creating a new chart element on a slide."""
+    position: TextBoxPosition = Field(..., description="Grid position for the chart")
+    chart_type: Optional[str] = Field(default=None, description="Chart type: bar, line, pie, doughnut, etc.")
+    chart_config: Optional[Dict[str, Any]] = Field(default=None, description="Chart.js configuration object")
+    chart_html: Optional[str] = Field(default=None, description="Pre-rendered HTML from Analytics Service")
+    z_index: Optional[int] = Field(default=None, description="Z-index (auto-assigned if not provided)")
+
+
+class ChartUpdateRequest(BaseModel):
+    """Request model for updating an existing chart element."""
+    position: Optional[TextBoxPosition] = None
+    chart_type: Optional[str] = None
+    chart_config: Optional[Dict[str, Any]] = None
+    chart_html: Optional[str] = None
+    z_index: Optional[int] = None
+    locked: Optional[bool] = None
+    visible: Optional[bool] = None
+
+
+class ChartResponse(BaseModel):
+    """Response model for chart element operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    chart: Optional[ChartElement] = Field(None, description="The chart element data")
+    message: str = Field(..., description="Success or error message")
+
+
+class ChartListResponse(BaseModel):
+    """Response model for listing charts on a slide."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    slide_index: int = Field(..., description="The slide index")
+    charts: List[ChartElement] = Field(..., description="List of chart elements")
+    count: int = Field(..., description="Number of charts")
+
+
+# ==================== Diagram Element CRUD Models ====================
+
+class DiagramCreateRequest(BaseModel):
+    """Request model for creating a new diagram element on a slide."""
+    position: TextBoxPosition = Field(..., description="Grid position for the diagram")
+    diagram_type: Optional[str] = Field(default=None, description="Diagram type: flowchart, sequence, etc.")
+    mermaid_code: Optional[str] = Field(default=None, description="Mermaid.js diagram code")
+    svg_content: Optional[str] = Field(default=None, description="Pre-rendered SVG content")
+    html_content: Optional[str] = Field(default=None, description="Pre-rendered HTML content")
+    direction: str = Field(default="TB", description="Layout direction: TB, LR, BT, RL")
+    theme: str = Field(default="default", description="Diagram theme: default, dark, forest, neutral")
+    z_index: Optional[int] = Field(default=None, description="Z-index (auto-assigned if not provided)")
+
+
+class DiagramUpdateRequest(BaseModel):
+    """Request model for updating an existing diagram element."""
+    position: Optional[TextBoxPosition] = None
+    diagram_type: Optional[str] = None
+    mermaid_code: Optional[str] = None
+    svg_content: Optional[str] = None
+    html_content: Optional[str] = None
+    direction: Optional[str] = None
+    theme: Optional[str] = None
+    z_index: Optional[int] = None
+    locked: Optional[bool] = None
+    visible: Optional[bool] = None
+
+
+class DiagramResponse(BaseModel):
+    """Response model for diagram element operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    diagram: Optional[DiagramElement] = Field(None, description="The diagram element data")
+    message: str = Field(..., description="Success or error message")
+
+
+class DiagramListResponse(BaseModel):
+    """Response model for listing diagrams on a slide."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    slide_index: int = Field(..., description="The slide index")
+    diagrams: List[DiagramElement] = Field(..., description="List of diagram elements")
+    count: int = Field(..., description="Number of diagrams")
+
+
+# ==================== Infographic Element CRUD Models ====================
+
+class InfographicCreateRequest(BaseModel):
+    """Request model for creating a new infographic element on a slide."""
+    position: TextBoxPosition = Field(..., description="Grid position for the infographic")
+    infographic_type: Optional[str] = Field(default=None, description="Infographic type: timeline, process, etc.")
+    svg_content: Optional[str] = Field(default=None, description="SVG content from Illustrator Service")
+    html_content: Optional[str] = Field(default=None, description="Pre-rendered HTML content")
+    items: Optional[List[Dict[str, Any]]] = Field(default=None, description="Data items for the infographic")
+    z_index: Optional[int] = Field(default=None, description="Z-index (auto-assigned if not provided)")
+
+
+class InfographicUpdateRequest(BaseModel):
+    """Request model for updating an existing infographic element."""
+    position: Optional[TextBoxPosition] = None
+    infographic_type: Optional[str] = None
+    svg_content: Optional[str] = None
+    html_content: Optional[str] = None
+    items: Optional[List[Dict[str, Any]]] = None
+    z_index: Optional[int] = None
+    locked: Optional[bool] = None
+    visible: Optional[bool] = None
+
+
+class InfographicResponse(BaseModel):
+    """Response model for infographic element operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    infographic: Optional[InfographicElement] = Field(None, description="The infographic element data")
+    message: str = Field(..., description="Success or error message")
+
+
+class InfographicListResponse(BaseModel):
+    """Response model for listing infographics on a slide."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    slide_index: int = Field(..., description="The slide index")
+    infographics: List[InfographicElement] = Field(..., description="List of infographic elements")
+    count: int = Field(..., description="Number of infographics")
+
+
+# ==================== Content Element CRUD Models ====================
+
+class ContentCreateRequest(BaseModel):
+    """Request model for creating a new content element on a slide."""
+    slot_name: str = Field(..., description="Slot name from template registry (e.g., 'content', 'hero')")
+    position: TextBoxPosition = Field(..., description="Grid position for the content")
+    content_html: str = Field(default="", description="HTML content from Text Service")
+    content_type: str = Field(default="html", description="Content type: html, chart, diagram, infographic")
+    format_owner: str = Field(default="text_service", description="Service that owns formatting")
+    z_index: Optional[int] = Field(default=None, description="Z-index (auto-assigned if not provided)")
+
+
+class ContentUpdateRequest(BaseModel):
+    """Request model for updating an existing content element."""
+    slot_name: Optional[str] = None
+    position: Optional[TextBoxPosition] = None
+    content_html: Optional[str] = None
+    content_type: Optional[str] = None
+    format_owner: Optional[str] = None
+    z_index: Optional[int] = None
+    editable: Optional[bool] = None
+    locked: Optional[bool] = None
+    visible: Optional[bool] = None
+
+
+class ContentResponse(BaseModel):
+    """Response model for content element operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    content: Optional[ContentElement] = Field(None, description="The content element data")
+    message: str = Field(..., description="Success or error message")
+
+
+class ContentListResponse(BaseModel):
+    """Response model for listing content elements on a slide."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    slide_index: int = Field(..., description="The slide index")
+    contents: List[ContentElement] = Field(..., description="List of content elements")
+    count: int = Field(..., description="Number of content elements")
+
+
 # ==================== AI Text Generation Models ====================
 
 class TextGenerationRequest(BaseModel):

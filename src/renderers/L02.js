@@ -89,7 +89,7 @@ function renderL02(content, slide = {}, slideIndex = 0) {
 
       <!-- Footer: Presentation Name (18px, matching L25) - v7.5.4: Uses theme CSS variables -->
       ${content.presentation_name ? `
-      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/7; padding: 8px 14px; font-size: var(--theme-footer-size, 18px); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-primary, #1f2937); font-weight: var(--theme-footer-weight, 500); display: flex; align-items: center; height: 100%;">
+      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/20; padding: 8px 14px; font-size: var(--theme-footer-size, 18px); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-primary, #1f2937); font-weight: var(--theme-footer-weight, 500); display: flex; align-items: center; height: 100%;">
         ${content.presentation_name}
       </div>
       ` : ''}

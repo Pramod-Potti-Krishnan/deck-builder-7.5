@@ -36,35 +36,35 @@
     'C1-text': {
       title: { gridRow: '1/3', gridColumn: '2/32' },
       subtitle: { gridRow: '3/4', gridColumn: '2/32' },
-      footer: { gridRow: '18/19', gridColumn: '2/7' },
+      footer: { gridRow: '18/19', gridColumn: '2/20' },
       logo: { gridRow: '17/19', gridColumn: '30/32' }
     },
     'I1-image-left': {
       image: { gridRow: '1/19', gridColumn: '1/12' },
       title: { gridRow: '1/3', gridColumn: '12/32' },
       subtitle: { gridRow: '3/4', gridColumn: '12/32' },
-      footer: { gridRow: '18/19', gridColumn: '12/17' },
+      footer: { gridRow: '18/19', gridColumn: '12/30' },
       logo: { gridRow: '17/19', gridColumn: '30/32' }
     },
     'I2-image-right': {
       image: { gridRow: '1/19', gridColumn: '21/33' },
       title: { gridRow: '1/3', gridColumn: '2/21' },
       subtitle: { gridRow: '3/4', gridColumn: '2/21' },
-      footer: { gridRow: '18/19', gridColumn: '2/7' },
+      footer: { gridRow: '18/19', gridColumn: '2/20' },
       logo: { gridRow: '17/19', gridColumn: '18/20' }
     },
     'I3-image-left-narrow': {
       image: { gridRow: '1/19', gridColumn: '1/7' },
       title: { gridRow: '1/3', gridColumn: '7/32' },
       subtitle: { gridRow: '3/4', gridColumn: '7/32' },
-      footer: { gridRow: '18/19', gridColumn: '7/12' },
+      footer: { gridRow: '18/19', gridColumn: '7/25' },
       logo: { gridRow: '17/19', gridColumn: '30/32' }
     },
     'I4-image-right-narrow': {
       image: { gridRow: '1/19', gridColumn: '26/33' },
       title: { gridRow: '1/3', gridColumn: '2/26' },
       subtitle: { gridRow: '3/4', gridColumn: '2/26' },
-      footer: { gridRow: '18/19', gridColumn: '2/7' },
+      footer: { gridRow: '18/19', gridColumn: '2/20' },
       logo: { gridRow: '17/19', gridColumn: '23/25' }
     }
   };

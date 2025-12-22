@@ -373,7 +373,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -484,7 +484,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -593,7 +593,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -702,7 +702,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -825,7 +825,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -930,7 +930,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1035,7 +1035,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1140,7 +1140,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1245,7 +1245,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '12/17',
+        gridColumn: '12/30',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1346,7 +1346,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1447,7 +1447,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '7/12',
+        gridColumn: '7/25',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1548,7 +1548,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1691,7 +1691,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1814,7 +1814,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {
@@ -1908,7 +1908,7 @@ const TEMPLATE_REGISTRY = {
       },
       footer: {
         gridRow: '18/19',
-        gridColumn: '2/7',
+        gridColumn: '2/20',
         tag: 'footer',
         accepts: ['text'],
         style: {

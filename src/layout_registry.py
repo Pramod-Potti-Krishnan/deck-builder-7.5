@@ -271,7 +271,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -322,7 +322,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -373,7 +373,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -424,7 +424,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -485,7 +485,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -541,7 +541,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -597,7 +597,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -653,7 +653,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -712,7 +712,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "12/17",
+                "grid_column": "12/30",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -768,7 +768,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -824,7 +824,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "7/12",
+                "grid_column": "7/25",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -880,7 +880,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -956,7 +956,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -1029,7 +1029,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"],
                 "default_text": "Footer"
@@ -1105,7 +1105,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"]
             },
@@ -1154,7 +1154,7 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
             },
             "footer": {
                 "grid_row": "18/19",
-                "grid_column": "2/7",
+                "grid_column": "2/20",
                 "tag": "footer",
                 "accepts": ["text"]
             },

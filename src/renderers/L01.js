@@ -64,7 +64,7 @@ function renderL01(content, slide = {}, slideIndex = 0) {
 
       <!-- Footer: Presentation Name (18px, matching L25) -->
       ${content.presentation_name ? `
-      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
+      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/20; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
         ${content.presentation_name}
       </div>
       ` : ''}

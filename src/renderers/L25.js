@@ -79,14 +79,14 @@ function renderL25(content, slide = {}, slideIndex = 0) {
 
       <!-- Footer with 3 sections -->
       <div class="footer-container" style="grid-row: 18/19; grid-column: 1/33; display: grid; grid-template-columns: repeat(32, 1fr); align-items: center;">
-        <!-- Left Section: Presentation Name (columns 2-7, 6 grids) - v7.5.4: Uses theme CSS variables -->
+        <!-- Left Section: Presentation Name (columns 2-20, 18 grids) - v7.5.4: Uses theme CSS variables -->
         ${content.presentation_name ? `
-        <div class="footer-presentation-name" data-slot-name="footer" style="grid-column: 2/7; padding: 8px 14px; font-size: var(--theme-footer-size, 18px); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-primary, #1f2937); font-weight: var(--theme-footer-weight, 500); display: flex; align-items: center; height: 100%;">
+        <div class="footer-presentation-name" data-slot-name="footer" style="grid-column: 2/20; padding: 8px 14px; font-size: var(--theme-footer-size, 18px); font-family: var(--theme-font-family, Poppins, sans-serif); color: var(--theme-text-primary, #1f2937); font-weight: var(--theme-footer-weight, 500); display: flex; align-items: center; height: 100%;">
           ${content.presentation_name}
         </div>
         ` : ''}
 
-        <!-- Middle Section: Empty (columns 7-31) -->
+        <!-- Middle Section: Empty (columns 20-31) -->
       </div>
 
       <!-- Company Logo: 2×2 grid in bottom-right corner (matching L27) -->

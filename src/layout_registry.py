@@ -125,10 +125,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "description": "Presenter name, date, or other info"
             },
             "logo": {
-                "grid_row": "16/18",
-                "grid_column": "28/31",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo",
                 "description": "Company logo"
             }
@@ -219,10 +221,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "description": "Contact details, website, social links"
             },
             "logo": {
-                "grid_row": "16/18",
-                "grid_column": "26/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo",
                 "description": "Company logo"
             }
@@ -277,10 +281,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -328,10 +334,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -379,10 +387,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -430,10 +440,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -491,10 +503,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {}
@@ -547,10 +562,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {}
@@ -603,10 +621,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {}
@@ -659,10 +680,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {}
@@ -718,10 +742,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -774,10 +800,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "18/20",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -830,10 +858,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -886,10 +916,12 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "23/25",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
                 "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
                 "default_text": "Logo"
             }
         },
@@ -962,10 +994,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {}
@@ -1035,10 +1070,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "default_text": "Footer"
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {}
@@ -1110,10 +1148,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "accepts": ["text"]
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {
@@ -1159,10 +1200,13 @@ TEMPLATE_REGISTRY: Dict[str, Dict[str, Any]] = {
                 "accepts": ["text"]
             },
             "logo": {
-                "grid_row": "17/19",
-                "grid_column": "30/32",
+                "grid_row": "1/3",
+                "grid_column": "31/33",
                 "tag": "logo",
-                "accepts": ["image", "emoji"]
+                "accepts": ["image", "emoji"],
+                "is_child_of": "image",
+                "compact": True,
+                "default_text": "Logo"
             }
         },
         "defaults": {

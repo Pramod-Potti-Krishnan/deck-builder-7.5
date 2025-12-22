@@ -114,10 +114,12 @@ const TEMPLATE_REGISTRY = {
         description: 'Presenter name, date, or other info'
       },
       logo: {
-        gridRow: '16/18',
-        gridColumn: '28/31',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)',
           fontWeight: 'var(--theme-title-weight, bold)',
@@ -274,10 +276,12 @@ const TEMPLATE_REGISTRY = {
         description: 'Contact details, website, social links'
       },
       logo: {
-        gridRow: '16/18',
-        gridColumn: '26/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
@@ -390,10 +394,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
@@ -501,10 +507,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
@@ -610,10 +618,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
@@ -719,10 +729,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)',
           display: 'flex',
@@ -837,12 +849,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: null
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -942,12 +956,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: null
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -1047,12 +1063,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: null
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -1152,12 +1170,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: null
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -1256,10 +1276,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)'
         },
@@ -1357,10 +1379,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '18/20',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)'
         },
@@ -1458,10 +1482,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)'
         },
@@ -1559,10 +1585,12 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '23/25',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)'
         },
@@ -1700,12 +1728,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: null
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -1823,14 +1853,16 @@ const TEMPLATE_REGISTRY = {
         defaultText: 'Footer'
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {
           fontSize: 'var(--theme-body-size, 20px)'
         },
-        defaultText: null
+        defaultText: 'Logo'
       }
     },
     defaults: {},
@@ -1919,12 +1951,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: ''
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -2024,12 +2058,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: ''
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -2106,12 +2142,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: ''
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -2188,12 +2226,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: ''
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {
@@ -2293,12 +2333,14 @@ const TEMPLATE_REGISTRY = {
         defaultText: ''
       },
       logo: {
-        gridRow: '17/19',
-        gridColumn: '30/32',
+        gridRow: '1/3',
+        gridColumn: '31/33',
         tag: 'logo',
         accepts: ['image', 'emoji'],
+        isChildOf: 'image',
+        compact: true,
         style: {},
-        defaultText: ''
+        defaultText: 'Logo'
       }
     },
     defaults: {

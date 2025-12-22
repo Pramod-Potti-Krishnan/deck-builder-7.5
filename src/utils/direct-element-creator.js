@@ -409,7 +409,7 @@
       imageUrl,
       isPlaceholder: !imageUrl,
       contentImageUrl: content?.image_url,
-      contentLogo: content?.company_logo
+      contentLogo: content?.logo || content?.company_logo  // Support both for backwards compatibility
     });
 
     const config = {
@@ -431,6 +431,12 @@
     if (slotName === 'background' && !imageUrl) {
       config.placeholderColor = '#1e3a5f';  // Dark blue for hero background
       config.objectFit = 'cover';           // Background should cover the area
+    }
+
+    // Use compact placeholder text for logo slot (2×2 grid = 120×120px)
+    if (slotName === 'logo' && !imageUrl) {
+      config.placeholderText = 'Logo';       // Short text for compact placeholder
+      config.slotName = 'logo';              // For slot-logo CSS class
     }
 
     const result = window.ElementManager.insertImage(slideIndex, config);
@@ -772,9 +778,9 @@
       return isValidHttpUrl(url) ? url : null;
     }
 
-    // Logo slot
+    // Logo slot - support both 'logo' and legacy 'company_logo' field names
     if (slotName === 'logo') {
-      const url = content.company_logo;
+      const url = content.logo || content.company_logo;
       return isValidHttpUrl(url) ? url : null;
     }
 

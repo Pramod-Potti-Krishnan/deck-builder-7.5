@@ -879,6 +879,11 @@
     container.className = `dynamic-element inserted-element-placeholder inserted-image${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'image';
     container.dataset.slideIndex = slideIndex;
+
+    // Add slot-specific class for compact styling (logo uses smaller placeholder)
+    if (config.slotName === 'logo' || config.slot_name === 'logo') {
+      container.classList.add('slot-logo');
+    }
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};

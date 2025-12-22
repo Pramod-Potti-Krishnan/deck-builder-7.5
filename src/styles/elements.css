@@ -405,6 +405,62 @@
   background: #9ca3af;
 }
 
+/* ===== COMPACT LOGO PLACEHOLDER ===== */
+/* For small logo slots (2×2 grid = 120×120px) */
+
+.inserted-image.slot-logo .element-placeholder-content {
+  padding: 8px;
+  gap: 4px;
+}
+
+.inserted-image.slot-logo .element-placeholder-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.inserted-image.slot-logo .element-placeholder-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.inserted-image.slot-logo .element-placeholder-dots {
+  display: none;  /* Hide dots for compact mode */
+}
+
+.inserted-image.slot-logo .element-placeholder-text {
+  font-size: 11px;
+}
+
+/* Make drag handle smaller for logo */
+.inserted-image.slot-logo .element-drag-handle {
+  width: 28px;
+  height: 16px;
+  top: 3px;
+}
+
+.inserted-image.slot-logo .element-drag-handle::after {
+  box-shadow:
+    0 0 0 0 white,
+    6px 0 0 0 white,
+    0 5px 0 0 white,
+    6px 5px 0 0 white;
+  transform: translate(calc(-50% - 3px), calc(-50% - 2.5px));
+}
+
+/* Make delete button smaller for logo */
+.inserted-image.slot-logo .element-delete-button {
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  top: -6px;
+  right: -6px;
+}
+
+/* Reduce min-height for compact logo */
+.inserted-image.slot-logo.inserted-element-placeholder {
+  min-height: 60px;
+}
+
 /* ===== CONTENT MODE (When actual content is loaded) ===== */
 
 .inserted-image:not(.placeholder-mode),

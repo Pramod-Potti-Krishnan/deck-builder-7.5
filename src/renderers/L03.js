@@ -90,11 +90,11 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       </div>
       ` : ''}
 
-      <!-- Footer: Company Logo (bottom-right, matching L27) -->
-      ${content.company_logo ? `
-      <div class="footer-company-logo" data-slot-name="logo" style="grid-row: 17/19; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
-        <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+      <!-- Logo (top-right corner, 2×2 grid) -->
+      ${(content.logo || content.company_logo) ? `
+      <div class="logo-container" data-slot-name="logo" style="grid-row: 1/3; grid-column: 31/33; display: flex; align-items: center; justify-content: center; padding: 4px;">
+        <div style="max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center;">
+          ${content.logo || content.company_logo}
         </div>
       </div>
       ` : ''}

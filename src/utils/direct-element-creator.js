@@ -166,9 +166,16 @@
       const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
-        // Since we're only searching within THIS slide, if found it's definitely on the correct slide
-        console.log(`[DirectElementCreator] Skipping ${slotName} - already exists on slide ${slideIndex}`);
-        return;  // Skip - already created
+        // v7.5.5: Instead of skipping, UPDATE position from template
+        // This ensures template changes (e.g., footer width) take effect even on restored elements
+        const templatePosition = {
+          gridRow: slotDef.gridRow,
+          gridColumn: slotDef.gridColumn
+        };
+        existingElement.style.gridRow = templatePosition.gridRow;
+        existingElement.style.gridColumn = templatePosition.gridColumn;
+        console.log(`[DirectElementCreator] Updated ${slotName} position from template on slide ${slideIndex}: row=${templatePosition.gridRow}, col=${templatePosition.gridColumn}`);
+        return;  // Element exists, position updated from template
       }
 
       const elementType = getElementTypeForSlot(slotName, slotDef);
@@ -938,9 +945,13 @@
       const legacyElementId = generateLegacyElementId(slideIndex, slotName);
       const existingLegacy = slideElement.querySelector(`#${CSS.escape(legacyElementId)}`);
       const existingUUID = slideElement.querySelector(`[data-slot-name="${slotName}"][data-parent-slide-id="${slideId}"]`);
+      const existingElement = existingLegacy || existingUUID;
 
-      if (existingLegacy || existingUUID) {
-        console.log(`[DirectElementCreator] Skipping ${slotName} - already exists`);
+      if (existingElement) {
+        // v7.5.5: Update position from template instead of skipping
+        existingElement.style.gridRow = slotDef.gridRow;
+        existingElement.style.gridColumn = slotDef.gridColumn;
+        console.log(`[DirectElementCreator] Updated ${slotName} position from template (X-series)`);
         continue;
       }
 
@@ -989,7 +1000,10 @@
       // Check if zone element already exists
       const existingZone = slideElement.querySelector(`[data-zone-id="${zoneId}"]`);
       if (existingZone) {
-        console.log(`[DirectElementCreator] Skipping zone ${zoneId} - already exists`);
+        // v7.5.5: Update position from template instead of skipping
+        existingZone.style.gridRow = zone.grid_row;
+        existingZone.style.gridColumn = zone.grid_column;
+        console.log(`[DirectElementCreator] Updated zone ${zoneId} position from template`);
         return;
       }
 

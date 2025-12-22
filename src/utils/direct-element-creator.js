@@ -397,6 +397,12 @@
       imageUrl = getImageUrl(slotName, content);
     }
 
+    // Handle text/emoji logos (non-URL content like emojis or HTML)
+    if (slotName === 'logo' && imageUrl && typeof imageUrl === 'object' && imageUrl.type === 'text') {
+      createLogoTextElement(ctx, imageUrl.content);
+      return;
+    }
+
     // Generate element ID based on architecture mode
     const elementId = useLegacyIds
       ? generateLegacyElementId(slideIndex, slotName)
@@ -453,6 +459,55 @@
     } else {
       console.error(`[DirectElementCreator] Failed to create Image: ${result.error}`);
     }
+  }
+
+  /**
+   * Create a text-based logo element (for emojis or HTML text)
+   * @param {Object} ctx - Element context
+   * @param {string} logoContent - The emoji or text content to display
+   */
+  function createLogoTextElement(ctx, logoContent) {
+    const { slideIndex, slideId, slotName, slotDef, useLegacyIds } = ctx;
+
+    const elementId = useLegacyIds
+      ? generateLegacyElementId(slideIndex, slotName)
+      : generateElementId(slideId, 'logo');
+
+    console.log(`[DirectElementCreator] Creating text logo element:`, {
+      slideIndex,
+      slotName,
+      elementId,
+      logoContent
+    });
+
+    // Get the slide element
+    const slide = document.querySelector(`[data-slide-index="${slideIndex}"]`);
+    if (!slide) {
+      console.error(`[DirectElementCreator] Slide ${slideIndex} not found for logo`);
+      return;
+    }
+
+    // Create logo container directly (not using ElementManager for text logos)
+    const logoContainer = document.createElement('div');
+    logoContainer.id = elementId;
+    logoContainer.className = 'dynamic-element logo-text-element';
+    logoContainer.dataset.elementType = 'logo';
+    logoContainer.dataset.slideIndex = slideIndex;
+    logoContainer.dataset.parentSlideId = slideId;
+    logoContainer.dataset.slotName = slotName;
+    logoContainer.style.cssText = `
+      grid-row: ${slotDef.gridRow};
+      grid-column: ${slotDef.gridColumn};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: ${getZIndexForSlot(slotName)};
+      font-size: 48px;
+    `;
+    logoContainer.innerHTML = logoContent;
+
+    slide.appendChild(logoContainer);
+    console.log(`[DirectElementCreator] Created text logo: ${elementId}`);
   }
 
   /**
@@ -779,9 +834,14 @@
     }
 
     // Logo slot - support both 'logo' and legacy 'company_logo' field names
+    // Logo can be: URL (image), emoji, or text/HTML
     if (slotName === 'logo') {
-      const url = content.logo || content.company_logo;
-      return isValidHttpUrl(url) ? url : null;
+      const logoContent = content.logo || content.company_logo;
+      if (!logoContent) return null;
+      // If it's a valid URL, return it for image mode
+      if (isValidHttpUrl(logoContent)) return logoContent;
+      // For emoji/text content, return special marker to trigger direct rendering
+      return { type: 'text', content: logoContent };
     }
 
     // S2-image-content: 'image' slot (full-height left image)

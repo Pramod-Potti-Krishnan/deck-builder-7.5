@@ -111,7 +111,11 @@ class L25Content(BaseModel):
     )
     company_logo: Optional[str] = Field(
         None,
-        description="Company logo URL or HTML for footer right section (optional)"
+        description="Company logo URL or HTML for footer right section (optional, legacy field)"
+    )
+    logo: Optional[str] = Field(
+        None,
+        description="Logo content: URL, emoji, or HTML (preferred over company_logo)"
     )
 
 
@@ -1578,7 +1582,8 @@ class SlideContentUpdate(BaseModel):
     element_4: Optional[str] = Field(None, description="Layout-specific element 4")
     element_5: Optional[str] = Field(None, description="Layout-specific element 5")
     presentation_name: Optional[str] = Field(None, description="Presentation name")
-    company_logo: Optional[str] = Field(None, description="Company logo")
+    company_logo: Optional[str] = Field(None, description="Company logo (legacy field)")
+    logo: Optional[str] = Field(None, description="Logo content: URL, emoji, or HTML")
     # Background customization fields
     background_color: Optional[str] = Field(None, description="Slide background color (hex format)")
     background_image: Optional[str] = Field(None, description="Slide background image URL or data URI")

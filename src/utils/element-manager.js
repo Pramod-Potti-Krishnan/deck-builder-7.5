@@ -939,10 +939,15 @@
       }
     } else {
       // Content mode - show actual image
+      // Check if I-series layout - use no border-radius for edge-to-edge images
+      const layoutAttr = slide.dataset?.layout || slide.closest('[data-layout]')?.dataset?.layout || '';
+      const isISeriesLayout = /^I[1-4]-/.test(layoutAttr);
+      const borderRadius = isISeriesLayout ? '0' : '6px';
+
       container.innerHTML = `
         <div class="element-drag-handle"></div>
         <div class="element-content">
-          <img src="${config.imageUrl}" alt="${config.alt || ''}" style="width:100%;height:100%;object-fit:${config.objectFit || 'cover'};border-radius:6px;">
+          <img src="${config.imageUrl}" alt="${config.alt || ''}" style="width:100%;height:100%;object-fit:${config.objectFit || 'cover'};border-radius:${borderRadius};">
         </div>
         <button class="element-delete-button">×</button>
         <div class="resize-handle resize-handle-w"></div>

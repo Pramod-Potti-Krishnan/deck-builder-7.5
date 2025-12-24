@@ -1208,7 +1208,10 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'stretch',
           justifyContent: 'stretch',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          borderRadius: '0',
+          padding: '0',
+          margin: '0'
         },
         defaultText: null,
         description: 'Full-height image (660x1080px)'
@@ -1312,7 +1315,10 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'stretch',
           justifyContent: 'stretch',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          borderRadius: '0',
+          padding: '0',
+          margin: '0'
         },
         defaultText: null,
         description: 'Full-height image (660x1080px)'
@@ -1416,7 +1422,10 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'stretch',
           justifyContent: 'stretch',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          borderRadius: '0',
+          padding: '0',
+          margin: '0'
         },
         defaultText: null,
         description: 'Full-height narrow image (330x1080px)'
@@ -1520,7 +1529,10 @@ const TEMPLATE_REGISTRY = {
           flexDirection: 'column',
           alignItems: 'stretch',
           justifyContent: 'stretch',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          borderRadius: '0',
+          padding: '0',
+          margin: '0'
         },
         defaultText: null,
         description: 'Full-height narrow image (330x1080px)'

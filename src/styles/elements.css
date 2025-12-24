@@ -521,21 +521,31 @@
 /* MUST use .reveal .slides prefix for specificity over borders.css rule */
 
 /* Target the parent .inserted-image container */
-/* Use position:relative to establish positioning context for absolute child */
+/* COMPREHENSIVE override of ALL base styles for I-series edge-to-edge images */
+/* Must override: background, display, borders, dimensions from .inserted-element-placeholder */
 .reveal .slides section[data-layout^="I1-"] .inserted-image,
 .reveal .slides section[data-layout^="I2-"] .inserted-image,
 .reveal .slides section[data-layout^="I3-"] .inserted-image,
 .reveal .slides section[data-layout^="I4-"] .inserted-image {
   position: relative !important;  /* Positioning context for absolute child */
+  background: transparent !important;  /* Override #f8fafc gray that shows through as gaps */
   border-radius: 0 !important;
   border: none !important;        /* Remove the 1px border from base .inserted-element-placeholder */
   padding: 0 !important;
   margin: 0 !important;
-  overflow: hidden !important;    /* Clip any overflow */
+  overflow: hidden !important;    /* Clip any overflow from slightly oversized children */
+  /* Ensure grid item fills its cell completely */
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  /* Override flexbox centering from base that could misalign content */
+  align-items: stretch !important;
+  justify-content: stretch !important;
 }
 
 /* Target the .element-content child - Use absolute positioning to fill entire container */
-/* This bypasses the flexbox limitations (justify-content: stretch is NOT valid for flexbox) */
+/* Use display:block to override flexbox centering, use slightly oversized (101%) to cover any subpixel gaps */
 .reveal .slides section[data-layout^="I1-"] .inserted-image .element-content,
 .reveal .slides section[data-layout^="I2-"] .inserted-image .element-content,
 .reveal .slides section[data-layout^="I3-"] .inserted-image .element-content,
@@ -545,11 +555,19 @@
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;           /* Fill entire parent container */
+  /* Slightly oversized to account for subpixel rounding gaps */
+  width: 101% !important;
+  height: 101% !important;
   padding: 0 !important;
   margin: 0 !important;
+  /* Override base flexbox centering that misaligns content */
+  display: block !important;
+  align-items: unset !important;
+  justify-content: unset !important;
 }
 
 /* Target the img itself - use !important to override inline styles */
+/* Slightly oversized (101%) to cover any subpixel gaps at edges */
 .reveal .slides section[data-layout^="I1-"] .inserted-image .element-content img,
 .reveal .slides section[data-layout^="I2-"] .inserted-image .element-content img,
 .reveal .slides section[data-layout^="I3-"] .inserted-image .element-content img,
@@ -559,8 +577,8 @@
 .reveal .slides section[data-layout^="I3-"] .inserted-image img,
 .reveal .slides section[data-layout^="I4-"] .inserted-image img {
   border-radius: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 101% !important;         /* Slightly oversized to cover subpixel gaps */
+  height: 101% !important;        /* Slightly oversized to cover subpixel gaps */
   object-fit: fill !important;    /* fill allows stretching to fill space */
   padding: 0 !important;
   margin: 0 !important;

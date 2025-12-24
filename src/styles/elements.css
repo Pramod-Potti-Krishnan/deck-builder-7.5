@@ -527,6 +527,7 @@ section[data-layout^="I4-"] .inserted-image {
   align-items: stretch !important;
   justify-content: stretch !important;
   border-radius: 0 !important;
+  border: none !important;    /* Remove the 1px border from base .inserted-element-placeholder */
   padding: 0 !important;
   margin: 0 !important;
   height: 100% !important;  /* Fill the grid cell completely */
@@ -557,7 +558,7 @@ section[data-layout^="I4-"] .inserted-image img {
   border-radius: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
+  object-fit: fill !important;   /* fill allows stretching to full height */
   padding: 0 !important;
   margin: 0 !important;
 }

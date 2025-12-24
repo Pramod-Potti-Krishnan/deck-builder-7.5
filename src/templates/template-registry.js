@@ -1206,8 +1206,9 @@ const TEMPLATE_REGISTRY = {
         style: {
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'stretch',
+          justifyContent: 'stretch',
+          overflow: 'hidden'
         },
         defaultText: null,
         description: 'Full-height image (660x1080px)'
@@ -1309,8 +1310,9 @@ const TEMPLATE_REGISTRY = {
         style: {
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'stretch',
+          justifyContent: 'stretch',
+          overflow: 'hidden'
         },
         defaultText: null,
         description: 'Full-height image (660x1080px)'
@@ -1412,8 +1414,9 @@ const TEMPLATE_REGISTRY = {
         style: {
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'stretch',
+          justifyContent: 'stretch',
+          overflow: 'hidden'
         },
         defaultText: null,
         description: 'Full-height narrow image (330x1080px)'
@@ -1515,8 +1518,9 @@ const TEMPLATE_REGISTRY = {
         style: {
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: 'stretch',
+          justifyContent: 'stretch',
+          overflow: 'hidden'
         },
         defaultText: null,
         description: 'Full-height narrow image (330x1080px)'

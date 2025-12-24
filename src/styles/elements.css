@@ -516,6 +516,24 @@
   border-radius: 6px;
 }
 
+/* ===== I-SERIES IMAGE OVERRIDES ===== */
+/* I-series layouts require edge-to-edge images with no border radius */
+section[data-layout^="I1-"] .inserted-image .element-content,
+section[data-layout^="I2-"] .inserted-image .element-content,
+section[data-layout^="I3-"] .inserted-image .element-content,
+section[data-layout^="I4-"] .inserted-image .element-content {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+section[data-layout^="I1-"] .inserted-image .element-content img,
+section[data-layout^="I2-"] .inserted-image .element-content img,
+section[data-layout^="I3-"] .inserted-image .element-content img,
+section[data-layout^="I4-"] .inserted-image .element-content img {
+  border-radius: 0;
+  object-fit: cover;
+}
+
 /* Chart element content */
 .inserted-chart .element-content canvas {
   width: 100% !important;

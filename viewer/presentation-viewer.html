@@ -653,6 +653,15 @@
           }
         }
 
+        // v7.5.5: Apply theme MODE (light/dark) if specified
+        // This adds the 'theme-dark' class to root for CSS variable switching
+        if (data.theme_config?.theme_mode) {
+          if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.setThemeMode(data.theme_config.theme_mode);
+            console.log(`[Theming] Applied theme mode '${data.theme_config.theme_mode}' on load`);
+          }
+        }
+
         // Restore all dynamic elements from saved data
         restoreTextBoxes(data.slides);
         restoreImages(data.slides);
@@ -785,10 +794,29 @@
       }, 3000);
     }
 
-    // Add keyboard shortcuts (Note: 'B' and 'C' are handled by RevealJS config)
+    // Add keyboard shortcuts
+    // Note: 'B' and 'C' are handled by RevealJS config
+    // v7.5.5: Added 1/2 for theme mode shortcuts (Phase 1 CSS variable theming)
     document.addEventListener('keydown', (e) => {
-      if (e.key === '?') {
-        showHelpText();
+      // Skip if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch(e.key) {
+        case '?':
+          showHelpText();
+          break;
+        case '1':
+          if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.setThemeMode('light');
+            console.log('[Theming] Keyboard: Switched to light mode');
+          }
+          break;
+        case '2':
+          if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.setThemeMode('dark');
+            console.log('[Theming] Keyboard: Switched to dark mode');
+          }
+          break;
       }
     });
 

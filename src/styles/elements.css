@@ -518,12 +518,13 @@
 
 /* ===== I-SERIES IMAGE OVERRIDES ===== */
 /* I-series layouts require edge-to-edge images with absolutely no padding, margin, or border radius */
+/* MUST use .reveal .slides prefix for specificity over borders.css rule */
 
 /* Target the parent .inserted-image container */
-section[data-layout^="I1-"] .inserted-image,
-section[data-layout^="I2-"] .inserted-image,
-section[data-layout^="I3-"] .inserted-image,
-section[data-layout^="I4-"] .inserted-image {
+.reveal .slides section[data-layout^="I1-"] .inserted-image,
+.reveal .slides section[data-layout^="I2-"] .inserted-image,
+.reveal .slides section[data-layout^="I3-"] .inserted-image,
+.reveal .slides section[data-layout^="I4-"] .inserted-image {
   align-items: stretch !important;
   justify-content: stretch !important;
   border-radius: 0 !important;
@@ -537,10 +538,10 @@ section[data-layout^="I4-"] .inserted-image {
 }
 
 /* Target the .element-content child - MUST fill container height AND width */
-section[data-layout^="I1-"] .inserted-image .element-content,
-section[data-layout^="I2-"] .inserted-image .element-content,
-section[data-layout^="I3-"] .inserted-image .element-content,
-section[data-layout^="I4-"] .inserted-image .element-content {
+.reveal .slides section[data-layout^="I1-"] .inserted-image .element-content,
+.reveal .slides section[data-layout^="I2-"] .inserted-image .element-content,
+.reveal .slides section[data-layout^="I3-"] .inserted-image .element-content,
+.reveal .slides section[data-layout^="I4-"] .inserted-image .element-content {
   align-items: stretch !important;
   justify-content: stretch !important;
   padding: 0 !important;
@@ -553,14 +554,14 @@ section[data-layout^="I4-"] .inserted-image .element-content {
 }
 
 /* Target the img itself - use !important to override inline styles */
-section[data-layout^="I1-"] .inserted-image .element-content img,
-section[data-layout^="I2-"] .inserted-image .element-content img,
-section[data-layout^="I3-"] .inserted-image .element-content img,
-section[data-layout^="I4-"] .inserted-image .element-content img,
-section[data-layout^="I1-"] .inserted-image img,
-section[data-layout^="I2-"] .inserted-image img,
-section[data-layout^="I3-"] .inserted-image img,
-section[data-layout^="I4-"] .inserted-image img {
+.reveal .slides section[data-layout^="I1-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I2-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I3-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I4-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I1-"] .inserted-image img,
+.reveal .slides section[data-layout^="I2-"] .inserted-image img,
+.reveal .slides section[data-layout^="I3-"] .inserted-image img,
+.reveal .slides section[data-layout^="I4-"] .inserted-image img {
   border-radius: 0 !important;
   width: 100% !important;
   height: 100% !important;

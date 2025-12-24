@@ -1343,10 +1343,17 @@ class PresentationThemeConfig(BaseModel):
     Enhanced in v7.5.4 to support:
     - Custom theme IDs (UUIDs from ls_user_themes)
     - Full theme overrides (colors, typography, spacing, effects)
+
+    Enhanced in v7.5.5 to support:
+    - Dark/light mode via theme_mode (Phase 1 CSS variable theming)
     """
     theme_id: str = Field(
         default="corporate-blue",
         description="Reference to predefined theme ID or custom theme UUID"
+    )
+    theme_mode: str = Field(
+        default="light",
+        description="Theme mode: 'light' or 'dark' (v7.5.5 - CSS variable theming)"
     )
     is_custom: bool = Field(
         default=False,

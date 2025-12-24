@@ -9,10 +9,18 @@
  * - Custom user themes
  * - Granular property updates
  *
+ * Enhanced in v7.5.5 to support:
+ * - Dark/Light mode toggle (Phase 1 CSS variable theming)
+ * - setThemeMode(), getThemeMode(), toggleThemeMode()
+ * - initThemeMode() for restoring user preference
+ * - localStorage persistence for theme mode
+ *
  * Usage:
  *   ThemeManager.injectThemeStyles(themeConfig);
  *   ThemeManager.injectThemeStyles(themeConfig, overrides);
- *   ThemeManager.injectFullTheme(fullConfig);  // NEW
+ *   ThemeManager.injectFullTheme(fullConfig);
+ *   ThemeManager.setThemeMode('dark');  // v7.5.5
+ *   ThemeManager.toggleThemeMode();     // v7.5.5
  *
  * @module ThemeManager
  */
@@ -529,6 +537,97 @@ const ThemeManager = (function() {
         console.log('[ThemeManager] Deckster typography classes injected');
     }
 
+    // ==================== v7.5.5: Theme Mode (Dark/Light) ====================
+
+    /**
+     * Set the theme mode (light or dark)
+     *
+     * v7.5.5: Phase 1 CSS variable theming - enables dark/light mode toggle
+     * Works with theme-variables.css which defines :root.theme-dark selectors
+     *
+     * @param {string} mode - Theme mode: 'light' or 'dark'
+     * @returns {string} The applied mode
+     */
+    function setThemeMode(mode) {
+        const validModes = ['light', 'dark'];
+        const normalizedMode = (mode || 'light').toLowerCase();
+
+        if (!validModes.includes(normalizedMode)) {
+            console.warn(`[ThemeManager] Invalid theme mode: ${mode}. Using 'light'.`);
+            mode = 'light';
+        }
+
+        if (normalizedMode === 'dark') {
+            document.documentElement.classList.add('theme-dark');
+            document.documentElement.classList.add('theme-dark-mode');
+        } else {
+            document.documentElement.classList.remove('theme-dark');
+            document.documentElement.classList.remove('theme-dark-mode');
+        }
+
+        // Store in localStorage for persistence across page loads
+        try {
+            localStorage.setItem('deckster-theme-mode', normalizedMode);
+        } catch (e) {
+            // localStorage may not be available in some contexts
+        }
+
+        console.log(`[ThemeManager] Theme mode set to: ${normalizedMode}`);
+        return normalizedMode;
+    }
+
+    /**
+     * Get the current theme mode
+     *
+     * @returns {string} Current theme mode: 'light' or 'dark'
+     */
+    function getThemeMode() {
+        const hasDarkClass = document.documentElement.classList.contains('theme-dark') ||
+                            document.documentElement.classList.contains('theme-dark-mode');
+        return hasDarkClass ? 'dark' : 'light';
+    }
+
+    /**
+     * Toggle between light and dark mode
+     *
+     * @returns {string} The new mode after toggle
+     */
+    function toggleThemeMode() {
+        const currentMode = getThemeMode();
+        const newMode = currentMode === 'dark' ? 'light' : 'dark';
+        return setThemeMode(newMode);
+    }
+
+    /**
+     * Initialize theme mode from stored preference or system preference
+     *
+     * Call this on page load to restore user's theme mode preference
+     * Falls back to system preference if no stored preference exists
+     *
+     * @returns {string} The initialized theme mode
+     */
+    function initThemeMode() {
+        let mode = 'light';
+
+        // First, check localStorage
+        try {
+            const storedMode = localStorage.getItem('deckster-theme-mode');
+            if (storedMode && ['light', 'dark'].includes(storedMode)) {
+                mode = storedMode;
+            }
+        } catch (e) {
+            // localStorage may not be available
+        }
+
+        // If no stored preference, check system preference
+        if (!mode && window.matchMedia) {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            mode = prefersDark ? 'dark' : 'light';
+        }
+
+        return setThemeMode(mode);
+    }
+
     // Public API
     return {
         injectThemeStyles,
@@ -543,7 +642,12 @@ const ThemeManager = (function() {
         // v7.5.5: Deckster typography classes for Text Service
         generateDecksterClasses,
         generateAllDecksterClasses,
-        injectDecksterClasses
+        injectDecksterClasses,
+        // v7.5.5: Theme Mode (Dark/Light) - Phase 1 CSS variable theming
+        setThemeMode,
+        getThemeMode,
+        toggleThemeMode,
+        initThemeMode
     };
 })();
 

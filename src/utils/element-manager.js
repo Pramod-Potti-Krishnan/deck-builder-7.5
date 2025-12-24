@@ -943,11 +943,13 @@
       const layoutAttr = slide.dataset?.layout || slide.closest('[data-layout]')?.dataset?.layout || '';
       const isISeriesLayout = /^I[1-4]-/.test(layoutAttr);
       const borderRadius = isISeriesLayout ? '0' : '6px';
+      // I-series layouts use 'fill' to stretch image to complete grid cell
+      const objectFit = isISeriesLayout ? 'fill' : (config.objectFit || 'cover');
 
       container.innerHTML = `
         <div class="element-drag-handle"></div>
         <div class="element-content">
-          <img src="${config.imageUrl}" alt="${config.alt || ''}" style="width:100%;height:100%;object-fit:${config.objectFit || 'cover'};border-radius:${borderRadius};">
+          <img src="${config.imageUrl}" alt="${config.alt || ''}" style="width:100%;height:100%;object-fit:${objectFit};border-radius:${borderRadius};">
         </div>
         <button class="element-delete-button">×</button>
         <div class="resize-handle resize-handle-w"></div>
@@ -1085,7 +1087,13 @@
     }
 
     // Set new image
-    contentDiv.innerHTML = `<img src="${imageUrl}" alt="${alt || ''}" style="width:100%;height:100%;object-fit:${data.data.objectFit || 'cover'};border-radius:6px;">`;
+    // Check if I-series layout for object-fit and border-radius
+    const slide = element.closest('section[data-layout]');
+    const layoutAttr = slide?.dataset?.layout || '';
+    const isISeriesLayout = /^I[1-4]-/.test(layoutAttr);
+    const objectFit = isISeriesLayout ? 'fill' : (data.data.objectFit || 'cover');
+    const borderRadius = isISeriesLayout ? '0' : '6px';
+    contentDiv.innerHTML = `<img src="${imageUrl}" alt="${alt || ''}" style="width:100%;height:100%;object-fit:${objectFit};border-radius:${borderRadius};">`;
 
     // Update registry
     data.data.imageUrl = imageUrl;

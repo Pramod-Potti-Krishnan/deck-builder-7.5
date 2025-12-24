@@ -556,8 +556,8 @@
   right: 0 !important;
   bottom: 0 !important;           /* Fill entire parent container */
   /* Slightly oversized to account for subpixel rounding gaps */
-  width: 105% !important;
-  height: 105% !important;
+  width: 106% !important;
+  height: 106% !important;
   padding: 0 !important;
   margin: 0 !important;
   /* Override base flexbox centering that misaligns content */

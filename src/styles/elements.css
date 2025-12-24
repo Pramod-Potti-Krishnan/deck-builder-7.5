@@ -530,10 +530,13 @@ section[data-layout^="I4-"] .inserted-image {
   border: none !important;    /* Remove the 1px border from base .inserted-element-placeholder */
   padding: 0 !important;
   margin: 0 !important;
-  height: 100% !important;  /* Fill the grid cell completely */
+  height: 100% !important;    /* Fill the grid cell completely */
+  width: 100% !important;     /* Ensure full width */
+  min-height: 0 !important;   /* Allow vertical shrink for flex stretch */
+  min-width: 0 !important;    /* Allow horizontal shrink for flex stretch */
 }
 
-/* Target the .element-content child - MUST fill container height */
+/* Target the .element-content child - MUST fill container height AND width */
 section[data-layout^="I1-"] .inserted-image .element-content,
 section[data-layout^="I2-"] .inserted-image .element-content,
 section[data-layout^="I3-"] .inserted-image .element-content,
@@ -542,8 +545,11 @@ section[data-layout^="I4-"] .inserted-image .element-content {
   justify-content: stretch !important;
   padding: 0 !important;
   margin: 0 !important;
-  height: 100% !important;  /* Fill the container height */
-  flex: 1 !important;       /* Grow to fill available space in flex parent */
+  height: 100% !important;    /* Fill the container height */
+  width: 100% !important;     /* Fill the container width */
+  flex: 1 !important;         /* Grow to fill available space in flex parent */
+  min-height: 0 !important;   /* Critical for vertical flex stretch */
+  min-width: 0 !important;    /* Critical for horizontal flex stretch */
 }
 
 /* Target the img itself - use !important to override inline styles */
@@ -558,9 +564,12 @@ section[data-layout^="I4-"] .inserted-image img {
   border-radius: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  object-fit: fill !important;   /* fill allows stretching to full height */
+  object-fit: fill !important;    /* fill allows stretching to fill space */
   padding: 0 !important;
   margin: 0 !important;
+  min-height: 0 !important;       /* Allow vertical stretch */
+  min-width: 0 !important;        /* Allow horizontal stretch */
+  display: block !important;      /* Remove inline spacing */
 }
 
 /* Chart element content */

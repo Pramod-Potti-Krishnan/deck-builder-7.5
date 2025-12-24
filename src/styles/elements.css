@@ -521,36 +521,32 @@
 /* MUST use .reveal .slides prefix for specificity over borders.css rule */
 
 /* Target the parent .inserted-image container */
+/* Use position:relative to establish positioning context for absolute child */
 .reveal .slides section[data-layout^="I1-"] .inserted-image,
 .reveal .slides section[data-layout^="I2-"] .inserted-image,
 .reveal .slides section[data-layout^="I3-"] .inserted-image,
 .reveal .slides section[data-layout^="I4-"] .inserted-image {
-  align-items: stretch !important;
-  justify-content: stretch !important;
+  position: relative !important;  /* Positioning context for absolute child */
   border-radius: 0 !important;
-  border: none !important;    /* Remove the 1px border from base .inserted-element-placeholder */
+  border: none !important;        /* Remove the 1px border from base .inserted-element-placeholder */
   padding: 0 !important;
   margin: 0 !important;
-  height: 100% !important;    /* Fill the grid cell completely */
-  width: 100% !important;     /* Ensure full width */
-  min-height: 0 !important;   /* Allow vertical shrink for flex stretch */
-  min-width: 0 !important;    /* Allow horizontal shrink for flex stretch */
+  overflow: hidden !important;    /* Clip any overflow */
 }
 
-/* Target the .element-content child - MUST fill container height AND width */
+/* Target the .element-content child - Use absolute positioning to fill entire container */
+/* This bypasses the flexbox limitations (justify-content: stretch is NOT valid for flexbox) */
 .reveal .slides section[data-layout^="I1-"] .inserted-image .element-content,
 .reveal .slides section[data-layout^="I2-"] .inserted-image .element-content,
 .reveal .slides section[data-layout^="I3-"] .inserted-image .element-content,
 .reveal .slides section[data-layout^="I4-"] .inserted-image .element-content {
-  align-items: stretch !important;
-  justify-content: stretch !important;
+  position: absolute !important;  /* Take out of flexbox flow */
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;           /* Fill entire parent container */
   padding: 0 !important;
   margin: 0 !important;
-  height: 100% !important;    /* Fill the container height */
-  width: 100% !important;     /* Fill the container width */
-  flex: 1 !important;         /* Grow to fill available space in flex parent */
-  min-height: 0 !important;   /* Critical for vertical flex stretch */
-  min-width: 0 !important;    /* Critical for horizontal flex stretch */
 }
 
 /* Target the img itself - use !important to override inline styles */

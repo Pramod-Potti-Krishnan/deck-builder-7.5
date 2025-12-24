@@ -556,8 +556,8 @@
   right: 0 !important;
   bottom: 0 !important;           /* Fill entire parent container */
   /* Slightly oversized to account for subpixel rounding gaps */
-  width: 101% !important;
-  height: 101% !important;
+  width: 105% !important;
+  height: 105% !important;
   padding: 0 !important;
   margin: 0 !important;
   /* Override base flexbox centering that misaligns content */
@@ -577,8 +577,8 @@
 .reveal .slides section[data-layout^="I3-"] .inserted-image img,
 .reveal .slides section[data-layout^="I4-"] .inserted-image img {
   border-radius: 0 !important;
-  width: 101% !important;         /* Slightly oversized to cover subpixel gaps */
-  height: 101% !important;        /* Slightly oversized to cover subpixel gaps */
+  width: 105% !important;         /* Slightly oversized to cover subpixel gaps */
+  height: 105% !important;        /* Slightly oversized to cover subpixel gaps */
   object-fit: fill !important;    /* fill allows stretching to fill space */
   padding: 0 !important;
   margin: 0 !important;

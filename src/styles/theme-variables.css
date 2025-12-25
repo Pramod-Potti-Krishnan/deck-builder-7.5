@@ -121,6 +121,7 @@
   --box-3-bg: #78350f;
   --box-4-bg: #831843;
   --box-5-bg: #4c1d95;
+  --box-6-bg: #9a3412;
 
   /* Borders (darker variants) */
   --border-default: #4b5563;
@@ -156,6 +157,7 @@
   --box-3-bg: #fef3c7;
   --box-4-bg: #fce7f3;
   --box-5-bg: #ede9fe;
+  --box-6-bg: #fed7aa;
 
   /* Borders */
   --border-default: #d1d5db;

@@ -366,11 +366,22 @@
         element.dataset.parentSlideId = slideId;
         element.dataset.slotName = slotName;
 
-        // Fix inner content div for flex alignment
+        // Fix inner content div for flex alignment and height propagation
         const contentDiv = element.querySelector('.textbox-content');
         if (contentDiv) {
-          contentDiv.style.minHeight = 'auto';
-          contentDiv.style.height = 'auto';
+          // For content/body slots, maintain height: 100% so template HTML can fill the space
+          // For other slots (title, subtitle, footer), use auto to allow flex positioning
+          const isContentSlot = slotName === 'content' || slotName === 'body' ||
+                                slotName === 'content_left' || slotName === 'content_right';
+          if (isContentSlot) {
+            // Content slots need height inheritance for template grids to work
+            contentDiv.style.height = '100%';
+            contentDiv.style.minHeight = '100%';
+          } else {
+            // Other slots (title, subtitle, footer) use auto for flex positioning
+            contentDiv.style.minHeight = 'auto';
+            contentDiv.style.height = 'auto';
+          }
           if (slotStyle.color) {
             contentDiv.style.color = slotStyle.color;
           }

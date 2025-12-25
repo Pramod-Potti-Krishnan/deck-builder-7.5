@@ -96,8 +96,8 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
       </div>
       ` : ''}
 
-      <!-- Logo (top-right corner, 2×2 grid) -->
-      ${(content.logo || content.company_logo || template?.slots?.logo?.defaultText) ? `
+      <!-- Logo (top-right corner, 2×2 grid) - only rendered when content provided -->
+      ${(content.logo || content.company_logo) ? `
       <div class="logo"
            ${window.buildSlotAttributes('logo', slideIndex)}
            style="${window.buildSlotStyle(templateId, 'logo', {
@@ -106,7 +106,7 @@ function buildContentSlide(templateId, content, slide, slideIndex, contentSlotNa
              'justify-content': 'center'
            })}">
         <div style="max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center;">
-          ${content.logo || content.company_logo || (template?.slots?.logo?.defaultText || '')}
+          ${content.logo || content.company_logo}
         </div>
       </div>
       ` : ''}

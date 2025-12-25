@@ -377,6 +377,9 @@
             // Content slots need height inheritance for template grids to work
             contentDiv.style.height = '100%';
             contentDiv.style.minHeight = '100%';
+            // Add bottom padding to prevent content from stretching into footer
+            contentDiv.style.paddingBottom = '30px';
+            contentDiv.style.boxSizing = 'border-box';
           } else {
             // Other slots (title, subtitle, footer) use auto for flex positioning
             contentDiv.style.minHeight = 'auto';

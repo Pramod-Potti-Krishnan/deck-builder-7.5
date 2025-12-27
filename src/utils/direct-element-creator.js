@@ -577,6 +577,14 @@
   function createInfographic(ctx) {
     const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
 
+    // DEBUG: Log what content we received
+    console.log(`[DirectElementCreator] createInfographic called for slot '${slotName}'`);
+    console.log(`[DirectElementCreator] content keys:`, content ? Object.keys(content) : 'null');
+    console.log(`[DirectElementCreator] infographic_html exists:`, !!content?.infographic_html);
+    if (content?.infographic_html) {
+      console.log(`[DirectElementCreator] infographic_html length:`, content.infographic_html.length);
+    }
+
     // Generate element ID based on architecture mode
     const elementId = useLegacyIds
       ? generateLegacyElementId(slideIndex, slotName)
@@ -584,6 +592,7 @@
 
     // Extract infographic content from the content object
     const infographicContent = getInfographicContent(slotName, content);
+    console.log(`[DirectElementCreator] getInfographicContent returned:`, infographicContent ? `${infographicContent.substring(0, 100)}...` : 'null');
 
     const config = {
       id: elementId,

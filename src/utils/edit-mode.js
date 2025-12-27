@@ -167,7 +167,10 @@ function enableContentEditing() {
       '.hero-content-area',
       '.body-primary',
       '.body-secondary',
-      '.textbox-content'  // Text boxes must be editable in edit mode
+      '.textbox-content',  // Text boxes must be editable in edit mode
+      // Infographic and Diagram HTML content (v7.5.3)
+      '.inserted-infographic:not(.inserted-element-placeholder) .element-content',
+      '.inserted-diagram:not(.inserted-element-placeholder) .element-content'
     ];
 
     editableSelectors.forEach(selector => {

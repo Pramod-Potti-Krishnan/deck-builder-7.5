@@ -21,7 +21,7 @@ echo -e "\n${YELLOW}Test 1: Creating presentation with C4-infographic${NC}"
 RESPONSE=$(curl -s -X POST "$BASE_URL/api/presentations" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Infographic Test",
+    "title": "Infographic Test",
     "slides": [{
       "layout": "C4-infographic",
       "content": {
@@ -48,7 +48,7 @@ if [ -n "$PRES_ID" ] && [ "$PRES_ID" != "null" ]; then
   fi
 
   # Open in browser for visual verification
-  VIEWER_URL="$BASE_URL/viewer/presentation-viewer.html?id=$PRES_ID"
+  VIEWER_URL="$BASE_URL/p/$PRES_ID"
   echo -e "${YELLOW}→ View presentation: $VIEWER_URL${NC}"
 
   INFOGRAPHIC_PRES_ID=$PRES_ID
@@ -63,7 +63,7 @@ echo -e "\n${YELLOW}Test 2: Creating presentation with C5-diagram${NC}"
 RESPONSE=$(curl -s -X POST "$BASE_URL/api/presentations" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Diagram Test",
+    "title": "Diagram Test",
     "slides": [{
       "layout": "C5-diagram",
       "content": {
@@ -90,7 +90,7 @@ if [ -n "$PRES_ID" ] && [ "$PRES_ID" != "null" ]; then
   fi
 
   # Open in browser for visual verification
-  VIEWER_URL="$BASE_URL/viewer/presentation-viewer.html?id=$PRES_ID"
+  VIEWER_URL="$BASE_URL/p/$PRES_ID"
   echo -e "${YELLOW}→ View presentation: $VIEWER_URL${NC}"
 
   DIAGRAM_PRES_ID=$PRES_ID
@@ -105,7 +105,7 @@ echo -e "\n${YELLOW}Test 3: Creating presentation with both C4 and C5 slides${NC
 RESPONSE=$(curl -s -X POST "$BASE_URL/api/presentations" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Combined Infographic & Diagram Test",
+    "title": "Combined Infographic & Diagram Test",
     "slides": [
       {
         "layout": "C4-infographic",
@@ -128,7 +128,7 @@ PRES_ID=$(echo $RESPONSE | jq -r '.id // .presentation_id // empty')
 
 if [ -n "$PRES_ID" ] && [ "$PRES_ID" != "null" ]; then
   echo -e "${GREEN}✓ Created combined presentation: $PRES_ID${NC}"
-  VIEWER_URL="$BASE_URL/viewer/presentation-viewer.html?id=$PRES_ID"
+  VIEWER_URL="$BASE_URL/p/$PRES_ID"
   echo -e "${YELLOW}→ View presentation: $VIEWER_URL${NC}"
 else
   echo -e "${RED}✗ Failed to create combined presentation${NC}"

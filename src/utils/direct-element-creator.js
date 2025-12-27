@@ -566,7 +566,7 @@
   }
 
   /**
-   * Create an Infographic element (placeholder)
+   * Create an Infographic element (placeholder or content mode)
    * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
   function createInfographic(ctx) {
@@ -576,6 +576,9 @@
     const elementId = useLegacyIds
       ? generateLegacyElementId(slideIndex, slotName)
       : generateElementId(slideId, 'infographic');
+
+    // Extract infographic content from the content object
+    const infographicContent = getInfographicContent(slotName, content);
 
     const config = {
       id: elementId,
@@ -587,13 +590,17 @@
       },
       draggable: true,
       resizable: true,
-      zIndex: getZIndexForSlot(slotName)
+      zIndex: getZIndexForSlot(slotName),
+      // Pass the content - if null, ElementManager shows placeholder
+      svgContent: infographicContent
     };
 
     const result = window.ElementManager.insertInfographic(slideIndex, config);
 
     if (result.success) {
-      console.log(`[DirectElementCreator] Created Infographic: ${result.elementId}`);
+      // Log whether content or placeholder mode
+      const mode = infographicContent ? 'content' : 'placeholder';
+      console.log(`[DirectElementCreator] Created Infographic (${mode}): ${result.elementId}`);
 
       // Set data attributes for UUID architecture
       const element = document.getElementById(result.elementId);
@@ -607,7 +614,7 @@
   }
 
   /**
-   * Create a Diagram element (placeholder)
+   * Create a Diagram element (placeholder or content mode)
    * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
    */
   function createDiagram(ctx) {
@@ -617,6 +624,9 @@
     const elementId = useLegacyIds
       ? generateLegacyElementId(slideIndex, slotName)
       : generateElementId(slideId, 'diagram');
+
+    // Extract diagram content from the content object
+    const diagramContent = getDiagramContent(slotName, content);
 
     const config = {
       id: elementId,
@@ -628,13 +638,17 @@
       },
       draggable: true,
       resizable: true,
-      zIndex: getZIndexForSlot(slotName)
+      zIndex: getZIndexForSlot(slotName),
+      // Pass the content - if null, ElementManager shows placeholder
+      svgContent: diagramContent
     };
 
     const result = window.ElementManager.insertDiagram(slideIndex, config);
 
     if (result.success) {
-      console.log(`[DirectElementCreator] Created Diagram: ${result.elementId}`);
+      // Log whether content or placeholder mode
+      const mode = diagramContent ? 'content' : 'placeholder';
+      console.log(`[DirectElementCreator] Created Diagram (${mode}): ${result.elementId}`);
 
       // Set data attributes for UUID architecture
       const element = document.getElementById(result.elementId);
@@ -877,6 +891,61 @@
     }
 
     return null;  // Default: placeholder mode
+  }
+
+  /**
+   * Get infographic content (SVG/HTML) for a slot from the content object
+   * Returns null if no valid content, which triggers placeholder mode
+   */
+  function getInfographicContent(slotName, content) {
+    if (!content) return null;
+
+    // For C4-infographic and V4-infographic-text layouts
+    // Support multiple field names for flexibility
+    if (slotName === 'content' || slotName === 'infographic') {
+      return content.infographic_html ||    // API documented field
+             content.infographic_svg ||     // Server default field
+             content.svg_content ||         // InfographicElement model field
+             content.html_content ||        // InfographicElement alt field
+             null;
+    }
+
+    // For V4-infographic-text (visual left)
+    if (slotName === 'visual_left' || slotName === 'visual') {
+      return content.infographic_html ||
+             content.visual_left_html ||
+             content.infographic_svg ||
+             null;
+    }
+
+    return null;
+  }
+
+  /**
+   * Get diagram content (SVG/HTML) for a slot from the content object
+   * Returns null if no valid content, which triggers placeholder mode
+   */
+  function getDiagramContent(slotName, content) {
+    if (!content) return null;
+
+    // For C5-diagram and V3-diagram-text layouts
+    if (slotName === 'content' || slotName === 'diagram') {
+      return content.diagram_html ||     // API documented field
+             content.diagram_svg ||      // Alternative field
+             content.svg_content ||      // DiagramElement model field
+             content.mermaid_svg ||      // Mermaid rendered output
+             null;
+    }
+
+    // For V3-diagram-text (visual left)
+    if (slotName === 'visual_left' || slotName === 'visual') {
+      return content.diagram_html ||
+             content.visual_left_html ||
+             content.diagram_svg ||
+             null;
+    }
+
+    return null;
   }
 
   /**

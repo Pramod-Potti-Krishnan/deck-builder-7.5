@@ -1,8 +1,13 @@
 /**
- * Direct Element Creator - v7.5.1 UUID Architecture
+ * Direct Element Creator - v7.5.2 Infographic/Diagram Content Support
  *
  * Simple approach: Instead of converting HTML slot elements to Element Types,
  * directly create elements using ElementManager with properties from template registry.
+ *
+ * v7.5.2 Changes (Dec 27, 2025):
+ * - Fixed C4-infographic and C5-diagram to render HTML content instead of placeholder
+ * - Added getInfographicContent() and getDiagramContent() helpers
+ * - Now passes svgContent to ElementManager for content mode rendering
  *
  * v7.5.1 Changes:
  * - UUID-based element IDs: {slide_id}_{type}_{uuid8} instead of slide-{index}-{slot}

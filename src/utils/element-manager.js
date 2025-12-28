@@ -558,7 +558,24 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.chartHtml) {
+        // v7.5.3: Execute embedded scripts from chart_html
+        // innerHTML doesn't execute scripts (browser security), so we need to re-create them
         contentDiv.innerHTML = config.chartHtml;
+
+        // Find all script tags and re-execute them
+        const scripts = contentDiv.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+          const newScript = document.createElement('script');
+          // Copy attributes (src, type, etc.)
+          Array.from(oldScript.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          // Copy inline script content
+          newScript.textContent = oldScript.textContent;
+          // Replace old script with new one (this triggers execution)
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+        console.log(`[ElementManager] Chart inserted with script execution (${scripts.length} scripts)`);
       } else if (config.chartConfig && typeof Chart !== 'undefined') {
         // Create canvas for Chart.js
         const canvas = document.createElement('canvas');

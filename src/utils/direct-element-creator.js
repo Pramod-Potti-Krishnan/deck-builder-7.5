@@ -152,6 +152,9 @@
 
     console.log(`[DirectElementCreator] Creating elements for ${templateId} on slide ${slideIndex} (slide_id: ${slideId}, legacy: ${useLegacyIds})`);
 
+    // v7.5.5: Get slide object from presentation for slide-level fields (e.g., background_image)
+    const slide = presentation?.slides?.[slideIndex] || {};
+
     // Create each element from the template slots
     Object.entries(template.slots).forEach(([slotName, slotDef]) => {
       // CHECK: Does this element already exist (from restore phase)?
@@ -196,7 +199,8 @@
         content,
         useLegacyIds,
         presentation,   // For derivative elements (footer/logo)
-        totalSlides     // For footer {total} variable
+        totalSlides,    // For footer {total} variable
+        slide           // v7.5.5: For slide-level fields (background_image)
       };
 
       switch (elementType) {
@@ -402,10 +406,10 @@
 
   /**
    * Create an Image element
-   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, totalSlides }
+   * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, totalSlides, slide }
    */
   function createImage(ctx) {
-    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation } = ctx;
+    const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, slide } = ctx;
 
     // Check for derivative logo (presentation-level logo config)
     let imageUrl;
@@ -413,7 +417,8 @@
       imageUrl = presentation.derivative_elements.logo.image_url;
       console.log(`[DirectElementCreator] Using derivative logo for slide ${slideIndex}: "${imageUrl}"`);
     } else {
-      imageUrl = getImageUrl(slotName, content);
+      // v7.5.5: Pass slide object for slide-level fields like background_image
+      imageUrl = getImageUrl(slotName, content, slide);
     }
 
     // Handle text/emoji logos (non-URL content like emojis or HTML)
@@ -847,16 +852,22 @@
   /**
    * Get image URL for a slot from the content object
    * Returns null if no valid URL, which triggers placeholder mode
+   *
+   * @param {string} slotName - The slot name
+   * @param {Object} content - Content object from slide
+   * @param {Object} [slide] - Optional slide object (for slide-level fields like background_image)
    */
-  function getImageUrl(slotName, content) {
+  function getImageUrl(slotName, content, slide = {}) {
     if (!content) return null;
 
     // Helper to validate URL
     const isValidHttpUrl = (url) => url && typeof url === 'string' && url.startsWith('http');
 
     // Hero template background slot (H1, H2, H3)
+    // IMPORTANT: background_image is stored at SLIDE level, not in content
     if (slotName === 'background') {
-      const url = content.background_image || content.hero_image || content.image_url;
+      const url = slide?.background_image || content.background_image || content.hero_image || content.image_url;
+      console.log(`[DirectElementCreator] getImageUrl background: slide.background_image="${slide?.background_image}", content.background_image="${content.background_image}", result="${url}"`);
       return isValidHttpUrl(url) ? url : null;
     }
 

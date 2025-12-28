@@ -28,15 +28,19 @@ function renderL02(content, slide = {}, slideIndex = 0) {
   // Helper function to detect if content contains HTML
   const isHTML = (str) => str && str.includes('<');
 
+  // v7.5.2: Support chart_html, diagram_html, and element_3 as aliases for the left diagram/chart container
+  // This allows Director to send chart_html (Analytics Service) or diagram_html (Diagram Service)
+  const diagramChartContent = content.element_3 || content.chart_html || content.diagram_html || '';
+
   // Detect content types
-  const element3IsHTML = isHTML(content.element_3);
+  const element3IsHTML = isHTML(diagramChartContent);
   const element2IsHTML = isHTML(content.element_2);
 
   // Build element_3 (diagram/chart) content
   // Grid: row 5/17 (720px), column 2/23 (1260px)
   const element3Content = element3IsHTML
-    ? content.element_3 || ''  // HTML: render as-is
-    : `<div style="font-size: 20px; color: #374151; line-height: 1.6;">${content.element_3 || ''}</div>`;  // Plain text: wrap with styling
+    ? diagramChartContent  // HTML: render as-is
+    : `<div style="font-size: 20px; color: #374151; line-height: 1.6;">${diagramChartContent}</div>`;  // Plain text: wrap with styling
 
   // Build element_2 (observations/text) content
   // Grid: row 5/17 (720px), column 23/32 (540px) - adjusted from 24/32 to match Analytics expectations

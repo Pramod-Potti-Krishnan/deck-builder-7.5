@@ -535,8 +535,11 @@
   }
 
   /**
-   * Create a Chart element (placeholder)
+   * Create a Chart element (placeholder or content mode)
    * @param {Object} ctx - Element context { slideIndex, slideId, slotName, slotDef, content, useLegacyIds }
+   *
+   * v7.5.2: Updated to support chart HTML content from Analytics Service
+   * Now extracts chart_html from content and passes to ElementManager for content mode rendering
    */
   function createChart(ctx) {
     const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds } = ctx;
@@ -545,6 +548,9 @@
     const elementId = useLegacyIds
       ? generateLegacyElementId(slideIndex, slotName)
       : generateElementId(slideId, 'chart');
+
+    // Extract chart content from the content object
+    const chartContent = getChartContent(slotName, content);
 
     const config = {
       id: elementId,
@@ -556,13 +562,17 @@
       },
       draggable: true,
       resizable: true,
-      zIndex: getZIndexForSlot(slotName)
+      zIndex: getZIndexForSlot(slotName),
+      // v7.5.2: Pass the content - if null, ElementManager shows placeholder
+      chartHtml: chartContent
     };
 
     const result = window.ElementManager.insertChart(slideIndex, config);
 
     if (result.success) {
-      console.log(`[DirectElementCreator] Created Chart: ${result.elementId}`);
+      // Log whether content or placeholder mode
+      const mode = chartContent ? 'content' : 'placeholder';
+      console.log(`[DirectElementCreator] Created Chart (${mode}): ${result.elementId}`);
 
       // Set data attributes for UUID architecture
       const element = document.getElementById(result.elementId);
@@ -958,6 +968,35 @@
       return content.diagram_html ||
              content.visual_left_html ||
              content.diagram_svg ||
+             null;
+    }
+
+    return null;
+  }
+
+  /**
+   * Get chart content (HTML) for a slot from the content object
+   * Returns null if no valid content, which triggers placeholder mode
+   *
+   * v7.5.2: Added to fix analytics slides (C3-chart, V2-chart-text) rendering placeholders
+   * Follows the same pattern as getInfographicContent() and getDiagramContent()
+   */
+  function getChartContent(slotName, content) {
+    if (!content) return null;
+
+    // For C3-chart and V2-chart-text layouts
+    // C3-chart uses 'content' slot, V2-chart-text uses 'content_left' slot
+    if (slotName === 'content' || slotName === 'content_left' || slotName === 'chart') {
+      return content.chart_html ||        // API documented field
+             content.analytics_html ||    // Alternative field name
+             content.element_4 ||         // L-series element mapping
+             null;
+    }
+
+    // For visual slots (V2-chart-text visual left alternative naming)
+    if (slotName === 'visual_left' || slotName === 'visual') {
+      return content.chart_html ||
+             content.visual_left_html ||
              null;
     }
 

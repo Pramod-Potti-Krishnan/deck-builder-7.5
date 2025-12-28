@@ -486,6 +486,20 @@
   border-color: #3b82f6 !important;
 }
 
+/* v7.5.x: Remove border from chart elements for cleaner presentation view */
+/* Charts should blend seamlessly without decorative borders */
+.inserted-chart:not(.placeholder-mode) {
+  border: none !important;
+}
+
+.inserted-chart:not(.placeholder-mode):hover {
+  border: none !important;
+}
+
+.inserted-chart:not(.placeholder-mode).element-selected {
+  border: none !important;
+}
+
 /* Hide placeholder content when actual content is loaded */
 .inserted-image:not(.placeholder-mode) .element-placeholder-content,
 .inserted-chart:not(.placeholder-mode) .element-placeholder-content,

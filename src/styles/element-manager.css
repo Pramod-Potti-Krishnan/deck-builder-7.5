@@ -105,12 +105,14 @@
 }
 
 /* ===== CHART ELEMENTS ===== */
+/* v7.5.x: Removed decorative styling (background, border-radius, padding, box-shadow) */
+/* Charts should blend seamlessly into presentations without visual containers */
 
 .inserted-chart {
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
   overflow: visible;
 }
 

@@ -133,27 +133,28 @@ body[data-mode="edit"] .editable {
   cursor: text;
 }
 
-/* ==================== Infographic/Diagram Editable Content (v7.5.3) ==================== */
+/* ==================== Infographic/Diagram Editable Content (v7.5.4) ==================== */
 
-/* Make infographic/diagram text content editable in edit mode */
-body[data-mode="edit"] .inserted-infographic .element-content[contenteditable="true"],
-body[data-mode="edit"] .inserted-diagram .element-content[contenteditable="true"] {
+/* Make individual text elements editable inside infographic/diagram content */
+/* Using generic selector to match any editable child element */
+body[data-mode="edit"] .inserted-infographic .element-content [contenteditable="true"],
+body[data-mode="edit"] .inserted-diagram .element-content [contenteditable="true"] {
   cursor: text;
   user-select: text;
 }
 
-/* Focus indicator for infographic/diagram content */
-body[data-mode="edit"] .inserted-infographic .element-content[contenteditable="true"]:focus,
-body[data-mode="edit"] .inserted-diagram .element-content[contenteditable="true"]:focus {
+/* Focus indicator for individual text elements */
+body[data-mode="edit"] .inserted-infographic .element-content [contenteditable="true"]:focus,
+body[data-mode="edit"] .inserted-diagram .element-content [contenteditable="true"]:focus {
   outline: 2px dashed rgba(59, 130, 246, 0.6);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
-/* Hover indicator */
-body[data-mode="edit"] .inserted-infographic .element-content[contenteditable="true"]:hover,
-body[data-mode="edit"] .inserted-diagram .element-content[contenteditable="true"]:hover {
+/* Hover indicator for individual text elements */
+body[data-mode="edit"] .inserted-infographic .element-content [contenteditable="true"]:hover,
+body[data-mode="edit"] .inserted-diagram .element-content [contenteditable="true"]:hover {
   outline: 1px dashed rgba(156, 163, 175, 0.5);
-  outline-offset: -1px;
+  outline-offset: 1px;
 }
 
 /* ==================== Notification System ==================== */

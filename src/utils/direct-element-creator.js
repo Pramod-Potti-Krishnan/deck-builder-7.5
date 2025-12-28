@@ -992,6 +992,7 @@
     if (slotName === 'content' || slotName === 'content_left' || slotName === 'chart') {
       return content.chart_html ||        // API documented field
              content.analytics_html ||    // Alternative field name
+             content.element_3 ||         // V2/C3 Analytics Service alias
              content.element_4 ||         // L-series element mapping
              null;
     }

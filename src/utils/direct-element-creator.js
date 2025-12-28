@@ -950,12 +950,15 @@
   /**
    * Get diagram content (SVG/HTML) for a slot from the content object
    * Returns null if no valid content, which triggers placeholder mode
+   *
+   * v7.5.3 Fix: Added content_left support for V3-diagram-text layout
    */
   function getDiagramContent(slotName, content) {
     if (!content) return null;
 
     // For C5-diagram and V3-diagram-text layouts
-    if (slotName === 'content' || slotName === 'diagram') {
+    // v7.5.3: Added 'content_left' for V3-diagram-text (slot name is content_left, tag is diagram)
+    if (slotName === 'content' || slotName === 'diagram' || slotName === 'content_left') {
       return content.diagram_html ||     // API documented field
              content.diagram_svg ||      // Alternative field
              content.svg_content ||      // DiagramElement model field
@@ -963,7 +966,7 @@
              null;
     }
 
-    // For V3-diagram-text (visual left)
+    // For V3-diagram-text (visual left) - alternative slot names
     if (slotName === 'visual_left' || slotName === 'visual') {
       return content.diagram_html ||
              content.visual_left_html ||

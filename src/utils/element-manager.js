@@ -142,6 +142,62 @@
     return null;
   }
 
+  // ===== SCRIPT EXECUTION HELPER =====
+
+  /**
+   * Execute scripts sequentially, waiting for external scripts to load
+   *
+   * v7.5.4: Fix for chart edit button not working in C3/V2 templates
+   * Problem: When using innerHTML to insert chart_html, scripts don't execute automatically.
+   * The previous fix (v7.5.3) re-created script elements, but external scripts (with src attribute)
+   * load asynchronously. This caused the editor function definition script to execute before
+   * the external editor library finished loading.
+   *
+   * Solution: Execute scripts in order, using async/await to wait for external scripts to load
+   * before continuing to the next script.
+   *
+   * @param {HTMLElement} contentDiv - Container element with scripts to execute
+   * @returns {Promise<void>} Resolves when all scripts have executed
+   */
+  async function executeScriptsSequentially(contentDiv) {
+    const scripts = Array.from(contentDiv.querySelectorAll('script'));
+    let externalCount = 0;
+    let inlineCount = 0;
+
+    for (const oldScript of scripts) {
+      const newScript = document.createElement('script');
+
+      // Copy all attributes (src, type, async, defer, etc.)
+      Array.from(oldScript.attributes).forEach(attr => {
+        newScript.setAttribute(attr.name, attr.value);
+      });
+
+      if (oldScript.src) {
+        // External script - wait for load before continuing
+        externalCount++;
+        await new Promise((resolve, reject) => {
+          newScript.onload = () => {
+            console.log(`[ElementManager] External script loaded: ${oldScript.src.split('/').pop()}`);
+            resolve();
+          };
+          newScript.onerror = (err) => {
+            console.error(`[ElementManager] External script failed to load: ${oldScript.src}`);
+            // Resolve anyway to continue with other scripts (don't break the chain)
+            resolve();
+          };
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+      } else {
+        // Inline script - copy content and execute immediately
+        inlineCount++;
+        newScript.textContent = oldScript.textContent;
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      }
+    }
+
+    console.log(`[ElementManager] Scripts executed sequentially (${inlineCount} inline, ${externalCount} external)`);
+  }
+
   // ===== INSERT SHAPE =====
 
   /**
@@ -558,24 +614,16 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.chartHtml) {
-        // v7.5.3: Execute embedded scripts from chart_html
-        // innerHTML doesn't execute scripts (browser security), so we need to re-create them
+        // v7.5.4: Execute embedded scripts from chart_html sequentially
+        // This replaces the v7.5.3 fix which didn't wait for external scripts to load.
+        // External scripts (like chart-spreadsheet-editor.js) must finish loading before
+        // the editor function definition script runs, otherwise openChartEditor() is undefined.
         contentDiv.innerHTML = config.chartHtml;
 
-        // Find all script tags and re-execute them
-        const scripts = contentDiv.querySelectorAll('script');
-        scripts.forEach(oldScript => {
-          const newScript = document.createElement('script');
-          // Copy attributes (src, type, etc.)
-          Array.from(oldScript.attributes).forEach(attr => {
-            newScript.setAttribute(attr.name, attr.value);
-          });
-          // Copy inline script content
-          newScript.textContent = oldScript.textContent;
-          // Replace old script with new one (this triggers execution)
-          oldScript.parentNode.replaceChild(newScript, oldScript);
+        // Execute scripts in order, waiting for external scripts to load
+        executeScriptsSequentially(contentDiv).catch(err => {
+          console.error('[ElementManager] Script execution error:', err);
         });
-        console.log(`[ElementManager] Chart inserted with script execution (${scripts.length} scripts)`);
       } else if (config.chartConfig && typeof Chart !== 'undefined') {
         // Create canvas for Chart.js
         const canvas = document.createElement('canvas');
@@ -839,8 +887,13 @@
       element.chartInstance = null;
     }
 
-    // Set HTML content
+    // v7.5.4: Set HTML content and execute scripts sequentially
     contentDiv.innerHTML = chartHtml;
+
+    // Execute scripts in order, waiting for external scripts to load
+    executeScriptsSequentially(contentDiv).catch(err => {
+      console.error('[ElementManager] Script execution error in setChartHtml:', err);
+    });
 
     // Update registry
     data.data.chartHtml = chartHtml;

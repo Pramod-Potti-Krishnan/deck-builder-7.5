@@ -148,6 +148,14 @@
   opacity: 1;
 }
 
+/* v7.5.4: Show drag handle for diagram/infographic in content mode (non-placeholder) */
+.inserted-diagram:not(.placeholder-mode):hover .element-drag-handle,
+.inserted-diagram:not(.placeholder-mode).element-selected .element-drag-handle,
+.inserted-infographic:not(.placeholder-mode):hover .element-drag-handle,
+.inserted-infographic:not(.placeholder-mode).element-selected .element-drag-handle {
+  opacity: 1;
+}
+
 /* 3×3 dot grid using box-shadow */
 .element-drag-handle::after {
   content: '';
@@ -206,7 +214,22 @@
   opacity: 1;
 }
 
+/* v7.5.4: Show delete button for diagram/infographic in content mode (non-placeholder) */
+.inserted-diagram:not(.placeholder-mode):hover .element-delete-button,
+.inserted-diagram:not(.placeholder-mode).element-selected .element-delete-button,
+.inserted-infographic:not(.placeholder-mode):hover .element-delete-button,
+.inserted-infographic:not(.placeholder-mode).element-selected .element-delete-button {
+  opacity: 1;
+}
+
 .inserted-element-placeholder .element-delete-button:hover {
+  transform: scale(1.15);
+  background: #dc2626;
+}
+
+/* v7.5.4: Delete button hover for diagram/infographic in content mode */
+.inserted-diagram:not(.placeholder-mode) .element-delete-button:hover,
+.inserted-infographic:not(.placeholder-mode) .element-delete-button:hover {
   transform: scale(1.15);
   background: #dc2626;
 }
@@ -300,6 +323,111 @@
 }
 
 .inserted-element-placeholder .resize-handle-se::before {
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  cursor: nwse-resize;
+}
+
+/* v7.5.4: Resize handles for diagram/infographic in content mode (non-placeholder) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle,
+.inserted-infographic:not(.placeholder-mode) .resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid #000000;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1001;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.inserted-diagram:not(.placeholder-mode).element-selected .resize-handle,
+.inserted-infographic:not(.placeholder-mode).element-selected .resize-handle {
+  opacity: 1;
+  visibility: visible;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle:hover,
+.inserted-infographic:not(.placeholder-mode) .resize-handle:hover {
+  background: #e5e7eb;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle::before {
+  content: '';
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* Left handle (w) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-w,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-w {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-w::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-w::before {
+  top: -12px;
+  left: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
+/* Right handle (e) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-e,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-e {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-e::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-e::before {
+  top: -12px;
+  right: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
+/* Bottom handle (s) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-s,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-s::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-s::before {
+  left: -12px;
+  bottom: 0;
+  width: 36px;
+  height: 24px;
+  cursor: ns-resize;
+}
+
+/* Bottom-right corner (se) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-se,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-se {
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-se::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-se::before {
   right: 0;
   bottom: 0;
   width: 30px;

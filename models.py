@@ -1625,6 +1625,20 @@ class SlideContentUpdate(BaseModel):
         description="List of content elements on this slide (L-series main content areas)"
     )
 
+    # Template content fields (V2-chart-text, etc.) - v3.4.29
+    chart_html: Optional[str] = Field(
+        None,
+        description="Chart HTML content for V2-chart-text layout"
+    )
+    body: Optional[str] = Field(
+        None,
+        description="Body/Key Insights HTML content"
+    )
+    footer_text: Optional[str] = Field(
+        None,
+        description="Footer text content"
+    )
+
 
 class PresentationMetadataUpdate(BaseModel):
     """Model for updating presentation metadata."""

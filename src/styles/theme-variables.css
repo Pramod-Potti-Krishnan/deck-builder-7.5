@@ -138,6 +138,13 @@
   --accent-purple: #a78bfa;
   --accent-amber: #fbbf24;
 
+  /* Accent text colors - light/pastel for dark backgrounds (close to white with color tinge) */
+  --accent-text-purple: #e6d2f5;
+  --accent-text-blue: #b4dcff;
+  --accent-text-red: #ffc8c3;
+  --accent-text-green: #b4f5d2;
+  --accent-text-yellow: #fff0be;
+
   /* Component backgrounds (dark variants) - 60% transparent for dark mode */
   --sidebar-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(30, 45, 77, 0.4) 100%);
 }
@@ -173,6 +180,13 @@
   --accent-red: #dc2626;
   --accent-purple: #667eea;
   --accent-amber: #f59e0b;
+
+  /* Accent text colors - for colored headings in content boxes (dark colors for light mode) */
+  --accent-text-purple: #805aa0;
+  --accent-text-blue: #2980b9;
+  --accent-text-red: #c0392b;
+  --accent-text-green: #27ae60;
+  --accent-text-yellow: #d39e1e;
 
   /* Component backgrounds */
   --sidebar-bg: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);

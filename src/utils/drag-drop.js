@@ -29,6 +29,10 @@
   let currentSlide = null;
   let gridSnapEnabled = true;
 
+  // Pending drag state (for threshold-based drag detection)
+  let pendingDrag = null;  // { element, elementId, startX, startY, isTextBox }
+  const DRAG_THRESHOLD = 5;  // pixels - must move this far to start dragging
+
   // ===== MAKE ELEMENT DRAGGABLE =====
 
   /**
@@ -61,10 +65,7 @@
    * @param {MouseEvent} e - Mouse event
    */
   function handleDragStart(e) {
-    // Don't drag if clicking on interactive elements (except textbox drag handles)
-    if (e.target.closest('[contenteditable="true"]') && !e.target.closest('.textbox-drag-handle')) {
-      return;
-    }
+    // Don't drag from inputs, textareas, canvas, or buttons
     if (e.target.closest('input, textarea, canvas, button')) {
       return;
     }
@@ -79,14 +80,105 @@
       return;
     }
 
+    // Check if this is a text box with contenteditable content
+    const isTextBoxContent = e.target.closest('[contenteditable="true"]') &&
+                             element.classList.contains('inserted-textbox');
+    const isDragHandle = e.target.closest('.textbox-drag-handle');
+
+    // If clicking on drag handle, start drag immediately
+    if (isDragHandle) {
+      e.preventDefault();
+      e.stopPropagation();
+      startDrag(element, e.clientX, e.clientY);
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+      return;
+    }
+
+    // For text box content area, use threshold-based drag detection
+    // This allows click-to-edit AND drag-to-move from anywhere
+    if (isTextBoxContent) {
+      // Don't prevent default yet - allow potential text selection/cursor placement
+      // Enter pending drag state
+      pendingDrag = {
+        element: element,
+        elementId: element.id,
+        startX: e.clientX,
+        startY: e.clientY,
+        isTextBox: true
+      };
+
+      // Listen for movement to determine if this is a drag or click
+      document.addEventListener('mousemove', handlePendingDragMove);
+      document.addEventListener('mouseup', handlePendingDragEnd);
+      return;
+    }
+
+    // For non-text-box elements or text box borders, start drag immediately
     e.preventDefault();
     e.stopPropagation();
-
     startDrag(element, e.clientX, e.clientY);
-
-    // Add document-level listeners
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
+  }
+
+  /**
+   * Handle mouse move during pending drag (threshold detection)
+   */
+  function handlePendingDragMove(e) {
+    if (!pendingDrag) return;
+
+    const deltaX = Math.abs(e.clientX - pendingDrag.startX);
+    const deltaY = Math.abs(e.clientY - pendingDrag.startY);
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    // If moved past threshold, convert to actual drag
+    if (distance >= DRAG_THRESHOLD) {
+      // Prevent text selection now that we know it's a drag
+      e.preventDefault();
+
+      // Clear any text selection that may have started
+      window.getSelection()?.removeAllRanges();
+
+      // Start the actual drag from the original position
+      startDrag(pendingDrag.element, pendingDrag.startX, pendingDrag.startY);
+
+      // Clean up pending listeners and switch to drag listeners
+      document.removeEventListener('mousemove', handlePendingDragMove);
+      document.removeEventListener('mouseup', handlePendingDragEnd);
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+
+      // Immediately process this movement
+      handleDragMove(e);
+
+      // Clear pending state
+      pendingDrag = null;
+    }
+  }
+
+  /**
+   * Handle mouse up during pending drag (it was a click, not a drag)
+   */
+  function handlePendingDragEnd(e) {
+    // Clean up listeners
+    document.removeEventListener('mousemove', handlePendingDragMove);
+    document.removeEventListener('mouseup', handlePendingDragEnd);
+
+    if (pendingDrag && pendingDrag.isTextBox) {
+      // It was a click (didn't move past threshold)
+      // Focus the contenteditable for editing
+      const contentEl = pendingDrag.element.querySelector('[contenteditable="true"]');
+      if (contentEl) {
+        contentEl.focus();
+        // Select the text box for formatting panel
+        if (typeof window.ElementManager !== 'undefined') {
+          window.ElementManager.selectElement(pendingDrag.elementId);
+        }
+      }
+    }
+
+    pendingDrag = null;
   }
 
   /**
@@ -95,10 +187,7 @@
    * @param {TouchEvent} e - Touch event
    */
   function handleTouchStart(e) {
-    // Don't drag if clicking on interactive elements (except textbox drag handles)
-    if (e.target.closest('[contenteditable="true"]') && !e.target.closest('.textbox-drag-handle')) {
-      return;
-    }
+    // Don't drag from inputs, textareas, canvas, or buttons
     if (e.target.closest('input, textarea, canvas, button')) {
       return;
     }
@@ -112,13 +201,90 @@
       return;
     }
 
-    e.preventDefault();
-
     const touch = e.touches[0];
-    startDrag(element, touch.clientX, touch.clientY);
 
+    // Check if this is a text box with contenteditable content
+    const isTextBoxContent = e.target.closest('[contenteditable="true"]') &&
+                             element.classList.contains('inserted-textbox');
+    const isDragHandle = e.target.closest('.textbox-drag-handle');
+
+    // If touching drag handle, start drag immediately
+    if (isDragHandle) {
+      e.preventDefault();
+      startDrag(element, touch.clientX, touch.clientY);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      return;
+    }
+
+    // For text box content area, use threshold-based drag detection
+    if (isTextBoxContent) {
+      pendingDrag = {
+        element: element,
+        elementId: element.id,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        isTextBox: true,
+        isTouch: true
+      };
+
+      document.addEventListener('touchmove', handlePendingTouchMove, { passive: false });
+      document.addEventListener('touchend', handlePendingTouchEnd);
+      return;
+    }
+
+    // For non-text-box elements, start drag immediately
+    e.preventDefault();
+    startDrag(element, touch.clientX, touch.clientY);
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
+  }
+
+  /**
+   * Handle touch move during pending drag (threshold detection)
+   */
+  function handlePendingTouchMove(e) {
+    if (!pendingDrag) return;
+
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - pendingDrag.startX);
+    const deltaY = Math.abs(touch.clientY - pendingDrag.startY);
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if (distance >= DRAG_THRESHOLD) {
+      e.preventDefault();
+      window.getSelection()?.removeAllRanges();
+
+      startDrag(pendingDrag.element, pendingDrag.startX, pendingDrag.startY);
+
+      document.removeEventListener('touchmove', handlePendingTouchMove);
+      document.removeEventListener('touchend', handlePendingTouchEnd);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+
+      handleTouchMove(e);
+      pendingDrag = null;
+    }
+  }
+
+  /**
+   * Handle touch end during pending drag (it was a tap, not a drag)
+   */
+  function handlePendingTouchEnd(e) {
+    document.removeEventListener('touchmove', handlePendingTouchMove);
+    document.removeEventListener('touchend', handlePendingTouchEnd);
+
+    if (pendingDrag && pendingDrag.isTextBox) {
+      const contentEl = pendingDrag.element.querySelector('[contenteditable="true"]');
+      if (contentEl) {
+        contentEl.focus();
+        if (typeof window.ElementManager !== 'undefined') {
+          window.ElementManager.selectElement(pendingDrag.elementId);
+        }
+      }
+    }
+
+    pendingDrag = null;
   }
 
   /**
@@ -416,25 +582,30 @@
     };
 
     handles.forEach(direction => {
-      // Check if handle already exists
-      if (element.querySelector(`.resize-handle-${direction}`)) {
-        return;
+      // Check if handle already exists (e.g., from HTML template)
+      let handle = element.querySelector(`.resize-handle-${direction}`);
+
+      if (!handle) {
+        // Create handle if it doesn't exist
+        handle = document.createElement('div');
+        handle.className = `resize-handle resize-handle-${direction}`;
+        handle.dataset.direction = direction;
+
+        // Add arrow icon inside the handle
+        handle.innerHTML = `<span class="resize-arrow">${arrowIcons[direction]}</span>`;
+
+        element.appendChild(handle);
       }
 
-      const handle = document.createElement('div');
-      handle.className = `resize-handle resize-handle-${direction}`;
+      // ALWAYS attach event listeners (whether handle was created or already existed)
+      // This fixes the bug where pre-existing handles had no event listeners
       handle.dataset.direction = direction;
-
-      // Add arrow icon inside the handle
-      handle.innerHTML = `<span class="resize-arrow">${arrowIcons[direction]}</span>`;
 
       // Mouse events
       handle.addEventListener('mousedown', (e) => handleResizeStart(e, elementId, direction));
 
       // Touch events
       handle.addEventListener('touchstart', (e) => handleResizeTouchStart(e, elementId, direction), { passive: false });
-
-      element.appendChild(handle);
     });
 
     console.log(`DragDrop: Made ${elementId} resizable`);

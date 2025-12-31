@@ -30,7 +30,7 @@ body[data-mode="review"]::after {
 }
 
 .selectable:hover {
-  outline: 2px dashed #3b82f6;
+  outline: 1px solid #3b82f6;
   outline-offset: 4px;
   background-color: rgba(59, 130, 246, 0.05);
 }

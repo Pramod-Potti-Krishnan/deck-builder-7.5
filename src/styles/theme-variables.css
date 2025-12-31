@@ -1,0 +1,210 @@
+/**
+ * Theme Variables CSS
+ *
+ * Defines CSS custom properties for theming support.
+ * These variables are updated dynamically by theme-manager.js when a theme is applied.
+ *
+ * Usage:
+ * - Elements should reference these variables instead of hardcoded colors
+ * - Example: color: var(--theme-text-primary);
+ *
+ * The default values here match the "corporate-blue" theme.
+ */
+
+:root {
+  /* ========== COLOR VARIABLES ========== */
+
+  /* Primary brand colors */
+  --theme-primary: #1e40af;
+  --theme-primary-light: #3b82f6;
+  --theme-primary-dark: #1e3a8a;
+  --theme-accent: #f59e0b;
+
+  /* Backgrounds */
+  --theme-bg: #ffffff;
+  --theme-bg-alt: #f8fafc;
+
+  /* Standard profile text colors (for C, V, I, S, B series) */
+  --theme-text-primary: #1f2937;
+  --theme-text-secondary: #6b7280;
+  --theme-text-body: #374151;
+
+  /* Hero profile text colors (for H series) */
+  --theme-hero-text-primary: #ffffff;
+  --theme-hero-text-secondary: #e5e7eb;
+  --theme-hero-bg: #1e3a5f;
+
+  /* Footer and borders */
+  --theme-footer-text: #6b7280;
+  --theme-border: #e5e7eb;
+
+  /* ========== TYPOGRAPHY VARIABLES ========== */
+
+  --theme-font-family: 'Poppins', sans-serif;
+  --theme-font-family-heading: var(--theme-font-family);  /* Defaults to body font, can be overridden */
+
+  /* Standard profile sizes */
+  --theme-title-size: 42px;
+  --theme-title-weight: bold;
+  --theme-title-line-height: 1.2;
+
+  --theme-subtitle-size: 24px;
+  --theme-subtitle-weight: normal;
+  --theme-subtitle-line-height: 1.4;
+
+  --theme-body-size: 20px;
+  --theme-body-line-height: 1.6;
+
+  --theme-footer-size: 18px;
+  --theme-footer-weight: 500;
+
+  /* Hero profile sizes */
+  --theme-hero-title-size: 72px;
+  --theme-hero-title-weight: bold;
+  --theme-hero-title-shadow: 0 2px 4px rgba(0,0,0,0.3);
+
+  --theme-hero-subtitle-size: 32px;
+  --theme-hero-subtitle-weight: normal;
+
+  /* Content hierarchy (for body slots with rich HTML) */
+  --theme-body-h1-size: 36px;
+  --theme-body-h2-size: 28px;
+  --theme-body-h3-size: 22px;
+  --theme-body-p-size: 20px;
+}
+
+/* ========== HERO SLIDE OVERRIDES ========== */
+/*
+ * Hero slides (H1, H2, H3) use different text colors.
+ * These selectors automatically switch variables for hero templates.
+ */
+.hero-slide,
+[data-template^="H1"],
+[data-template^="H2"],
+[data-template^="H3"] {
+  --theme-text-primary: var(--theme-hero-text-primary);
+  --theme-text-secondary: var(--theme-hero-text-secondary);
+  --theme-title-size: var(--theme-hero-title-size);
+  --theme-title-weight: var(--theme-hero-title-weight);
+  --theme-subtitle-size: var(--theme-hero-subtitle-size);
+  --theme-subtitle-weight: var(--theme-hero-subtitle-weight);
+}
+
+/* ========== DARK MODE ADJUSTMENTS ========== */
+/*
+ * When dark-mode theme is active, adjust backgrounds and borders.
+ * The theme-manager.js will add this class to the root element.
+ * v7.5.5: Enhanced with full CSS variable theming for Phase 1 pilot templates.
+ */
+:root.theme-dark-mode,
+:root.theme-dark {
+  /* Backgrounds */
+  --theme-bg: #0f172a;
+  --theme-bg-alt: #1e293b;
+  --theme-border: #374151;
+
+  /* Text colors (inverted for dark mode) */
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-on-dark: #ffffff;
+
+  /* Standard profile text (also inverted) */
+  --theme-text-primary: #f8fafc;
+  --theme-text-secondary: #e2e8f0;
+  --theme-text-body: #cbd5e1;
+
+  /* Box backgrounds (darker variants) */
+  --box-1-bg: #1e3a8a;
+  --box-2-bg: #065f46;
+  --box-3-bg: #78350f;
+  --box-4-bg: #831843;
+  --box-5-bg: #4c1d95;
+  --box-6-bg: #9a3412;
+
+  /* Borders (darker variants) */
+  --border-default: #4b5563;
+  --border-light: #374151;
+  --border-accent: #667eea;
+
+  /* Table-specific */
+  --table-row-alt: #1e293b;
+
+  /* Accent colors (brighter for dark mode) */
+  --accent-blue: #60a5fa;
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+  --accent-purple: #a78bfa;
+  --accent-amber: #fbbf24;
+
+  /* Accent text colors - light/pastel for dark backgrounds (close to white with color tinge) */
+  --accent-text-purple: #e6d2f5;
+  --accent-text-blue: #b4dcff;
+  --accent-text-red: #ffc8c3;
+  --accent-text-green: #b4f5d2;
+  --accent-text-yellow: #fff0be;
+
+  /* Component backgrounds (dark variants) - 60% transparent for dark mode */
+  --sidebar-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(30, 45, 77, 0.4) 100%);
+}
+
+/* Light mode defaults (explicit for clarity) */
+:root {
+  /* Phase 1 CSS variable theming - light mode defaults */
+  --text-primary: #1f2937;
+  --text-secondary: #374151;
+  --text-body: #4b5563;
+  --text-muted: #6b7280;
+  --text-on-dark: #ffffff;
+
+  /* Box backgrounds */
+  --box-1-bg: #dbeafe;
+  --box-2-bg: #d1fae5;
+  --box-3-bg: #fef3c7;
+  --box-4-bg: #fce7f3;
+  --box-5-bg: #ede9fe;
+  --box-6-bg: #fed7aa;
+
+  /* Borders */
+  --border-default: #d1d5db;
+  --border-light: #e5e7eb;
+  --border-accent: #667eea;
+
+  /* Table-specific */
+  --table-row-alt: #f9fafb;
+
+  /* Accent colors */
+  --accent-blue: #2563eb;
+  --accent-green: #10b981;
+  --accent-red: #dc2626;
+  --accent-purple: #667eea;
+  --accent-amber: #f59e0b;
+
+  /* Accent text colors - for colored headings in content boxes (dark colors for light mode) */
+  --accent-text-purple: #805aa0;
+  --accent-text-blue: #2980b9;
+  --accent-text-red: #c0392b;
+  --accent-text-green: #27ae60;
+  --accent-text-yellow: #d39e1e;
+
+  /* Component backgrounds */
+  --sidebar-bg: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Text color utilities */
+.text-theme-primary { color: var(--theme-text-primary); }
+.text-theme-secondary { color: var(--theme-text-secondary); }
+.text-theme-body { color: var(--theme-text-body); }
+.text-theme-accent { color: var(--theme-accent); }
+
+/* Background utilities */
+.bg-theme { background-color: var(--theme-bg); }
+.bg-theme-alt { background-color: var(--theme-bg-alt); }
+.bg-theme-primary { background-color: var(--theme-primary); }
+.bg-theme-hero { background-color: var(--theme-hero-bg); }
+
+/* Border utilities */
+.border-theme { border-color: var(--theme-border); }

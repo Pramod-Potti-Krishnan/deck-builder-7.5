@@ -103,22 +103,22 @@
 /* ==================== Editable Content Styles ==================== */
 
 .editable {
-  outline: 2px dashed transparent;
-  outline-offset: 4px;
+  outline: 1px solid transparent;
+  outline-offset: -2px;  /* Draw inside like "B" mode - prevents text shift */
   transition: all 0.2s ease;
   cursor: text;
   position: relative;
 }
 
 .editable:hover {
-  outline-color: #3b82f6;
-  outline-style: dashed;
+  outline-color: #9ca3af;  /* Gray - same as "B" mode */
+  outline-style: solid;
 }
 
 .editable:focus {
-  outline-color: #3b82f6;
+  outline-color: #9ca3af;  /* Gray - same as "B" mode */
   outline-style: solid;
-  background-color: rgba(59, 130, 246, 0.05);
+  background-color: rgba(156, 163, 175, 0.05);
 }
 
 /* Placeholder for empty editable elements */
@@ -131,6 +131,30 @@
 /* Show edit cursor on hover */
 body[data-mode="edit"] .editable {
   cursor: text;
+}
+
+/* ==================== Infographic/Diagram Editable Content (v7.5.4) ==================== */
+
+/* Make individual text elements editable inside infographic/diagram content */
+/* Using generic selector to match any editable child element */
+body[data-mode="edit"] .inserted-infographic .element-content [contenteditable="true"],
+body[data-mode="edit"] .inserted-diagram .element-content [contenteditable="true"] {
+  cursor: text;
+  user-select: text;
+}
+
+/* Focus indicator for individual text elements */
+body[data-mode="edit"] .inserted-infographic .element-content [contenteditable="true"]:focus,
+body[data-mode="edit"] .inserted-diagram .element-content [contenteditable="true"]:focus {
+  outline: 2px dashed rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
+}
+
+/* Hover indicator for individual text elements */
+body[data-mode="edit"] .inserted-infographic .element-content [contenteditable="true"]:hover,
+body[data-mode="edit"] .inserted-diagram .element-content [contenteditable="true"]:hover {
+  outline: 1px dashed rgba(156, 163, 175, 0.5);
+  outline-offset: 1px;
 }
 
 /* ==================== Notification System ==================== */
@@ -364,14 +388,26 @@ body[data-mode="edit"] .edit-shortcuts {
   pointer-events: auto; /* Enable clicks in edit mode */
 }
 
-/* Optional: Show edit UI when parent enables it */
-body[data-show-edit-ui="true"] #toggle-edit-mode,
-body[data-show-edit-ui="true"] #edit-controls {
-  display: block;
+/* ==================== IFRAME EMBEDDING MODE ==================== */
+/* All native UI controls are permanently hidden for iframe embedding.
+   Frontend controls these via postMessage commands:
+   - enterEditMode / exitEditMode
+   - forceSave / cancelEdits
+   - getVersionHistory / restoreVersion
+*/
+
+/* Permanently hide all native UI controls */
+#toggle-edit-mode,
+#edit-controls,
+.edit-shortcuts,
+.text-toolbar,
+#text-toolbar {
+  display: none !important;
 }
 
-body[data-show-edit-ui="true"][data-mode="edit"] .edit-shortcuts {
-  display: block;
+/* Hide the edit mode badge (pencil emoji indicator) */
+body[data-mode="edit"]::before {
+  display: none !important;
 }
 
 .edit-shortcuts div {

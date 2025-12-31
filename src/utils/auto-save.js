@@ -10,6 +10,12 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.1 Changes:
+ * - Added parent_slide_id validation to prevent ghost elements
+ * - Added slide_id to save payload
+ * - Added content element collection for L-series layouts
+ * - Skip orphaned elements during collection
  */
 
 (function() {
@@ -191,9 +197,19 @@
 
   /**
    * Collect content from a slide element
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} index - The slide index
+   * @returns {Object} - Slide update object with slide_id and all elements
    */
   function collectSlideContent(slideElement, index) {
     const update = {};
+
+    // Get slide_id for parent ownership validation
+    // slide_id is set by direct-element-creator.js and stored as data attribute
+    const slideId = slideElement.getAttribute('data-slide-id');
+    if (slideId) {
+      update.slide_id = slideId;
+    }
 
     // Get layout type
     const layout = slideElement.getAttribute('data-layout') || 'L25';
@@ -201,7 +217,8 @@
     // Collect content based on layout
     if (layout === 'L29') {
       // Hero layout - full content
-      const heroContent = slideElement.querySelector('.hero-content, [data-section="hero"]');
+      // L29.js uses class="hero-content-area" and data-section-type="hero"
+      const heroContent = slideElement.querySelector('.hero-content-area, [data-section-type="hero"]');
       if (heroContent) {
         update.hero_content = heroContent.innerHTML;
       }
@@ -237,26 +254,67 @@
     if (bgImage) update.background_image = bgImage;
 
     // Collect text boxes from this slide
-    const textBoxes = collectTextBoxes(slideElement, index);
-    if (textBoxes.length > 0) {
-      update.text_boxes = textBoxes;
-    }
+    // IMPORTANT: Always include text_boxes array, even if empty
+    // This ensures deletions are persisted to the backend
+    update.text_boxes = collectTextBoxes(slideElement, index, slideId);
+
+    // Collect images from this slide
+    update.images = collectImages(slideElement, index, slideId);
+
+    // Collect charts from this slide
+    update.charts = collectCharts(slideElement, index, slideId);
+
+    // Collect infographics from this slide
+    update.infographics = collectInfographics(slideElement, index, slideId);
+
+    // Collect diagrams from this slide
+    update.diagrams = collectDiagrams(slideElement, index, slideId);
+
+    // Collect content elements from this slide (L-series layouts)
+    update.contents = collectContents(slideElement, index, slideId);
 
     return update;
   }
 
   /**
    * Collect text boxes from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of textbox objects
    */
-  function collectTextBoxes(slideElement, slideIndex) {
+  function collectTextBoxes(slideElement, slideIndex, slideId) {
     const textBoxes = [];
 
     // Find all text box elements in this slide
     const textBoxElements = slideElement.querySelectorAll('.inserted-textbox');
 
     textBoxElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned textbox ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy textbox ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
       const textBox = {
         id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
         position: {
           grid_row: el.style.gridRow || '5/10',
           grid_column: el.style.gridColumn || '3/15'
@@ -274,22 +332,413 @@
         textBox.content = contentEl.innerHTML;
       }
 
-      // Extract style from element
-      const computedStyle = window.getComputedStyle(el);
+      // Helper to parse padding value from style (returns number or null)
+      const parsePaddingValue = (val) => {
+        if (!val) return null;
+        const num = parseInt(val);
+        return isNaN(num) ? null : num;
+      };
+
+      // Extract container styles (background, border, padding, flex, etc.)
       textBox.style = {
         background_color: el.style.backgroundColor || 'transparent',
         border_color: el.style.borderColor || 'transparent',
         border_width: parseInt(el.style.borderWidth) || 0,
         border_radius: parseInt(el.style.borderRadius) || 0,
-        padding: parseInt(el.style.padding) || 16,
         opacity: parseFloat(el.style.opacity) || 1.0,
-        box_shadow: el.style.boxShadow || null
+        box_shadow: el.style.boxShadow || null,
+        // Individual padding values for complete persistence
+        padding_top: parsePaddingValue(el.style.paddingTop),
+        padding_right: parsePaddingValue(el.style.paddingRight),
+        padding_bottom: parsePaddingValue(el.style.paddingBottom),
+        padding_left: parsePaddingValue(el.style.paddingLeft),
+        // Flex properties for alignment persistence (e.g., bottom-align titles)
+        display: el.style.display || null,
+        flex_direction: el.style.flexDirection || null,
+        justify_content: el.style.justifyContent || null,
+        align_items: el.style.alignItems || null
       };
+
+      // Extract text formatting styles from content element
+      // These are set by postMessage commands (setTextBoxColor, setTextBoxFont, etc.)
+      if (contentEl) {
+        textBox.text_style = {
+          color: contentEl.style.color || null,
+          font_family: contentEl.style.fontFamily || null,
+          font_size: contentEl.style.fontSize || null,
+          font_weight: contentEl.style.fontWeight || null,
+          font_style: contentEl.style.fontStyle || null,
+          text_align: contentEl.style.textAlign || null,
+          line_height: contentEl.style.lineHeight || null,
+          letter_spacing: contentEl.style.letterSpacing || null,
+          text_decoration: contentEl.style.textDecoration || null
+        };
+        // Remove null values to keep payload clean
+        Object.keys(textBox.text_style).forEach(key => {
+          if (!textBox.text_style[key]) delete textBox.text_style[key];
+        });
+        // Only include text_style if it has values
+        if (Object.keys(textBox.text_style).length === 0) {
+          delete textBox.text_style;
+        }
+      }
 
       textBoxes.push(textBox);
     });
 
     return textBoxes;
+  }
+
+  /**
+   * Collect images from a slide
+   * NOTE: Skip placeholder images - they have no content and will be recreated
+   * by DirectElementCreator from template registry on next load.
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of image objects
+   */
+  function collectImages(slideElement, slideIndex, slideId) {
+    const images = [];
+
+    // Find all image elements in this slide
+    const imageElements = slideElement.querySelectorAll('.inserted-image');
+
+    imageElements.forEach(el => {
+      // Skip placeholder images - they have no actual content
+      // DirectElementCreator will recreate them from template registry
+      if (el.classList.contains('placeholder-mode')) {
+        console.log(`[AutoSave] Skipping placeholder image: ${el.id}`);
+        return;
+      }
+
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned image ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy image ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
+      const image = {
+        id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
+        position: {
+          grid_row: el.style.gridRow || '4/14',
+          grid_column: el.style.gridColumn || '8/24'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        image_url: null,
+        alt_text: null,
+        object_fit: 'cover',
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get image URL from content
+      const imgEl = el.querySelector('.element-content img');
+      if (imgEl) {
+        image.image_url = imgEl.src;
+        image.alt_text = imgEl.alt || null;
+        // Extract object-fit from inline style
+        const objectFitMatch = imgEl.style.objectFit;
+        if (objectFitMatch) {
+          image.object_fit = objectFitMatch;
+        }
+      }
+
+      images.push(image);
+    });
+
+    return images;
+  }
+
+  /**
+   * Collect charts from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of chart objects
+   */
+  function collectCharts(slideElement, slideIndex, slideId) {
+    const charts = [];
+
+    // Find all chart elements in this slide
+    const chartElements = slideElement.querySelectorAll('.inserted-chart');
+
+    chartElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned chart ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy chart ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
+      const chart = {
+        id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
+        position: {
+          grid_row: el.style.gridRow || '4/15',
+          grid_column: el.style.gridColumn || '3/30'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        chart_type: null,
+        chart_config: null,
+        chart_html: null,
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get chart data if content mode (not placeholder)
+      if (!el.classList.contains('placeholder-mode')) {
+        const contentEl = el.querySelector('.element-content');
+        if (contentEl) {
+          // Store the HTML content for persistence
+          chart.chart_html = contentEl.innerHTML;
+        }
+        // Store chart instance data if available
+        if (el.chartInstance) {
+          chart.chart_type = el.chartInstance.config?.type || null;
+          chart.chart_config = el.chartInstance.config || null;
+        }
+      }
+
+      charts.push(chart);
+    });
+
+    return charts;
+  }
+
+  /**
+   * Collect infographics from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of infographic objects
+   */
+  function collectInfographics(slideElement, slideIndex, slideId) {
+    const infographics = [];
+
+    // Find all infographic elements in this slide
+    const infographicElements = slideElement.querySelectorAll('.inserted-infographic');
+
+    infographicElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned infographic ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy infographic ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
+      const infographic = {
+        id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
+        position: {
+          grid_row: el.style.gridRow || '4/16',
+          grid_column: el.style.gridColumn || '5/28'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        infographic_type: null,
+        svg_content: null,
+        items: null,
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get SVG content if not placeholder
+      if (!el.classList.contains('inserted-element-placeholder') || el.querySelector('.element-content')) {
+        const contentEl = el.querySelector('.element-content');
+        if (contentEl) {
+          infographic.svg_content = contentEl.innerHTML;
+        }
+      }
+
+      infographics.push(infographic);
+    });
+
+    return infographics;
+  }
+
+  /**
+   * Collect diagrams from a slide
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of diagram objects
+   */
+  function collectDiagrams(slideElement, slideIndex, slideId) {
+    const diagrams = [];
+
+    // Find all diagram elements in this slide
+    const diagramElements = slideElement.querySelectorAll('.inserted-diagram');
+
+    diagramElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned diagram ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy diagram ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
+      const diagram = {
+        id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
+        position: {
+          grid_row: el.style.gridRow || '4/16',
+          grid_column: el.style.gridColumn || '5/28'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        diagram_type: null,
+        mermaid_code: null,
+        svg_content: null,
+        direction: 'TB',
+        theme: 'default',
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get content if not placeholder
+      if (!el.classList.contains('inserted-element-placeholder') || el.querySelector('.element-content')) {
+        const contentEl = el.querySelector('.element-content');
+        if (contentEl) {
+          diagram.svg_content = contentEl.innerHTML;
+        }
+      }
+
+      // Get mermaid code if stored as data attribute
+      if (el.dataset.mermaidCode) {
+        diagram.mermaid_code = el.dataset.mermaidCode;
+      }
+
+      diagrams.push(diagram);
+    });
+
+    return diagrams;
+  }
+
+  /**
+   * Collect content elements from a slide (L-series layouts)
+   * Content elements are rich HTML areas owned by Text Service or Analytics Service.
+   * These include: hero content, main content, charts, diagrams for L-series layouts.
+   * @param {HTMLElement} slideElement - The slide DOM element
+   * @param {number} slideIndex - The slide index
+   * @param {string|null} slideId - The slide's UUID for ownership validation
+   * @returns {Array} - Array of content objects
+   */
+  function collectContents(slideElement, slideIndex, slideId) {
+    const contents = [];
+
+    // Find all content elements in this slide
+    // Content elements have class 'inserted-content' (created by direct-element-creator.js)
+    const contentElements = slideElement.querySelectorAll('.inserted-content');
+
+    contentElements.forEach(el => {
+      // v7.5.1: Validate parent ownership to prevent ghost elements
+      const elementParentId = el.getAttribute('data-parent-slide-id');
+
+      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      if (elementParentId && slideId && elementParentId !== slideId) {
+        console.warn(`[AutoSave] Skipping orphaned content ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+        return;
+      }
+
+      // Also validate legacy index-based IDs (slide-{N}-*)
+      if (el.id && el.id.startsWith('slide-') && !elementParentId) {
+        const idParts = el.id.split('-');
+        if (idParts.length >= 2 && !isNaN(parseInt(idParts[1]))) {
+          const elementSlideIndex = parseInt(idParts[1]);
+          if (elementSlideIndex !== slideIndex) {
+            console.warn(`[AutoSave] Skipping orphaned legacy content ${el.id}: expected slide-${slideIndex}-*`);
+            return;
+          }
+        }
+      }
+
+      const content = {
+        id: el.id,
+        parent_slide_id: slideId || elementParentId || null,
+        slot_name: el.getAttribute('data-slot-name') || null,
+        format_owner: el.getAttribute('data-format-owner') || 'text_service',
+        position: {
+          grid_row: el.style.gridRow || '5/17',
+          grid_column: el.style.gridColumn || '2/32'
+        },
+        z_index: parseInt(el.style.zIndex) || 100,
+        content_html: null,
+        editable: el.contentEditable === 'true' || false,
+        locked: el.classList.contains('element-locked'),
+        visible: !el.classList.contains('element-hidden')
+      };
+
+      // Get HTML content
+      const contentEl = el.querySelector('.element-content') || el;
+      if (contentEl) {
+        content.content_html = contentEl.innerHTML;
+      }
+
+      contents.push(content);
+    });
+
+    return contents;
   }
 
   /**

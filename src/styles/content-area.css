@@ -119,12 +119,12 @@
 
 /* Show content area boundaries in debug mode */
 body.debug-content-areas .rich-content-area {
-  outline: 2px dashed #3b82f6;
+  outline: 1px solid #3b82f6;
   outline-offset: -2px;
 }
 
 body.debug-content-areas .hero-content-area {
-  outline: 2px dashed #10b981;
+  outline: 1px solid #10b981;
   outline-offset: -2px;
 }
 

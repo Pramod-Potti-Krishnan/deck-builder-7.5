@@ -44,7 +44,23 @@ function initEditMode() {
     }
   });
 
+  // Auto-exit edit mode when entering fullscreen (Play mode)
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);  // Safari
+
   console.log('✅ Edit mode initialized');
+}
+
+/**
+ * Handle fullscreen changes - exit edit mode when entering fullscreen
+ */
+function handleFullscreenChange() {
+  const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+  if (isFullscreen && isEditMode) {
+    console.log('[EditMode] Exiting edit mode for fullscreen presentation');
+    exitEditMode();
+  }
 }
 
 /**
@@ -152,6 +168,7 @@ function enableContentEditing() {
       '.body-primary',
       '.body-secondary',
       '.textbox-content'  // Text boxes must be editable in edit mode
+      // NOTE: Infographic/Diagram handled separately below for proper cursor positioning
     ];
 
     editableSelectors.forEach(selector => {
@@ -164,6 +181,43 @@ function enableContentEditing() {
         // Add placeholder for empty elements
         if (!el.textContent.trim()) {
           el.dataset.placeholder = 'Click to add content...';
+        }
+      });
+    });
+
+    // Handle Infographic/Diagram text elements (v7.5.4)
+    // Make individual text elements editable, NOT the container
+    // This fixes cursor positioning - users can click in middle of text
+    const infoDiagramContainers = slide.querySelectorAll(
+      '.inserted-infographic:not(.inserted-element-placeholder) .element-content, ' +
+      '.inserted-diagram:not(.inserted-element-placeholder) .element-content'
+    );
+
+    infoDiagramContainers.forEach(container => {
+      // Find all text-bearing elements inside
+      // Use :not(:has(*)) to only get leaf div elements (no nested children)
+      const textElements = container.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, li');
+
+      textElements.forEach(el => {
+        // Only make elements with actual text content editable
+        if (el.textContent.trim()) {
+          el.contentEditable = true;
+          el.classList.add('editable');
+          el.dataset.slideIndex = slideIndex;
+          el.dataset.infographicText = 'true';  // Mark as infographic/diagram text
+        }
+      });
+
+      // Also handle divs that contain only text (no child elements)
+      const textDivs = container.querySelectorAll('div');
+      textDivs.forEach(div => {
+        // Only divs with text and no block-level children
+        const hasBlockChildren = div.querySelector('h1, h2, h3, h4, h5, h6, p, div, ul, ol');
+        if (!hasBlockChildren && div.textContent.trim()) {
+          div.contentEditable = true;
+          div.classList.add('editable');
+          div.dataset.slideIndex = slideIndex;
+          div.dataset.infographicText = 'true';
         }
       });
     });

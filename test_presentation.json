@@ -1,0 +1,13 @@
+{
+  "title": "Supabase Persistence Test",
+  "slides": [
+    {
+      "layout": "L25",
+      "content": {
+        "slide_title": "Testing Supabase with ls_ Tables",
+        "subtitle": "Layout Service v7.5-main",
+        "rich_content": "<div style='padding: 20px; font-size: 18px;'>If you can see this after Railway restart, Supabase persistence is working! ✅<br><br>Tables: ls_presentations + ls_presentation_versions<br>Bucket: ls-presentation-data</div>"
+      }
+    }
+  ]
+}

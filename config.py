@@ -80,6 +80,28 @@ class Settings(BaseSettings):
     - False: Always query Supabase (slower but always fresh)
     """
 
+    # ==================== Theming Feature Flags (Phase 1) ====================
+
+    ENABLE_DARK_LIGHT_VARIANTS: bool = False
+    """
+    Enable dark/light mode theme variants
+    - True: Themes have both light and dark mode CSS variables
+    - False: Use only light mode (current behavior)
+    """
+
+    ENABLE_THEME_MODE_TOGGLE: bool = False
+    """
+    Enable theme mode toggle in presentation viewer
+    - True: Show dark/light mode toggle in viewer UI
+    - False: Hide toggle (mode set by presentation theme only)
+    """
+
+    DEFAULT_THEME_MODE: str = "light"
+    """
+    Default theme mode for presentations
+    Options: "light" or "dark"
+    """
+
     # ==================== Cache Configuration ====================
 
     CACHE_TTL_SECONDS: int = 3600

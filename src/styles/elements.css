@@ -1,0 +1,787 @@
+/**
+ * Element Placeholder Styles for Layout Builder v7.5
+ *
+ * Styles for Image, Chart, Infographic, and Diagram placeholder elements.
+ * These elements show placeholder UI until AI-generated content is applied.
+ *
+ * Following patterns from textbox.css
+ */
+
+/* ===== PARENT OVERFLOW FIX ===== */
+/* Ensure slides allow overflow for handles positioned outside elements */
+.slide:has(.inserted-element-placeholder),
+.slide-content:has(.inserted-element-placeholder),
+[class*="slide"]:has(.inserted-element-placeholder) {
+  overflow: visible !important;
+}
+
+/* ===== BASE PLACEHOLDER STYLES ===== */
+
+.inserted-element-placeholder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 1px solid #94a3b8 !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  overflow: visible !important;
+  min-height: 120px;
+}
+
+/* ===== SELECTION STATE ===== */
+
+.inserted-element-placeholder.element-selected {
+  border: 2px solid #3b82f6 !important;
+  border-style: solid !important;
+  z-index: 1500;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== HOVER STATE ===== */
+
+.inserted-element-placeholder:hover {
+  border-color: #64748b !important;
+  background: #f1f5f9;
+}
+
+/* ===== DRAGGING STATE ===== */
+
+.inserted-element-placeholder.dragging {
+  z-index: 11000;
+  opacity: 0.9;
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.inserted-element-placeholder.dragging .element-placeholder-content {
+  pointer-events: none;
+  user-select: none !important;
+}
+
+/* ===== RESIZING STATE ===== */
+
+.inserted-element-placeholder.resizing {
+  z-index: 11000;
+  user-select: none;
+}
+
+/* ===== PLACEHOLDER CONTENT (Icon + Text) ===== */
+
+.element-placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.element-placeholder-icon {
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.element-placeholder-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.element-placeholder-dots {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.element-placeholder-dots span {
+  width: 8px;
+  height: 8px;
+  background: #9ca3af;
+  border-radius: 50%;
+}
+
+.element-placeholder-text {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* ===== DRAG HANDLE (Same as textbox) ===== */
+
+.element-drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 24px;
+  background: rgba(96, 165, 250, 0.35) !important;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  z-index: 102;
+  user-select: none;
+  opacity: 0;
+}
+
+/* Show drag handle on hover or when selected */
+.inserted-element-placeholder:hover .element-drag-handle,
+.inserted-element-placeholder.element-selected .element-drag-handle {
+  opacity: 1;
+}
+
+/* v7.5.4: Show drag handle for diagram/infographic in content mode (non-placeholder) */
+.inserted-diagram:not(.placeholder-mode):hover .element-drag-handle,
+.inserted-diagram:not(.placeholder-mode).element-selected .element-drag-handle,
+.inserted-infographic:not(.placeholder-mode):hover .element-drag-handle,
+.inserted-infographic:not(.placeholder-mode).element-selected .element-drag-handle {
+  opacity: 1;
+}
+
+/* 3×3 dot grid using box-shadow */
+.element-drag-handle::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 0 white,
+    8px 0 0 0 white,
+    16px 0 0 0 white,
+    0 7px 0 0 white,
+    8px 7px 0 0 white,
+    16px 7px 0 0 white,
+    0 14px 0 0 white,
+    8px 14px 0 0 white,
+    16px 14px 0 0 white;
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% - 8px), calc(-50% - 7px));
+}
+
+.element-drag-handle:hover {
+  background: rgba(59, 130, 246, 0.45) !important;
+  transform: translateX(-50%) scale(1.05);
+}
+
+/* ===== DELETE BUTTON ===== */
+
+.inserted-element-placeholder .element-delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 1002;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.inserted-element-placeholder:hover .element-delete-button,
+.inserted-element-placeholder.element-selected .element-delete-button {
+  opacity: 1;
+}
+
+/* v7.5.4: Show delete button for diagram/infographic in content mode (non-placeholder) */
+.inserted-diagram:not(.placeholder-mode):hover .element-delete-button,
+.inserted-diagram:not(.placeholder-mode).element-selected .element-delete-button,
+.inserted-infographic:not(.placeholder-mode):hover .element-delete-button,
+.inserted-infographic:not(.placeholder-mode).element-selected .element-delete-button {
+  opacity: 1;
+}
+
+.inserted-element-placeholder .element-delete-button:hover {
+  transform: scale(1.15);
+  background: #dc2626;
+}
+
+/* v7.5.4: Delete button hover for diagram/infographic in content mode */
+.inserted-diagram:not(.placeholder-mode) .element-delete-button:hover,
+.inserted-infographic:not(.placeholder-mode) .element-delete-button:hover {
+  transform: scale(1.15);
+  background: #dc2626;
+}
+
+/* ===== RESIZE HANDLES ===== */
+
+.inserted-element-placeholder .resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid #000000;
+  opacity: 0;  /* Hidden by default - show only when selected */
+  visibility: hidden;
+  z-index: 1001;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+/* Show resize handles only when element is selected */
+.inserted-element-placeholder.element-selected .resize-handle {
+  opacity: 1;
+  visibility: visible;
+}
+
+.inserted-element-placeholder .resize-handle:hover {
+  background: #e5e7eb;
+}
+
+/* Extended hit area for easier grabbing (especially when element fills slide) */
+.inserted-element-placeholder .resize-handle::before {
+  content: '';
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* === Left handle (w) === */
+.inserted-element-placeholder .resize-handle-w {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-element-placeholder .resize-handle-w::before {
+  top: -12px;
+  left: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
+/* === Right handle (e) === */
+.inserted-element-placeholder .resize-handle-e {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-element-placeholder .resize-handle-e::before {
+  top: -12px;
+  right: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
+/* === Bottom handle (s) === */
+.inserted-element-placeholder .resize-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.inserted-element-placeholder .resize-handle-s::before {
+  left: -12px;
+  bottom: 0;
+  width: 36px;
+  height: 24px;
+  cursor: ns-resize;
+}
+
+/* === Bottom-right corner (se) === */
+.inserted-element-placeholder .resize-handle-se {
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}
+
+.inserted-element-placeholder .resize-handle-se::before {
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  cursor: nwse-resize;
+}
+
+/* v7.5.4: Resize handles for diagram/infographic in content mode (non-placeholder) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle,
+.inserted-infographic:not(.placeholder-mode) .resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid #000000;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1001;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.inserted-diagram:not(.placeholder-mode).element-selected .resize-handle,
+.inserted-infographic:not(.placeholder-mode).element-selected .resize-handle {
+  opacity: 1;
+  visibility: visible;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle:hover,
+.inserted-infographic:not(.placeholder-mode) .resize-handle:hover {
+  background: #e5e7eb;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle::before {
+  content: '';
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* Left handle (w) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-w,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-w {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-w::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-w::before {
+  top: -12px;
+  left: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
+/* Right handle (e) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-e,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-e {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-e::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-e::before {
+  top: -12px;
+  right: 0;
+  width: 24px;
+  height: 36px;
+  cursor: ew-resize;
+}
+
+/* Bottom handle (s) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-s,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-s::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-s::before {
+  left: -12px;
+  bottom: 0;
+  width: 36px;
+  height: 24px;
+  cursor: ns-resize;
+}
+
+/* Bottom-right corner (se) */
+.inserted-diagram:not(.placeholder-mode) .resize-handle-se,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-se {
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}
+
+.inserted-diagram:not(.placeholder-mode) .resize-handle-se::before,
+.inserted-infographic:not(.placeholder-mode) .resize-handle-se::before {
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  cursor: nwse-resize;
+}
+
+/* ===== TYPE BADGE (Bottom-right corner icon) ===== */
+
+.element-type-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  background: #374151;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.element-type-badge svg {
+  width: 22px;
+  height: 22px;
+  color: white;
+  fill: white;
+}
+
+/* ===== TYPE-SPECIFIC STYLES ===== */
+
+/* ----- Image Placeholder (Blue border) ----- */
+.inserted-image.placeholder-mode {
+  background: #e5e7eb;
+  border: 1px solid #3b82f6 !important;
+}
+
+.inserted-image.placeholder-mode .element-placeholder-icon svg {
+  color: #6b7280;
+}
+
+.inserted-image.placeholder-mode .element-placeholder-text {
+  color: #6b7280;
+}
+
+.inserted-image.placeholder-mode .element-placeholder-dots span {
+  background: #9ca3af;
+}
+
+/* ----- Chart Placeholder (Green border) ----- */
+.inserted-chart.placeholder-mode {
+  background: #e5e7eb;
+  border: 1px solid #10b981 !important;
+}
+
+.inserted-chart.placeholder-mode .element-placeholder-icon svg {
+  color: #6b7280;
+}
+
+.inserted-chart.placeholder-mode .element-placeholder-text {
+  color: #6b7280;
+}
+
+.inserted-chart.placeholder-mode .element-placeholder-dots span {
+  background: #9ca3af;
+}
+
+/* ----- Infographic Placeholder (Purple border) ----- */
+.inserted-infographic.placeholder-mode {
+  background: #e5e7eb;
+  border: 1px solid #8b5cf6 !important;
+}
+
+.inserted-infographic.placeholder-mode .element-placeholder-icon svg {
+  color: #6b7280;
+}
+
+.inserted-infographic.placeholder-mode .element-placeholder-text {
+  color: #6b7280;
+}
+
+.inserted-infographic.placeholder-mode .element-placeholder-dots span {
+  background: #9ca3af;
+}
+
+/* ----- Diagram Placeholder (Orange border) ----- */
+.inserted-diagram.placeholder-mode {
+  background: #e5e7eb;
+  border: 1px solid #f59e0b !important;
+}
+
+.inserted-diagram.placeholder-mode .element-placeholder-icon svg {
+  color: #6b7280;
+}
+
+.inserted-diagram.placeholder-mode .element-placeholder-text {
+  color: #6b7280;
+}
+
+.inserted-diagram.placeholder-mode .element-placeholder-dots span {
+  background: #9ca3af;
+}
+
+/* ===== COMPACT LOGO PLACEHOLDER ===== */
+/* For small logo slots (2×2 grid = 120×120px) */
+
+.inserted-image.slot-logo .element-placeholder-content {
+  padding: 8px;
+  gap: 4px;
+}
+
+.inserted-image.slot-logo .element-placeholder-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.inserted-image.slot-logo .element-placeholder-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.inserted-image.slot-logo .element-placeholder-dots {
+  display: none;  /* Hide dots for compact mode */
+}
+
+.inserted-image.slot-logo .element-placeholder-text {
+  font-size: 11px;
+}
+
+/* Make drag handle smaller for logo */
+.inserted-image.slot-logo .element-drag-handle {
+  width: 28px;
+  height: 16px;
+  top: 3px;
+}
+
+.inserted-image.slot-logo .element-drag-handle::after {
+  box-shadow:
+    0 0 0 0 white,
+    6px 0 0 0 white,
+    0 5px 0 0 white,
+    6px 5px 0 0 white;
+  transform: translate(calc(-50% - 3px), calc(-50% - 2.5px));
+}
+
+/* Make delete button smaller for logo */
+.inserted-image.slot-logo .element-delete-button {
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  top: -6px;
+  right: -6px;
+}
+
+/* Reduce min-height for compact logo */
+.inserted-image.slot-logo.inserted-element-placeholder {
+  min-height: 60px;
+}
+
+/* ===== CONTENT MODE (When actual content is loaded) ===== */
+
+.inserted-image:not(.placeholder-mode),
+.inserted-chart:not(.placeholder-mode),
+.inserted-infographic:not(.placeholder-mode),
+.inserted-diagram:not(.placeholder-mode) {
+  background: transparent;
+  border-style: solid !important;
+  border-color: transparent !important;
+}
+
+.inserted-image:not(.placeholder-mode):hover,
+.inserted-chart:not(.placeholder-mode):hover,
+.inserted-infographic:not(.placeholder-mode):hover,
+.inserted-diagram:not(.placeholder-mode):hover {
+  border-color: #94a3b8 !important;
+}
+
+.inserted-image:not(.placeholder-mode).element-selected,
+.inserted-chart:not(.placeholder-mode).element-selected,
+.inserted-infographic:not(.placeholder-mode).element-selected,
+.inserted-diagram:not(.placeholder-mode).element-selected {
+  border-color: #3b82f6 !important;
+}
+
+/* v7.5.x: Remove border from chart elements for cleaner presentation view */
+/* Charts should blend seamlessly without decorative borders */
+.inserted-chart:not(.placeholder-mode) {
+  border: none !important;
+}
+
+.inserted-chart:not(.placeholder-mode):hover {
+  border: none !important;
+}
+
+.inserted-chart:not(.placeholder-mode).element-selected {
+  border: none !important;
+}
+
+/* Hide placeholder content when actual content is loaded */
+.inserted-image:not(.placeholder-mode) .element-placeholder-content,
+.inserted-chart:not(.placeholder-mode) .element-placeholder-content,
+.inserted-infographic:not(.placeholder-mode) .element-placeholder-content,
+.inserted-diagram:not(.placeholder-mode) .element-placeholder-content,
+.inserted-image:not(.placeholder-mode) .element-type-badge,
+.inserted-chart:not(.placeholder-mode) .element-type-badge,
+.inserted-infographic:not(.placeholder-mode) .element-type-badge,
+.inserted-diagram:not(.placeholder-mode) .element-type-badge {
+  display: none;
+}
+
+/* ===== ACTUAL CONTENT CONTAINERS ===== */
+
+.element-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Image element content */
+.inserted-image .element-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* ===== I-SERIES IMAGE OVERRIDES ===== */
+/* I-series layouts require edge-to-edge images with absolutely no padding, margin, or border radius */
+/* MUST use .reveal .slides prefix for specificity over borders.css rule */
+
+/* Target the parent .inserted-image container */
+/* COMPREHENSIVE override of ALL base styles for I-series edge-to-edge images */
+/* Must override: background, display, borders, dimensions from .inserted-element-placeholder */
+.reveal .slides section[data-layout^="I1-"] .inserted-image,
+.reveal .slides section[data-layout^="I2-"] .inserted-image,
+.reveal .slides section[data-layout^="I3-"] .inserted-image,
+.reveal .slides section[data-layout^="I4-"] .inserted-image {
+  position: relative !important;  /* Positioning context for absolute child */
+  background: transparent !important;  /* Override #f8fafc gray that shows through as gaps */
+  border-radius: 0 !important;
+  border: none !important;        /* Remove the 1px border from base .inserted-element-placeholder */
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;    /* Clip any overflow from slightly oversized children */
+  /* Ensure grid item fills its cell completely */
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  /* Override flexbox centering from base that could misalign content */
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+/* Target the .element-content child - Use absolute positioning to fill entire container */
+/* Use display:block to override flexbox centering, use slightly oversized (101%) to cover any subpixel gaps */
+.reveal .slides section[data-layout^="I1-"] .inserted-image .element-content,
+.reveal .slides section[data-layout^="I2-"] .inserted-image .element-content,
+.reveal .slides section[data-layout^="I3-"] .inserted-image .element-content,
+.reveal .slides section[data-layout^="I4-"] .inserted-image .element-content {
+  position: absolute !important;  /* Take out of flexbox flow */
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;           /* Fill entire parent container */
+  /* Slightly oversized to account for subpixel rounding gaps */
+  width: 106% !important;
+  height: 106% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  /* Override base flexbox centering that misaligns content */
+  display: block !important;
+  align-items: unset !important;
+  justify-content: unset !important;
+}
+
+/* Target the img itself - use !important to override inline styles */
+/* Slightly oversized (101%) to cover any subpixel gaps at edges */
+.reveal .slides section[data-layout^="I1-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I2-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I3-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I4-"] .inserted-image .element-content img,
+.reveal .slides section[data-layout^="I1-"] .inserted-image img,
+.reveal .slides section[data-layout^="I2-"] .inserted-image img,
+.reveal .slides section[data-layout^="I3-"] .inserted-image img,
+.reveal .slides section[data-layout^="I4-"] .inserted-image img {
+  border-radius: 0 !important;
+  width: 105% !important;         /* Slightly oversized to cover subpixel gaps */
+  height: 105% !important;        /* Slightly oversized to cover subpixel gaps */
+  object-fit: fill !important;    /* fill allows stretching to fill space */
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;       /* Allow vertical stretch */
+  min-width: 0 !important;        /* Allow horizontal stretch */
+  display: block !important;      /* Remove inline spacing */
+}
+
+/* Chart element content */
+.inserted-chart .element-content canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Infographic/Diagram SVG content */
+.inserted-infographic .element-content svg,
+.inserted-diagram .element-content svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== VIEW MODE - Hide controls ===== */
+
+body:not([data-mode="edit"]) .inserted-element-placeholder {
+  border: none !important;
+}
+
+body:not([data-mode="edit"]) .inserted-element-placeholder .element-drag-handle,
+body:not([data-mode="edit"]) .inserted-element-placeholder .resize-handle,
+body:not([data-mode="edit"]) .inserted-element-placeholder .element-delete-button {
+  display: none !important;
+}
+
+/* ===== LOCKED STATE ===== */
+
+.inserted-element-placeholder.element-locked {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ===== HIDDEN STATE ===== */
+
+.inserted-element-placeholder.element-hidden {
+  display: none;
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .inserted-element-placeholder .resize-handle,
+  .inserted-element-placeholder .element-drag-handle,
+  .inserted-element-placeholder .element-delete-button,
+  .inserted-element-placeholder .element-type-badge {
+    display: none !important;
+  }
+
+  .inserted-element-placeholder {
+    border: none !important;
+  }
+
+  .inserted-element-placeholder.placeholder-mode {
+    display: none !important;
+  }
+}

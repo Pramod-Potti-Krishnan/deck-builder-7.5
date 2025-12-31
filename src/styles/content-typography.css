@@ -1,0 +1,243 @@
+/**
+ * Content Typography CSS
+ *
+ * Styles for body slot content with rich HTML (headings, paragraphs, lists).
+ * Uses CSS variables from theme-variables.css for consistent theming.
+ *
+ * These styles target content within body/content slots that contain
+ * user-generated or AI-generated rich text.
+ */
+
+/* ========== BASE BODY SLOT STYLES ========== */
+
+.slot-type-body,
+[data-slot-type="body"],
+[data-slot-type="content"],
+.textbox-content,
+.rich-content {
+  color: var(--theme-text-body);
+  font-family: var(--theme-font-family);
+  font-size: var(--theme-body-size);
+  line-height: var(--theme-body-line-height);
+}
+
+/* ========== HEADING HIERARCHY ========== */
+
+[data-slot-type="body"] h1,
+[data-slot-type="content"] h1,
+.textbox-content h1,
+.rich-content h1 {
+  font-size: var(--theme-body-h1-size);
+  font-weight: bold;
+  color: var(--theme-text-primary);
+  margin-top: 0;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+[data-slot-type="body"] h2,
+[data-slot-type="content"] h2,
+.textbox-content h2,
+.rich-content h2 {
+  font-size: var(--theme-body-h2-size);
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  margin-top: 24px;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+[data-slot-type="body"] h3,
+[data-slot-type="content"] h3,
+.textbox-content h3,
+.rich-content h3 {
+  font-size: var(--theme-body-h3-size);
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  margin-top: 20px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+[data-slot-type="body"] h4,
+[data-slot-type="content"] h4,
+.textbox-content h4,
+.rich-content h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+/* ========== PARAGRAPHS ========== */
+
+[data-slot-type="body"] p,
+[data-slot-type="content"] p,
+.textbox-content p,
+.rich-content p {
+  font-size: var(--theme-body-p-size);
+  line-height: var(--theme-body-line-height);
+  color: var(--theme-text-body);
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+[data-slot-type="body"] p:last-child,
+[data-slot-type="content"] p:last-child,
+.textbox-content p:last-child,
+.rich-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ========== LISTS ========== */
+
+[data-slot-type="body"] ul,
+[data-slot-type="body"] ol,
+[data-slot-type="content"] ul,
+[data-slot-type="content"] ol,
+.textbox-content ul,
+.textbox-content ol,
+.rich-content ul,
+.rich-content ol {
+  padding-left: 24px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  color: var(--theme-text-body);
+}
+
+[data-slot-type="body"] li,
+[data-slot-type="content"] li,
+.textbox-content li,
+.rich-content li {
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+[data-slot-type="body"] li:last-child,
+[data-slot-type="content"] li:last-child,
+.textbox-content li:last-child,
+.rich-content li:last-child {
+  margin-bottom: 0;
+}
+
+/* Nested lists */
+[data-slot-type="body"] ul ul,
+[data-slot-type="body"] ol ol,
+[data-slot-type="content"] ul ul,
+[data-slot-type="content"] ol ol {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* ========== LINKS ========== */
+
+[data-slot-type="body"] a,
+[data-slot-type="content"] a,
+.textbox-content a,
+.rich-content a {
+  color: var(--theme-primary);
+  text-decoration: none;
+}
+
+[data-slot-type="body"] a:hover,
+[data-slot-type="content"] a:hover,
+.textbox-content a:hover,
+.rich-content a:hover {
+  color: var(--theme-primary-dark);
+  text-decoration: underline;
+}
+
+/* ========== INLINE FORMATTING ========== */
+
+[data-slot-type="body"] strong,
+[data-slot-type="body"] b,
+[data-slot-type="content"] strong,
+[data-slot-type="content"] b,
+.textbox-content strong,
+.textbox-content b,
+.rich-content strong,
+.rich-content b {
+  font-weight: 600;
+  color: var(--theme-text-primary);
+}
+
+[data-slot-type="body"] em,
+[data-slot-type="body"] i,
+[data-slot-type="content"] em,
+[data-slot-type="content"] i,
+.textbox-content em,
+.textbox-content i,
+.rich-content em,
+.rich-content i {
+  font-style: italic;
+}
+
+[data-slot-type="body"] code,
+[data-slot-type="content"] code,
+.textbox-content code,
+.rich-content code {
+  font-family: 'Fira Code', 'Monaco', monospace;
+  font-size: 0.9em;
+  background-color: var(--theme-bg-alt);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--theme-text-primary);
+}
+
+/* ========== BLOCKQUOTES ========== */
+
+[data-slot-type="body"] blockquote,
+[data-slot-type="content"] blockquote,
+.textbox-content blockquote,
+.rich-content blockquote {
+  margin: 16px 0;
+  padding: 12px 20px;
+  border-left: 4px solid var(--theme-primary);
+  background-color: var(--theme-bg-alt);
+  color: var(--theme-text-secondary);
+  font-style: italic;
+}
+
+/* ========== HORIZONTAL RULES ========== */
+
+[data-slot-type="body"] hr,
+[data-slot-type="content"] hr,
+.textbox-content hr,
+.rich-content hr {
+  border: none;
+  border-top: 1px solid var(--theme-border);
+  margin: 24px 0;
+}
+
+/* ========== TABLES (for future use) ========== */
+
+[data-slot-type="body"] table,
+[data-slot-type="content"] table,
+.textbox-content table,
+.rich-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+[data-slot-type="body"] th,
+[data-slot-type="content"] th,
+.textbox-content th,
+.rich-content th {
+  text-align: left;
+  padding: 12px;
+  background-color: var(--theme-bg-alt);
+  border-bottom: 2px solid var(--theme-border);
+  font-weight: 600;
+  color: var(--theme-text-primary);
+}
+
+[data-slot-type="body"] td,
+[data-slot-type="content"] td,
+.textbox-content td,
+.rich-content td {
+  padding: 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-body);
+}

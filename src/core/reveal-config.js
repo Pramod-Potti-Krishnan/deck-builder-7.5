@@ -228,6 +228,12 @@ function onRevealReady(event) {
       console.warn(`   Actual: ${Math.round(bounds.width)}px × ${Math.round(bounds.height)}px`);
     }
   }
+
+  // Check for pending slide navigation (e.g., after adding a new slide)
+  // This must be called after Reveal.js is ready to ensure navigation works
+  if (typeof window.checkPendingSlideNavigation === 'function') {
+    window.checkPendingSlideNavigation();
+  }
 }
 
 /**

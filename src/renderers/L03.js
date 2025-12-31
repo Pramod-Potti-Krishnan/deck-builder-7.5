@@ -25,6 +25,7 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       <div class="slide-title"
            data-section-id="slide-${slideIndex}-section-title"
            data-section-type="title"
+           data-slot-name="title"
            data-slide-index="${slideIndex}"
            style="grid-row: 2/3; grid-column: 2/32; font-size: 42px; font-weight: bold; color: #1f2937; line-height: 1.2;">
         ${content.slide_title || ''}
@@ -34,6 +35,7 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       <div class="subtitle"
            data-section-id="slide-${slideIndex}-section-subtitle"
            data-section-type="subtitle"
+           data-slot-name="subtitle"
            data-slide-index="${slideIndex}"
            style="grid-row: 3/4; grid-column: 2/32; font-size: 24px; color: #6b7280; line-height: 1.4; margin-top: 8px;">
         ${content.element_1 || ''}
@@ -43,7 +45,9 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       <div class="chart-container"
            data-section-id="slide-${slideIndex}-section-chart1"
            data-section-type="chart1"
+           data-slot-name="chart1"
            data-slide-index="${slideIndex}"
+           data-format-owner="analytics_service"
            style="grid-row: 5/14; grid-column: 2/16;">
         ${content.element_4 || ''}
       </div>
@@ -52,7 +56,9 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       <div class="chart-container"
            data-section-id="slide-${slideIndex}-section-chart2"
            data-section-type="chart2"
+           data-slot-name="chart2"
            data-slide-index="${slideIndex}"
+           data-format-owner="analytics_service"
            style="grid-row: 5/14; grid-column: 17/31;">
         ${content.element_2 || ''}
       </div>
@@ -61,6 +67,7 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       <div class="body-primary"
            data-section-id="slide-${slideIndex}-section-body-left"
            data-section-type="body-left"
+           data-slot-name="body_left"
            data-slide-index="${slideIndex}"
            style="grid-row: 14/17; grid-column: 2/16; font-size: 20px; color: #374151; line-height: 1.6;">
         ${content.element_3 || ''}
@@ -70,6 +77,7 @@ function renderL03(content, slide = {}, slideIndex = 0) {
       <div class="body-primary"
            data-section-id="slide-${slideIndex}-section-body-right"
            data-section-type="body-right"
+           data-slot-name="body_right"
            data-slide-index="${slideIndex}"
            style="grid-row: 14/17; grid-column: 17/31; font-size: 20px; color: #374151; line-height: 1.6;">
         ${content.element_5 || ''}
@@ -77,16 +85,16 @@ function renderL03(content, slide = {}, slideIndex = 0) {
 
       <!-- Footer: Presentation Name (18px, matching L25) -->
       ${content.presentation_name ? `
-      <div class="footer-presentation-name" style="grid-row: 18/19; grid-column: 2/7; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
+      <div class="footer-presentation-name" data-slot-name="footer" style="grid-row: 18/19; grid-column: 2/20; padding: 8px 14px; font-size: 18px; color: #1f2937; font-weight: 500; display: flex; align-items: center; height: 100%;">
         ${content.presentation_name}
       </div>
       ` : ''}
 
-      <!-- Footer: Company Logo (bottom-right, matching L27) -->
-      ${content.company_logo ? `
-      <div class="footer-company-logo" style="grid-row: 17/19; grid-column: 30/32; display: flex; align-items: center; justify-content: center; padding: 10px;">
-        <div style="max-width: 50%; max-height: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-          ${content.company_logo}
+      <!-- Logo (top-right corner, 2×2 grid) -->
+      ${(content.logo || content.company_logo) ? `
+      <div class="logo-container" data-slot-name="logo" style="grid-row: 1/3; grid-column: 31/33; display: flex; align-items: center; justify-content: center; padding: 4px;">
+        <div style="max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center;">
+          ${content.logo || content.company_logo}
         </div>
       </div>
       ` : ''}

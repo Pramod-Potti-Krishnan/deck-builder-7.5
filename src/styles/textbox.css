@@ -17,7 +17,7 @@
 .inserted-textbox {
   z-index: 1000;
   background: transparent;
-  border: 3px dashed #6b7280 !important;  /* Grey border - FORCED */
+  border: 1px solid #6b7280 !important;  /* Grey border - thin solid */
   border-radius: 6px;
   min-height: 80px;
   overflow: visible !important;
@@ -36,6 +36,14 @@
 .inserted-textbox.dragging {
   z-index: 11000;
   opacity: 0.9;
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+/* Prevent text selection during drag */
+.inserted-textbox.dragging .textbox-content {
+  pointer-events: none;
+  user-select: none !important;
 }
 
 /* ===== EDITING STATE ===== */
@@ -45,29 +53,75 @@
   border-color: #10b981 !important;
 }
 
-/* ===== DRAG HANDLE (Light Blue, 30% bigger) ===== */
+/* ===== DRAG HANDLE (Rounded Rectangle, Translucent with 9-dot grid) ===== */
 
 .textbox-drag-handle {
   position: absolute;
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 62px;      /* 48 * 1.3 = 62 */
-  height: 26px;     /* 20 * 1.3 = 26 */
-  background: #60a5fa !important;  /* Light blue */
+  width: 44px;
+  height: 24px;
+  background: rgba(96, 165, 250, 0.35) !important;  /* Light blue, 65% transparent */
   cursor: move;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 13px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  transition: all 0.15s ease;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
   z-index: 102;
   user-select: none;
+  opacity: 0;  /* Hidden by default */
+}
+
+/* Show drag handle on hover or when selected */
+.inserted-textbox:hover .textbox-drag-handle,
+.inserted-textbox.element-selected .textbox-drag-handle {
+  opacity: 1;
+}
+
+/* Clean 3×3 dot grid using CSS grid */
+.textbox-drag-handle::before {
+  content: '';
+  display: grid;
+  grid-template-columns: repeat(3, 5px);
+  grid-template-rows: repeat(3, 5px);
+  gap: 3px;
+  width: 21px;   /* 3×5 + 2×3 = 21px */
+  height: 21px;
+}
+
+/* Each dot as a pseudo-element alternative: use box-shadow for 9 dots */
+.textbox-drag-handle::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  /* 3×3 grid of dots using box-shadow */
+  box-shadow:
+    /* Row 1 */
+    0 0 0 0 white,
+    8px 0 0 0 white,
+    16px 0 0 0 white,
+    /* Row 2 */
+    0 7px 0 0 white,
+    8px 7px 0 0 white,
+    16px 7px 0 0 white,
+    /* Row 3 */
+    0 14px 0 0 white,
+    8px 14px 0 0 white,
+    16px 14px 0 0 white;
+  /* Center the dot grid */
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% - 8px), calc(-50% - 7px));
 }
 
 .textbox-drag-handle:hover {
-  background: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.45) !important;
   transform: translateX(-50%) scale(1.05);
 }
 
@@ -108,19 +162,26 @@
   outline: none;
 }
 
-/* ===== RESIZE HANDLES (Simple small black-bordered squares) ===== */
+/* ===== RESIZE HANDLES (1.5x larger squares for easier grabbing) ===== */
 
 .inserted-textbox .resize-handle {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 12px;   /* 8px * 1.5 = 12px */
+  height: 12px;  /* 8px * 1.5 = 12px */
   background: #ffffff;
   border: 1px solid #000000;
-  opacity: 1 !important;
-  visibility: visible !important;
+  opacity: 0;  /* Hidden by default - show only when selected */
+  visibility: hidden;
   z-index: 1001;
   pointer-events: auto;
   box-sizing: border-box;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+/* Show resize handles only when element is selected */
+.inserted-textbox.element-selected .resize-handle {
+  opacity: 1;
+  visibility: visible;
 }
 
 .inserted-textbox .resize-handle:hover {
@@ -134,7 +195,7 @@
 
 /* === Left handle (w) === */
 .resize-handle-w {
-  left: -4px;
+  left: -6px;   /* Half of 12px */
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -142,7 +203,7 @@
 
 /* === Right handle (e) === */
 .resize-handle-e {
-  right: -4px;
+  right: -6px;  /* Half of 12px */
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -150,7 +211,7 @@
 
 /* === Bottom handle (s) === */
 .resize-handle-s {
-  bottom: -4px;
+  bottom: -6px;  /* Half of 12px */
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
@@ -158,9 +219,44 @@
 
 /* === Bottom-right corner (se) === */
 .resize-handle-se {
-  right: -4px;
-  bottom: -4px;
+  right: -6px;   /* Half of 12px */
+  bottom: -6px;  /* Half of 12px */
   cursor: nwse-resize;
+}
+
+/* ===== DELETE BUTTON ===== */
+
+.inserted-textbox .delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 1002;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.inserted-textbox:hover .delete-button,
+.inserted-textbox.element-selected .delete-button {
+  opacity: 1;
+}
+
+.inserted-textbox .delete-button:hover {
+  transform: scale(1.15);
+  background: #dc2626;
 }
 
 /* ===== VIEW MODE - Hide controls ===== */
@@ -170,7 +266,8 @@ body:not([data-mode="edit"]) .inserted-textbox {
 }
 
 body:not([data-mode="edit"]) .inserted-textbox .textbox-drag-handle,
-body:not([data-mode="edit"]) .inserted-textbox .resize-handle {
+body:not([data-mode="edit"]) .inserted-textbox .resize-handle,
+body:not([data-mode="edit"]) .inserted-textbox .delete-button {
   display: none !important;
 }
 
@@ -207,7 +304,8 @@ body:not([data-mode="edit"]) .inserted-textbox .textbox-content {
 
 @media print {
   .inserted-textbox .resize-handle,
-  .inserted-textbox .textbox-drag-handle {
+  .inserted-textbox .textbox-drag-handle,
+  .inserted-textbox .delete-button {
     display: none !important;
   }
 

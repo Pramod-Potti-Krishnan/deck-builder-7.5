@@ -75,7 +75,7 @@
   border: none;
   background: transparent;
   color: #1a1a1a;
-  font-weight: 600;
+  /* font-weight controlled by template-registry.js inline styles */
 }
 
 /* Rich content area - no default border (show only with 'B' toggle) */
@@ -506,7 +506,7 @@
 
 /* ===== Content Area Borders (visible when 'B' pressed) ===== */
 /* Border toggle is activated via JavaScript adding 'show-borders' class to body */
-/* Dotted line borders matching layout builder style */
+/* Uniform gray solid borders - same color as edit mode for consistency */
 /* Using outline instead of border to avoid content shifting */
 body.show-borders .chart-container,
 body.show-borders .diagram-container,
@@ -515,55 +515,55 @@ body.show-borders .body-primary,
 body.show-borders .text-content,
 body.show-borders .rich-content-area,
 body.show-borders .hero-content-area {
-  outline: 2px dotted #ff0000 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Chart containers - Blue dotted outline */
+/* Chart containers */
 body.show-borders .chart-container {
-  outline: 2px dotted #3b82f6 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Diagram containers - Purple dotted outline */
+/* Diagram containers */
 body.show-borders .diagram-container {
-  outline: 2px dotted #8b5cf6 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Image containers - Red dotted outline */
+/* Image containers */
 body.show-borders .image-container {
-  outline: 2px dotted #ef4444 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Text/Body containers - Green dotted outline */
+/* Text/Body containers */
 body.show-borders .body-primary,
 body.show-borders .text-content {
-  outline: 2px dotted #10b981 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Rich content areas (L25) - Green dotted outline */
+/* Rich content areas (L25) */
 body.show-borders .rich-content-area {
-  outline: 2px dotted #10b981 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Hero content areas (L29) - Orange dotted outline */
+/* Hero content areas (L29) */
 body.show-borders .hero-content-area {
-  outline: 2px dotted #f97316 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Title and subtitle borders when 'B' pressed - Light purple dotted outline */
+/* Title and subtitle borders when 'B' pressed */
 body.show-borders .slide-title,
 body.show-borders .subtitle {
-  outline: 2px dotted #a78bfa !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Text content elements when 'B' pressed - Light gray dotted outline */
+/* Text content elements when 'B' pressed */
 body.show-borders .body-text,
 body.show-borders .main-text-content,
 body.show-borders .explanation-text,
@@ -575,19 +575,101 @@ body.show-borders .numbered-items,
 body.show-borders .column-content,
 body.show-borders .item-1-content,
 body.show-borders .item-2-content {
-  outline: 2px dotted #9ca3af !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Footer elements show borders when 'B' is pressed - Yellow dotted outline */
+/* Footer elements show borders when 'B' is pressed */
 body.show-borders .footer-presentation-name,
 body.show-borders .footer-company-logo {
-  outline: 2px dotted #fbbf24 !important;
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }
 
-/* Inserted text boxes show borders when 'B' is pressed - Orange dotted outline */
+/* Inserted text boxes show borders when 'B' is pressed */
 body.show-borders .inserted-textbox {
-  outline: 2px dotted #f59e0b !important;
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* ===== FRONTEND TEMPLATE BORDERS (H1-H3, C1-C6, S1-S4, B1) ===== */
+/* These classes are used by the new frontend template system */
+/* Uniform gray solid borders - consistent with edit mode */
+
+/* Hero template title/subtitle elements */
+body.show-borders .title-hero,
+body.show-borders .subtitle-hero {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template footer/logo */
+body.show-borders .footer-hero,
+body.show-borders .logo-hero {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template background */
+body.show-borders .background-hero {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template section number */
+body.show-borders .section-number-hero {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Hero template contact info */
+body.show-borders .contact-hero {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Content template content area */
+body.show-borders .content-area {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Split template left/right content */
+body.show-borders .content-left,
+body.show-borders .content-right {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Split template image area */
+body.show-borders .image-area {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Split template captions */
+body.show-borders .caption-left,
+body.show-borders .caption-right {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Comparison headers */
+body.show-borders .header-left,
+body.show-borders .header-right {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Blank canvas */
+body.show-borders .canvas {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
+/* Generic footer and logo (used by content/split templates) */
+body.show-borders .footer,
+body.show-borders .logo {
+  outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
 }

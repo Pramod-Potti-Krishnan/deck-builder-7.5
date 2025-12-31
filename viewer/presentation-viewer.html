@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Presentation Viewer - v7.5-main</title>
 
+  <!-- Google Fonts - All fonts used in templates -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fira+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN - Required for diagram layouts (Kanban, flowcharts, etc.) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- Reveal.js Core -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
@@ -12,15 +20,20 @@
   <!-- v7.5 Styles -->
   <link rel="stylesheet" href="/src/styles/core/reset.css?v=20251116">
   <link rel="stylesheet" href="/src/styles/core/grid-system.css?v=20251116">
-  <link rel="stylesheet" href="/src/styles/core/borders.css?v=20251116">
-  <link rel="stylesheet" href="/src/styles/content-area.css?v=20251116">
-  <link rel="stylesheet" href="/src/styles/edit-mode.css?v=20251116">
-  <link rel="stylesheet" href="/src/styles/review-mode.css?v=20250124">
+  <link rel="stylesheet" href="/src/styles/core/borders.css?v=20251206-gray">
+  <link rel="stylesheet" href="/src/styles/content-area.css?v=20251206-solid">
+  <link rel="stylesheet" href="/src/styles/edit-mode.css?v=20251206-solid">
+  <link rel="stylesheet" href="/src/styles/review-mode.css?v=20251206-solid">
   <link rel="stylesheet" href="/src/styles/regeneration-panel.css?v=20250124">
   <link rel="stylesheet" href="/src/styles/text-toolbar.css?v=20251130">
   <link rel="stylesheet" href="/src/styles/auto-save.css?v=20251130">
-  <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251201">
-  <link rel="stylesheet" href="/src/styles/textbox.css?v=20251202-simple">
+  <link rel="stylesheet" href="/src/styles/element-manager.css?v=20251206-solid">
+  <link rel="stylesheet" href="/src/styles/textbox.css?v=20251206-solid">
+  <link rel="stylesheet" href="/src/styles/elements.css?v=20251224-106pct">
+  <link rel="stylesheet" href="/src/styles/slot-converter.css?v=20251206-solid">
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="/src/styles/theme-variables.css?v=20251207">
+  <link rel="stylesheet" href="/src/styles/content-typography.css?v=20251207">
 
   <style>
     /* Minimal additional styling */
@@ -57,22 +70,23 @@
 </head>
 <body>
   <!-- Help Text -->
-  <div id="help-text">
+  <!-- Help text - hidden by default for clean UI (frontend controls this) -->
+  <div id="help-text" style="display: none;">
     Press 'R' for review mode | 'E' for edit mode | 'G' for grid | 'B' for borders | '?' for help
   </div>
 
-  <!-- Edit Mode UI -->
-  <button id="toggle-edit-mode" onclick="toggleEditMode()">✏️ Edit Mode</button>
+  <!-- Edit Mode UI - Hidden for clean UI (functionality remains, controlled via postMessage/keyboard) -->
+  <button id="toggle-edit-mode" onclick="toggleEditMode()" style="display: none;">✏️ Edit Mode</button>
 
-  <div id="edit-controls">
+  <div id="edit-controls" style="display: none;">
     <button id="save-btn" onclick="saveAllChanges()" title="Save Changes">💾</button>
     <button id="cancel-btn" onclick="cancelEdits()" title="Cancel">❌</button>
     <button id="view-history-btn" onclick="showVersionHistory()" title="Version History">📋</button>
   </div>
 
-  <div id="edit-notification"></div>
+  <div id="edit-notification" style="display: none;"></div>
 
-  <div class="edit-shortcuts">
+  <div class="edit-shortcuts" style="display: none;">
     <div><kbd>E</kbd> Toggle Edit Mode</div>
     <div><kbd>Ctrl+S</kbd> Save Changes</div>
     <div><kbd>ESC</kbd> Cancel</div>
@@ -99,8 +113,8 @@
     </div>
   </div>
 
-  <!-- Rich Text Floating Toolbar -->
-  <div id="text-toolbar" class="text-toolbar hidden">
+  <!-- Rich Text Floating Toolbar - Hidden (frontend provides formatting panel via postMessage) -->
+  <div id="text-toolbar" class="text-toolbar hidden" style="display: none !important;">
     <!-- Inline Formatting -->
     <div class="toolbar-group">
       <button data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
@@ -232,29 +246,83 @@
   <!-- World-Class Editor APIs (v7.5.3) -->
   <script src="/src/utils/format-api.js"></script>
   <script src="/src/utils/drag-drop.js?v=20251201-semicircle"></script>
-  <script src="/src/utils/element-manager.js?v=20251202-click-fix"></script>
+  <script src="/src/utils/element-manager.js?v=20251221-logo-update"></script>
 
-  <!-- v7.5 Renderers (6 layouts) -->
-  <script src="/src/renderers/L01.js"></script>
-  <script src="/src/renderers/L02.js"></script>
-  <script src="/src/renderers/L03.js"></script>
-  <script src="/src/renderers/L25.js"></script>
-  <script src="/src/renderers/L27.js"></script>
-  <script src="/src/renderers/L29.js"></script>
+  <!-- v7.5 Renderers (6 backend layouts) -->
+  <script src="/src/renderers/L01.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/L02.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/L03.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/L25.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/L27.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/L29.js?v=20251221-logo-update"></script>
+
+  <!-- Frontend Template System (NEW - does not replace backend layouts) -->
+  <script src="/src/templates/template-registry.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/style-builder.js?v=20251221-logo-update"></script>
+  <!-- Theme JS -->
+  <script src="/src/themes/theme-registry.js?v=20251221-logo-update"></script>
+  <script src="/src/themes/theme-manager.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/hero-templates.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/content-templates.js?v=20251221-logo-update"></script>
+  <script src="/src/renderers/split-templates.js?v=20251221-logo-update"></script>
+
+  <!-- Slot Converter - Converts template slots to Element Type instances -->
+  <script src="/src/utils/slot-converter.js?v=20251221-logo-update"></script>
+
+  <!-- Direct Element Creator - NEW simplified approach for C1-C6 templates -->
+  <script src="/src/utils/direct-element-creator.js?v=20251221-logo-update"></script>
 
   <!-- Presentation Rendering Script -->
   <script>
     // Presentation data (injected by server)
     const PRESENTATION_DATA = null;
 
-    // Renderer registry (6 layouts)
+    // Renderer registry - Backend layouts (6) + Frontend templates (19)
     const RENDERERS = {
+      // Backend layouts (continue to work as-is)
       'L01': window.renderL01,
       'L02': window.renderL02,
       'L03': window.renderL03,
       'L25': window.renderL25,
       'L27': window.renderL27,
-      'L29': window.renderL29
+      'L29': window.renderL29,
+
+      // Frontend templates - Hero (4)
+      'H1-generated': window.renderH1Generated,
+      'H1-structured': window.renderH1Structured,
+      'H2-section': window.renderH2Section,
+      'H3-closing': window.renderH3Closing,
+
+      // Frontend templates - Content (4)
+      'C1-text': window.renderC1Text,
+      'C3-chart': window.renderC3Chart,
+      'C4-infographic': window.renderC4Infographic,
+      'C5-diagram': window.renderC5Diagram,
+
+      // Frontend templates - Visual + Text (4) NEW
+      'V1-image-text': window.renderV1ImageText,
+      'V2-chart-text': window.renderV2ChartText,
+      'V3-diagram-text': window.renderV3DiagramText,
+      'V4-infographic-text': window.renderV4InfographicText,
+
+      // Frontend templates - Image Split (4) NEW
+      'I1-image-left': window.renderI1ImageLeft,
+      'I2-image-right': window.renderI2ImageRight,
+      'I3-image-left-narrow': window.renderI3ImageLeftNarrow,
+      'I4-image-right-narrow': window.renderI4ImageRightNarrow,
+
+      // Frontend templates - Split (2)
+      'S3-two-visuals': window.renderS3TwoVisuals,
+      'S4-comparison': window.renderS4Comparison,
+
+      // Frontend templates - Blank (1)
+      'B1-blank': window.renderB1Blank,
+
+      // Legacy templates (kept for backward compatibility)
+      'C2-table': window.renderC1Text,        // Tables work in C1-text
+      'C6-image': window.renderI1ImageLeft,   // Use I1 for single images
+      'S1-visual-text': window.renderV1ImageText,  // Generic visual -> V1
+      'S2-image-content': window.renderI1ImageLeft // Image+content -> I1
     };
 
     /**
@@ -281,6 +349,7 @@
                 content: tb.content || '',
                 zIndex: tb.z_index || 1000,
                 style: tb.style || {},
+                textStyle: tb.text_style || null,  // Text formatting styles (color, font, etc.)
                 draggable: true,
                 resizable: true,
                 locked: tb.locked || false,
@@ -300,6 +369,160 @@
     }
 
     /**
+     * Restore images from saved slide data
+     */
+    function restoreImages(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const images = slide.images || [];
+        if (images.length === 0) return;
+
+        console.log(`Restoring ${images.length} image(s) on slide ${slideIndex + 1}`);
+
+        images.forEach(img => {
+          try {
+            if (typeof window.ElementManager?.insertImage === 'function') {
+              const config = {
+                id: img.id,
+                gridRow: img.position?.grid_row || '4/14',
+                gridColumn: img.position?.grid_column || '8/24',
+                imageUrl: img.image_url || null,
+                alt: img.alt_text || '',
+                objectFit: img.object_fit || 'cover',
+                zIndex: img.z_index || 100,
+                locked: img.locked || false,
+                visible: img.visible !== false
+              };
+
+              window.ElementManager.insertImage(slideIndex, config);
+              console.log(`✅ Restored image: ${img.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore image ${img.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
+     * Restore charts from saved slide data
+     */
+    function restoreCharts(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const charts = slide.charts || [];
+        if (charts.length === 0) return;
+
+        console.log(`Restoring ${charts.length} chart(s) on slide ${slideIndex + 1}`);
+
+        charts.forEach(chart => {
+          try {
+            if (typeof window.ElementManager?.insertChart === 'function') {
+              const config = {
+                id: chart.id,
+                gridRow: chart.position?.grid_row || '4/14',
+                gridColumn: chart.position?.grid_column || '8/24',
+                chartType: chart.chart_type || null,
+                chartConfig: chart.chart_config || null,
+                chartHtml: chart.chart_html || null,
+                zIndex: chart.z_index || 100,
+                locked: chart.locked || false,
+                visible: chart.visible !== false
+              };
+
+              window.ElementManager.insertChart(slideIndex, config);
+              console.log(`✅ Restored chart: ${chart.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore chart ${chart.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
+     * Restore infographics from saved slide data
+     */
+    function restoreInfographics(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const infographics = slide.infographics || [];
+        if (infographics.length === 0) return;
+
+        console.log(`Restoring ${infographics.length} infographic(s) on slide ${slideIndex + 1}`);
+
+        infographics.forEach(infographic => {
+          try {
+            if (typeof window.ElementManager?.insertInfographic === 'function') {
+              const config = {
+                id: infographic.id,
+                gridRow: infographic.position?.grid_row || '4/14',
+                gridColumn: infographic.position?.grid_column || '8/24',
+                infographicType: infographic.infographic_type || null,
+                svgContent: infographic.svg_content || null,
+                items: infographic.items || null,
+                zIndex: infographic.z_index || 100,
+                locked: infographic.locked || false,
+                visible: infographic.visible !== false
+              };
+
+              window.ElementManager.insertInfographic(slideIndex, config);
+              console.log(`✅ Restored infographic: ${infographic.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore infographic ${infographic.id}:`, error);
+          }
+        });
+      });
+    }
+
+    /**
+     * Restore diagrams from saved slide data
+     */
+    function restoreDiagrams(slides) {
+      if (!slides || !Array.isArray(slides)) return;
+
+      slides.forEach((slide, slideIndex) => {
+        const diagrams = slide.diagrams || [];
+        if (diagrams.length === 0) return;
+
+        console.log(`Restoring ${diagrams.length} diagram(s) on slide ${slideIndex + 1}`);
+
+        diagrams.forEach(diagram => {
+          try {
+            if (typeof window.ElementManager?.insertDiagram === 'function') {
+              const config = {
+                id: diagram.id,
+                gridRow: diagram.position?.grid_row || '4/14',
+                gridColumn: diagram.position?.grid_column || '8/24',
+                diagramType: diagram.diagram_type || null,
+                mermaidCode: diagram.mermaid_code || null,
+                svgContent: diagram.svg_content || null,
+                direction: diagram.direction || 'TB',
+                theme: diagram.theme || 'default',
+                zIndex: diagram.z_index || 100,
+                locked: diagram.locked || false,
+                visible: diagram.visible !== false
+              };
+
+              window.ElementManager.insertDiagram(slideIndex, config);
+              console.log(`✅ Restored diagram: ${diagram.id}`);
+            }
+          } catch (error) {
+            console.error(`Failed to restore diagram ${diagram.id}:`, error);
+          }
+        });
+      });
+    }
+
+    // Global presentation data for derivative elements support
+    // This is updated when presentation is loaded and used by handleAddSlide
+    window.currentPresentationData = null;
+
+    /**
      * Render presentation from data
      */
     function renderPresentation(data) {
@@ -307,6 +530,9 @@
         console.error('Invalid presentation data');
         return;
       }
+
+      // Store presentation data globally for derivative elements support
+      window.currentPresentationData = data;
 
       const slidesContainer = document.getElementById('slides-container');
       slidesContainer.innerHTML = '';
@@ -404,12 +630,161 @@
           });
         }
 
-        // Restore text boxes from saved data
+        // ============================================
+        // APPLY THEME ON LOAD
+        // ============================================
+        // Inject theme CSS variables when presentation loads
+        // This ensures hero slides display with correct theme colors immediately
+        if (data.theme_config?.theme_id) {
+          const themeId = data.theme_config.theme_id;
+          const colorOverrides = data.theme_config.color_overrides || {};
+          if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+            const theme = THEME_REGISTRY[themeId] || THEME_REGISTRY['corporate-blue'];
+            ThemeManager.injectThemeStyles(theme, colorOverrides);
+            console.log(`[Theming] Applied theme '${themeId}' on load`);
+          } else {
+            console.warn('[Theming] ThemeManager or THEME_REGISTRY not available for theme-on-load');
+          }
+        } else {
+          // Apply default theme if no theme_config exists
+          if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+            const defaultTheme = THEME_REGISTRY['corporate-blue'];
+            if (defaultTheme) {
+              ThemeManager.injectThemeStyles(defaultTheme, {});
+              console.log('[Theming] Applied default theme (corporate-blue) on load');
+            }
+          }
+        }
+
+        // v7.5.5: Apply theme MODE (light/dark) if specified
+        // This adds the 'theme-dark' class to root for CSS variable switching
+        if (data.theme_config?.theme_mode) {
+          if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.setThemeMode(data.theme_config.theme_mode);
+            console.log(`[Theming] Applied theme mode '${data.theme_config.theme_mode}' on load`);
+          }
+        }
+
+        // Restore all dynamic elements from saved data
         restoreTextBoxes(data.slides);
+        restoreImages(data.slides);
+        restoreCharts(data.slides);
+        restoreInfographics(data.slides);
+        restoreDiagrams(data.slides);
+
+        // Convert template slots to Element Type instances
+        // This enables drag handles, resize handles, and format panel for all templates
+        //
+        // NEW APPROACH: All C1-C6 content templates use Direct Element Creation
+        // - Slides use createElementsForTemplate() which reads from TEMPLATE_REGISTRY
+        // - Creates proper elements (TextBox, Image, Chart, Table, etc.) directly
+        // - Other templates still use convertHeroSlotsToElements()
+
+        // Templates using the NEW direct element approach (blank grid + add elements)
+        // All C1-C6 content templates, S1-S4 split templates, and H1-H3 hero templates use this approach
+        const directElementTemplates = [
+          // Content templates
+          'C1-text', 'C2-table', 'C3-chart', 'C4-infographic', 'C5-diagram', 'C6-image',
+          // Split templates
+          'S1-visual-text', 'S2-image-content', 'S3-two-visuals', 'S4-comparison',
+          // Hero templates (dark background)
+          'H1-structured', 'H2-section', 'H3-closing'
+        ];
+
+        // Templates using the OLD slot conversion approach
+        const slotConversionTemplates = [
+          // Only B1-blank remains using old approach
+          'B1-blank'
+        ];
+
+        data.slides.forEach((slide, index) => {
+          const slideElement = document.querySelector(
+            `.reveal .slides > section:nth-child(${index + 1})`
+          );
+
+          if (!slideElement) return;
+
+          // Check if this slide uses direct element creation
+          if (directElementTemplates.includes(slide.layout) || slideElement.hasAttribute('data-direct-elements')) {
+            // NEW approach: Create elements directly using ElementManager
+            if (typeof createElementsForTemplate === 'function') {
+              console.log(`[DirectElementCreator] Creating elements for slide ${index} (${slide.layout})`);
+              // Pass presentation data for derivative elements (footer/logo) support
+              createElementsForTemplate(slideElement, index, slide.layout, slide.content, data, data.slides.length);
+            } else {
+              console.warn('[DirectElementCreator] createElementsForTemplate not available');
+            }
+          } else if (slotConversionTemplates.includes(slide.layout)) {
+            // OLD approach: Convert slot HTML to Element Types
+            if (typeof convertHeroSlotsToElements === 'function') {
+              convertHeroSlotsToElements(slideElement, index, slide.layout);
+            }
+          }
+        });
+
+        console.log('[SlotConverter] Template element initialization complete');
 
         console.log(`✅ Presentation rendered: ${data.slides.length} slides`);
+
+        // Note: checkPendingSlideNavigation() is now called from reveal-config.js onRevealReady()
+        // This ensures Reveal.js is fully initialized before we attempt navigation
       }, 300);  // Give scripts 300ms to execute
     }
+
+    /**
+     * Check for pending slide navigation and execute it
+     * This handles auto-navigation to new slides after add/reload
+     */
+    function checkPendingSlideNavigation() {
+      try {
+        const pendingNav = sessionStorage.getItem('pendingSlideNavigation');
+        if (!pendingNav) return;
+
+        const navData = JSON.parse(pendingNav);
+
+        // Clear the pending navigation immediately to prevent loops
+        sessionStorage.removeItem('pendingSlideNavigation');
+
+        // Only process if recent (within 10 seconds) to avoid stale data
+        if (Date.now() - navData.timestamp > 10000) {
+          console.log('[Navigation] Pending navigation expired, ignoring');
+          return;
+        }
+
+        console.log(`[Navigation] Navigating to slide ${navData.slideIndex} after reload`);
+
+        // Navigate to the slide (0-based index)
+        if (typeof Reveal !== 'undefined' && Reveal.isReady()) {
+          Reveal.slide(navData.slideIndex);
+
+          // Enable edit mode if requested
+          if (navData.enableEditMode) {
+            // Small delay to ensure slide is fully visible before enabling edit mode
+            setTimeout(() => {
+              if (typeof enterEditMode === 'function') {
+                enterEditMode();
+                console.log('[Navigation] Edit mode enabled for new slide');
+              } else if (typeof toggleEditMode === 'function') {
+                // Fallback: use toggle if enterEditMode not available
+                const isEdit = document.body.getAttribute('data-mode') === 'edit';
+                if (!isEdit) {
+                  toggleEditMode();
+                  console.log('[Navigation] Edit mode toggled for new slide');
+                }
+              }
+            }, 200);
+          }
+        } else {
+          console.warn('[Navigation] Reveal.js not ready, cannot navigate');
+        }
+      } catch (error) {
+        console.error('[Navigation] Error processing pending navigation:', error);
+        sessionStorage.removeItem('pendingSlideNavigation');
+      }
+    }
+
+    // Expose to global scope for reveal-config.js to call when Reveal.js is ready
+    window.checkPendingSlideNavigation = checkPendingSlideNavigation;
 
     /**
      * Show help text briefly
@@ -422,10 +797,29 @@
       }, 3000);
     }
 
-    // Add keyboard shortcuts (Note: 'B' and 'C' are handled by RevealJS config)
+    // Add keyboard shortcuts
+    // Note: 'B' and 'C' are handled by RevealJS config
+    // v7.5.5: Added 1/2 for theme mode shortcuts (Phase 1 CSS variable theming)
     document.addEventListener('keydown', (e) => {
-      if (e.key === '?') {
-        showHelpText();
+      // Skip if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      switch(e.key) {
+        case '?':
+          showHelpText();
+          break;
+        case '1':
+          if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.setThemeMode('light');
+            console.log('[Theming] Keyboard: Switched to light mode');
+          }
+          break;
+        case '2':
+          if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.setThemeMode('dark');
+            console.log('[Theming] Keyboard: Switched to dark mode');
+          }
+          break;
       }
     });
 
@@ -472,8 +866,80 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Reload presentation to show new slide
-          window.location.reload();
+          // NO-RELOAD APPROACH: Insert slide directly into DOM
+          // This eliminates conflicts between template creation and restore functions
+
+          const newSlideIndex = data.slide_index !== undefined ? data.slide_index : (params.position || 0);
+          const layout = params.layout || 'C1-text';
+          const content = params.content || {};
+
+          console.log(`[handleAddSlide] Adding slide ${newSlideIndex} with layout ${layout} (no reload)`);
+
+          // 1. Get renderer for this layout
+          const renderer = RENDERERS[layout];
+          if (!renderer) {
+            console.error(`[handleAddSlide] No renderer found for layout: ${layout}`);
+            return { success: false, action: 'addSlide', error: `Unknown layout: ${layout}` };
+          }
+
+          // 2. Render slide HTML
+          const slideHTML = renderer(content, { layout }, newSlideIndex);
+
+          // 3. Parse HTML to section element
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = slideHTML;
+          const newSection = tempDiv.querySelector('section');
+
+          if (!newSection) {
+            console.error('[handleAddSlide] Renderer did not return a section element');
+            return { success: false, action: 'addSlide', error: 'Failed to render slide' };
+          }
+
+          // 4. Insert at correct position in DOM
+          const slidesContainer = document.getElementById('slides-container');
+          const existingSlides = slidesContainer.querySelectorAll(':scope > section');
+
+          if (newSlideIndex >= existingSlides.length) {
+            slidesContainer.appendChild(newSection);
+          } else {
+            slidesContainer.insertBefore(newSection, existingSlides[newSlideIndex]);
+          }
+
+          // 5. Update data-slide-index on ALL slides (critical for element IDs)
+          slidesContainer.querySelectorAll(':scope > section').forEach((section, i) => {
+            section.setAttribute('data-slide-index', i);
+          });
+
+          // 6. Create elements for the new slide
+          if (typeof createElementsForTemplate === 'function') {
+            console.log(`[handleAddSlide] Creating elements for slide ${newSlideIndex} (${layout})`);
+            // Use global presentation data for derivative elements (footer/logo)
+            const totalSlides = slidesContainer.querySelectorAll(':scope > section').length;
+            createElementsForTemplate(newSection, newSlideIndex, layout, content, window.currentPresentationData, totalSlides);
+          } else {
+            console.warn('[handleAddSlide] createElementsForTemplate not available');
+          }
+
+          // 7. Sync Reveal.js to recognize new slide
+          if (typeof Reveal !== 'undefined') {
+            Reveal.sync();
+            console.log('[handleAddSlide] Reveal.sync() called');
+          }
+
+          // 8. Navigate to new slide
+          if (typeof Reveal !== 'undefined') {
+            Reveal.slide(newSlideIndex);
+            console.log(`[handleAddSlide] Navigated to slide ${newSlideIndex}`);
+          }
+
+          // 9. Enter edit mode after a short delay
+          setTimeout(() => {
+            if (typeof enterEditMode === 'function') {
+              enterEditMode();
+              console.log('[handleAddSlide] Edit mode enabled');
+            }
+          }, 100);
+
           return { success: true, action: 'addSlide', ...data };
         } else {
           return { success: false, action: 'addSlide', error: data.detail || 'Failed to add slide' };
@@ -508,6 +974,41 @@
         }
       } catch (error) {
         return { success: false, action: 'deleteSlide', error: error.message };
+      }
+    }
+
+    /**
+     * Handle bulk deletion of multiple slides
+     * Supports both sequential ranges and scattered indices
+     */
+    async function handleBulkDeleteSlides(indices) {
+      const presentationId = getPresentationId();
+      if (!presentationId) {
+        return { success: false, action: 'deleteSlides', error: 'No presentation ID found' };
+      }
+
+      if (!Array.isArray(indices) || indices.length === 0) {
+        return { success: false, action: 'deleteSlides', error: 'indices must be a non-empty array' };
+      }
+
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/bulk`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ indices: indices })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Reload presentation to reflect deletions
+          window.location.reload();
+          return { success: true, action: 'deleteSlides', ...data };
+        } else {
+          return { success: false, action: 'deleteSlides', error: data.detail || 'Failed to delete slides' };
+        }
+      } catch (error) {
+        return { success: false, action: 'deleteSlides', error: error.message };
       }
     }
 
@@ -741,6 +1242,37 @@
             }
             break;
 
+          case 'enterEditMode':
+            if (typeof enterEditMode === 'function') {
+              enterEditMode();
+              result.success = true;
+              result.isEditing = true;
+            } else if (document.body.getAttribute('data-mode') !== 'edit' && typeof toggleEditMode === 'function') {
+              // Fallback: use toggle if not already in edit mode
+              toggleEditMode();
+              result.success = true;
+              result.isEditing = true;
+            }
+            break;
+
+          case 'exitEditMode':
+            if (typeof exitEditMode === 'function') {
+              exitEditMode();
+              result.success = true;
+              result.isEditing = false;
+            } else if (document.body.getAttribute('data-mode') === 'edit' && typeof toggleEditMode === 'function') {
+              // Fallback: use toggle if currently in edit mode
+              toggleEditMode();
+              result.success = true;
+              result.isEditing = false;
+            }
+            break;
+
+          case 'isEditModeActive':
+            result.success = true;
+            result.isEditing = document.body.getAttribute('data-mode') === 'edit';
+            break;
+
           case 'saveAllChanges':
             if (typeof saveAllChanges === 'function') {
               saveAllChanges();
@@ -762,6 +1294,89 @@
             }
             break;
 
+          // Get version history via API (cross-origin accessible)
+          case 'getVersionHistory':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/versions`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.presentationId = data.presentation_id;
+                  result.currentVersionId = data.current_version_id;
+                  result.versions = data.versions;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to fetch version history';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Restore a specific version (cross-origin accessible)
+          case 'restoreVersion':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                const versionId = params?.versionId;
+
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                if (!versionId) {
+                  result.success = false;
+                  result.error = 'No version ID provided';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/restore/${versionId}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    create_backup: params?.createBackup !== false  // Default true
+                  })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.message = data.message || 'Version restored successfully';
+                  result.backupVersionId = data.backup_version_id;
+
+                  // Reload the presentation to show restored version
+                  if (params?.reload !== false) {
+                    window.location.reload();
+                  }
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to restore version';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
           // Overview mode functions
           case 'toggleOverview':
             if (typeof toggleOverview === 'function') {
@@ -781,19 +1396,80 @@
             }
             break;
 
-          // Debug functions
+          // Debug functions - Grid Overlay (G key)
           case 'toggleGridOverlay':
             if (typeof toggleGridOverlay === 'function') {
               toggleGridOverlay();
               result.success = true;
+              result.isGridActive = document.body.classList.contains('show-grid');
             }
             break;
 
+          case 'showGridOverlay':
+            if (!document.body.classList.contains('show-grid')) {
+              if (typeof toggleGridOverlay === 'function') {
+                toggleGridOverlay();
+              } else {
+                document.body.classList.add('show-grid');
+              }
+            }
+            result.success = true;
+            result.isGridActive = true;
+            break;
+
+          case 'hideGridOverlay':
+            if (document.body.classList.contains('show-grid')) {
+              if (typeof toggleGridOverlay === 'function') {
+                toggleGridOverlay();
+              } else {
+                document.body.classList.remove('show-grid');
+              }
+            }
+            result.success = true;
+            result.isGridActive = false;
+            break;
+
+          case 'isGridOverlayActive':
+            result.success = true;
+            result.isGridActive = document.body.classList.contains('show-grid');
+            break;
+
+          // Debug functions - Border Highlight (B key)
           case 'toggleBorderHighlight':
             if (typeof toggleBorderHighlight === 'function') {
               toggleBorderHighlight();
               result.success = true;
+              result.isBordersActive = document.body.classList.contains('show-borders');
             }
+            break;
+
+          case 'showBorderHighlight':
+            if (!document.body.classList.contains('show-borders')) {
+              if (typeof toggleBorderHighlight === 'function') {
+                toggleBorderHighlight();
+              } else {
+                document.body.classList.add('show-borders');
+              }
+            }
+            result.success = true;
+            result.isBordersActive = true;
+            break;
+
+          case 'hideBorderHighlight':
+            if (document.body.classList.contains('show-borders')) {
+              if (typeof toggleBorderHighlight === 'function') {
+                toggleBorderHighlight();
+              } else {
+                document.body.classList.remove('show-borders');
+              }
+            }
+            result.success = true;
+            result.isBordersActive = false;
+            break;
+
+          case 'isBorderHighlightActive':
+            result.success = true;
+            result.isBordersActive = document.body.classList.contains('show-borders');
             break;
 
           // Review mode functions
@@ -850,6 +1526,14 @@
               result = await handleDeleteSlide(params.index);
             } else {
               result.error = 'index parameter is required';
+            }
+            break;
+
+          case 'deleteSlides':
+            if (params?.indices && Array.isArray(params.indices) && params.indices.length > 0) {
+              result = await handleBulkDeleteSlides(params.indices);
+            } else {
+              result.error = 'indices parameter is required (non-empty array of slide indices)';
             }
             break;
 
@@ -1031,6 +1715,109 @@
             }
             break;
 
+          // Update image source
+          case 'updateImageSource':
+            if (typeof window.ElementManager?.updateImageSource === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateImageSource(
+                params.elementId,
+                params.imageUrl,
+                params.alt || params.altText
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateImageSource not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Update chart config (with optional metadata and insights from Orchestrator)
+          case 'updateChartConfig':
+            if (typeof window.ElementManager?.updateChartConfig === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateChartConfig(
+                params.elementId,
+                params.chartConfig,
+                params.metadata || null,   // AI-generated metadata
+                params.insights || null    // AI-generated insights
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateChartConfig not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Set chart HTML content
+          case 'setChartHtml':
+            if (typeof window.ElementManager?.setChartHtml === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.setChartHtml(
+                params.elementId,
+                params.chartHtml
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.setChartHtml not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Insert infographic
+          case 'insertInfographic':
+            if (typeof window.ElementManager?.insertInfographic === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertInfographic(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager.insertInfographic not available';
+            }
+            break;
+
+          // Update infographic content
+          case 'updateInfographicContent':
+            if (typeof window.ElementManager?.updateInfographicContent === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateInfographicContent(
+                params.elementId,
+                params.svgContent
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateInfographicContent not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Insert diagram
+          case 'insertDiagram':
+            if (typeof window.ElementManager?.insertDiagram === 'function') {
+              const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
+              const insertResult = window.ElementManager.insertDiagram(slideIndex, params);
+              result = { ...result, ...insertResult };
+            } else {
+              result.error = 'ElementManager.insertDiagram not available';
+            }
+            break;
+
+          // Update diagram with SVG
+          case 'updateDiagramSvg':
+            if (typeof window.ElementManager?.updateDiagramSvg === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateDiagramSvg(
+                params.elementId,
+                params.svgContent
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateDiagramSvg not available' : 'elementId parameter required';
+            }
+            break;
+
+          // Update diagram with Mermaid code
+          case 'updateDiagramMermaid':
+            if (typeof window.ElementManager?.updateDiagramMermaid === 'function' && params?.elementId) {
+              const updateResult = window.ElementManager.updateDiagramMermaid(
+                params.elementId,
+                params.mermaidCode
+              );
+              result = { ...result, ...updateResult };
+            } else {
+              result.error = params?.elementId ? 'ElementManager.updateDiagramMermaid not available' : 'elementId parameter required';
+            }
+            break;
+
           // ===== TEXT BOX OPERATIONS =====
 
           // Insert text box
@@ -1096,19 +1883,34 @@
             }
             break;
 
-          // Generate AI text content
+          // Generate AI text content (with full action/tone/style support)
           case 'generateTextBoxContent':
             (async () => {
               try {
+                // Get current content if action requires it
+                let currentContent = '';
+                if (params.elementId && params.action) {
+                  const textBox = document.getElementById(params.elementId);
+                  const contentEl = textBox?.querySelector('.textbox-content');
+                  if (contentEl) {
+                    currentContent = contentEl.innerHTML;
+                  }
+                }
+
                 const response = await fetch(`${getApiBaseUrl()}/api/textbox/generate`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     prompt: params.prompt,
-                    tone: params.tone,
+                    action: params.action,       // shorten, expand, grammar, bulletize, simplify, professional
+                    tone: params.tone,           // professional, casual, persuasive, technical
+                    style: params.style,         // expand, summarize, rewrite
                     length: params.length,
                     format: params.format,
                     context: params.context,
+                    current_content: currentContent,  // Send current content for transformation actions
+                    presentation_id: params.presentationId,
+                    slide_index: params.slideIndex,
                     max_characters: params.maxCharacters || params.max_characters
                   })
                 });
@@ -1321,6 +2123,42 @@
               }
             } else {
               result.error = 'elementId and letterSpacing parameters required';
+            }
+            break;
+
+          // Set text highlight color (inline highlight on selected text)
+          case 'setTextHighlightColor':
+            if (params?.elementId && params?.color !== undefined) {
+              const textBox = document.getElementById(params.elementId);
+              const contentEl = textBox?.querySelector('.textbox-content');
+              if (contentEl) {
+                // Focus on the content element
+                contentEl.focus();
+
+                // Get the current selection
+                const selection = window.getSelection();
+
+                if (selection && !selection.isCollapsed) {
+                  // Apply highlight to selected text using execCommand
+                  if (params.color === 'transparent' || params.color === 'none' || !params.color) {
+                    // Remove highlight by applying transparent
+                    document.execCommand('hiliteColor', false, 'transparent');
+                  } else {
+                    document.execCommand('hiliteColor', false, params.color);
+                  }
+                  result.success = true;
+                  result.message = 'Highlight applied to selection';
+                  if (typeof window.markContentChanged === 'function') window.markContentChanged();
+                } else {
+                  // No selection - apply to all content by wrapping
+                  result.success = false;
+                  result.error = 'No text selected. Please select text to highlight.';
+                }
+              } else {
+                result.error = 'Text box content not found';
+              }
+            } else {
+              result.error = 'elementId and color parameters required';
             }
             break;
 
@@ -1684,6 +2522,716 @@
               }
             } else {
               result.error = 'elementId and gridRow or gridColumn parameters required';
+            }
+            break;
+
+          // ===== DERIVATIVE ELEMENTS (Presentation-level Footer & Logo) =====
+
+          // Get current derivative elements configuration
+          case 'getDerivativeElements':
+            if (window.currentPresentationData?.derivative_elements) {
+              result.success = true;
+              result.derivativeElements = window.currentPresentationData.derivative_elements;
+            } else {
+              result.success = true;
+              result.derivativeElements = null;
+              result.message = 'No derivative elements configured';
+            }
+            break;
+
+          // Update derivative elements (footer and/or logo) - calls API and syncs all slides
+          case 'updateDerivativeElements':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Build the update payload
+                const updatePayload = {};
+                if (params?.footer !== undefined) {
+                  updatePayload.footer = params.footer; // { template, values, style }
+                }
+                if (params?.logo !== undefined) {
+                  updatePayload.logo = params.logo; // { image_url, alt_text }
+                }
+
+                // Call the API to persist changes
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/derivative-elements`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updatePayload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  // Update local presentation data
+                  if (window.currentPresentationData) {
+                    window.currentPresentationData.derivative_elements = data.derivative_elements;
+                  }
+
+                  // Sync all slides to show updated footer/logo
+                  const totalSlides = document.querySelectorAll('.slides > section').length;
+                  if (typeof window.syncDerivativeElements === 'function') {
+                    window.syncDerivativeElements(window.currentPresentationData, totalSlides);
+                  }
+
+                  result.success = true;
+                  result.derivativeElements = data.derivative_elements;
+                  result.message = 'Derivative elements updated and synced across all slides';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to update derivative elements';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Clear derivative elements (remove footer and/or logo)
+          case 'clearDerivativeElements':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Determine what to clear (defaults to both)
+                const clearFooter = params?.clearFooter !== false;
+                const clearLogo = params?.clearLogo !== false;
+
+                // Call the API to clear derivative elements
+                const url = new URL(`${getApiBaseUrl()}/api/presentations/${presId}/derivative-elements`);
+                if (!clearFooter || !clearLogo) {
+                  // Partial clear - update with null values
+                  const updatePayload = {};
+                  if (clearFooter) updatePayload.footer = null;
+                  if (clearLogo) updatePayload.logo = null;
+
+                  const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatePayload)
+                  });
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    if (window.currentPresentationData) {
+                      window.currentPresentationData.derivative_elements = data.derivative_elements;
+                    }
+                    result.success = true;
+                    result.derivativeElements = data.derivative_elements;
+                  } else {
+                    result.success = false;
+                    result.error = data.detail || 'Failed to clear derivative elements';
+                  }
+                } else {
+                  // Full clear - use DELETE
+                  const response = await fetch(url, { method: 'DELETE' });
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    if (window.currentPresentationData) {
+                      window.currentPresentationData.derivative_elements = null;
+                    }
+                    result.success = true;
+                    result.derivativeElements = null;
+                    result.message = data.message;
+                  } else {
+                    result.success = false;
+                    result.error = data.detail || 'Failed to clear derivative elements';
+                  }
+                }
+
+                // Sync all slides to remove footer/logo
+                const totalSlides = document.querySelectorAll('.slides > section').length;
+                if (typeof window.syncDerivativeElements === 'function') {
+                  window.syncDerivativeElements(window.currentPresentationData, totalSlides);
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Sync derivative elements across all slides (re-render without API call)
+          case 'syncDerivativeElements':
+            try {
+              const totalSlides = document.querySelectorAll('.slides > section').length;
+              if (typeof window.syncDerivativeElements === 'function' && window.currentPresentationData) {
+                window.syncDerivativeElements(window.currentPresentationData, totalSlides);
+                result.success = true;
+                result.message = `Synced derivative elements across ${totalSlides} slides`;
+                result.derivativeElements = window.currentPresentationData.derivative_elements;
+              } else {
+                result.success = false;
+                result.error = 'syncDerivativeElements function not available or no presentation data';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // Preview footer with given config (without saving)
+          case 'previewFooter':
+            if (params?.footer && params?.slideIndex !== undefined) {
+              try {
+                const totalSlides = document.querySelectorAll('.slides > section').length;
+                if (typeof window.renderFooterFromDerivative === 'function') {
+                  const previewText = window.renderFooterFromDerivative(
+                    params.footer,
+                    params.slideIndex,
+                    totalSlides
+                  );
+                  result.success = true;
+                  result.previewText = previewText;
+                  result.slideIndex = params.slideIndex;
+                  result.totalSlides = totalSlides;
+                } else {
+                  result.success = false;
+                  result.error = 'renderFooterFromDerivative function not available';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+            } else {
+              result.success = false;
+              result.error = 'footer config and slideIndex parameters required';
+            }
+            break;
+
+          // ===== THEMING (Presentation-level Theme Configuration) =====
+
+          // Get current theme configuration
+          case 'getTheme':
+            try {
+              const themeConfig = window.currentPresentationData?.theme_config || { theme_id: 'corporate-blue' };
+              result.success = true;
+              result.themeConfig = themeConfig;
+
+              // Include resolved theme if THEME_REGISTRY is available
+              if (typeof THEME_REGISTRY !== 'undefined') {
+                const theme = THEME_REGISTRY[themeConfig.theme_id] || THEME_REGISTRY['corporate-blue'];
+                const resolvedTheme = { ...theme };
+                if (themeConfig.color_overrides) {
+                  resolvedTheme.colors = { ...theme.colors, ...themeConfig.color_overrides };
+                }
+                result.resolvedTheme = resolvedTheme;
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // Set theme for presentation - calls API and applies CSS variables
+          // Enhanced in v7.5.4 to support full overrides (colors, typography, spacing, effects)
+          case 'setTheme':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Build the update payload - supports full overrides (v7.5.4)
+                const themePayload = {
+                  theme_id: params?.themeId || params?.theme_id || 'corporate-blue',
+                  is_custom: params?.isCustom || params?.is_custom || false
+                };
+
+                // Support both legacy color_overrides and new full overrides
+                if (params?.overrides) {
+                  themePayload.overrides = params.overrides;
+                } else if (params?.colorOverrides || params?.color_overrides) {
+                  // Legacy support - convert to new format
+                  themePayload.overrides = {
+                    colors: params?.colorOverrides || params?.color_overrides
+                  };
+                }
+
+                // Call the API to persist theme changes
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(themePayload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  // Update local presentation data
+                  if (window.currentPresentationData) {
+                    window.currentPresentationData.theme_config = data.theme_config;
+                  }
+
+                  // Apply theme via ThemeManager with full overrides support
+                  if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+                    const theme = THEME_REGISTRY[themePayload.theme_id] || THEME_REGISTRY['corporate-blue'];
+                    if (themePayload.overrides) {
+                      ThemeManager.injectFullTheme(theme, themePayload.overrides);
+                    } else {
+                      ThemeManager.injectThemeStyles(theme);
+                    }
+                  }
+
+                  result.success = true;
+                  result.themeConfig = data.theme_config;
+                  result.resolvedTheme = data.resolved_theme;
+                  result.message = `Theme set to '${themePayload.theme_id}'`;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to set theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return; // Don't send response synchronously
+
+          // Preview theme without saving (for live preview in settings UI)
+          // Enhanced in v7.5.4 to support full overrides
+          case 'previewTheme':
+            try {
+              const themeId = params?.themeId || params?.theme_id || 'corporate-blue';
+              const overrides = params?.overrides || null;
+              const colorOverrides = params?.colorOverrides || params?.color_overrides || {};
+
+              if (typeof ThemeManager !== 'undefined' && typeof THEME_REGISTRY !== 'undefined') {
+                const theme = THEME_REGISTRY[themeId] || THEME_REGISTRY['corporate-blue'];
+                if (overrides) {
+                  ThemeManager.injectFullTheme(theme, overrides);
+                } else if (Object.keys(colorOverrides).length > 0) {
+                  ThemeManager.injectThemeStyles(theme, colorOverrides);
+                } else {
+                  ThemeManager.injectThemeStyles(theme);
+                }
+                result.success = true;
+                result.message = `Previewing theme '${themeId}'`;
+                result.themeId = themeId;
+              } else {
+                result.success = false;
+                result.error = 'ThemeManager or THEME_REGISTRY not available';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // List available themes
+          case 'listThemes':
+            try {
+              if (typeof THEME_REGISTRY !== 'undefined') {
+                result.success = true;
+                result.themes = Object.keys(THEME_REGISTRY);
+                result.defaultTheme = 'corporate-blue';
+                result.themeDetails = {};
+                for (const [id, theme] of Object.entries(THEME_REGISTRY)) {
+                  result.themeDetails[id] = {
+                    id: theme.id,
+                    name: theme.name,
+                    description: theme.description
+                  };
+                }
+              } else {
+                result.success = false;
+                result.error = 'THEME_REGISTRY not available';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
+            }
+            break;
+
+          // ==================== v7.5.4 User Theme Management ====================
+
+          // Create a custom theme in user's library
+          case 'createCustomTheme':
+            (async () => {
+              try {
+                const themeData = {
+                  name: params?.name || 'My Custom Theme',
+                  description: params?.description || null,
+                  base_theme_id: params?.baseThemeId || params?.base_theme_id || null
+                };
+
+                // Add theme properties if provided
+                if (params?.colors) themeData.colors = params.colors;
+                if (params?.typography) themeData.typography = params.typography;
+                if (params?.spacing) themeData.spacing = params.spacing;
+                if (params?.effects) themeData.effects = params.effects;
+                if (params?.contentStyles || params?.content_styles) {
+                  themeData.content_styles = params.contentStyles || params.content_styles;
+                }
+
+                // Also accept overrides format and flatten it
+                if (params?.overrides) {
+                  if (params.overrides.colors) themeData.colors = params.overrides.colors;
+                  if (params.overrides.typography) themeData.typography = params.overrides.typography;
+                  if (params.overrides.spacing) themeData.spacing = params.overrides.spacing;
+                  if (params.overrides.effects) themeData.effects = params.overrides.effects;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(themeData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                  result.message = `Custom theme '${themeData.name}' created`;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to create custom theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get user's custom themes library
+          case 'getUserThemes':
+            (async () => {
+              try {
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.themes = data.themes || [];
+                  result.count = data.count || 0;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to fetch user themes';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get a specific custom theme by ID
+          case 'getCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Theme not found';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Update a custom theme
+          case 'updateCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const updateData = {};
+                if (params?.name) updateData.name = params.name;
+                if (params?.description !== undefined) updateData.description = params.description;
+                if (params?.colors) updateData.colors = params.colors;
+                if (params?.typography) updateData.typography = params.typography;
+                if (params?.spacing) updateData.spacing = params.spacing;
+                if (params?.effects) updateData.effects = params.effects;
+                if (params?.contentStyles || params?.content_styles) {
+                  updateData.content_styles = params.contentStyles || params.content_styles;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                  result.message = 'Theme updated successfully';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to update theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Delete a custom theme
+          case 'deleteCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}`, {
+                  method: 'DELETE'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.message = data.message || 'Theme deleted';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to delete theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Duplicate a custom theme
+          case 'duplicateCustomTheme':
+            (async () => {
+              try {
+                const themeId = params?.themeId || params?.theme_id;
+                if (!themeId) {
+                  result.success = false;
+                  result.error = 'Theme ID is required';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const duplicateData = {};
+                if (params?.newName || params?.new_name) {
+                  duplicateData.new_name = params.newName || params.new_name;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/user/themes/${themeId}/duplicate`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(duplicateData)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.theme = data.theme;
+                  result.message = data.message || 'Theme duplicated';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to duplicate theme';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Save current presentation theme to user's library
+          case 'saveThemeToLibrary':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // First, get the current presentation theme
+                const themeResponse = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme`);
+                const themeData = await themeResponse.json();
+
+                if (!themeResponse.ok) {
+                  result.success = false;
+                  result.error = 'Failed to get current theme';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                // Create custom theme from current settings
+                const customThemeData = {
+                  name: params?.name || `Theme from ${presId.substring(0, 8)}`,
+                  description: params?.description || 'Saved from presentation',
+                  base_theme_id: themeData.theme_config?.theme_id || null
+                };
+
+                // Include resolved colors if available
+                if (themeData.resolved_theme?.colors) {
+                  customThemeData.colors = themeData.resolved_theme.colors;
+                }
+                // Include any overrides
+                if (themeData.theme_config?.overrides) {
+                  if (themeData.theme_config.overrides.typography) {
+                    customThemeData.typography = themeData.theme_config.overrides.typography;
+                  }
+                  if (themeData.theme_config.overrides.spacing) {
+                    customThemeData.spacing = themeData.theme_config.overrides.spacing;
+                  }
+                  if (themeData.theme_config.overrides.effects) {
+                    customThemeData.effects = themeData.theme_config.overrides.effects;
+                  }
+                }
+
+                // Create the custom theme
+                const createResponse = await fetch(`${getApiBaseUrl()}/api/user/themes`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(customThemeData)
+                });
+                const createData = await createResponse.json();
+
+                if (createResponse.ok) {
+                  result.success = true;
+                  result.theme = createData.theme;
+                  result.message = `Theme saved to library as '${customThemeData.name}'`;
+                } else {
+                  result.success = false;
+                  result.error = createData.detail || 'Failed to save theme to library';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get public themes (predefined + user-shared)
+          case 'getPublicThemes':
+            (async () => {
+              try {
+                const response = await fetch(`${getApiBaseUrl()}/api/themes/public`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.predefinedThemes = data.predefined_themes || [];
+                  result.userThemes = data.user_themes || [];
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to fetch public themes';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Get CSS variables for current theme (useful for external styling)
+          case 'getThemeCssVariables':
+            (async () => {
+              try {
+                const presId = params?.presentationId || getPresentationId();
+                if (!presId) {
+                  result.success = false;
+                  result.error = 'No presentation ID available';
+                  event.source.postMessage(result, event.origin);
+                  return;
+                }
+
+                const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presId}/theme/css-variables`);
+                const data = await response.json();
+
+                if (response.ok) {
+                  result.success = true;
+                  result.cssVariables = data.css_variables || {};
+                  result.cssString = data.css_string || '';
+                } else {
+                  result.success = false;
+                  result.error = data.detail || 'Failed to get CSS variables';
+                }
+              } catch (error) {
+                result.success = false;
+                result.error = error.message;
+              }
+              event.source.postMessage(result, event.origin);
+            })();
+            return;
+
+          // Apply CSS variables directly (for advanced use cases)
+          case 'applyCssVariables':
+            try {
+              const cssVariables = params?.cssVariables || params?.css_variables;
+              if (!cssVariables || typeof cssVariables !== 'object') {
+                result.success = false;
+                result.error = 'CSS variables object is required';
+                break;
+              }
+
+              if (typeof ThemeManager !== 'undefined') {
+                ThemeManager.applyCssVariables(cssVariables);
+                result.success = true;
+                result.message = `Applied ${Object.keys(cssVariables).length} CSS variables`;
+              } else {
+                result.success = false;
+                result.error = 'ThemeManager not available';
+              }
+            } catch (error) {
+              result.success = false;
+              result.error = error.message;
             }
             break;
 

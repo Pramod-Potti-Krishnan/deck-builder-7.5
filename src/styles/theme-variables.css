@@ -144,6 +144,10 @@
   --accent-text-red: #ffc8c3;
   --accent-text-green: #b4f5d2;
   --accent-text-yellow: #fff0be;
+  --accent-text-cyan: #b2ebf2;
+  --accent-text-orange: #ffccbc;
+  --accent-text-teal: #b2dfdb;
+  --accent-text-pink: #f8bbd9;
 
   /* Component backgrounds (dark variants) - 60% transparent for dark mode */
   --sidebar-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(30, 45, 77, 0.4) 100%);
@@ -187,6 +191,10 @@
   --accent-text-red: #c0392b;
   --accent-text-green: #27ae60;
   --accent-text-yellow: #d39e1e;
+  --accent-text-cyan: #0097a7;
+  --accent-text-orange: #e65100;
+  --accent-text-teal: #00796b;
+  --accent-text-pink: #c2185b;
 
   /* Component backgrounds */
   --sidebar-bg: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);

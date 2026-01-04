@@ -289,6 +289,7 @@
 
     // Trigger auto-save
     triggerAutoSave(slideIndex);
+    emitSlideContentChanged(slideIndex, 'add', 'shape');
 
     return {
       success: true,
@@ -464,6 +465,7 @@
 
     // Trigger auto-save
     triggerAutoSave(slideIndex);
+    emitSlideContentChanged(slideIndex, 'add', 'table');
 
     return {
       success: true,
@@ -712,6 +714,7 @@
     // Trigger auto-save only for NEW elements (not restoration)
     if (!config.id) {
       triggerAutoSave(slideIndex);
+      emitSlideContentChanged(slideIndex, 'add', 'chart');
     }
 
     return {
@@ -836,6 +839,7 @@
 
     // Trigger auto-save
     triggerAutoSave(data.slideIndex);
+    emitSlideContentChanged(data.slideIndex, 'modify', 'chart');
 
     return { success: true };
   }
@@ -900,6 +904,7 @@
 
     // Trigger auto-save
     triggerAutoSave(data.slideIndex);
+    emitSlideContentChanged(data.slideIndex, 'modify', 'chart');
 
     return { success: true };
   }
@@ -1103,6 +1108,7 @@
     // Trigger auto-save only for NEW elements (not restoration)
     if (!config.id) {
       triggerAutoSave(slideIndex);
+      emitSlideContentChanged(slideIndex, 'add', 'image');
     }
 
     return {
@@ -1171,6 +1177,7 @@
 
     // Trigger auto-save
     triggerAutoSave(data.slideIndex);
+    emitSlideContentChanged(data.slideIndex, 'modify', 'image');
 
     return { success: true };
   }
@@ -1345,6 +1352,7 @@
     // Trigger auto-save only for NEW elements (not restoration)
     if (!config.id) {
       triggerAutoSave(slideIndex);
+      emitSlideContentChanged(slideIndex, 'add', 'infographic');
     }
 
     return {
@@ -1403,6 +1411,7 @@
 
     // Trigger auto-save
     triggerAutoSave(data.slideIndex);
+    emitSlideContentChanged(data.slideIndex, 'modify', 'infographic');
 
     return { success: true };
   }
@@ -1600,6 +1609,7 @@
     // Trigger auto-save only for NEW elements (not restoration)
     if (!config.id) {
       triggerAutoSave(slideIndex);
+      emitSlideContentChanged(slideIndex, 'add', 'diagram');
     }
 
     return {
@@ -1658,6 +1668,7 @@
 
     // Trigger auto-save
     triggerAutoSave(data.slideIndex);
+    emitSlideContentChanged(data.slideIndex, 'modify', 'diagram');
 
     return { success: true };
   }
@@ -1719,6 +1730,7 @@
 
       // Trigger auto-save
       triggerAutoSave(data.slideIndex);
+      emitSlideContentChanged(data.slideIndex, 'modify', 'diagram');
 
       return { success: true };
     } catch (error) {
@@ -1927,6 +1939,8 @@
     });
     contentDiv.addEventListener('blur', () => {
       container.classList.remove('textbox-editing');
+      // Emit content changed event when user finishes editing text (v7.5.4)
+      emitSlideContentChanged(slideIndex, 'modify', 'text');
     });
 
     // Create delete button (appears on hover/selection)
@@ -1998,6 +2012,7 @@
     // If id was provided in config, this is a restoration - skip auto-save
     if (!config.id) {
       triggerAutoSave(slideIndex);
+      emitSlideContentChanged(slideIndex, 'add', 'text');
     }
 
     return {
@@ -2037,6 +2052,7 @@
       }
       data.data.content = content;
       triggerAutoSave(data.slideIndex);
+      emitSlideContentChanged(data.slideIndex, 'modify', 'text');
     }
 
     return { success: true };
@@ -2592,6 +2608,9 @@
 
     // Trigger auto-save
     triggerAutoSave(data.slideIndex);
+    // Map element types: textbox -> text, shape -> shape, etc.
+    const elementTypeMap = { textbox: 'text', shape: 'shape', table: 'table', chart: 'chart', image: 'image', infographic: 'infographic', diagram: 'diagram' };
+    emitSlideContentChanged(data.slideIndex, 'delete', elementTypeMap[data.type] || data.type);
 
     return { success: true };
   }
@@ -2656,6 +2675,35 @@
     if (typeof markContentChanged === 'function') {
       markContentChanged(slideIndex, 'element');
     }
+  }
+
+  /**
+   * Emit slide_content_changed event to parent frame (v7.5.4)
+   * Called after any user-initiated CRUD operation on slide content
+   *
+   * @param {number} slideIndex - Index of affected slide
+   * @param {string} changeType - 'add' | 'modify' | 'delete'
+   * @param {string} elementType - 'text' | 'image' | 'chart' | 'table' | 'diagram' | 'infographic' | 'shape' | 'slide'
+   */
+  function emitSlideContentChanged(slideIndex, changeType, elementType) {
+    // Only emit in framed context
+    if (!window.parent || window.parent === window) return;
+
+    // Only emit for user-initiated changes (check edit mode)
+    const container = document.querySelector('.reveal');
+    if (!container || container.getAttribute('data-mode') !== 'edit') return;
+
+    window.parent.postMessage({
+      action: 'slide_content_changed',
+      data: {
+        slideIndex: slideIndex,
+        changeType: changeType,  // 'add' | 'modify' | 'delete'
+        elementType: elementType,
+        timestamp: Date.now()
+      }
+    }, '*');
+
+    console.log('📤 postMessage: slide_content_changed', { slideIndex, changeType, elementType });
   }
 
   // ===== GLOBAL EVENT HANDLERS =====
@@ -2903,6 +2951,7 @@
     // PostMessage events (for parent frame communication)
     emitFormattingUpdate: emitFormattingUpdate,
     extractTextBoxFormatting: extractTextBoxFormatting,
+    emitSlideContentChanged: emitSlideContentChanged,
 
     // Property helpers (for programmatic use)
     utils: {

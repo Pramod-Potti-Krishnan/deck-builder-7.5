@@ -1527,16 +1527,19 @@ class Presentation(BaseModel):
     Theme System (v7.5.3):
     The theme_config field references a theme from the global registry with
     optional color overrides for presentation-level customization.
+
+    Blank Presentation (v7.5.4):
+    When blank=true, creates a single C1-text slide with "Untitled Presentation"
+    title. Used for immediate presentation creation on builder page load.
     """
     title: str = Field(
-        ...,
+        default="Untitled Presentation",
         max_length=200,
         description="Presentation title"
     )
     slides: list[Slide] = Field(
-        ...,
-        min_items=1,
-        description="List of slides"
+        default_factory=list,
+        description="List of slides (empty when blank=true)"
     )
     derivative_elements: Optional[DerivativeElements] = Field(
         default=None,
@@ -1545,6 +1548,19 @@ class Presentation(BaseModel):
     theme_config: Optional[PresentationThemeConfig] = Field(
         default=None,
         description="Theme configuration with optional color overrides"
+    )
+    # Blank presentation support (v7.5.4)
+    blank: Optional[bool] = Field(
+        default=False,
+        description="If true, creates single C1-text slide with default content"
+    )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="Director session ID for tracking"
+    )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="User ID for ownership"
     )
 
 
@@ -1555,6 +1571,9 @@ class PresentationResponse(BaseModel):
     id: str = Field(..., description="Presentation UUID")
     url: str = Field(..., description="Presentation viewer URL")
     message: str = Field(..., description="Success message")
+    # Additional fields for blank presentation (v7.5.4)
+    slide_count: Optional[int] = Field(default=None, description="Number of slides")
+    layout: Optional[str] = Field(default=None, description="Layout of first slide (for blank presentations)")
 
 
 # ==================== Content Update Models ====================

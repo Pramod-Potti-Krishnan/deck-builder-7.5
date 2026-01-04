@@ -910,7 +910,11 @@ async def create_presentation(request: Presentation):
     """
     Create a new presentation from JSON
 
-    Request body:
+    Supports blank presentation creation (v7.5.4):
+    When blank=true, creates a single C1-text slide with "Untitled Presentation" title.
+    Used for immediate presentation creation on builder page load.
+
+    Request body (standard):
     {
         "title": "My Presentation",
         "slides": [
@@ -919,33 +923,67 @@ async def create_presentation(request: Presentation):
                 "content": {
                     "hero_content": "<div style='...'>Title Slide with Presenter Info</div>"
                 }
-            },
-            {
-                "layout": "L25",
-                "content": {
-                    "slide_title": "Key Points",
-                    "subtitle": "Overview",
-                    "rich_content": "<div>...</div>"
-                }
-            },
-            {
-                "layout": "L29",
-                "content": {
-                    "hero_content": "<div>...</div>"
-                }
             }
         ]
+    }
+
+    Request body (blank presentation):
+    {
+        "blank": true,
+        "session_id": "uuid",  // optional
+        "user_id": "string"    // optional
     }
 
     Returns:
     {
         "id": "uuid",
         "url": "/p/uuid",
-        "message": "Presentation created successfully"
+        "message": "Presentation created successfully",
+        "slide_count": 1,      // for blank presentations
+        "layout": "C1-text"    // for blank presentations
     }
     """
     try:
-        # Convert request to dict
+        from uuid import uuid4
+
+        # Handle blank presentation shortcut (v7.5.4)
+        if request.blank:
+            slide_id = f"slide_{uuid4().hex[:12]}"
+            presentation_data = {
+                "title": request.title if request.title != "Untitled Presentation" or not request.blank else "Untitled Presentation",
+                "slides": [{
+                    "slide_id": slide_id,
+                    "layout": "C1-text",
+                    "content": get_default_content("C1-text"),
+                    "background_color": None,
+                    "background_image": None,
+                    "text_boxes": [],
+                    "images": [],
+                    "charts": [],
+                    "infographics": [],
+                    "diagrams": [],
+                    "contents": []
+                }],
+                "derivative_elements": None,
+                "theme_config": None,
+                "is_blank": True,  # Track for cleanup
+                "session_id": request.session_id,
+                "user_id": request.user_id
+            }
+
+            # Save to storage
+            presentation_id = await storage.save(presentation_data)
+
+            # Build response with additional blank presentation fields
+            return PresentationResponse(
+                id=presentation_id,
+                url=f"/p/{presentation_id}",
+                message=f"Presentation '{presentation_data['title']}' created successfully",
+                slide_count=1,
+                layout="C1-text"
+            )
+
+        # Standard flow: Convert request to dict
         presentation_data = request.model_dump()
 
         # Validate layouts (backend + frontend templates)

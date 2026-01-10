@@ -198,6 +198,25 @@
     console.log(`[ElementManager] Scripts executed sequentially (${inlineCount} inline, ${externalCount} external)`);
   }
 
+  /**
+   * Detect if HTML content contains Chart.js chart elements
+   * v7.5.6: Used to trigger script execution for chart content in textbox elements
+   *
+   * @param {string} htmlContent - HTML string to check
+   * @returns {boolean} True if content contains chart canvas/scripts
+   */
+  function containsChartContent(htmlContent) {
+    if (!htmlContent || typeof htmlContent !== 'string') return false;
+
+    // Look for Chart.js patterns: canvas elements + Chart constructor calls
+    const hasCanvas = htmlContent.includes('<canvas');
+    const hasChartScript = htmlContent.includes('new Chart(') ||
+                           htmlContent.includes('Chart.register') ||
+                           htmlContent.includes('chart.js');
+
+    return hasCanvas && hasChartScript;
+  }
+
   // ===== INSERT SHAPE =====
 
   /**
@@ -1886,6 +1905,16 @@
     contentDiv.setAttribute('contenteditable', isEditMode ? 'true' : 'false');  // Respect current mode
     contentDiv.dataset.placeholder = config.placeholder || 'Click to edit text';
     contentDiv.innerHTML = config.content || '';
+
+    // v7.5.6: Execute embedded scripts if content contains chart HTML
+    // This enables Chart.js charts to render in ANY layout's text slots (C1-text, I-series, V-series, etc.)
+    if (config.content && containsChartContent(config.content)) {
+      console.log(`[ElementManager] Chart content detected in textbox ${id}, executing scripts`);
+      executeScriptsSequentially(contentDiv).catch(err => {
+        console.error('[ElementManager] Script execution error in textbox:', err);
+      });
+    }
+
     // NOTE: min-height: 100% defeats justify-content positioning (e.g., bottom-align)
     // Use 'auto' when a non-default justifyContent is specified to allow flex alignment to work
     const contentMinHeight = (justifyContent && justifyContent !== 'flex-start') ? 'auto' : '100%';

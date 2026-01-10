@@ -8,8 +8,11 @@
 /* ==================== Rich Content Area (L25) ==================== */
 
 .rich-content-area {
-  /* Reset all inherited styles */
-  all: initial;
+  /* v7.5.7: Removed 'all: initial' - it broke interactive elements like chart edit buttons
+   * The reset was causing z-index, pointer-events, and button styling to be lost
+   * Interactive elements from Analytics Service charts need to retain their styling
+   */
+  /* all: initial; */
 
   /* Restore essential display properties */
   display: block;

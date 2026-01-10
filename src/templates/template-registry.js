@@ -365,8 +365,8 @@ const TEMPLATE_REGISTRY = {
           color: 'var(--theme-text-body, #374151)',           // Body text gray
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: 'flex-start',    // LEFT align (horizontal)
+          justifyContent: 'center',    // CENTER align (vertical) - v7.5.7 fix for chart alignment
           textAlign: 'left',
           padding: '0',
           paddingTop: '20px',

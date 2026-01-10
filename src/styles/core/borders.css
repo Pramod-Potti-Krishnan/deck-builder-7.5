@@ -592,6 +592,14 @@ body.show-borders .inserted-textbox {
   outline-offset: -2px !important;
 }
 
+/* v7.5.7: Textbox content and atomic chart containers show borders when 'B' is pressed */
+/* This ensures charts inside textboxes (C1-text, I-series, etc.) get border highlighting */
+body.show-borders .textbox-content,
+body.show-borders .atomic-chart-container {
+  outline: 1px solid #9ca3af !important;
+  outline-offset: -2px !important;
+}
+
 /* ===== FRONTEND TEMPLATE BORDERS (H1-H3, C1-C6, S1-S4, B1) ===== */
 /* These classes are used by the new frontend template system */
 /* Uniform gray solid borders - consistent with edit mode */

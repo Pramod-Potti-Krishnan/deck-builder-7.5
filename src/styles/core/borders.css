@@ -606,6 +606,24 @@ body.show-borders .atomic-chart-container {
   box-sizing: border-box;
 }
 
+/* v7.5.9: Hide internal chart title - slide template already has title slot */
+/* Analytics Service generates chart-subtitle div inside chart HTML, but the */
+/* slide template already provides a title slot, resulting in duplicate titles */
+.atomic-chart-container .chart-subtitle,
+.l02-chart-container > .chart-subtitle:first-child {
+  display: none !important;
+}
+
+/* v7.5.9: Ensure edit button is visible and clickable */
+/* The edit button has z-index: 100 inline but may be blocked by other elements */
+.atomic-chart-container .chart-edit-btn,
+.chart-edit-btn {
+  z-index: 1000 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  display: flex !important;
+}
+
 /* ===== FRONTEND TEMPLATE BORDERS (H1-H3, C1-C6, S1-S4, B1) ===== */
 /* These classes are used by the new frontend template system */
 /* Uniform gray solid borders - consistent with edit mode */

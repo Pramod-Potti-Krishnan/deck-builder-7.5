@@ -564,7 +564,8 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
+    // v7.5.8: Default to rows 4-17 (content area) instead of 5-17
+    const position = config.position || { gridRow: '4/18', gridColumn: '2/32' };
 
     // Create container
     const container = document.createElement('div');
@@ -572,10 +573,14 @@
     container.className = `dynamic-element inserted-element-placeholder inserted-chart${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'chart';
     container.dataset.slideIndex = slideIndex;
+    // v7.5.8: Add width/height: 100% to fill grid cell
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
       z-index: ${++zIndexCounter};
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
     `;
 
     if (isPlaceholderMode) {

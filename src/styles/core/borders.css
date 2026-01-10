@@ -556,28 +556,10 @@ body.show-borders .hero-content-area {
   outline-offset: -2px !important;
 }
 
-/* Title and subtitle borders when 'B' pressed */
-body.show-borders .slide-title,
-body.show-borders .subtitle {
-  outline: 1px solid #9ca3af !important;
-  outline-offset: -2px !important;
-}
-
-/* Text content elements when 'B' pressed */
-body.show-borders .body-text,
-body.show-borders .main-text-content,
-body.show-borders .explanation-text,
-body.show-borders .supporting-text,
-body.show-borders .text-content,
-body.show-borders .key-points,
-body.show-borders .bullet-points,
-body.show-borders .numbered-items,
-body.show-borders .column-content,
-body.show-borders .item-1-content,
-body.show-borders .item-2-content {
-  outline: 1px solid #9ca3af !important;
-  outline-offset: -2px !important;
-}
+/* v7.5.8: REMOVED internal text borders - only show borders on CONTAINERS, not text inside
+ * Previously lines 559-580 added borders to .slide-title, .subtitle, .body-text, etc.
+ * User feedback: Internal text borders are unacceptable - containers only
+ */
 
 /* Footer elements show borders when 'B' is pressed */
 body.show-borders .footer-presentation-name,
@@ -598,6 +580,30 @@ body.show-borders .textbox-content,
 body.show-borders .atomic-chart-container {
   outline: 1px solid #9ca3af !important;
   outline-offset: -2px !important;
+}
+
+/* v7.5.8: Chart elements fill containers, left-aligned with padding */
+/* Ensures charts fit within their container borders and don't overflow */
+.inserted-chart .element-content,
+.atomic-chart-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.atomic-chart-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* v7.5.8: Visual padding for chart containers (~20% spacing) */
+.inserted-chart,
+.chart-container {
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* ===== FRONTEND TEMPLATE BORDERS (H1-H3, C1-C6, S1-S4, B1) ===== */

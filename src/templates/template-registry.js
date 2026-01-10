@@ -478,9 +478,9 @@ const TEMPLATE_REGISTRY = {
           color: 'var(--theme-text-body, #374151)',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
+          alignItems: 'flex-start',   // LEFT align (horizontal) - v7.5.8 fix
+          justifyContent: 'center',   // CENTER align (vertical)
+          textAlign: 'left',          // v7.5.8: Match C1-text alignment
           padding: '0',
           paddingTop: '20px',
           paddingLeft: '5px'

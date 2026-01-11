@@ -1891,24 +1891,59 @@
       borderStyle = `${bw}px solid ${bc}`;
     }
 
-    // v7.5.8: Calculate text box row span based on content
-    // Instead of using full slot (4/18) or just start (4), calculate appropriate span
+    // v7.5.9: Content-aware sizing for text boxes
     // Based on ATOMIC_ELEMENT_SIZING_GUIDE.md: "Template slots define available space, not element size"
-    function calculateTextBoxRowSpan(content, startRow) {
-      if (!content) return { start: startRow, end: startRow + 6 }; // Default 6 rows (360px)
 
-      // Count content elements to estimate height
+    // Detect box count from CSS grid wrapper (e.g., "repeat(3, 1fr)")
+    function detectBoxCount(content) {
+      if (!content) return 1;
+      // Look for CSS grid column definition: repeat(N, 1fr)
+      const match = content.match(/grid-template-columns:\s*repeat\((\d+),/i);
+      if (match) return parseInt(match[1]);
+      // Fallback: count textbox-instance divs
+      const instanceCount = (content.match(/class="[^"]*textbox-instance/gi) || []).length;
+      return instanceCount || 1;
+    }
+
+    // Calculate row span based on PER-COLUMN content (not total)
+    function calculateTextBoxRowSpan(content, startRow) {
+      if (!content) return { start: startRow, end: startRow + 8 }; // Default 8 rows (480px)
+
+      const boxCount = detectBoxCount(content);
+
+      // Count content elements
       const bulletCount = (content.match(/<li>/gi) || []).length;
       const headingCount = (content.match(/<h[2-6]>/gi) || []).length;
-      const paragraphCount = (content.match(/<p>/gi) || []).length;
 
-      // Calculate rows: roughly 1 row per 2 bullets + headings + paragraphs + padding
-      // Each grid row = 60px, typical bullet line ~30px
-      const contentRows = Math.ceil(bulletCount / 2) + headingCount + Math.ceil(paragraphCount / 2) + 3;
-      const rows = Math.max(4, Math.min(12, contentRows)); // Clamp between 4-12 rows (240-720px)
+      // Per-column content (height determined by single column, not total)
+      const bulletsPerBox = Math.ceil(bulletCount / boxCount);
+      const headingsPerBox = Math.ceil(headingCount / boxCount);
 
-      console.log(`[ElementManager] TextBox sizing: ${bulletCount} bullets, ${headingCount} headings → ${rows} rows`);
+      // Row calculation (60px per row):
+      // - Each bullet line = ~48px → 1 row per bullet
+      // - Each heading = ~60px + margin → 2 rows per heading
+      // - Padding/spacing = 2 rows
+      const contentRows = bulletsPerBox + (headingsPerBox * 2) + 2;
+      const rows = Math.max(6, Math.min(14, contentRows)); // Clamp 6-14 rows (360-840px)
+
+      console.log(`[ElementManager] TextBox height: ${boxCount} boxes, ${bulletsPerBox} bullets/box → ${rows} rows`);
       return { start: startRow, end: startRow + rows };
+    }
+
+    // Calculate column span based on box count
+    function calculateTextBoxGridColumn(content, slotGridColumn) {
+      const startCol = parseInt(slotGridColumn.split('/')[0]) || 2;
+      const boxCount = detectBoxCount(content);
+
+      // Width per box (10 cols = 600px) + gaps (1 col between boxes)
+      const colsPerBox = 10;
+      const totalCols = (boxCount * colsPerBox) + (boxCount - 1);
+
+      // Clamp to slot max
+      const endCol = Math.min(startCol + totalCols, 32);
+
+      console.log(`[ElementManager] TextBox width: ${boxCount} boxes → cols ${startCol}/${endCol}`);
+      return `${startCol}/${endCol}`;
     }
 
     // v7.5.12: Determine if this is a boilerplate slot (should NOT auto-size)
@@ -1917,9 +1952,10 @@
     const isBoilerplateSlot = boilerplateSlots.includes(config.slot_name);
 
     let effectiveGridRow = position.gridRow;
+    let effectiveGridColumn = position.gridColumn;
 
     if (!isBoilerplateSlot) {
-      // Content/body slots: Calculate row span based on content
+      // Content/body slots: Calculate row and column span based on content
       let startRow = 4; // Default
       if (position.gridRow) {
         if (position.gridRow.includes('/')) {
@@ -1931,14 +1967,15 @@
 
       const rowCalc = calculateTextBoxRowSpan(config.content, startRow);
       effectiveGridRow = `${rowCalc.start}/${rowCalc.end}`;
-      console.log(`[ElementManager] Auto-sizing textbox slot '${config.slot_name}': ${effectiveGridRow}`);
+      effectiveGridColumn = calculateTextBoxGridColumn(config.content, position.gridColumn);
+      console.log(`[ElementManager] Auto-sizing textbox slot '${config.slot_name}': row=${effectiveGridRow}, col=${effectiveGridColumn}`);
     } else {
       console.log(`[ElementManager] Boilerplate slot '${config.slot_name}': using template position ${effectiveGridRow}`);
     }
 
     container.style.cssText = `
       grid-row: ${effectiveGridRow};
-      grid-column: ${position.gridColumn};
+      grid-column: ${effectiveGridColumn};
       z-index: ${zIndex};
       background: ${style.backgroundColor || style.background_color || 'transparent'};
       border: ${borderStyle};

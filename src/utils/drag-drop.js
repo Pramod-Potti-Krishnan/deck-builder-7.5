@@ -462,6 +462,18 @@
       }
 
       console.log(`DragDrop: Moved ${dragElementId} to row:${newGridRow} col:${newGridColumn}`);
+
+      // Notify parent window of position change
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'elementPositionChanged',
+          elementId: dragElementId,
+          gridRow: newGridRow,
+          gridColumn: newGridColumn,
+          changeType: 'move'
+        }, '*');
+        console.log('📤 postMessage: elementPositionChanged (move)', dragElementId);
+      }
     }
 
     // Reset state
@@ -805,6 +817,18 @@
       }
 
       console.log(`DragDrop: Resized ${resizeElementId} to row:${newGridRow} col:${newGridColumn}`);
+
+      // Notify parent window of size change
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'elementPositionChanged',
+          elementId: resizeElementId,
+          gridRow: newGridRow,
+          gridColumn: newGridColumn,
+          changeType: 'resize'
+        }, '*');
+        console.log('📤 postMessage: elementPositionChanged (resize)', resizeElementId);
+      }
     }
 
     // Reset state

@@ -1911,19 +1911,30 @@
       return { start: startRow, end: startRow + rows };
     }
 
-    // Parse start row from position
-    let startRow = 4; // Default
-    if (position.gridRow) {
-      if (position.gridRow.includes('/')) {
-        startRow = parseInt(position.gridRow.split('/')[0]) || 4;
-      } else {
-        startRow = parseInt(position.gridRow) || 4;
-      }
-    }
+    // v7.5.12: Determine if this is a boilerplate slot (should NOT auto-size)
+    // Title, subtitle, footer, logo use template-defined positions
+    const boilerplateSlots = ['title', 'subtitle', 'footer', 'logo', 'author_info', 'contact_info', 'section_number'];
+    const isBoilerplateSlot = boilerplateSlots.includes(config.slot_name);
 
-    // Calculate row span based on content
-    const rowCalc = calculateTextBoxRowSpan(config.content, startRow);
-    const effectiveGridRow = `${rowCalc.start}/${rowCalc.end}`;
+    let effectiveGridRow = position.gridRow;
+
+    if (!isBoilerplateSlot) {
+      // Content/body slots: Calculate row span based on content
+      let startRow = 4; // Default
+      if (position.gridRow) {
+        if (position.gridRow.includes('/')) {
+          startRow = parseInt(position.gridRow.split('/')[0]) || 4;
+        } else {
+          startRow = parseInt(position.gridRow) || 4;
+        }
+      }
+
+      const rowCalc = calculateTextBoxRowSpan(config.content, startRow);
+      effectiveGridRow = `${rowCalc.start}/${rowCalc.end}`;
+      console.log(`[ElementManager] Auto-sizing textbox slot '${config.slot_name}': ${effectiveGridRow}`);
+    } else {
+      console.log(`[ElementManager] Boilerplate slot '${config.slot_name}': using template position ${effectiveGridRow}`);
+    }
 
     container.style.cssText = `
       grid-row: ${effectiveGridRow};

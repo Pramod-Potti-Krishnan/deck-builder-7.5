@@ -1905,7 +1905,7 @@
       return instanceCount || 1;
     }
 
-    // Calculate row span based on PER-COLUMN content (not total)
+    // Calculate row span based on PER-COLUMN content, accounting for text wrapping
     function calculateTextBoxRowSpan(content, startRow) {
       if (!content) return { start: startRow, end: startRow + 8 }; // Default 8 rows (480px)
 
@@ -1915,18 +1915,38 @@
       const bulletCount = (content.match(/<li>/gi) || []).length;
       const headingCount = (content.match(/<h[2-6]>/gi) || []).length;
 
-      // Per-column content (height determined by single column, not total)
+      // v7.5.10: Estimate text lines by extracting bullet text and calculating wrapping
+      // Box width: ~10 cols = 600px, Font: 32px, ~18px per char → ~33 chars per line
+      const CHARS_PER_LINE = 33;
+
+      // Extract text from <li> tags to estimate total characters
+      let totalBulletChars = 0;
+      const liMatches = content.match(/<li[^>]*>([\s\S]*?)<\/li>/gi) || [];
+      liMatches.forEach(li => {
+        // Strip HTML tags to get plain text length
+        const textOnly = li.replace(/<[^>]+>/g, '').trim();
+        totalBulletChars += textOnly.length;
+      });
+
+      // Per-box character count
+      const charsPerBox = Math.ceil(totalBulletChars / boxCount);
       const bulletsPerBox = Math.ceil(bulletCount / boxCount);
       const headingsPerBox = Math.ceil(headingCount / boxCount);
 
+      // Calculate lines needed for bullets (accounting for text wrapping)
+      // Each bullet that exceeds CHARS_PER_LINE will wrap to multiple lines
+      const avgCharsPerBullet = bulletsPerBox > 0 ? charsPerBox / bulletsPerBox : 0;
+      const linesPerBullet = Math.max(1, Math.ceil(avgCharsPerBullet / CHARS_PER_LINE));
+      const bulletLines = bulletsPerBox * linesPerBullet;
+
       // Row calculation (60px per row):
-      // - Each bullet line = ~48px → 1 row per bullet
+      // - Bullet lines (calculated with wrapping)
       // - Each heading = ~60px + margin → 2 rows per heading
       // - Padding/spacing = 2 rows
-      const contentRows = bulletsPerBox + (headingsPerBox * 2) + 2;
-      const rows = Math.max(6, Math.min(14, contentRows)); // Clamp 6-14 rows (360-840px)
+      const contentRows = bulletLines + (headingsPerBox * 2) + 2;
+      const rows = Math.max(6, Math.min(16, contentRows)); // Clamp 6-16 rows (360-960px)
 
-      console.log(`[ElementManager] TextBox height: ${boxCount} boxes, ${bulletsPerBox} bullets/box → ${rows} rows`);
+      console.log(`[ElementManager] TextBox height: ${boxCount} boxes, ${bulletsPerBox} bullets/box, ~${avgCharsPerBullet.toFixed(0)} chars/bullet, ${linesPerBullet} lines/bullet → ${rows} rows`);
       return { start: startRow, end: startRow + rows };
     }
 

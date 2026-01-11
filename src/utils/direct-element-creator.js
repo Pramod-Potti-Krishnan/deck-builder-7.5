@@ -1,8 +1,21 @@
 /**
- * Direct Element Creator - v7.5.2 Infographic/Diagram Content Support
+ * Direct Element Creator - v7.5.11 Chart Detection in Body Content
  *
  * Simple approach: Instead of converting HTML slot elements to Element Types,
  * directly create elements using ElementManager with properties from template registry.
+ *
+ * v7.5.11 Changes (Jan 10, 2026):
+ * - Fixed C1-text layout chart sizing (charts were taking full content area)
+ * - Added isChartHtml() to detect Chart.js content in body field
+ * - createTextBox() now redirects to createChart() when body contains chart HTML
+ * - Charts in C1-text body field now get proper constrained positioning
+ *
+ * v7.5.10 Changes (Jan 10, 2026):
+ * - Fixed C3-chart layout chart sizing (charts were taking full content area)
+ * - Added CHART_GRID_SIZES mapping for chart type → grid dimensions
+ * - Added detectChartTypeFromHtml() for Chart.js type detection
+ * - Added getConstrainedChartPosition() to calculate proper element bounds
+ * - Charts in C3-chart layout now properly constrained (pie=12x11, bar=14x11, etc.)
  *
  * v7.5.2 Changes (Dec 27, 2025):
  * - Fixed C4-infographic and C5-diagram to render HTML content instead of placeholder
@@ -171,6 +184,23 @@
       gridRow: `${slotRowStart}/${slotRowStart + size.rows}`,
       gridColumn: `${slotColStart}/${slotColStart + size.cols}`
     };
+  }
+
+  /**
+   * v7.5.11: Check if HTML content contains Chart.js chart
+   * Used to detect when body content should be treated as a chart
+   * instead of a textbox (e.g., C1-text with chart in body field)
+   *
+   * @param {string} html - The HTML content to check
+   * @returns {boolean} True if content contains Chart.js chart
+   */
+  function isChartHtml(html) {
+    if (!html || typeof html !== 'string') return false;
+
+    // Check for Chart.js signature patterns
+    return html.includes('new Chart(') ||
+           html.includes('Chart.js') ||
+           (html.includes('<canvas') && html.includes('type:'));
   }
 
   /**
@@ -371,6 +401,26 @@
   function createTextBox(ctx) {
     const { slideIndex, slideId, slotName, slotDef, content, useLegacyIds, presentation, totalSlides } = ctx;
     const slotStyle = slotDef.style || {};
+
+    // v7.5.11: Check if body content contains chart HTML
+    // If so, redirect to createChart() for proper constrained positioning
+    // This handles C1-text layout where charts are passed in the body field
+    if (slotName === 'content' || slotName === 'body') {
+      const bodyContent = content?.body || content?.content_html;
+      if (isChartHtml(bodyContent)) {
+        console.log(`[DirectElementCreator] Body contains chart HTML, redirecting to createChart()`);
+        // Create modified context with chart content in chart_html field
+        const chartCtx = {
+          ...ctx,
+          content: {
+            ...content,
+            chart_html: bodyContent  // Move body content to chart_html
+          }
+        };
+        createChart(chartCtx);
+        return;  // Skip textbox creation
+      }
+    }
 
     // Check for derivative footer (presentation-level footer config)
     let textContent;

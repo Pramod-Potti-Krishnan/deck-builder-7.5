@@ -1902,7 +1902,8 @@
       opacity: ${style.opacity || 1};
       box-shadow: ${style.boxShadow || style.box_shadow || 'none'};
       min-height: 60px;
-      overflow: auto;
+      max-height: fit-content;
+      overflow: visible;
       cursor: ${config.draggable !== false ? 'move' : 'text'};
       position: relative;
       display: ${display};

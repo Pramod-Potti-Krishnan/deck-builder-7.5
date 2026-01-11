@@ -108,6 +108,72 @@
   };
 
   /**
+   * v7.5.10: Chart type to grid size mapping
+   * Sizes are in grid units (60px per unit)
+   * Used to constrain chart elements to appropriate sizes instead of full slot width
+   */
+  const CHART_GRID_SIZES = {
+    pie: { cols: 12, rows: 11 },
+    doughnut: { cols: 12, rows: 11 },
+    line: { cols: 16, rows: 11 },
+    bar: { cols: 14, rows: 11 },
+    bar_vertical: { cols: 14, rows: 11 },
+    bar_horizontal: { cols: 16, rows: 10 },
+    scatter: { cols: 15, rows: 11 },
+    bubble: { cols: 15, rows: 11 },
+    polar_area: { cols: 12, rows: 11 },
+    polarArea: { cols: 12, rows: 11 },
+    radar: { cols: 12, rows: 11 },
+    area: { cols: 16, rows: 11 },
+    waterfall: { cols: 16, rows: 11 },
+    default: { cols: 16, rows: 11 }
+  };
+
+  /**
+   * v7.5.10: Detect chart type from chart HTML content
+   * Parses Chart.js configuration to find the chart type
+   *
+   * @param {string} chartHtml - The chart HTML content
+   * @returns {string} Chart type or 'default'
+   */
+  function detectChartTypeFromHtml(chartHtml) {
+    if (!chartHtml) return 'default';
+
+    // Check for Chart.js type configurations (both quote styles)
+    if (chartHtml.includes('type: "pie"') || chartHtml.includes("type: 'pie'") || chartHtml.includes('type:"pie"')) return 'pie';
+    if (chartHtml.includes('type: "doughnut"') || chartHtml.includes("type: 'doughnut'") || chartHtml.includes('type:"doughnut"')) return 'doughnut';
+    if (chartHtml.includes('type: "line"') || chartHtml.includes("type: 'line'") || chartHtml.includes('type:"line"')) return 'line';
+    if (chartHtml.includes('type: "bar"') || chartHtml.includes("type: 'bar'") || chartHtml.includes('type:"bar"')) return 'bar';
+    if (chartHtml.includes('type: "scatter"') || chartHtml.includes("type: 'scatter'") || chartHtml.includes('type:"scatter"')) return 'scatter';
+    if (chartHtml.includes('type: "bubble"') || chartHtml.includes("type: 'bubble'") || chartHtml.includes('type:"bubble"')) return 'bubble';
+    if (chartHtml.includes('type: "polarArea"') || chartHtml.includes("type: 'polarArea'") || chartHtml.includes('type:"polarArea"')) return 'polarArea';
+    if (chartHtml.includes('type: "radar"') || chartHtml.includes("type: 'radar'") || chartHtml.includes('type:"radar"')) return 'radar';
+
+    return 'default';
+  }
+
+  /**
+   * v7.5.10: Calculate constrained chart position within slot bounds
+   * Instead of using the full slot width, constrains the chart to its natural size
+   *
+   * @param {Object} slotDef - The slot definition with gridRow and gridColumn
+   * @param {string} chartType - The detected chart type
+   * @returns {Object} Constrained position {gridRow, gridColumn}
+   */
+  function getConstrainedChartPosition(slotDef, chartType) {
+    const size = CHART_GRID_SIZES[chartType] || CHART_GRID_SIZES.default;
+
+    // Parse slot bounds
+    const [slotRowStart] = slotDef.gridRow.split('/').map(Number);
+    const [slotColStart] = slotDef.gridColumn.split('/').map(Number);
+
+    return {
+      gridRow: `${slotRowStart}/${slotRowStart + size.rows}`,
+      gridColumn: `${slotColStart}/${slotColStart + size.cols}`
+    };
+  }
+
+  /**
    * Create all elements for a template on a slide
    *
    * @param {HTMLElement} slideElement - The slide container element
@@ -552,14 +618,18 @@
     // Extract chart content from the content object
     const chartContent = getChartContent(slotName, content);
 
+    // v7.5.10: Detect chart type and calculate constrained position
+    // This prevents charts from spanning the full slot width (2/32 = 1800px)
+    const chartType = detectChartTypeFromHtml(chartContent);
+    const constrainedPosition = getConstrainedChartPosition(slotDef, chartType);
+
+    console.log(`[DirectElementCreator] Chart type detected: ${chartType}, position: row=${constrainedPosition.gridRow}, col=${constrainedPosition.gridColumn}`);
+
     const config = {
       id: elementId,
       parent_slide_id: slideId,  // v7.5.1: For cascade delete
       slot_name: slotName,       // v7.5.1: For slot mapping
-      position: {
-        gridRow: slotDef.gridRow,
-        gridColumn: slotDef.gridColumn
-      },
+      position: constrainedPosition,  // v7.5.10: Use constrained position, not full slot
       draggable: true,
       resizable: true,
       zIndex: getZIndexForSlot(slotName),

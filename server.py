@@ -3836,9 +3836,7 @@ async def create_chart(
 ):
     """Create a new chart element on a slide."""
     try:
-        # v3.7.2 DEBUG: Log incoming position to verify it's being received correctly
-        logger.info(f"[create_chart] Received request for presentation {presentation_id}, slide {slide_index}")
-        logger.info(f"[create_chart] Request position: grid_row={request.position.grid_row}, grid_column={request.position.grid_column}")
+        logger.debug(f"Creating chart on presentation {presentation_id}, slide {slide_index}")
 
         presentation = await storage.load(presentation_id)
         if not presentation:
@@ -3863,9 +3861,6 @@ async def create_chart(
             chart_html=request.chart_html,
             z_index=request.z_index or get_next_element_z_index(charts, 100)
         )
-
-        # v3.7.2 DEBUG: Log chart position after ChartElement creation
-        logger.info(f"[create_chart] Chart created with position: grid_row={new_chart.position.grid_row}, grid_column={new_chart.position.grid_column}")
 
         charts.append(new_chart.model_dump())
 
@@ -3958,10 +3953,7 @@ async def update_chart(
 ):
     """Update an existing chart element."""
     try:
-        # v3.7.2 DEBUG: Log incoming update request
-        logger.info(f"[update_chart] Updating chart {chart_id} on presentation {presentation_id}, slide {slide_index}")
-        if request.position:
-            logger.info(f"[update_chart] Request position: grid_row={request.position.grid_row}, grid_column={request.position.grid_column}")
+        logger.debug(f"Updating chart {chart_id} on presentation {presentation_id}, slide {slide_index}")
 
         presentation = await storage.load(presentation_id)
         if not presentation:
@@ -3977,21 +3969,13 @@ async def update_chart(
         if chart_idx is None:
             raise HTTPException(status_code=404, detail=f"Chart not found: {chart_id}")
 
-        # v3.7.2 DEBUG: Log chart position BEFORE update
-        logger.info(f"[update_chart] Chart position BEFORE update: {chart.get('position', 'NO POSITION')}")
-
         update_data = request.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             if value is not None:
                 if key == "position":
                     chart["position"] = value.model_dump() if hasattr(value, 'model_dump') else value
-                    # v3.7.2 DEBUG: Log position being applied
-                    logger.info(f"[update_chart] Applying position update: {chart['position']}")
                 else:
                     chart[key] = value
-
-        # v3.7.2 DEBUG: Log chart position AFTER update
-        logger.info(f"[update_chart] Chart position AFTER update: {chart.get('position', 'NO POSITION')}")
 
         summary = change_summary or f"Updated chart on slide {slide_index + 1}"
         await storage.update(

@@ -1891,12 +1891,39 @@
       borderStyle = `${bw}px solid ${bc}`;
     }
 
-    // v7.5.7: For text boxes, only use the start row to allow auto-sizing
-    // grid-row: "4/18" forces spanning; grid-row: "4" allows content-based height
-    let effectiveGridRow = position.gridRow;
-    if (position.gridRow && position.gridRow.includes('/')) {
-      effectiveGridRow = position.gridRow.split('/')[0];  // Extract start row only
+    // v7.5.8: Calculate text box row span based on content
+    // Instead of using full slot (4/18) or just start (4), calculate appropriate span
+    // Based on ATOMIC_ELEMENT_SIZING_GUIDE.md: "Template slots define available space, not element size"
+    function calculateTextBoxRowSpan(content, startRow) {
+      if (!content) return { start: startRow, end: startRow + 6 }; // Default 6 rows (360px)
+
+      // Count content elements to estimate height
+      const bulletCount = (content.match(/<li>/gi) || []).length;
+      const headingCount = (content.match(/<h[2-6]>/gi) || []).length;
+      const paragraphCount = (content.match(/<p>/gi) || []).length;
+
+      // Calculate rows: roughly 1 row per 2 bullets + headings + paragraphs + padding
+      // Each grid row = 60px, typical bullet line ~30px
+      const contentRows = Math.ceil(bulletCount / 2) + headingCount + Math.ceil(paragraphCount / 2) + 3;
+      const rows = Math.max(4, Math.min(12, contentRows)); // Clamp between 4-12 rows (240-720px)
+
+      console.log(`[ElementManager] TextBox sizing: ${bulletCount} bullets, ${headingCount} headings → ${rows} rows`);
+      return { start: startRow, end: startRow + rows };
     }
+
+    // Parse start row from position
+    let startRow = 4; // Default
+    if (position.gridRow) {
+      if (position.gridRow.includes('/')) {
+        startRow = parseInt(position.gridRow.split('/')[0]) || 4;
+      } else {
+        startRow = parseInt(position.gridRow) || 4;
+      }
+    }
+
+    // Calculate row span based on content
+    const rowCalc = calculateTextBoxRowSpan(config.content, startRow);
+    const effectiveGridRow = `${rowCalc.start}/${rowCalc.end}`;
 
     container.style.cssText = `
       grid-row: ${effectiveGridRow};

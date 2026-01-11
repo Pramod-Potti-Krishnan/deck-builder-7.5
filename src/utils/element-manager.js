@@ -248,7 +248,11 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    const position = config.position || { gridRow: '8/12', gridColumn: '10/22' };
+    // v7.5.9: Support both nested position object and direct gridRow/gridColumn
+    const position = config.position || {
+      gridRow: config.gridRow || '8/12',
+      gridColumn: config.gridColumn || '10/22'
+    };
     const style = config.style || {};
     const fill = style.fill || '#3b82f6';
     const stroke = style.stroke || '#1e40af';
@@ -410,7 +414,11 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
+    // v7.5.9: Support both nested position object and direct gridRow/gridColumn
+    const position = config.position || {
+      gridRow: config.gridRow || '5/18',
+      gridColumn: config.gridColumn || '2/32'
+    };
 
     // Create container
     const container = document.createElement('div');
@@ -564,8 +572,12 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    // v7.5.8: Default to rows 4-17 (content area) instead of 5-17
-    const position = config.position || { gridRow: '4/18', gridColumn: '2/32' };
+    // v7.5.9: Support both nested position object and direct gridRow/gridColumn
+    // This allows restoreCharts() to pass gridRow/gridColumn at top level
+    const position = config.position || {
+      gridRow: config.gridRow || '4/18',
+      gridColumn: config.gridColumn || '2/32'
+    };
 
     // Create container
     const container = document.createElement('div');
@@ -970,7 +982,11 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
+    // v7.5.9: Support both nested position object and direct gridRow/gridColumn
+    const position = config.position || {
+      gridRow: config.gridRow || '5/18',
+      gridColumn: config.gridColumn || '2/32'
+    };
 
     // Create container
     const container = document.createElement('div');
@@ -1243,7 +1259,11 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
+    // v7.5.9: Support both nested position object and direct gridRow/gridColumn
+    const position = config.position || {
+      gridRow: config.gridRow || '5/18',
+      gridColumn: config.gridColumn || '2/32'
+    };
 
     // Create container
     const container = document.createElement('div');
@@ -1479,7 +1499,11 @@
       return { success: true, elementId: id, alreadyExists: true };
     }
 
-    const position = config.position || { gridRow: '5/18', gridColumn: '2/32' };
+    // v7.5.9: Support both nested position object and direct gridRow/gridColumn
+    const position = config.position || {
+      gridRow: config.gridRow || '5/18',
+      gridColumn: config.gridColumn || '2/32'
+    };
 
     // Create container
     const container = document.createElement('div');

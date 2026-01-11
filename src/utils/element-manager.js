@@ -1891,8 +1891,15 @@
       borderStyle = `${bw}px solid ${bc}`;
     }
 
+    // v7.5.7: For text boxes, only use the start row to allow auto-sizing
+    // grid-row: "4/18" forces spanning; grid-row: "4" allows content-based height
+    let effectiveGridRow = position.gridRow;
+    if (position.gridRow && position.gridRow.includes('/')) {
+      effectiveGridRow = position.gridRow.split('/')[0];  // Extract start row only
+    }
+
     container.style.cssText = `
-      grid-row: ${position.gridRow};
+      grid-row: ${effectiveGridRow};
       grid-column: ${position.gridColumn};
       z-index: ${zIndex};
       background: ${style.backgroundColor || style.background_color || 'transparent'};

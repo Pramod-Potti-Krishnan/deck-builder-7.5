@@ -12,8 +12,13 @@ Frontend Templates: H1-generated, H1-structured, H2-section, H3-closing,
 
 import os
 import json
+import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Request
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware

@@ -1977,6 +1977,98 @@ class TextBoxListResponse(BaseModel):
     count: int = Field(..., description="Number of text boxes")
 
 
+# ==================== Grid Element API Models (v7.5.9) ====================
+
+class AddElementRequest(BaseModel):
+    """
+    Request model for adding a positioned element to a slide.
+
+    Uses simplified position/size format instead of grid_row/grid_column strings.
+    This is a convenience wrapper around the native TextBox API.
+
+    Grid System: 32 columns x 18 rows (60px cells on 1920x1080)
+    Content Safe Zone: rows 4-17, columns 2-31
+
+    Position: Top-left corner anchor point
+    Size: Width and height in grid cells
+    """
+    element_type: str = Field(
+        ...,
+        description="Type of element: TEXT_BOX, IMAGE, CHART",
+        examples=["TEXT_BOX", "IMAGE", "CHART"]
+    )
+    html: str = Field(
+        ...,
+        description="HTML content for the element"
+    )
+    # Position: Top-left corner anchor (grid cell coordinates)
+    start_row: int = Field(
+        ..., ge=1, le=18,
+        description="Top-left row position (1-18)"
+    )
+    start_col: int = Field(
+        ..., ge=1, le=32,
+        description="Top-left column position (1-32)"
+    )
+    # Size: Width and height in grid cells
+    width: int = Field(
+        ..., ge=1, le=32,
+        description="Width in grid cells (1-32)"
+    )
+    height: int = Field(
+        ..., ge=1, le=18,
+        description="Height in grid cells (1-18)"
+    )
+    # Interaction options
+    draggable: bool = Field(
+        default=True,
+        description="Whether user can drag to reposition"
+    )
+    resizable: bool = Field(
+        default=True,
+        description="Whether user can resize by dragging edges"
+    )
+    z_index: int = Field(
+        default=100, ge=1, le=1000,
+        description="Layer order (higher = on top)"
+    )
+
+    @field_validator('start_row', 'height')
+    @classmethod
+    def validate_row_bounds(cls, v: int, info) -> int:
+        """Validate row values are within 18-row grid."""
+        return v
+
+    @field_validator('start_col', 'width')
+    @classmethod
+    def validate_col_bounds(cls, v: int, info) -> int:
+        """Validate column values are within 32-column grid."""
+        return v
+
+    def to_grid_position(self) -> Dict[str, str]:
+        """
+        Convert start_row/start_col/width/height to grid_row/grid_column format.
+
+        Returns dict with grid_row and grid_column in 'start/end' format.
+        """
+        end_row = min(self.start_row + self.height, 19)  # Max row is 18, so end can be 19
+        end_col = min(self.start_col + self.width, 33)   # Max col is 32, so end can be 33
+        return {
+            "grid_row": f"{self.start_row}/{end_row}",
+            "grid_column": f"{self.start_col}/{end_col}"
+        }
+
+
+class AddElementResponse(BaseModel):
+    """Response model for add element operations."""
+    success: bool = Field(..., description="Whether the operation succeeded")
+    element_id: str = Field(..., description="Unique ID of the created element")
+    element_type: str = Field(..., description="Type of element created")
+    grid_row: str = Field(..., description="CSS grid-row value assigned")
+    grid_column: str = Field(..., description="CSS grid-column value assigned")
+    message: str = Field(..., description="Success or error message")
+
+
 # ==================== Image Element CRUD Models ====================
 
 class ImageCreateRequest(BaseModel):

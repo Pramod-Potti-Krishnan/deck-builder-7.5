@@ -117,7 +117,10 @@ from models import (
     DynamicLayoutResponse,
     DynamicLayoutListResponse,
     ZoneDefinition,
-    ZonePixels
+    ZonePixels,
+    # Grid Element API models (v7.5.9)
+    AddElementRequest,
+    AddElementResponse
 )
 from storage import storage
 from src.layout_registry import (
@@ -6020,6 +6023,246 @@ async def delete_dynamic_layout(layout_id: str):
         "success": True,
         "message": f"Dynamic layout '{layout_id}' deleted",
         "deleted_layout": layout_id
+    }
+
+
+# ==================== Grid Element API (v7.5.9) ====================
+# Simplified API for adding positioned elements using start_row/start_col/width/height format
+
+@app.post("/api/presentations/{presentation_id}/slides/{slide_index}/elements", response_model=AddElementResponse, tags=["Grid Element API"])
+async def add_positioned_element(
+    presentation_id: str,
+    slide_index: int,
+    request: AddElementRequest,
+    created_by: str = "api",
+    change_summary: str = None
+):
+    """
+    Add an element at specific grid coordinates.
+
+    This endpoint provides a simplified interface for adding positioned elements
+    using start_row/start_col/width/height format instead of grid_row/grid_column strings.
+
+    Grid System: 32 columns x 18 rows (60px cells on 1920x1080)
+    Content Safe Zone: rows 4-17, columns 2-31
+
+    Request body:
+    - element_type: TEXT_BOX, IMAGE, or CHART
+    - html: HTML content for the element
+    - start_row: Top-left row position (1-18)
+    - start_col: Top-left column position (1-32)
+    - width: Width in grid cells (1-32)
+    - height: Height in grid cells (1-18)
+    - draggable: Whether user can drag to reposition (default: true)
+    - resizable: Whether user can resize (default: true)
+    - z_index: Layer order, higher = on top (default: 100)
+
+    Example:
+    ```json
+    {
+        "element_type": "TEXT_BOX",
+        "html": "<div style='padding: 16px;'>Content here</div>",
+        "start_row": 4,
+        "start_col": 2,
+        "width": 9,
+        "height": 5,
+        "draggable": true,
+        "resizable": true,
+        "z_index": 100
+    }
+    ```
+    This creates a text box at rows 4-8, columns 2-10.
+    """
+    try:
+        # Load presentation
+        presentation = await storage.load(presentation_id)
+        if not presentation:
+            raise HTTPException(status_code=404, detail="Presentation not found")
+
+        # Validate slide index
+        if slide_index < 0 or slide_index >= len(presentation.get("slides", [])):
+            raise HTTPException(status_code=400, detail=f"Invalid slide index: {slide_index}")
+
+        # Convert to grid position
+        grid_pos = request.to_grid_position()
+        grid_row = grid_pos["grid_row"]
+        grid_column = grid_pos["grid_column"]
+
+        # Handle different element types
+        if request.element_type.upper() == "TEXT_BOX":
+            # Ensure text_boxes array exists
+            presentation["slides"][slide_index] = ensure_slide_text_boxes(presentation["slides"][slide_index])
+            text_boxes = presentation["slides"][slide_index]["text_boxes"]
+
+            # Check limit
+            if len(text_boxes) >= 20:
+                raise HTTPException(status_code=400, detail="Maximum 20 text boxes per slide")
+
+            # Create text box with grid position
+            new_textbox = TextBox(
+                position=TextBoxPosition(
+                    grid_row=grid_row,
+                    grid_column=grid_column
+                ),
+                content=request.html,
+                style=TextBoxStyle(
+                    background_color="transparent",
+                    border_color="transparent",
+                    border_width=0
+                ),
+                z_index=request.z_index,
+                draggable=request.draggable,
+                resizable=request.resizable
+            )
+
+            # Add to slide
+            text_boxes.append(new_textbox.model_dump())
+            element_id = new_textbox.id
+
+            # Save with version tracking
+            summary = change_summary or f"Added text box to slide {slide_index + 1} at grid position {grid_row}, {grid_column}"
+            await storage.update(
+                presentation_id,
+                {"slides": presentation["slides"]},
+                created_by=created_by,
+                change_summary=summary,
+                create_version=True
+            )
+
+            return AddElementResponse(
+                success=True,
+                element_id=element_id,
+                element_type="TEXT_BOX",
+                grid_row=grid_row,
+                grid_column=grid_column,
+                message=f"Text box created at grid position {grid_row}, {grid_column}"
+            )
+
+        elif request.element_type.upper() == "IMAGE":
+            # Handle image element creation
+            # For now, treat images as text boxes with HTML content
+            presentation["slides"][slide_index] = ensure_slide_text_boxes(presentation["slides"][slide_index])
+            text_boxes = presentation["slides"][slide_index]["text_boxes"]
+
+            if len(text_boxes) >= 20:
+                raise HTTPException(status_code=400, detail="Maximum 20 elements per slide")
+
+            new_textbox = TextBox(
+                position=TextBoxPosition(
+                    grid_row=grid_row,
+                    grid_column=grid_column
+                ),
+                content=request.html,
+                style=TextBoxStyle(
+                    background_color="transparent",
+                    border_color="transparent",
+                    border_width=0
+                ),
+                z_index=request.z_index,
+                draggable=request.draggable,
+                resizable=request.resizable
+            )
+
+            text_boxes.append(new_textbox.model_dump())
+            element_id = new_textbox.id
+
+            summary = change_summary or f"Added image to slide {slide_index + 1} at grid position {grid_row}, {grid_column}"
+            await storage.update(
+                presentation_id,
+                {"slides": presentation["slides"]},
+                created_by=created_by,
+                change_summary=summary,
+                create_version=True
+            )
+
+            return AddElementResponse(
+                success=True,
+                element_id=element_id,
+                element_type="IMAGE",
+                grid_row=grid_row,
+                grid_column=grid_column,
+                message=f"Image element created at grid position {grid_row}, {grid_column}"
+            )
+
+        elif request.element_type.upper() == "CHART":
+            # Handle chart element creation
+            presentation["slides"][slide_index] = ensure_slide_text_boxes(presentation["slides"][slide_index])
+            text_boxes = presentation["slides"][slide_index]["text_boxes"]
+
+            if len(text_boxes) >= 20:
+                raise HTTPException(status_code=400, detail="Maximum 20 elements per slide")
+
+            new_textbox = TextBox(
+                position=TextBoxPosition(
+                    grid_row=grid_row,
+                    grid_column=grid_column
+                ),
+                content=request.html,
+                style=TextBoxStyle(
+                    background_color="transparent",
+                    border_color="transparent",
+                    border_width=0
+                ),
+                z_index=request.z_index,
+                draggable=request.draggable,
+                resizable=request.resizable
+            )
+
+            text_boxes.append(new_textbox.model_dump())
+            element_id = new_textbox.id
+
+            summary = change_summary or f"Added chart to slide {slide_index + 1} at grid position {grid_row}, {grid_column}"
+            await storage.update(
+                presentation_id,
+                {"slides": presentation["slides"]},
+                created_by=created_by,
+                change_summary=summary,
+                create_version=True
+            )
+
+            return AddElementResponse(
+                success=True,
+                element_id=element_id,
+                element_type="CHART",
+                grid_row=grid_row,
+                grid_column=grid_column,
+                message=f"Chart element created at grid position {grid_row}, {grid_column}"
+            )
+
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported element type: {request.element_type}. Use TEXT_BOX, IMAGE, or CHART."
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding positioned element: {e}")
+        raise HTTPException(status_code=500, detail=f"Error adding element: {str(e)}")
+
+
+@app.post("/api/presentations/{presentation_id}/grid-overlay", tags=["Grid Element API"])
+async def toggle_grid_overlay(presentation_id: str, show: bool = True):
+    """
+    Toggle grid overlay visibility for visual debugging.
+
+    Note: The grid overlay is controlled client-side via postMessage.
+    This endpoint provides a REST interface for backend-to-backend communication.
+
+    Existing postMessage commands (for frontend reference):
+    - {action: 'showGridOverlay'} - Turn grid ON
+    - {action: 'hideGridOverlay'} - Turn grid OFF
+    - {action: 'toggleGridOverlay'} - Toggle
+    - {action: 'isGridOverlayActive'} - Check status
+    """
+    # This is primarily a notification/documentation endpoint
+    # The actual grid overlay is controlled client-side
+    return {
+        "success": True,
+        "presentation_id": presentation_id,
+        "grid_overlay": "show" if show else "hide",
+        "message": f"Grid overlay {'enabled' if show else 'disabled'}. Use postMessage for client-side control."
     }
 
 

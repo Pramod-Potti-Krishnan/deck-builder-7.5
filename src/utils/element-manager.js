@@ -1682,8 +1682,9 @@
       return { success: false, error: 'Diagram element not found' };
     }
 
-    // Remove placeholder styling
+    // Remove placeholder styling - both classes to ensure CSS hiding works
     element.classList.remove('inserted-element-placeholder');
+    element.classList.remove('placeholder-mode');
 
     // Update content
     let contentDiv = element.querySelector('.element-content');
@@ -1740,8 +1741,9 @@
       return { success: false, error: 'Mermaid.js not loaded' };
     }
 
-    // Remove placeholder styling
+    // Remove placeholder styling - both classes to ensure CSS hiding works
     element.classList.remove('inserted-element-placeholder');
+    element.classList.remove('placeholder-mode');
 
     // Update content
     let contentDiv = element.querySelector('.element-content');
@@ -1785,6 +1787,69 @@
       console.error('Mermaid render failed:', error);
       return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Set diagram HTML content directly
+   *
+   * Used for injecting pre-rendered HTML diagrams (e.g., V3 template diagrams
+   * like Gantt, Kanban, Code Display, Chevron that are rendered server-side).
+   *
+   * @param {string} elementId - Diagram element ID
+   * @param {string} diagramHtml - HTML content for diagram
+   * @returns {Object} Result
+   */
+  function setDiagramHtml(elementId, diagramHtml) {
+    const element = document.getElementById(elementId);
+    const data = elementRegistry.get(elementId);
+
+    if (!element || !data || data.type !== 'diagram') {
+      return { success: false, error: 'Diagram element not found' };
+    }
+
+    // Remove placeholder styling - both classes to ensure CSS hiding works
+    element.classList.remove('inserted-element-placeholder');
+    element.classList.remove('placeholder-mode');
+
+    // Update content
+    let contentDiv = element.querySelector('.element-content');
+    if (!contentDiv) {
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'element-content';
+      const dragHandle = element.querySelector('.element-drag-handle');
+      if (dragHandle) {
+        dragHandle.after(contentDiv);
+      } else {
+        element.prepend(contentDiv);
+      }
+    }
+
+    // Hide placeholder content
+    const placeholderContent = element.querySelector('.element-placeholder-content');
+    if (placeholderContent) {
+      placeholderContent.style.display = 'none';
+    }
+    const typeBadge = element.querySelector('.element-type-badge');
+    if (typeBadge) {
+      typeBadge.style.display = 'none';
+    }
+
+    // v7.5.x: Set HTML content and execute scripts sequentially
+    contentDiv.innerHTML = diagramHtml;
+
+    // Execute scripts in order, waiting for external scripts to load
+    executeScriptsSequentially(contentDiv).catch(err => {
+      console.error('[ElementManager] Script execution error in setDiagramHtml:', err);
+    });
+
+    // Update registry
+    data.data.diagramHtml = diagramHtml;
+
+    // Trigger auto-save
+    triggerAutoSave(data.slideIndex);
+    emitSlideContentChanged(data.slideIndex, 'modify', 'diagram');
+
+    return { success: true };
   }
 
   // ===== INSERT TEXT BOX =====
@@ -3103,6 +3168,7 @@
     // Diagram specific methods
     updateDiagramSvg: updateDiagramSvg,
     updateDiagramMermaid: updateDiagramMermaid,
+    setDiagramHtml: setDiagramHtml,
 
     // Clipboard methods (Ctrl/Cmd + C/X/V)
     copyElement: copyElement,

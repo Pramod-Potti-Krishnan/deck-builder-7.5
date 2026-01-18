@@ -2059,6 +2059,21 @@
       console.log(`[ElementManager] Boilerplate slot '${config.slot_name}': using template position ${effectiveGridRow}`);
     }
 
+    // v7.5.x: Detect image content for stretch-to-fill layout
+    // Images need different container styles to fill the grid cell properly
+    function containsImageContent(content) {
+      if (!content) return false;
+      return content.includes('class="image-element"') || content.includes("class='image-element'");
+    }
+    const hasImageContent = containsImageContent(config.content);
+    if (hasImageContent) {
+      console.log(`[ElementManager] Image content detected in textbox, applying stretch-to-fill styles`);
+    }
+
+    // For images: use stretch alignment and allow full height instead of fit-content
+    const effectiveMaxHeight = hasImageContent ? '100%' : 'fit-content';
+    const effectiveAlignItems = hasImageContent ? 'stretch' : alignItems;
+
     container.style.cssText = `
       grid-row: ${effectiveGridRow};
       grid-column: ${effectiveGridColumn};
@@ -2070,14 +2085,14 @@
       opacity: ${style.opacity || 1};
       box-shadow: ${style.boxShadow || style.box_shadow || 'none'};
       min-height: 60px;
-      max-height: fit-content;
+      max-height: ${effectiveMaxHeight};
       overflow: visible;
       cursor: ${config.draggable !== false ? 'move' : 'text'};
       position: relative;
       display: ${display};
       flex-direction: ${flexDirection};
       justify-content: ${justifyContent};
-      align-items: ${alignItems};
+      align-items: ${effectiveAlignItems};
     `;
 
     // Apply CSS classes if provided
@@ -2116,9 +2131,11 @@
     // NOTE: min-height: 100% defeats justify-content positioning (e.g., bottom-align)
     // Use 'auto' when a non-default justifyContent is specified to allow flex alignment to work
     const contentMinHeight = (justifyContent && justifyContent !== 'flex-start') ? 'auto' : '100%';
+    // v7.5.x: For images, use height: 100% so image can reference parent height for stretch-to-fill
+    const contentHeightStyle = hasImageContent ? 'height: 100%' : `min-height: ${contentMinHeight}`;
     contentDiv.style.cssText = `
       width: 100%;
-      min-height: ${contentMinHeight};
+      ${contentHeightStyle};
       outline: none;
       cursor: text;
       font-family: Inter, system-ui, -apple-system, sans-serif;

@@ -2039,8 +2039,9 @@
     let effectiveGridRow = position.gridRow;
     let effectiveGridColumn = position.gridColumn;
 
-    if (!isBoilerplateSlot) {
+    if (!isBoilerplateSlot && !config.skipAutoSize) {
       // Content/body slots: Calculate row and column span based on content
+      // v7.5.13: Skip auto-sizing when skipAutoSize flag is set (user-specified positions)
       let startRow = 4; // Default
       if (position.gridRow) {
         if (position.gridRow.includes('/')) {

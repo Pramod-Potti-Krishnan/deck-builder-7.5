@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5.21
+ * Element Manager for Layout Builder v7.5.22
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.22 Changes (Jan 19, 2026):
+ * - Fix initChart function REFERENCES not being renamed (only calls were renamed)
+ * - Use word-boundary regex to catch ALL initChart references
+ * - Handles: initChart(), setTimeout(initChart, ...), addEventListener(..., initChart)
  *
  * v7.5.21 Changes (Jan 19, 2026):
  * - Fix initChart function name collision with reveal.js-plugins/chart/plugin.js
@@ -747,17 +752,18 @@
                 'typeof Reveal !== "undefined" && typeof Reveal.isReady === "function" && Reveal.isReady()'
               );
 
-              // v7.5.21: Rename initChart to unique function name to avoid collision
+              // v7.5.22: Rename initChart to unique function name to avoid collision
               // with reveal.js-plugins/chart/plugin.js which also defines global initChart
-              // The plugin's initChart calls Reveal.getConfig() which fails in our context
+              // Use word-boundary regex to catch ALL references (calls AND function refs)
+              // e.g., initChart(), setTimeout(initChart, 100), addEventListener(..., initChart)
               const uniqueFnName = `initChart_${id.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+              // Replace ALL occurrences of standalone "initChart" that aren't already renamed
+              // \binitChart\b = word boundary match for "initChart"
+              // (?!_) = negative lookahead to skip already-renamed "initChart_xxx"
               script.textContent = script.textContent.replace(
-                /function initChart\(\)/g,
-                `function ${uniqueFnName}()`
-              );
-              script.textContent = script.textContent.replace(
-                /initChart\(\)/g,
-                `${uniqueFnName}()`
+                /\binitChart\b(?!_)/g,
+                uniqueFnName
               );
 
               // v7.5.18: Debug logging to verify replacement worked
@@ -766,8 +772,8 @@
               }
             }
           });
-          // v7.5.21: Updated log message
-          console.log(`[ElementManager] v7.5.21: Script references updated: ${scriptsUpdated} script(s)`);
+          // v7.5.22: Updated log message
+          console.log(`[ElementManager] v7.5.22: Script references updated: ${scriptsUpdated} script(s)`);
 
           // Rename the canvas element
           conflictingCanvas.id = innerCanvasId;

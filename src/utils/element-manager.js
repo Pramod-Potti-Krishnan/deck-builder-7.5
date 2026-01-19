@@ -2071,12 +2071,18 @@
     const boilerplateSlots = ['title', 'subtitle', 'footer', 'logo', 'author_info', 'contact_info', 'section_number'];
     const isBoilerplateSlot = boilerplateSlots.includes(config.slot_name);
 
+    // v7.5.14: Check if explicit position was provided (restoration case)
+    // When gridRow AND gridColumn are explicitly provided in config, respect them
+    // This prevents auto-sizing from overriding user-resized positions on restore
+    const hasExplicitPosition = Boolean(config.gridRow && config.gridColumn);
+
     let effectiveGridRow = position.gridRow;
     let effectiveGridColumn = position.gridColumn;
 
-    if (!isBoilerplateSlot && !config.skipAutoSize) {
+    if (!isBoilerplateSlot && !config.skipAutoSize && !hasExplicitPosition) {
       // Content/body slots: Calculate row and column span based on content
       // v7.5.13: Skip auto-sizing when skipAutoSize flag is set (user-specified positions)
+      // v7.5.14: Also skip when explicit position provided (hasExplicitPosition)
       let startRow = 4; // Default
       if (position.gridRow) {
         if (position.gridRow.includes('/')) {
@@ -2091,7 +2097,11 @@
       effectiveGridColumn = calculateTextBoxGridColumn(config.content, position.gridColumn);
       console.log(`[ElementManager] Auto-sizing textbox slot '${config.slot_name}': row=${effectiveGridRow}, col=${effectiveGridColumn}`);
     } else {
-      console.log(`[ElementManager] Boilerplate slot '${config.slot_name}': using template position ${effectiveGridRow}`);
+      // v7.5.14: Log reason for skipping auto-sizing
+      const reason = isBoilerplateSlot ? 'boilerplate slot' :
+                     hasExplicitPosition ? 'explicit position provided' :
+                     'skipAutoSize flag';
+      console.log(`[ElementManager] Skipping auto-size (${reason}) for '${config.slot_name}': row=${effectiveGridRow}, col=${effectiveGridColumn}`);
     }
 
     // v7.5.x: Detect atomic content that manages its own padding

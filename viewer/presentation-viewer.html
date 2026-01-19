@@ -3235,6 +3235,30 @@
             }
             break;
 
+          // ===== SCRIPT EXECUTION FOR DYNAMIC CONTENT =====
+          // Used by text-labs to execute Chart.js scripts that were embedded in HTML
+          // Scripts don't auto-execute when HTML is dynamically inserted via innerHTML
+          case 'executeScript':
+            if (params?.script) {
+              try {
+                // Execute the script in the Layout Service context
+                const scriptEl = document.createElement('script');
+                scriptEl.textContent = params.script;
+                document.body.appendChild(scriptEl);
+                // Keep script in DOM for Chart.js to reference
+                result.success = true;
+                result.message = 'Script executed';
+                console.log('[postMessage] Script executed for:', params.elementId || 'unknown');
+              } catch (e) {
+                console.error('[postMessage] Script execution error:', e);
+                result.success = false;
+                result.error = e.message;
+              }
+            } else {
+              result.error = 'script parameter required';
+            }
+            break;
+
           default:
             console.warn(`⚠️ Unknown action: ${action}`);
             result.error = `Unknown action: ${action}`;

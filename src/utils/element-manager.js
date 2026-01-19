@@ -585,6 +585,13 @@
     container.className = `dynamic-element inserted-element-placeholder inserted-chart${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'chart';
     container.dataset.slideIndex = slideIndex;
+    // v7.5.13: Set slot metadata for proper lookup by createElementsForTemplate
+    if (config.slot_name) {
+      container.dataset.slotName = config.slot_name;
+    }
+    if (config.parent_slide_id) {
+      container.dataset.parentSlideId = config.parent_slide_id;
+    }
     // v7.5.8: Add width/height: 100% to fill grid cell
     container.style.cssText = `
       grid-row: ${position.gridRow};
@@ -994,6 +1001,13 @@
     container.className = `dynamic-element inserted-element-placeholder inserted-image${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'image';
     container.dataset.slideIndex = slideIndex;
+    // v7.5.13: Set slot metadata for proper lookup by createElementsForTemplate
+    if (config.slot_name) {
+      container.dataset.slotName = config.slot_name;
+    }
+    if (config.parent_slide_id) {
+      container.dataset.parentSlideId = config.parent_slide_id;
+    }
 
     // Add slot-specific class for compact styling (logo uses smaller placeholder)
     if (config.slotName === 'logo' || config.slot_name === 'logo') {
@@ -1271,6 +1285,13 @@
     container.className = `dynamic-element inserted-element-placeholder inserted-infographic${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'infographic';
     container.dataset.slideIndex = slideIndex;
+    // v7.5.13: Set slot metadata for proper lookup by createElementsForTemplate
+    if (config.slot_name) {
+      container.dataset.slotName = config.slot_name;
+    }
+    if (config.parent_slide_id) {
+      container.dataset.parentSlideId = config.parent_slide_id;
+    }
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
@@ -1511,6 +1532,13 @@
     container.className = `dynamic-element inserted-element-placeholder inserted-diagram${isPlaceholderMode ? ' placeholder-mode' : ''}`;
     container.dataset.elementType = 'diagram';
     container.dataset.slideIndex = slideIndex;
+    // v7.5.13: Set slot metadata for proper lookup by createElementsForTemplate
+    if (config.slot_name) {
+      container.dataset.slotName = config.slot_name;
+    }
+    if (config.parent_slide_id) {
+      container.dataset.parentSlideId = config.parent_slide_id;
+    }
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
@@ -1910,6 +1938,13 @@
     container.className = 'dynamic-element inserted-textbox';
     container.dataset.elementType = 'textbox';
     container.dataset.slideIndex = slideIndex;
+    // v7.5.13: Set slot metadata for proper lookup by createElementsForTemplate
+    if (config.slot_name) {
+      container.dataset.slotName = config.slot_name;
+    }
+    if (config.parent_slide_id) {
+      container.dataset.parentSlideId = config.parent_slide_id;
+    }
     // Build flexbox styles for vertical/horizontal alignment
     // justifyContent controls vertical when flexDirection is 'column'
     // alignItems controls horizontal when flexDirection is 'column'

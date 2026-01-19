@@ -1,8 +1,14 @@
 /**
- * Drag-Drop Module for Layout Builder v7.5
+ * Drag-Drop Module for Layout Builder v7.5.13
  *
  * Provides grid-snapped drag and drop functionality for dynamic elements.
  * Works with the 32×18 grid system (1920×1080 base resolution).
+ *
+ * v7.5.13 Changes (Jan 19, 2026):
+ * - CRITICAL FIX: Chart drag no longer follows mouse after release
+ * - Added canvas pointer-events: none during drag to prevent chart library interference
+ * - Added window blur handler to clean up stuck drag states
+ * - Added document mouseleave handler as safety fallback
  *
  * Exposed via window.DragDrop for ElementManager access.
  */
@@ -310,6 +316,13 @@
     element.classList.add('dragging');
     element.style.transition = 'none';
 
+    // v7.5.13: Disable pointer events on canvas during drag
+    // This prevents chart library mousemove handlers from interfering with drag
+    element.querySelectorAll('canvas').forEach(canvas => {
+      canvas.style.pointerEvents = 'none';
+    });
+    element._canvasDisabled = true;
+
     // Select the element
     if (typeof window.ElementManager !== 'undefined') {
       window.ElementManager.selectElement(dragElementId);
@@ -447,6 +460,14 @@
     dragElement.classList.remove('dragging');
     dragElement.style.transition = '';
     dragElement.style.transform = '';
+
+    // v7.5.13: Re-enable pointer events on canvas after drag
+    if (dragElement._canvasDisabled) {
+      dragElement.querySelectorAll('canvas').forEach(canvas => {
+        canvas.style.pointerEvents = '';
+      });
+      delete dragElement._canvasDisabled;
+    }
 
     // Check if position changed
     const newGridRow = dragElement.style.gridRow;
@@ -909,6 +930,45 @@
     const newGridColumn = `${newColStart}/${newColStart + colSpan}`;
 
     setPosition(selected.id, newGridRow, newGridColumn);
+  });
+
+  // ===== SAFETY CLEANUP HANDLERS (v7.5.13) =====
+
+  /**
+   * Clean up drag/resize state when window loses focus
+   * This prevents stuck drag states when user moves mouse outside window
+   */
+  window.addEventListener('blur', () => {
+    if (isDragging) {
+      console.log('[DragDrop] Window blur during drag - cleaning up');
+      finalizeDrag();
+    }
+    if (isResizing) {
+      console.log('[DragDrop] Window blur during resize - cleaning up');
+      finalizeResize();
+    }
+    if (pendingDrag) {
+      document.removeEventListener('mousemove', handlePendingDragMove);
+      document.removeEventListener('mouseup', handlePendingDragEnd);
+      document.removeEventListener('touchmove', handlePendingTouchMove);
+      document.removeEventListener('touchend', handlePendingTouchEnd);
+      pendingDrag = null;
+    }
+  });
+
+  /**
+   * Extra safety: Clean up on mouseleave from document
+   * Catches edge cases where blur doesn't fire
+   */
+  document.addEventListener('mouseleave', (e) => {
+    if (isDragging && e.relatedTarget === null) {
+      console.log('[DragDrop] Mouse left document during drag - cleaning up');
+      finalizeDrag();
+    }
+    if (isResizing && e.relatedTarget === null) {
+      console.log('[DragDrop] Mouse left document during resize - cleaning up');
+      finalizeResize();
+    }
   });
 
   // ===== EXPOSE API =====

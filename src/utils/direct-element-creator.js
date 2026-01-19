@@ -1,8 +1,18 @@
 /**
- * Direct Element Creator - v7.5.12 Preserve User-Modified Positions
+ * Direct Element Creator - v7.5.13 Robust Position Detection
  *
  * Simple approach: Instead of converting HTML slot elements to Element Types,
  * directly create elements using ElementManager with properties from template registry.
+ *
+ * v7.5.13 Changes (Jan 19, 2026):
+ * - CRITICAL FIX: Position persistence now works reliably after page refresh
+ * - Added hasUserDefinedPosition() helper that checks multiple methods:
+ *   1. Direct style properties (style.gridRow)
+ *   2. Raw style attribute string (contains 'grid-row:')
+ *   3. Computed styles (gridRowStart !== 'auto')
+ * - This fixes the v7.5.12 issue where style.gridRow returned empty string
+ *   when CSS was set via cssText, causing positions to be incorrectly overwritten
+ * - Added slot_name/parent_slide_id data attributes during restoration for proper lookup
  *
  * v7.5.12 Changes (Jan 19, 2026):
  * - CRITICAL FIX: Element dimensions now persist after page refresh
@@ -212,6 +222,41 @@
   }
 
   /**
+   * v7.5.13: Robust position detection helper
+   * Checks multiple methods to determine if an element has a user-defined position.
+   * This fixes the issue where style.gridRow returns empty string when CSS is set via cssText.
+   *
+   * @param {HTMLElement} element - The element to check
+   * @returns {boolean} True if element has a user-defined grid position
+   */
+  function hasUserDefinedPosition(element) {
+    if (!element) return false;
+
+    // Method 1: Direct style property (works when set via element.style.gridRow = ...)
+    if (element.style.gridRow && element.style.gridColumn) {
+      return true;
+    }
+
+    // Method 2: Raw style attribute contains grid values (works when set via cssText)
+    const styleAttr = element.getAttribute('style') || '';
+    if (styleAttr.includes('grid-row:') && styleAttr.includes('grid-column:')) {
+      return true;
+    }
+
+    // Method 3: Computed style shows non-auto values (final fallback)
+    try {
+      const computed = window.getComputedStyle(element);
+      if (computed.gridRowStart !== 'auto' && computed.gridColumnStart !== 'auto') {
+        return true;
+      }
+    } catch (e) {
+      // getComputedStyle can fail if element is not in DOM
+    }
+
+    return false;
+  }
+
+  /**
    * Create all elements for a template on a slide
    *
    * @param {HTMLElement} slideElement - The slide container element
@@ -278,15 +323,21 @@
       const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
-        // v7.5.12: PRESERVE user-modified positions from Supabase restoration
-        // Only apply template position as fallback if element has no position set
+        // v7.5.13: PRESERVE user-modified positions from Supabase restoration
+        // Use robust hasUserDefinedPosition() that checks style attribute, computed styles
         // This ensures resized/moved elements maintain their saved dimensions after refresh
-        if (!existingElement.style.gridRow || !existingElement.style.gridColumn) {
+        if (!hasUserDefinedPosition(existingElement)) {
           existingElement.style.gridRow = slotDef.gridRow;
           existingElement.style.gridColumn = slotDef.gridColumn;
           console.log(`[DirectElementCreator] Applied template position to ${slotName} (no saved position): row=${slotDef.gridRow}, col=${slotDef.gridColumn}`);
         } else {
-          console.log(`[DirectElementCreator] Preserved restored position for ${slotName} on slide ${slideIndex}: row=${existingElement.style.gridRow}, col=${existingElement.style.gridColumn}`);
+          // Extract current position for logging (handle cssText case)
+          const styleAttr = existingElement.getAttribute('style') || '';
+          const rowMatch = styleAttr.match(/grid-row:\s*([^;]+)/);
+          const colMatch = styleAttr.match(/grid-column:\s*([^;]+)/);
+          const currentRow = existingElement.style.gridRow || (rowMatch ? rowMatch[1].trim() : 'unknown');
+          const currentCol = existingElement.style.gridColumn || (colMatch ? colMatch[1].trim() : 'unknown');
+          console.log(`[DirectElementCreator] Preserved restored position for ${slotName} on slide ${slideIndex}: row=${currentRow}, col=${currentCol}`);
         }
         return;  // Element exists, position preserved or fallback applied
       }
@@ -1285,14 +1336,20 @@
       const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
-        // v7.5.12: PRESERVE user-modified positions from Supabase restoration
-        // Only apply template position as fallback if element has no position set
-        if (!existingElement.style.gridRow || !existingElement.style.gridColumn) {
+        // v7.5.13: PRESERVE user-modified positions from Supabase restoration
+        // Use robust hasUserDefinedPosition() that checks style attribute, computed styles
+        if (!hasUserDefinedPosition(existingElement)) {
           existingElement.style.gridRow = slotDef.gridRow;
           existingElement.style.gridColumn = slotDef.gridColumn;
           console.log(`[DirectElementCreator] Applied template position to ${slotName} (X-series, no saved position)`);
         } else {
-          console.log(`[DirectElementCreator] Preserved restored position for ${slotName} (X-series): row=${existingElement.style.gridRow}, col=${existingElement.style.gridColumn}`);
+          // Extract current position for logging (handle cssText case)
+          const styleAttr = existingElement.getAttribute('style') || '';
+          const rowMatch = styleAttr.match(/grid-row:\s*([^;]+)/);
+          const colMatch = styleAttr.match(/grid-column:\s*([^;]+)/);
+          const currentRow = existingElement.style.gridRow || (rowMatch ? rowMatch[1].trim() : 'unknown');
+          const currentCol = existingElement.style.gridColumn || (colMatch ? colMatch[1].trim() : 'unknown');
+          console.log(`[DirectElementCreator] Preserved restored position for ${slotName} (X-series): row=${currentRow}, col=${currentCol}`);
         }
         continue;
       }
@@ -1342,14 +1399,20 @@
       // Check if zone element already exists
       const existingZone = slideElement.querySelector(`[data-zone-id="${zoneId}"]`);
       if (existingZone) {
-        // v7.5.12: PRESERVE user-modified positions from Supabase restoration
-        // Only apply template position as fallback if element has no position set
-        if (!existingZone.style.gridRow || !existingZone.style.gridColumn) {
+        // v7.5.13: PRESERVE user-modified positions from Supabase restoration
+        // Use robust hasUserDefinedPosition() that checks style attribute, computed styles
+        if (!hasUserDefinedPosition(existingZone)) {
           existingZone.style.gridRow = zone.grid_row;
           existingZone.style.gridColumn = zone.grid_column;
           console.log(`[DirectElementCreator] Applied template position to zone ${zoneId} (no saved position)`);
         } else {
-          console.log(`[DirectElementCreator] Preserved restored position for zone ${zoneId}: row=${existingZone.style.gridRow}, col=${existingZone.style.gridColumn}`);
+          // Extract current position for logging (handle cssText case)
+          const styleAttr = existingZone.getAttribute('style') || '';
+          const rowMatch = styleAttr.match(/grid-row:\s*([^;]+)/);
+          const colMatch = styleAttr.match(/grid-column:\s*([^;]+)/);
+          const currentRow = existingZone.style.gridRow || (rowMatch ? rowMatch[1].trim() : 'unknown');
+          const currentCol = existingZone.style.gridColumn || (colMatch ? colMatch[1].trim() : 'unknown');
+          console.log(`[DirectElementCreator] Preserved restored position for zone ${zoneId}: row=${currentRow}, col=${currentCol}`);
         }
         return;
       }

@@ -353,7 +353,10 @@
                 draggable: true,
                 resizable: true,
                 locked: tb.locked || false,
-                visible: tb.visible !== false
+                visible: tb.visible !== false,
+                // v7.5.13: Pass slot metadata for proper lookup by createElementsForTemplate
+                slot_name: tb.slot_name || null,
+                parent_slide_id: tb.parent_slide_id || null
               };
 
               window.ElementManager.insertTextBox(slideIndex, config);
@@ -392,7 +395,10 @@
                 objectFit: img.object_fit || 'cover',
                 zIndex: img.z_index || 100,
                 locked: img.locked || false,
-                visible: img.visible !== false
+                visible: img.visible !== false,
+                // v7.5.13: Pass slot metadata for proper lookup by createElementsForTemplate
+                slot_name: img.slot_name || null,
+                parent_slide_id: img.parent_slide_id || null
               };
 
               window.ElementManager.insertImage(slideIndex, config);
@@ -429,7 +435,10 @@
                 chartHtml: chart.chart_html || null,
                 zIndex: chart.z_index || 100,
                 locked: chart.locked || false,
-                visible: chart.visible !== false
+                visible: chart.visible !== false,
+                // v7.5.13: Pass slot metadata for proper lookup by createElementsForTemplate
+                slot_name: chart.slot_name || null,
+                parent_slide_id: chart.parent_slide_id || null
               };
 
               window.ElementManager.insertChart(slideIndex, config);
@@ -466,7 +475,10 @@
                 items: infographic.items || null,
                 zIndex: infographic.z_index || 100,
                 locked: infographic.locked || false,
-                visible: infographic.visible !== false
+                visible: infographic.visible !== false,
+                // v7.5.13: Pass slot metadata for proper lookup by createElementsForTemplate
+                slot_name: infographic.slot_name || null,
+                parent_slide_id: infographic.parent_slide_id || null
               };
 
               window.ElementManager.insertInfographic(slideIndex, config);
@@ -505,7 +517,10 @@
                 theme: diagram.theme || 'default',
                 zIndex: diagram.z_index || 100,
                 locked: diagram.locked || false,
-                visible: diagram.visible !== false
+                visible: diagram.visible !== false,
+                // v7.5.13: Pass slot metadata for proper lookup by createElementsForTemplate
+                slot_name: diagram.slot_name || null,
+                parent_slide_id: diagram.parent_slide_id || null
               };
 
               window.ElementManager.insertDiagram(slideIndex, config);

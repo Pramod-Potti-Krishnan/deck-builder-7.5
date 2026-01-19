@@ -1,8 +1,16 @@
 /**
- * Direct Element Creator - v7.5.11 Chart Detection in Body Content
+ * Direct Element Creator - v7.5.12 Preserve User-Modified Positions
  *
  * Simple approach: Instead of converting HTML slot elements to Element Types,
  * directly create elements using ElementManager with properties from template registry.
+ *
+ * v7.5.12 Changes (Jan 19, 2026):
+ * - CRITICAL FIX: Element dimensions now persist after page refresh
+ * - Changed existing element handling to PRESERVE user-modified positions from Supabase
+ * - Template positions now only apply as fallback when element has no saved position
+ * - Previously, v7.5.5 overwrote restored positions with template defaults, causing
+ *   resized elements to revert to original size on refresh
+ * - Fix applies to: standard templates, X-series structural elements, zone elements
  *
  * v7.5.11 Changes (Jan 10, 2026):
  * - Fixed C1-text layout chart sizing (charts were taking full content area)
@@ -270,16 +278,17 @@
       const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
-        // v7.5.5: Instead of skipping, UPDATE position from template
-        // This ensures template changes (e.g., footer width) take effect even on restored elements
-        const templatePosition = {
-          gridRow: slotDef.gridRow,
-          gridColumn: slotDef.gridColumn
-        };
-        existingElement.style.gridRow = templatePosition.gridRow;
-        existingElement.style.gridColumn = templatePosition.gridColumn;
-        console.log(`[DirectElementCreator] Updated ${slotName} position from template on slide ${slideIndex}: row=${templatePosition.gridRow}, col=${templatePosition.gridColumn}`);
-        return;  // Element exists, position updated from template
+        // v7.5.12: PRESERVE user-modified positions from Supabase restoration
+        // Only apply template position as fallback if element has no position set
+        // This ensures resized/moved elements maintain their saved dimensions after refresh
+        if (!existingElement.style.gridRow || !existingElement.style.gridColumn) {
+          existingElement.style.gridRow = slotDef.gridRow;
+          existingElement.style.gridColumn = slotDef.gridColumn;
+          console.log(`[DirectElementCreator] Applied template position to ${slotName} (no saved position): row=${slotDef.gridRow}, col=${slotDef.gridColumn}`);
+        } else {
+          console.log(`[DirectElementCreator] Preserved restored position for ${slotName} on slide ${slideIndex}: row=${existingElement.style.gridRow}, col=${existingElement.style.gridColumn}`);
+        }
+        return;  // Element exists, position preserved or fallback applied
       }
 
       const elementType = getElementTypeForSlot(slotName, slotDef);
@@ -1276,10 +1285,15 @@
       const existingElement = existingLegacy || existingUUID;
 
       if (existingElement) {
-        // v7.5.5: Update position from template instead of skipping
-        existingElement.style.gridRow = slotDef.gridRow;
-        existingElement.style.gridColumn = slotDef.gridColumn;
-        console.log(`[DirectElementCreator] Updated ${slotName} position from template (X-series)`);
+        // v7.5.12: PRESERVE user-modified positions from Supabase restoration
+        // Only apply template position as fallback if element has no position set
+        if (!existingElement.style.gridRow || !existingElement.style.gridColumn) {
+          existingElement.style.gridRow = slotDef.gridRow;
+          existingElement.style.gridColumn = slotDef.gridColumn;
+          console.log(`[DirectElementCreator] Applied template position to ${slotName} (X-series, no saved position)`);
+        } else {
+          console.log(`[DirectElementCreator] Preserved restored position for ${slotName} (X-series): row=${existingElement.style.gridRow}, col=${existingElement.style.gridColumn}`);
+        }
         continue;
       }
 
@@ -1328,10 +1342,15 @@
       // Check if zone element already exists
       const existingZone = slideElement.querySelector(`[data-zone-id="${zoneId}"]`);
       if (existingZone) {
-        // v7.5.5: Update position from template instead of skipping
-        existingZone.style.gridRow = zone.grid_row;
-        existingZone.style.gridColumn = zone.grid_column;
-        console.log(`[DirectElementCreator] Updated zone ${zoneId} position from template`);
+        // v7.5.12: PRESERVE user-modified positions from Supabase restoration
+        // Only apply template position as fallback if element has no position set
+        if (!existingZone.style.gridRow || !existingZone.style.gridColumn) {
+          existingZone.style.gridRow = zone.grid_row;
+          existingZone.style.gridColumn = zone.grid_column;
+          console.log(`[DirectElementCreator] Applied template position to zone ${zoneId} (no saved position)`);
+        } else {
+          console.log(`[DirectElementCreator] Preserved restored position for zone ${zoneId}: row=${existingZone.style.gridRow}, col=${existingZone.style.gridColumn}`);
+        }
         return;
       }
 

@@ -1,10 +1,16 @@
 /**
- * Element Manager for Layout Builder v7.5.19
+ * Element Manager for Layout Builder v7.5.20
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.20 Changes (Jan 19, 2026):
+ * - Force standalone mode for chart initialization
+ * - Reveal.js exists but isn't fully initialized in layout builder viewer
+ * - Replace Reveal detection with stricter check requiring Reveal.isReady()
+ * - This ensures initChart() is called directly instead of trying to use Reveal
  *
  * v7.5.19 Changes (Jan 19, 2026):
  * - Fix querySelector patterns not being updated after canvas rename
@@ -727,14 +733,23 @@
                 `querySelector('#${innerCanvasId}')`
               );
 
+              // v7.5.20: Force standalone mode for chart initialization
+              // The analytics microservice script checks `typeof Reveal !== 'undefined'`
+              // In layout builder viewer, Reveal exists but isn't fully initialized, causing errors
+              // Replace with stricter check that requires Reveal.isReady() to be true
+              script.textContent = script.textContent.replace(
+                /typeof Reveal !== ['"]undefined['"]/g,
+                'typeof Reveal !== "undefined" && typeof Reveal.isReady === "function" && Reveal.isReady()'
+              );
+
               // v7.5.18: Debug logging to verify replacement worked
               if (script.textContent !== originalText) {
                 scriptsUpdated++;
               }
             }
           });
-          // v7.5.19: Updated log message
-          console.log(`[ElementManager] v7.5.19: Script ID references updated: ${scriptsUpdated} script(s)`);
+          // v7.5.20: Updated log message
+          console.log(`[ElementManager] v7.5.20: Script references updated: ${scriptsUpdated} script(s)`);
 
           // Rename the canvas element
           conflictingCanvas.id = innerCanvasId;

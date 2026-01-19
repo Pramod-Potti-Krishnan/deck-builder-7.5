@@ -2081,7 +2081,7 @@
       background: ${style.backgroundColor || style.background_color || 'transparent'};
       border: ${borderStyle};
       border-radius: ${style.borderRadius || style.border_radius || 0}px;
-      padding: ${paddingValue};
+      padding: ${hasImageContent ? '0px' : paddingValue};
       opacity: ${style.opacity || 1};
       box-shadow: ${style.boxShadow || style.box_shadow || 'none'};
       min-height: 60px;

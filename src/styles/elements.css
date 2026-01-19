@@ -629,6 +629,7 @@
 }
 
 /* Hide placeholder content when actual content is loaded */
+/* v7.5.x: Use !important to ensure placeholder is hidden regardless of other styles */
 .inserted-image:not(.placeholder-mode) .element-placeholder-content,
 .inserted-chart:not(.placeholder-mode) .element-placeholder-content,
 .inserted-infographic:not(.placeholder-mode) .element-placeholder-content,
@@ -637,7 +638,57 @@
 .inserted-chart:not(.placeholder-mode) .element-type-badge,
 .inserted-infographic:not(.placeholder-mode) .element-type-badge,
 .inserted-diagram:not(.placeholder-mode) .element-type-badge {
-  display: none;
+  display: none !important;
+}
+
+/* v7.5.x: Also explicitly hide placeholder icon SVG */
+.inserted-image:not(.placeholder-mode) .element-placeholder-icon,
+.inserted-chart:not(.placeholder-mode) .element-placeholder-icon,
+.inserted-infographic:not(.placeholder-mode) .element-placeholder-icon,
+.inserted-diagram:not(.placeholder-mode) .element-placeholder-icon {
+  display: none !important;
+}
+
+/* v7.5.x: Force hide all placeholder elements when element-content has content */
+.inserted-element-placeholder:not(.placeholder-mode) .element-placeholder-content,
+.inserted-element-placeholder:not(.placeholder-mode) .element-placeholder-icon,
+.inserted-element-placeholder:not(.placeholder-mode) .element-placeholder-dots,
+.inserted-element-placeholder:not(.placeholder-mode) .element-placeholder-text,
+.inserted-element-placeholder:not(.placeholder-mode) .element-type-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* v7.5.x CRITICAL FIX: Nuclear option - Hide placeholder icon when ANY sibling .element-content exists */
+/* This ensures placeholder icons are hidden regardless of class state when content is injected */
+.element-content:not(:empty) ~ .element-placeholder-content,
+.element-content:not(:empty) ~ .element-placeholder-icon,
+.element-content:not(:empty) ~ .element-placeholder-dots,
+.element-content:not(:empty) ~ .element-placeholder-text,
+.element-content:not(:empty) ~ .element-type-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Also hide when element-content has children */
+.inserted-element-placeholder:has(.element-content:not(:empty)) .element-placeholder-content,
+.inserted-element-placeholder:has(.element-content:not(:empty)) .element-placeholder-icon,
+.inserted-element-placeholder:has(.element-content:not(:empty)) .element-placeholder-dots,
+.inserted-element-placeholder:has(.element-content:not(:empty)) .element-placeholder-text,
+.inserted-element-placeholder:has(.element-content:not(:empty)) .element-type-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Code Display specific: Hide decorative rectangles SVG icon when content exists */
+.inserted-diagram:has(.diagram-container) .element-placeholder-content,
+.inserted-diagram:has(.diagram-container) .element-placeholder-icon,
+.inserted-diagram:has(.code-display-wrapper) .element-placeholder-content,
+.inserted-diagram:has(.code-display-wrapper) .element-placeholder-icon {
+  display: none !important;
 }
 
 /* ===== ACTUAL CONTENT CONTAINERS ===== */
@@ -656,6 +707,13 @@
   height: 100%;
   object-fit: cover;
   border-radius: 6px;
+}
+
+/* Ensure images in textboxes fill their container with exactly 10px padding */
+/* Override any 95% max-width/max-height constraints */
+.image-element img {
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
 /* ===== I-SERIES IMAGE OVERRIDES ===== */

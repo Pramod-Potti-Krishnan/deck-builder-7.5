@@ -705,12 +705,14 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.chartHtml) {
-        // v7.5.23: Use iframe with srcdoc for chart isolation (matches analytics test pattern)
-        // This provides isolated context - no ID collision with container
-        // Previous approach (v7.5.17-22) used innerHTML + complex regex renaming which was fragile
+        // v7.5.24: Use absolute positioning for proper height filling
+        // Percentage heights don't cascade properly through flexbox containers
+        // Absolute positioning with inset ensures iframe fills its parent
+        contentDiv.style.position = 'relative';
+
         const iframe = document.createElement('iframe');
         iframe.className = 'chart-iframe';
-        iframe.style.cssText = 'width:100%;height:100%;border:none;';
+        iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
 
         // Build complete HTML document with Chart.js CDN
         const chartDoc = `<!DOCTYPE html>
@@ -718,8 +720,8 @@
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; }
-    .atomic-chart-container { width: 100%; height: 100vh; }
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
+    .atomic-chart-container { width: 100%; height: 100%; }
   </style>
 </head>
 <body>
@@ -729,7 +731,7 @@
 
         iframe.srcdoc = chartDoc;
         contentDiv.appendChild(iframe);
-        console.log(`[ElementManager] v7.5.23: Chart ${id} rendered in isolated iframe`);
+        console.log(`[ElementManager] v7.5.24: Chart ${id} rendered in isolated iframe`);
       } else if (config.chartConfig && typeof Chart !== 'undefined') {
         // Create canvas for Chart.js
         const canvas = document.createElement('canvas');

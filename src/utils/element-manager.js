@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5.18
+ * Element Manager for Layout Builder v7.5.19
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.19 Changes (Jan 19, 2026):
+ * - Fix querySelector patterns not being updated after canvas rename
+ * - Analytics microservice uses querySelector('#chart-xxx') to check canvas existence
+ * - This was causing chart initialization to be skipped
  *
  * v7.5.18 Changes (Jan 19, 2026):
  * - Skip redundant Chart.js CDN loading if already available globally
@@ -704,21 +709,32 @@
           let scriptsUpdated = 0;
           scripts.forEach(script => {
             if (script.textContent.includes(id)) {
-              // Replace getElementById('chart-xxx') with getElementById('canvas-chart-xxx')
               const originalText = script.textContent;
               const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+              // v7.5.17: Update getElementById calls
+              // Pattern: getElementById('chart-xxx') or getElementById("chart-xxx")
               script.textContent = script.textContent.replace(
                 new RegExp(`getElementById\\(['"]${escapedId}['"]\\)`, 'g'),
                 `getElementById('${innerCanvasId}')`
               );
+
+              // v7.5.19: ALSO update querySelector calls that reference the canvas by ID
+              // Pattern: querySelector('#chart-xxx') or querySelector("#chart-xxx")
+              // The analytics microservice uses querySelector to check if canvas exists
+              script.textContent = script.textContent.replace(
+                new RegExp(`querySelector\\(['"]#${escapedId}['"]\\)`, 'g'),
+                `querySelector('#${innerCanvasId}')`
+              );
+
               // v7.5.18: Debug logging to verify replacement worked
               if (script.textContent !== originalText) {
                 scriptsUpdated++;
               }
             }
           });
-          // v7.5.18: Log how many scripts were updated
-          console.log(`[ElementManager] v7.5.18: Script getElementById references updated: ${scriptsUpdated} script(s)`);
+          // v7.5.19: Updated log message
+          console.log(`[ElementManager] v7.5.19: Script ID references updated: ${scriptsUpdated} script(s)`);
 
           // Rename the canvas element
           conflictingCanvas.id = innerCanvasId;

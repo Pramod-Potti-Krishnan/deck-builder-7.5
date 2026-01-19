@@ -2059,20 +2059,38 @@
       console.log(`[ElementManager] Boilerplate slot '${config.slot_name}': using template position ${effectiveGridRow}`);
     }
 
-    // v7.5.x: Detect image content for stretch-to-fill layout
-    // Images need different container styles to fill the grid cell properly
-    function containsImageContent(content) {
+    // v7.5.x: Detect atomic content that manages its own padding
+    // Images, tables, metrics, and text boxes from text service v1.2 include their own 10px padding
+    // These need container padding: 0px to avoid double-padding
+    function containsAtomicContent(content) {
       if (!content) return false;
-      return content.includes('class="image-element"') || content.includes("class='image-element'");
+
+      // Check for image elements (existing behavior)
+      if (content.includes('class="image-element"') || content.includes("class='image-element'")) {
+        return true;
+      }
+
+      // Check for tables
+      if (content.includes('<table')) {
+        return true;
+      }
+
+      // Check for atomic wrappers with their own padding (metrics, text boxes)
+      // These have "padding: 10px" with "box-sizing: border-box" in wrapper style
+      if (content.includes('padding: 10px') && content.includes('box-sizing: border-box')) {
+        return true;
+      }
+
+      return false;
     }
-    const hasImageContent = containsImageContent(config.content);
-    if (hasImageContent) {
-      console.log(`[ElementManager] Image content detected in textbox, applying stretch-to-fill styles`);
+    const hasAtomicContent = containsAtomicContent(config.content);
+    if (hasAtomicContent) {
+      console.log(`[ElementManager] Atomic content detected (image/table/metric), applying zero-padding container`);
     }
 
-    // For images: use stretch alignment and allow full height instead of fit-content
-    const effectiveMaxHeight = hasImageContent ? '100%' : 'fit-content';
-    const effectiveAlignItems = hasImageContent ? 'stretch' : alignItems;
+    // For atomic content: use stretch alignment and allow full height instead of fit-content
+    const effectiveMaxHeight = hasAtomicContent ? '100%' : 'fit-content';
+    const effectiveAlignItems = hasAtomicContent ? 'stretch' : alignItems;
 
     container.style.cssText = `
       grid-row: ${effectiveGridRow};
@@ -2081,7 +2099,7 @@
       background: ${style.backgroundColor || style.background_color || 'transparent'};
       border: ${borderStyle};
       border-radius: ${style.borderRadius || style.border_radius || 0}px;
-      padding: ${hasImageContent ? '0px' : paddingValue};
+      padding: ${hasAtomicContent ? '0px' : paddingValue};
       opacity: ${style.opacity || 1};
       box-shadow: ${style.boxShadow || style.box_shadow || 'none'};
       min-height: 60px;
@@ -2131,8 +2149,8 @@
     // NOTE: min-height: 100% defeats justify-content positioning (e.g., bottom-align)
     // Use 'auto' when a non-default justifyContent is specified to allow flex alignment to work
     const contentMinHeight = (justifyContent && justifyContent !== 'flex-start') ? 'auto' : '100%';
-    // v7.5.x: For images, use height: 100% so image can reference parent height for stretch-to-fill
-    const contentHeightStyle = hasImageContent ? 'height: 100%' : `min-height: ${contentMinHeight}`;
+    // v7.5.x: For atomic content, use height: 100% so content can reference parent height for stretch-to-fill
+    const contentHeightStyle = hasAtomicContent ? 'height: 100%' : `min-height: ${contentMinHeight}`;
     contentDiv.style.cssText = `
       width: 100%;
       ${contentHeightStyle};

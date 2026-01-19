@@ -20,6 +20,7 @@
   gap: 0 !important;
   padding: 0 !important;  /* Remove Reveal.js default padding to prevent height gap */
   margin: 0 !important;   /* Ensure no margins interfere with grid calculations */
+  overflow: visible !important;  /* Allow delete button to render outside grid cell bounds */
 }
 
 /* All child elements position via grid-area */

@@ -222,6 +222,14 @@
   opacity: 1;
 }
 
+/* v7.5.x: Ensure diagram/infographic containers allow overflow for delete button */
+/* The delete button is positioned at top: -10px, right: -10px (outside bounds) */
+.inserted-diagram:not(.placeholder-mode),
+.inserted-infographic:not(.placeholder-mode) {
+  overflow: visible !important;
+  position: relative;
+}
+
 /* v7.5.x: Position delete button for diagram/infographic in content mode (non-placeholder) */
 /* When placeholder-mode is removed, .inserted-element-placeholder selector no longer matches */
 /* so delete button loses its positioning. This rule restores it. */

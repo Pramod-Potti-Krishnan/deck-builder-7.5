@@ -1,10 +1,19 @@
 /**
- * Element Manager for Layout Builder v7.5.15
+ * Element Manager for Layout Builder v7.5.18
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.18 Changes (Jan 19, 2026):
+ * - Skip redundant Chart.js CDN loading if already available globally
+ * - Prevents Chart.js version conflicts when presentation-viewer.html pre-loads it
+ * - Added debug logging for script getElementById replacement verification
+ *
+ * v7.5.17 Changes (Jan 19, 2026):
+ * - Fix ID collision between container and canvas for charts
+ * - Renamed canvas IDs to avoid getElementById finding wrong element
  *
  * v7.5.15 Changes (Jan 19, 2026):
  * - deleteElement() now tracks deleted slot names on the slide element
@@ -178,6 +187,17 @@
       });
 
       if (oldScript.src) {
+        // v7.5.18: Skip Chart.js CDN if already loaded globally
+        // Prevents version conflicts and redundant loading when presentation-viewer.html
+        // has already loaded Chart.js globally
+        if (oldScript.src.includes('chart.js') || oldScript.src.includes('chart.umd')) {
+          if (typeof Chart !== 'undefined') {
+            console.log(`[ElementManager] v7.5.18: Skipping redundant Chart.js load - already available globally`);
+            oldScript.remove();
+            continue;
+          }
+        }
+
         // External script - wait for load before continuing
         externalCount++;
         await new Promise((resolve, reject) => {
@@ -681,16 +701,24 @@
           // Update inline scripts to reference the new canvas ID
           // (Must happen BEFORE executeScriptsSequentially copies textContent)
           const scripts = contentDiv.querySelectorAll('script:not([src])');
+          let scriptsUpdated = 0;
           scripts.forEach(script => {
             if (script.textContent.includes(id)) {
               // Replace getElementById('chart-xxx') with getElementById('canvas-chart-xxx')
+              const originalText = script.textContent;
               const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
               script.textContent = script.textContent.replace(
                 new RegExp(`getElementById\\(['"]${escapedId}['"]\\)`, 'g'),
                 `getElementById('${innerCanvasId}')`
               );
+              // v7.5.18: Debug logging to verify replacement worked
+              if (script.textContent !== originalText) {
+                scriptsUpdated++;
+              }
             }
           });
+          // v7.5.18: Log how many scripts were updated
+          console.log(`[ElementManager] v7.5.18: Script getElementById references updated: ${scriptsUpdated} script(s)`);
 
           // Rename the canvas element
           conflictingCanvas.id = innerCanvasId;

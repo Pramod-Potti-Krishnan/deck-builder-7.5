@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.15
+ * Auto-Save System for Presentation Editor - v7.5.18
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,9 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.18 Changes (Jan 19, 2026):
+ * - Added debug logging in collectCharts() for chart persistence troubleshooting
  *
  * v7.5.15 Changes (Jan 19, 2026):
  * - Added deleted_slot_names collection to persist which template elements were deleted
@@ -488,6 +491,8 @@
 
     // Find all chart elements in this slide
     const chartElements = slideElement.querySelectorAll('.inserted-chart');
+    // v7.5.18: Debug logging for chart persistence
+    console.log(`[AutoSave] Collecting charts: found ${chartElements.length} on slide ${slideIndex}`);
 
     chartElements.forEach(el => {
       // v7.5.1: Validate parent ownership to prevent ghost elements

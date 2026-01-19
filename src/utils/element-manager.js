@@ -705,85 +705,31 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.chartHtml) {
-        // v7.5.4: Execute embedded scripts from chart_html sequentially
-        // This replaces the v7.5.3 fix which didn't wait for external scripts to load.
-        // External scripts (like chart-spreadsheet-editor.js) must finish loading before
-        // the editor function definition script runs, otherwise openChartEditor() is undefined.
-        contentDiv.innerHTML = config.chartHtml;
+        // v7.5.23: Use iframe with srcdoc for chart isolation (matches analytics test pattern)
+        // This provides isolated context - no ID collision with container
+        // Previous approach (v7.5.17-22) used innerHTML + complex regex renaming which was fragile
+        const iframe = document.createElement('iframe');
+        iframe.className = 'chart-iframe';
+        iframe.style.cssText = 'width:100%;height:100%;border:none;';
 
-        // v7.5.17: Fix ID collision between container and canvas
-        // The container has id=X and canvas inside chartHtml also has id=X
-        // When script calls getElementById(X), it finds container, not canvas
-        // Solution: Rename the canvas to avoid collision
-        const conflictingCanvas = contentDiv.querySelector(`canvas#${CSS.escape(id)}`);
-        if (conflictingCanvas) {
-          const innerCanvasId = `canvas-${id}`;
+        // Build complete HTML document with Chart.js CDN
+        const chartDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; }
+    .atomic-chart-container { width: 100%; height: 100vh; }
+  </style>
+</head>
+<body>
+  ${config.chartHtml}
+</body>
+</html>`;
 
-          // Update inline scripts to reference the new canvas ID
-          // (Must happen BEFORE executeScriptsSequentially copies textContent)
-          const scripts = contentDiv.querySelectorAll('script:not([src])');
-          let scriptsUpdated = 0;
-          scripts.forEach(script => {
-            if (script.textContent.includes(id)) {
-              const originalText = script.textContent;
-              const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-              // v7.5.17: Update getElementById calls
-              // Pattern: getElementById('chart-xxx') or getElementById("chart-xxx")
-              script.textContent = script.textContent.replace(
-                new RegExp(`getElementById\\(['"]${escapedId}['"]\\)`, 'g'),
-                `getElementById('${innerCanvasId}')`
-              );
-
-              // v7.5.19: ALSO update querySelector calls that reference the canvas by ID
-              // Pattern: querySelector('#chart-xxx') or querySelector("#chart-xxx")
-              // The analytics microservice uses querySelector to check if canvas exists
-              script.textContent = script.textContent.replace(
-                new RegExp(`querySelector\\(['"]#${escapedId}['"]\\)`, 'g'),
-                `querySelector('#${innerCanvasId}')`
-              );
-
-              // v7.5.20: Force standalone mode for chart initialization
-              // The analytics microservice script checks `typeof Reveal !== 'undefined'`
-              // In layout builder viewer, Reveal exists but isn't fully initialized, causing errors
-              // Replace with stricter check that requires Reveal.isReady() to be true
-              script.textContent = script.textContent.replace(
-                /typeof Reveal !== ['"]undefined['"]/g,
-                'typeof Reveal !== "undefined" && typeof Reveal.isReady === "function" && Reveal.isReady()'
-              );
-
-              // v7.5.22: Rename initChart to unique function name to avoid collision
-              // with reveal.js-plugins/chart/plugin.js which also defines global initChart
-              // Use word-boundary regex to catch ALL references (calls AND function refs)
-              // e.g., initChart(), setTimeout(initChart, 100), addEventListener(..., initChart)
-              const uniqueFnName = `initChart_${id.replace(/[^a-zA-Z0-9]/g, '_')}`;
-
-              // Replace ALL occurrences of standalone "initChart" that aren't already renamed
-              // \binitChart\b = word boundary match for "initChart"
-              // (?!_) = negative lookahead to skip already-renamed "initChart_xxx"
-              script.textContent = script.textContent.replace(
-                /\binitChart\b(?!_)/g,
-                uniqueFnName
-              );
-
-              // v7.5.18: Debug logging to verify replacement worked
-              if (script.textContent !== originalText) {
-                scriptsUpdated++;
-              }
-            }
-          });
-          // v7.5.22: Updated log message
-          console.log(`[ElementManager] v7.5.22: Script references updated: ${scriptsUpdated} script(s)`);
-
-          // Rename the canvas element
-          conflictingCanvas.id = innerCanvasId;
-          console.log(`[ElementManager] v7.5.17: Renamed canvas ${id} -> ${innerCanvasId} to fix ID collision`);
-        }
-
-        // Execute scripts in order, waiting for external scripts to load
-        executeScriptsSequentially(contentDiv).catch(err => {
-          console.error('[ElementManager] Script execution error:', err);
-        });
+        iframe.srcdoc = chartDoc;
+        contentDiv.appendChild(iframe);
+        console.log(`[ElementManager] v7.5.23: Chart ${id} rendered in isolated iframe`);
       } else if (config.chartConfig && typeof Chart !== 'undefined') {
         // Create canvas for Chart.js
         const canvas = document.createElement('canvas');

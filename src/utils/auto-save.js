@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor
+ * Auto-Save System for Presentation Editor - v7.5.15
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,10 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.15 Changes (Jan 19, 2026):
+ * - Added deleted_slot_names collection to persist which template elements were deleted
+ * - This prevents deleted template elements from reappearing after page refresh
  *
  * v7.5.1 Changes:
  * - Added parent_slide_id validation to prevent ghost elements
@@ -272,6 +276,11 @@
 
     // Collect content elements from this slide (L-series layouts)
     update.contents = collectContents(slideElement, index, slideId);
+
+    // v7.5.15: Collect deleted slot names (template elements user intentionally removed)
+    // This prevents template elements from being recreated after page refresh
+    const deletedSlotsAttr = slideElement.dataset.deletedSlots;
+    update.deleted_slot_names = deletedSlotsAttr ? JSON.parse(deletedSlotsAttr) : [];
 
     return update;
   }

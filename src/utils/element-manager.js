@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5
+ * Element Manager for Layout Builder v7.5.15
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.15 Changes (Jan 19, 2026):
+ * - deleteElement() now tracks deleted slot names on the slide element
+ * - This enables auto-save to persist which template elements were removed
+ * - Prevents deleted template elements from reappearing after page refresh
  */
 
 (function() {
@@ -2900,6 +2905,21 @@
 
     if (!element || !data) {
       return { success: false, error: 'Element not found' };
+    }
+
+    // v7.5.15: Track deleted slot for template elements
+    // This prevents template elements from being recreated after page refresh
+    const slotName = element.dataset.slotName;
+    if (slotName) {
+      const slide = element.closest('.slide, section');
+      if (slide) {
+        const deletedSlots = JSON.parse(slide.dataset.deletedSlots || '[]');
+        if (!deletedSlots.includes(slotName)) {
+          deletedSlots.push(slotName);
+          slide.dataset.deletedSlots = JSON.stringify(deletedSlots);
+          console.log(`[ElementManager] Tracked deleted template slot: ${slotName}`);
+        }
+      }
     }
 
     // Deselect if selected

@@ -1,8 +1,15 @@
 /**
- * Direct Element Creator - v7.5.13 Robust Position Detection
+ * Direct Element Creator - v7.5.15 Deleted Slot Persistence
  *
  * Simple approach: Instead of converting HTML slot elements to Element Types,
  * directly create elements using ElementManager with properties from template registry.
+ *
+ * v7.5.15 Changes (Jan 19, 2026):
+ * - FIX: Deleted template elements no longer reappear after page refresh
+ * - Added deleted slots check in createElementsForTemplate() and createElementsForDynamicTemplate()
+ * - Works with auto-save.js which now saves deleted_slot_names array to Supabase
+ * - Works with presentation-viewer.html which restores deleted slots on page load
+ * - Works with element-manager.js deleteElement() which tracks deleted slot names
  *
  * v7.5.13 Changes (Jan 19, 2026):
  * - CRITICAL FIX: Position persistence now works reliably after page refresh
@@ -304,8 +311,18 @@
     // v7.5.5: Get slide object from presentation for slide-level fields (e.g., background_image)
     const slide = presentation?.slides?.[slideIndex] || {};
 
+    // v7.5.15: Get list of deleted slots to avoid recreating them
+    const deletedSlots = JSON.parse(slideElement.dataset.deletedSlots || '[]');
+
     // Create each element from the template slots
     Object.entries(template.slots).forEach(([slotName, slotDef]) => {
+      // v7.5.15: Check if this slot was intentionally deleted by user
+      // Don't recreate template elements that were explicitly removed
+      if (deletedSlots.includes(slotName)) {
+        console.log(`[DirectElementCreator] Skipping deleted slot: ${slotName}`);
+        return;
+      }
+
       // CHECK: Does this element already exist (from restore phase)?
       // If element was moved/modified and saved, it gets restored before this runs.
       // Skip creation to avoid duplicates.
@@ -1322,12 +1339,21 @@
       return;
     }
 
+    // v7.5.15: Get list of deleted slots to avoid recreating them
+    const deletedSlots = JSON.parse(slideElement.dataset.deletedSlots || '[]');
+
     // Create structural elements first (title, subtitle, footer, logo, image)
     const structuralSlots = ['title', 'subtitle', 'footer', 'logo', 'image'];
 
     for (const slotName of structuralSlots) {
       const slotDef = template.slots[slotName];
       if (!slotDef) continue;
+
+      // v7.5.15: Check if this slot was intentionally deleted by user
+      if (deletedSlots.includes(slotName)) {
+        console.log(`[DirectElementCreator] Skipping deleted slot (X-series): ${slotName}`);
+        continue;
+      }
 
       // Check if element already exists
       const legacyElementId = generateLegacyElementId(slideIndex, slotName);

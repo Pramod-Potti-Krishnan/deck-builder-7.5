@@ -719,6 +719,13 @@
 
           if (!slideElement) return;
 
+          // v7.5.15: Restore deleted_slot_names from saved slide data
+          // This prevents template elements from being recreated after page refresh
+          if (slide.deleted_slot_names && Array.isArray(slide.deleted_slot_names) && slide.deleted_slot_names.length > 0) {
+            slideElement.dataset.deletedSlots = JSON.stringify(slide.deleted_slot_names);
+            console.log(`[SlotConverter] Restored deleted slots for slide ${index}: ${slide.deleted_slot_names.join(', ')}`);
+          }
+
           // Check if this slide uses direct element creation
           if (directElementTemplates.includes(slide.layout) || slideElement.hasAttribute('data-direct-elements')) {
             // NEW approach: Create elements directly using ElementManager

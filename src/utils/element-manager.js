@@ -670,6 +670,33 @@
         // the editor function definition script runs, otherwise openChartEditor() is undefined.
         contentDiv.innerHTML = config.chartHtml;
 
+        // v7.5.17: Fix ID collision between container and canvas
+        // The container has id=X and canvas inside chartHtml also has id=X
+        // When script calls getElementById(X), it finds container, not canvas
+        // Solution: Rename the canvas to avoid collision
+        const conflictingCanvas = contentDiv.querySelector(`canvas#${CSS.escape(id)}`);
+        if (conflictingCanvas) {
+          const innerCanvasId = `canvas-${id}`;
+
+          // Update inline scripts to reference the new canvas ID
+          // (Must happen BEFORE executeScriptsSequentially copies textContent)
+          const scripts = contentDiv.querySelectorAll('script:not([src])');
+          scripts.forEach(script => {
+            if (script.textContent.includes(id)) {
+              // Replace getElementById('chart-xxx') with getElementById('canvas-chart-xxx')
+              const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              script.textContent = script.textContent.replace(
+                new RegExp(`getElementById\\(['"]${escapedId}['"]\\)`, 'g'),
+                `getElementById('${innerCanvasId}')`
+              );
+            }
+          });
+
+          // Rename the canvas element
+          conflictingCanvas.id = innerCanvasId;
+          console.log(`[ElementManager] v7.5.17: Renamed canvas ${id} -> ${innerCanvasId} to fix ID collision`);
+        }
+
         // Execute scripts in order, waiting for external scripts to load
         executeScriptsSequentially(contentDiv).catch(err => {
           console.error('[ElementManager] Script execution error:', err);

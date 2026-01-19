@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5.20
+ * Element Manager for Layout Builder v7.5.21
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.21 Changes (Jan 19, 2026):
+ * - Fix initChart function name collision with reveal.js-plugins/chart/plugin.js
+ * - The plugin defines global initChart() which shadows the analytics script's initChart()
+ * - Rename to unique initChart_[chartId]() to avoid collision
  *
  * v7.5.20 Changes (Jan 19, 2026):
  * - Force standalone mode for chart initialization
@@ -742,14 +747,27 @@
                 'typeof Reveal !== "undefined" && typeof Reveal.isReady === "function" && Reveal.isReady()'
               );
 
+              // v7.5.21: Rename initChart to unique function name to avoid collision
+              // with reveal.js-plugins/chart/plugin.js which also defines global initChart
+              // The plugin's initChart calls Reveal.getConfig() which fails in our context
+              const uniqueFnName = `initChart_${id.replace(/[^a-zA-Z0-9]/g, '_')}`;
+              script.textContent = script.textContent.replace(
+                /function initChart\(\)/g,
+                `function ${uniqueFnName}()`
+              );
+              script.textContent = script.textContent.replace(
+                /initChart\(\)/g,
+                `${uniqueFnName}()`
+              );
+
               // v7.5.18: Debug logging to verify replacement worked
               if (script.textContent !== originalText) {
                 scriptsUpdated++;
               }
             }
           });
-          // v7.5.20: Updated log message
-          console.log(`[ElementManager] v7.5.20: Script references updated: ${scriptsUpdated} script(s)`);
+          // v7.5.21: Updated log message
+          console.log(`[ElementManager] v7.5.21: Script references updated: ${scriptsUpdated} script(s)`);
 
           // Rename the canvas element
           conflictingCanvas.id = innerCanvasId;

@@ -3300,6 +3300,13 @@
 
     // Render presentation on load
     window.addEventListener('DOMContentLoaded', () => {
+      // v7.5.29: Set global presentation ID for embedded chart persistence
+      const presId = getPresentationId();
+      if (presId) {
+        window.currentPresentationId = presId;
+        console.log('[v7.5.29] Set window.currentPresentationId:', presId);
+      }
+
       if (PRESENTATION_DATA) {
         renderPresentation(PRESENTATION_DATA);
       } else {

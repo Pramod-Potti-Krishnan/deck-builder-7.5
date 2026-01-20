@@ -599,10 +599,10 @@ body.show-borders .atomic-chart-container {
   max-height: 100%;
 }
 
-/* v7.5.8: Visual padding for chart containers (~20% spacing) */
+/* v7.5.25: Let atomic-chart-container handle 10px padding */
 .inserted-chart,
 .chart-container {
-  padding: 20px;
+  padding: 0;
   box-sizing: border-box;
 }
 

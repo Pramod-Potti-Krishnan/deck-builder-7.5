@@ -536,8 +536,19 @@
       if (!el.classList.contains('placeholder-mode')) {
         const contentEl = el.querySelector('.element-content');
         if (contentEl) {
-          // Store the HTML content for persistence
-          chart.chart_html = contentEl.innerHTML;
+          // v7.5.36: Extract chart HTML from iframe srcdoc, not innerHTML
+          // Charts are rendered in iframes, so innerHTML just returns "<iframe...>"
+          const iframe = contentEl.querySelector('iframe.chart-iframe');
+          if (iframe && iframe.srcdoc) {
+            // Extract the chart HTML from the iframe's srcdoc
+            // The srcdoc contains a full HTML doc, extract just the body content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(iframe.srcdoc, 'text/html');
+            chart.chart_html = doc.body.innerHTML;
+          } else {
+            // Fallback for non-iframe charts (canvas-based)
+            chart.chart_html = contentEl.innerHTML;
+          }
         }
         // Store chart instance data if available
         if (el.chartInstance) {

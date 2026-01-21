@@ -442,6 +442,18 @@
               };
 
               window.ElementManager.insertChart(slideIndex, config);
+
+              // v7.5.37: Update parent_slide_id to match current slide's ID
+              // Slide IDs are regenerated on each refresh, but charts keep old parent_slide_id
+              // This causes auto-save's orphan check to skip them on subsequent saves
+              const slideEl = document.querySelectorAll('.slide')[slideIndex];
+              const currentSlideId = slideEl?.getAttribute('data-slide-id');
+              const chartEl = document.getElementById(chart.id);
+              if (chartEl && currentSlideId) {
+                chartEl.setAttribute('data-parent-slide-id', currentSlideId);
+                console.log(`[v7.5.37] Updated chart ${chart.id} parent_slide_id: ${chart.parent_slide_id} → ${currentSlideId}`);
+              }
+
               console.log(`✅ Restored chart: ${chart.id}`);
             }
           } catch (error) {

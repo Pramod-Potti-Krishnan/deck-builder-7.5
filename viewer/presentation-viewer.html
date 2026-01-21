@@ -1716,11 +1716,52 @@
             break;
 
           // Insert chart
+          // v7.5.35: Added backend persistence to fix charts disappearing on refresh
           case 'insertChart':
             if (typeof window.ElementManager?.insertChart === 'function') {
               const slideIndex = params?.slideIndex ?? (typeof getCurrentSlideInfo === 'function' ? getCurrentSlideInfo().index : 0);
               const insertResult = window.ElementManager.insertChart(slideIndex, params);
               result = { ...result, ...insertResult };
+
+              // v7.5.35: Persist chart to backend (async, non-blocking)
+              // This ensures chart survives page refresh by storing in Supabase
+              if (insertResult.success) {
+                const presentationId = getPresentationId();
+                if (presentationId) {
+                  (async () => {
+                    try {
+                      const chartPayload = {
+                        position: {
+                          grid_row: params.gridRow || '3/19',
+                          grid_column: params.gridColumn || '2/32'
+                        },
+                        chart_type: params.chartType || 'line',
+                        chart_html: params.chartHtml,
+                        chart_config: params.chartConfig || null,
+                        z_index: params.zIndex || 100
+                      };
+
+                      const response = await fetch(`${getApiBaseUrl()}/api/presentations/${presentationId}/slides/${slideIndex}/charts`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(chartPayload)
+                      });
+
+                      if (response.ok) {
+                        const data = await response.json();
+                        console.log(`[v7.5.35] Chart persisted to backend:`, data.chart?.id || insertResult.elementId);
+                      } else {
+                        const error = await response.json();
+                        console.error('[v7.5.35] Failed to persist chart:', error.detail || response.statusText);
+                      }
+                    } catch (error) {
+                      console.error('[v7.5.35] Error persisting chart to backend:', error.message);
+                    }
+                  })();
+                } else {
+                  console.warn('[v7.5.35] No presentation ID - chart not persisted to backend');
+                }
+              }
             } else {
               result.error = 'ElementManager not available';
             }

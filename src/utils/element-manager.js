@@ -80,14 +80,16 @@
 
   /**
    * Generate unique element ID
+   * v7.5.38: Use crypto.getRandomValues() for guaranteed uniqueness
    *
    * @param {string} type - Element type
    * @returns {string} Unique ID
    */
   function generateId(type) {
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substring(2, 8);
-    return `${type}-${timestamp}-${random}`;
+    const uuid16 = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    return `${type}_${uuid16}`;
   }
 
   // ===== PROPERTY HELPERS =====

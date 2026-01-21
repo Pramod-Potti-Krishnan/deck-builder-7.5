@@ -1742,7 +1742,9 @@
                 if (presentationId) {
                   (async () => {
                     try {
+                      // v7.5.38: Include element ID to ensure DOM-backend ID consistency
                       const chartPayload = {
+                        id: insertResult.elementId,
                         position: {
                           grid_row: params.gridRow || '3/19',
                           grid_column: params.gridColumn || '2/32'

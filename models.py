@@ -2110,6 +2110,7 @@ class ImageListResponse(BaseModel):
 
 class ChartCreateRequest(BaseModel):
     """Request model for creating a new chart element on a slide."""
+    id: Optional[str] = Field(default=None, description="Optional chart ID from frontend (uses this if provided, otherwise auto-generates)")
     position: TextBoxPosition = Field(..., description="Grid position for the chart")
     chart_type: Optional[str] = Field(default=None, description="Chart type: bar, line, pie, doughnut, etc.")
     chart_config: Optional[Dict[str, Any]] = Field(default=None, description="Chart.js configuration object")

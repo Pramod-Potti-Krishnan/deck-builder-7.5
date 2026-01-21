@@ -3856,14 +3856,21 @@ async def create_chart(
 
         parent_slide_id = presentation["slides"][slide_index].get("slide_id")
 
-        new_chart = ChartElement(
-            parent_slide_id=parent_slide_id,
-            position=request.position,
-            chart_type=request.chart_type,
-            chart_config=request.chart_config,
-            chart_html=request.chart_html,
-            z_index=request.z_index or get_next_element_z_index(charts, 100)
-        )
+        # v7.5.39: Use frontend-provided ID if available for DOM-backend consistency
+        # This breaks the data corruption cycle where backend auto-generated IDs
+        # mismatched with frontend DOM IDs, causing old chart_html to persist
+        chart_kwargs = {
+            "parent_slide_id": parent_slide_id,
+            "position": request.position,
+            "chart_type": request.chart_type,
+            "chart_config": request.chart_config,
+            "chart_html": request.chart_html,
+            "z_index": request.z_index or get_next_element_z_index(charts, 100)
+        }
+        if request.id:
+            chart_kwargs["id"] = request.id
+
+        new_chart = ChartElement(**chart_kwargs)
 
         charts.append(new_chart.model_dump())
 

@@ -1,8 +1,13 @@
 /**
- * Drag-Drop Module for Layout Builder v7.5.13
+ * Drag-Drop Module for Layout Builder v7.5.14
  *
  * Provides grid-snapped drag and drop functionality for dynamic elements.
  * Works with the 32×18 grid system (1920×1080 base resolution).
+ *
+ * v7.5.14 Changes (Jan 24, 2026):
+ * - Extended pointer-events fix to include iframes (for chart containers)
+ * - Iframes capture mouseup events preventing drag end - now disabled during drag
+ * - Renamed _canvasDisabled to _contentDisabled for clarity
  *
  * v7.5.13 Changes (Jan 19, 2026):
  * - CRITICAL FIX: Chart drag no longer follows mouse after release
@@ -316,12 +321,13 @@
     element.classList.add('dragging');
     element.style.transition = 'none';
 
-    // v7.5.13: Disable pointer events on canvas during drag
-    // This prevents chart library mousemove handlers from interfering with drag
-    element.querySelectorAll('canvas').forEach(canvas => {
-      canvas.style.pointerEvents = 'none';
+    // v7.5.14: Disable pointer events on canvas AND iframe during drag
+    // This prevents chart library mousemove handlers AND iframe event capture
+    // from interfering with drag operations
+    element.querySelectorAll('canvas, iframe').forEach(el => {
+      el.style.pointerEvents = 'none';
     });
-    element._canvasDisabled = true;
+    element._contentDisabled = true;
 
     // Select the element
     if (typeof window.ElementManager !== 'undefined') {
@@ -461,12 +467,12 @@
     dragElement.style.transition = '';
     dragElement.style.transform = '';
 
-    // v7.5.13: Re-enable pointer events on canvas after drag
-    if (dragElement._canvasDisabled) {
-      dragElement.querySelectorAll('canvas').forEach(canvas => {
-        canvas.style.pointerEvents = '';
+    // v7.5.14: Re-enable pointer events on canvas AND iframe after drag
+    if (dragElement._contentDisabled) {
+      dragElement.querySelectorAll('canvas, iframe').forEach(el => {
+        el.style.pointerEvents = '';
       });
-      delete dragElement._canvasDisabled;
+      delete dragElement._contentDisabled;
     }
 
     // Check if position changed

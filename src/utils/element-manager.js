@@ -741,10 +741,9 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.chartHtml) {
-        // v7.5.24: Use absolute positioning for proper height filling
-        // Percentage heights don't cascade properly through flexbox containers
-        // Absolute positioning with inset ensures iframe fills its parent
-        contentDiv.style.position = 'relative';
+        // v7.5.19: Use absolute positioning with inset:0 to escape flex layout
+        // This gives contentDiv explicit computed dimensions so iframe's inset:10px works
+        contentDiv.style.cssText = 'position:absolute;inset:0;';
 
         const iframe = document.createElement('iframe');
         iframe.className = 'chart-iframe';
@@ -1724,8 +1723,9 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.htmlContent) {
-        // v7.5.x: Use iframe for HTML content (allows scripts like copy buttons)
-        contentDiv.style.position = 'relative';
+        // v7.5.19: Use absolute positioning with inset:0 to escape flex layout
+        // This gives contentDiv explicit computed dimensions so iframe's inset:10px works
+        contentDiv.style.cssText = 'position:absolute;inset:0;';
 
         // Store htmlContent as data attribute for auto-save retrieval
         container.dataset.htmlContent = config.htmlContent;

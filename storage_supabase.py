@@ -193,6 +193,7 @@ class SupabasePresentationStorage:
                 "title": presentation_data.get("title", "Untitled"),
                 "slides": presentation_data.get("slides", []),
                 "created_at": presentation_data["created_at"],
+                "session_id": presentation_data.get("session_id"),  # Session tracking for persistence
                 "metadata": {
                     "slide_count": len(presentation_data.get("slides", [])),
                     "source": "layout_builder"
@@ -267,6 +268,7 @@ class SupabasePresentationStorage:
                 "updated_at": row.get("updated_at"),
                 "updated_by": row.get("updated_by"),
                 "restored_from": row.get("restored_from"),
+                "session_id": row.get("session_id"),  # Session tracking for persistence
                 "metadata": row.get("metadata", {}),
                 "derivative_elements": row.get("derivative_elements"),
                 "theme_config": row.get("theme_config")
@@ -348,6 +350,40 @@ class SupabasePresentationStorage:
             return ids
         except Exception as e:
             logger.error("List failed", error=str(e), exc_info=True)
+            return []
+
+    async def list_by_session(self, session_id: str) -> List[Dict[str, Any]]:
+        """
+        Query presentations by session_id for persistence across browser refresh.
+
+        Args:
+            session_id: Session identifier
+
+        Returns:
+            List of presentation summaries (id, title, created_at, session_id)
+        """
+        try:
+            result = self.client.table("ls_presentations").select(
+                "id, title, created_at, session_id"
+            ).eq("session_id", session_id).order("created_at", desc=True).execute()
+
+            presentations = [{
+                "id": row["id"],
+                "title": row["title"],
+                "created_at": row["created_at"],
+                "session_id": row["session_id"]
+            } for row in result.data]
+
+            logger.info("Listed presentations by session",
+                       session_id=session_id,
+                       count=len(presentations))
+            return presentations
+
+        except Exception as e:
+            logger.error("Query by session failed",
+                        session_id=session_id,
+                        error=str(e),
+                        exc_info=True)
             return []
 
     # ==================== Version History Methods ====================

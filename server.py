@@ -1067,6 +1067,30 @@ async def list_presentations():
         raise HTTPException(status_code=500, detail=f"Error listing presentations: {str(e)}")
 
 
+@app.get("/api/sessions/{session_id}/presentations")
+async def list_presentations_by_session(session_id: str):
+    """
+    Get all presentations created in a session.
+
+    Enables presentation persistence after browser refresh by retrieving
+    all presentations associated with a given session ID.
+    """
+    try:
+        presentations = await storage.list_by_session(session_id)
+        if not presentations:
+            return JSONResponse(
+                status_code=404,
+                content={"error": f"No presentations found for session {session_id}"}
+            )
+        return JSONResponse(content={
+            "session_id": session_id,
+            "count": len(presentations),
+            "presentations": presentations
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing presentations by session: {str(e)}")
+
+
 @app.delete("/api/presentations/{presentation_id}")
 async def delete_presentation(presentation_id: str):
     """Delete a presentation by ID"""

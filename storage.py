@@ -116,6 +116,36 @@ class FilesystemPresentationStorage:
         logger.info("Listed filesystem presentations", count=len(ids))
         return ids
 
+    async def list_by_session(self, session_id: str) -> List[Dict[str, Any]]:
+        """
+        Filter presentations by session_id from filesystem.
+
+        Args:
+            session_id: Session identifier
+
+        Returns:
+            List of presentation summaries matching the session
+        """
+        presentations = []
+        for file_path in self.storage_dir.glob("*.json"):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if data.get("session_id") == session_id:
+                        presentations.append({
+                            "id": data["id"],
+                            "title": data.get("title", "Untitled"),
+                            "created_at": data.get("created_at"),
+                            "session_id": session_id
+                        })
+            except (json.JSONDecodeError, IOError, KeyError):
+                continue
+
+        logger.info("Listed filesystem presentations by session",
+                   session_id=session_id,
+                   count=len(presentations))
+        return presentations
+
     def _generate_version_id(self) -> str:
         """Generate unique version ID with timestamp"""
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -457,6 +487,10 @@ class HybridPresentationStorage:
         return await self._with_fallback("restore_version")(
             presentation_id, version_id, create_backup
         )
+
+    async def list_by_session(self, session_id: str) -> List[Dict[str, Any]]:
+        """List presentations for a session (Supabase with filesystem fallback)"""
+        return await self._with_fallback("list_by_session")(session_id)
 
 
 # ==================== Global Storage Instance ====================

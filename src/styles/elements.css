@@ -835,13 +835,6 @@
   height: 100%;
 }
 
-/* v7.5.15: Align diagram content to top-left for consistent 10px padding on all sides */
-/* Diagrams use their own internal padding in the HTML template */
-.inserted-diagram .element-content {
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
 /* ===== VIEW MODE - Hide controls ===== */
 
 body:not([data-mode="edit"]) .inserted-element-placeholder {

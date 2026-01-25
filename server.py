@@ -2562,6 +2562,11 @@ async def update_all_slides(
                     else:
                         presentation["slides"][i]["diagrams"] = incoming_diagrams
 
+                # Deleted slot names - v7.5.15
+                # Tracks which template elements were deleted to prevent recreation on refresh
+                if "deleted_slot_names" in slide_update:
+                    presentation["slides"][i]["deleted_slot_names"] = slide_update.pop("deleted_slot_names")
+
                 # Handle content fields
                 for key, value in slide_update.items():
                     if value is not None:

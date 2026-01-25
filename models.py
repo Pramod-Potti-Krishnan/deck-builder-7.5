@@ -1658,6 +1658,12 @@ class SlideContentUpdate(BaseModel):
         description="Footer text content"
     )
 
+    # Deleted template slots (prevents recreation on refresh) - v7.5.15
+    deleted_slot_names: Optional[List[str]] = Field(
+        None,
+        description="List of deleted template slot names to prevent recreation on refresh"
+    )
+
 
 class PresentationMetadataUpdate(BaseModel):
     """Model for updating presentation metadata."""

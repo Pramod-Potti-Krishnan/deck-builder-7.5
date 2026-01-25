@@ -247,6 +247,13 @@ body:not([data-mode="edit"]) .inserted-table [contenteditable="true"] {
   pointer-events: none;
 }
 
+/* Diagrams are always interactive for presentation features (copy, font buttons) */
+/* v7.5.15: Allow clicks on diagram iframe content in view mode */
+body:not([data-mode="edit"]) .inserted-diagram .element-content,
+body:not([data-mode="edit"]) .inserted-diagram iframe {
+  pointer-events: auto;
+}
+
 /* ===== GRID DEBUG OVERLAY ===== */
 
 .grid-debug-overlay {

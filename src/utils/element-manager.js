@@ -1,10 +1,16 @@
 /**
- * Element Manager for Layout Builder v7.5.22
+ * Element Manager for Layout Builder v7.5.23
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.23 Changes (Jan 24, 2026):
+ * - Add context-aware auto-positioning integration
+ * - Uses window.ElementPositioner.getAutoPosition() when config.useAutoPosition=true
+ * - Supports auto-positioning for textbox, chart, image, and table elements
+ * - Finds available grid space by scanning existing elements on the slide
  *
  * v7.5.22 Changes (Jan 19, 2026):
  * - Fix initChart function REFERENCES not being renamed (only calls were renamed)
@@ -463,10 +469,24 @@
     }
 
     // v7.5.9: Support both nested position object and direct gridRow/gridColumn
-    const position = config.position || {
+    let position = config.position || {
       gridRow: config.gridRow || '5/18',
       gridColumn: config.gridColumn || '2/32'
     };
+
+    // v7.5.23: Context-aware auto-positioning for tables
+    if (config.useAutoPosition && window.ElementPositioner) {
+      try {
+        const autoPos = window.ElementPositioner.getAutoPosition(slide, 'table', {
+          width: config.positionWidth || 16,
+          height: config.positionHeight || 8
+        });
+        position = { gridRow: autoPos.gridRow, gridColumn: autoPos.gridColumn };
+        console.log(`[ElementManager] Auto-positioned table to: row=${position.gridRow}, col=${position.gridColumn}`);
+      } catch (e) {
+        console.error('[ElementManager] Table auto-positioning failed:', e);
+      }
+    }
 
     // Create container
     const container = document.createElement('div');
@@ -622,10 +642,24 @@
 
     // v7.5.9: Support both nested position object and direct gridRow/gridColumn
     // This allows restoreCharts() to pass gridRow/gridColumn at top level
-    const position = config.position || {
+    let position = config.position || {
       gridRow: config.gridRow || '4/18',
       gridColumn: config.gridColumn || '2/32'
     };
+
+    // v7.5.23: Context-aware auto-positioning for charts
+    if (config.useAutoPosition && window.ElementPositioner) {
+      try {
+        const autoPos = window.ElementPositioner.getAutoPosition(slide, 'chart', {
+          width: config.positionWidth || 14,
+          height: config.positionHeight || 10
+        });
+        position = { gridRow: autoPos.gridRow, gridColumn: autoPos.gridColumn };
+        console.log(`[ElementManager] Auto-positioned chart to: row=${position.gridRow}, col=${position.gridColumn}`);
+      } catch (e) {
+        console.error('[ElementManager] Chart auto-positioning failed:', e);
+      }
+    }
 
     // Create container
     const container = document.createElement('div');
@@ -1055,10 +1089,24 @@
     }
 
     // v7.5.9: Support both nested position object and direct gridRow/gridColumn
-    const position = config.position || {
+    let position = config.position || {
       gridRow: config.gridRow || '5/18',
       gridColumn: config.gridColumn || '2/32'
     };
+
+    // v7.5.23: Context-aware auto-positioning for images
+    if (config.useAutoPosition && window.ElementPositioner) {
+      try {
+        const autoPos = window.ElementPositioner.getAutoPosition(slide, 'image', {
+          width: config.positionWidth || 14,
+          height: config.positionHeight || 10
+        });
+        position = { gridRow: autoPos.gridRow, gridColumn: autoPos.gridColumn };
+        console.log(`[ElementManager] Auto-positioned image to: row=${position.gridRow}, col=${position.gridColumn}`);
+      } catch (e) {
+        console.error('[ElementManager] Image auto-positioning failed:', e);
+      }
+    }
 
     // Create container
     const container = document.createElement('div');
@@ -1574,7 +1622,7 @@
       return { success: false, error: `Slide ${slideIndex} not found` };
     }
 
-    const isPlaceholderMode = !config.svgContent && !config.mermaidCode;
+    const isPlaceholderMode = !config.svgContent && !config.mermaidCode && !config.htmlContent;
     const id = config.id || generateId('diagram');
 
     // DUPLICATE PREVENTION: Skip if element already exists ON THIS SLIDE
@@ -1670,7 +1718,33 @@
 
       const contentDiv = container.querySelector('.element-content');
 
-      if (config.svgContent) {
+      if (config.htmlContent) {
+        // v7.5.x: Use iframe for HTML content (allows scripts like copy buttons)
+        contentDiv.style.position = 'relative';
+
+        // Store htmlContent as data attribute for auto-save retrieval
+        container.dataset.htmlContent = config.htmlContent;
+
+        const iframe = document.createElement('iframe');
+        iframe.className = 'diagram-iframe';
+        iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+
+        const diagramDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  ${config.htmlContent}
+</body>
+</html>`;
+
+        iframe.srcdoc = diagramDoc;
+        contentDiv.appendChild(iframe);
+        console.log(`[ElementManager] Diagram ${id} rendered in isolated iframe`);
+      } else if (config.svgContent) {
         contentDiv.innerHTML = config.svgContent;
       } else if (config.mermaidCode && typeof mermaid !== 'undefined') {
         // Render Mermaid diagram
@@ -1736,6 +1810,7 @@
       zIndex: zIndexCounter,
       selected: false,
       data: {
+        htmlContent: config.htmlContent || null,
         svgContent: config.svgContent || null,
         mermaidCode: config.mermaidCode || null,
         diagramType: config.diagramType || null,
@@ -2144,7 +2219,37 @@
     let effectiveGridRow = position.gridRow;
     let effectiveGridColumn = position.gridColumn;
 
-    if (!isBoilerplateSlot && !config.skipAutoSize && !hasExplicitPosition) {
+    // v7.5.23: Check for context-aware auto-positioning
+    // When useAutoPosition is true, find available grid space automatically
+    if (config.useAutoPosition && window.ElementPositioner) {
+      try {
+        // Use the existing getSlideElement function
+        const slideElement = getSlideElement(slideIndex);
+
+        if (slideElement) {
+          // Detect element type from content or config
+          let elementType = 'textbox';
+          if (config.content && config.content.includes('metric-card')) {
+            elementType = 'metrics';
+          } else if (config.dataType) {
+            elementType = config.dataType;
+          }
+
+          // Use position dimensions from config, or defaults for element type
+          const autoPos = window.ElementPositioner.getAutoPosition(slideElement, elementType, {
+            width: config.positionWidth,
+            height: config.positionHeight
+          });
+          effectiveGridRow = autoPos.gridRow;
+          effectiveGridColumn = autoPos.gridColumn;
+          console.log(`[ElementManager] Auto-positioned ${elementType} to: row=${effectiveGridRow}, col=${effectiveGridColumn}`);
+        } else {
+          console.warn('[ElementManager] Could not find slide element for auto-positioning');
+        }
+      } catch (e) {
+        console.error('[ElementManager] Auto-positioning failed, using default:', e);
+      }
+    } else if (!isBoilerplateSlot && !config.skipAutoSize && !hasExplicitPosition) {
       // Content/body slots: Calculate row and column span based on content
       // v7.5.13: Skip auto-sizing when skipAutoSize flag is set (user-specified positions)
       // v7.5.14: Also skip when explicit position provided (hasExplicitPosition)

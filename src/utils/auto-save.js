@@ -682,14 +682,20 @@
         diagram_type: null,
         mermaid_code: null,
         svg_content: null,
+        html_content: null,
         direction: 'TB',
         theme: 'default',
         locked: el.classList.contains('element-locked'),
         visible: !el.classList.contains('element-hidden')
       };
 
-      // Get content if not placeholder
-      if (!el.classList.contains('inserted-element-placeholder') || el.querySelector('.element-content')) {
+      // Get html_content if stored as data attribute (v7.5.x: for iframe-rendered diagrams)
+      if (el.dataset.htmlContent) {
+        diagram.html_content = el.dataset.htmlContent;
+      }
+
+      // Get content if not placeholder (and not using html_content)
+      if (!diagram.html_content && (!el.classList.contains('inserted-element-placeholder') || el.querySelector('.element-content'))) {
         const contentEl = el.querySelector('.element-content');
         if (contentEl) {
           diagram.svg_content = contentEl.innerHTML;

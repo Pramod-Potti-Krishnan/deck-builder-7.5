@@ -246,7 +246,8 @@
   <!-- World-Class Editor APIs (v7.5.3) -->
   <script src="/src/utils/format-api.js"></script>
   <script src="/src/utils/drag-drop.js?v=20251201-semicircle"></script>
-  <script src="/src/utils/element-manager.js?v=20251221-logo-update"></script>
+  <script src="/src/utils/element-positioner.js?v=20260124-context-aware"></script>
+  <script src="/src/utils/element-manager.js?v=20260124-auto-position"></script>
 
   <!-- v7.5 Renderers (6 backend layouts) -->
   <script src="/src/renderers/L01.js?v=20251221-logo-update"></script>
@@ -525,6 +526,7 @@
                 diagramType: diagram.diagram_type || null,
                 mermaidCode: diagram.mermaid_code || null,
                 svgContent: diagram.svg_content || null,
+                htmlContent: diagram.html_content || null,
                 direction: diagram.direction || 'TB',
                 theme: diagram.theme || 'default',
                 zIndex: diagram.z_index || 100,

@@ -652,10 +652,17 @@
       // v7.5.1: Validate parent ownership to prevent ghost elements
       const elementParentId = el.getAttribute('data-parent-slide-id');
 
-      // Skip orphaned elements (parent_slide_id doesn't match this slide)
+      // v7.5.37: Skip orphaned elements, but trust diagrams physically on this slide
+      // Diagrams restored from backend may have stale parent_slide_id if slide IDs regenerated
       if (elementParentId && slideId && elementParentId !== slideId) {
-        console.warn(`[AutoSave] Skipping orphaned diagram ${el.id}: parent=${elementParentId}, slide=${slideId}`);
-        return;
+        // Check if diagram is actually on this slide (DOM containment check)
+        if (!slideElement.contains(el)) {
+          console.warn(`[AutoSave] Skipping orphaned diagram ${el.id}: parent=${elementParentId}, slide=${slideId}`);
+          return;
+        }
+        // Diagram is physically on slide but has stale parent_slide_id - update it
+        console.log(`[AutoSave] Updating stale parent_slide_id for diagram ${el.id}: ${elementParentId} → ${slideId}`);
+        el.setAttribute('data-parent-slide-id', slideId);
       }
 
       // Also validate legacy index-based IDs (slide-{N}-*)

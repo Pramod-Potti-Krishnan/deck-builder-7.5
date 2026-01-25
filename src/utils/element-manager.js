@@ -748,8 +748,8 @@
 
         const iframe = document.createElement('iframe');
         iframe.className = 'chart-iframe';
-        // v7.5.16: Inset iframe by 10px on all sides for consistent padding
-        iframe.style.cssText = 'position:absolute;top:10px;left:10px;width:calc(100% - 20px);height:calc(100% - 20px);border:none;';
+        // v7.5.18: Use inset instead of calc() to fix padding issues with flex containers
+        iframe.style.cssText = 'position:absolute;inset:10px;border:none;';
 
         // Build complete HTML document with Chart.js CDN
         const chartDoc = `<!DOCTYPE html>
@@ -1732,8 +1732,8 @@
 
         const iframe = document.createElement('iframe');
         iframe.className = 'diagram-iframe';
-        // v7.5.16: Inset iframe by 10px on all sides for consistent padding
-        iframe.style.cssText = 'position:absolute;top:10px;left:10px;width:calc(100% - 20px);height:calc(100% - 20px);border:none;';
+        // v7.5.18: Use inset instead of calc() to fix padding issues with flex containers
+        iframe.style.cssText = 'position:absolute;inset:10px;border:none;';
 
         const diagramDoc = `<!DOCTYPE html>
 <html>

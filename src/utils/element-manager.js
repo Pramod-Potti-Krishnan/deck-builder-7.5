@@ -1653,10 +1653,14 @@
     if (config.parent_slide_id) {
       container.dataset.parentSlideId = config.parent_slide_id;
     }
+    // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `
       grid-row: ${position.gridRow};
       grid-column: ${position.gridColumn};
       z-index: ${++zIndexCounter};
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
     `;
 
     if (isPlaceholderMode) {

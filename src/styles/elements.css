@@ -835,6 +835,18 @@
   height: 100%;
 }
 
+/* v7.5.28: Override Reveal.js default 95% max-width/height for diagram/chart iframes */
+/* Reveal.js CDN CSS applies max-width: 95%; max-height: 95% to all iframes inside slides */
+/* This causes diagram/chart iframes to be 5% smaller than intended, creating uneven padding */
+/* Fix: Remove the max constraints and set explicit dimensions with 10px inset */
+.reveal .slides section .inserted-diagram iframe,
+.reveal .slides section .inserted-chart iframe {
+  max-width: none !important;
+  max-height: none !important;
+  width: calc(100% - 20px) !important;
+  height: calc(100% - 20px) !important;
+}
+
 /* ===== VIEW MODE - Hide controls ===== */
 
 body:not([data-mode="edit"]) .inserted-element-placeholder {

@@ -261,6 +261,12 @@ body:not([data-mode="edit"]) .inserted-diagram .element-delete-button {
   display: none !important;
 }
 
+/* v7.5.30: Hide hover border for diagrams in view mode */
+/* In view mode, diagrams should not show any selection/hover UI */
+body:not([data-mode="edit"]) .inserted-diagram:not(.placeholder-mode):hover {
+  border-color: transparent !important;
+}
+
 /* ===== GRID DEBUG OVERLAY ===== */
 
 .grid-debug-overlay {

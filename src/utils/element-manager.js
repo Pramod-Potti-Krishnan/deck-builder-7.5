@@ -1735,10 +1735,10 @@
 
         const iframe = document.createElement('iframe');
         iframe.className = 'diagram-iframe';
-        // v7.5.26: Use ONLY inset:10px - removes conflicting calc() dimensions
-        // When left+right+width are all set, browsers handle the over-constraint inconsistently
-        // With just inset:10px, browser correctly calculates width=(100%-20px) from constraints
-        iframe.style.cssText = 'position:absolute;inset:10px;border:none;';
+        // v7.5.27: Use explicit top/left + calc dimensions WITHOUT right/bottom
+        // inset:10px sets all 4 edges, creating over-constrained layout when combined with width/height
+        // Solution: Only set top/left positioning, let calc() handle the dimensions
+        iframe.style.cssText = 'position:absolute;top:10px;left:10px;width:calc(100% - 20px);height:calc(100% - 20px);border:none;';
 
         // v7.5.25: Override fixed pixel dimensions with 100% to fill iframe viewport
         const diagramDoc = `<!DOCTYPE html>

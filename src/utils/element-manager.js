@@ -1735,21 +1735,20 @@
 
         const iframe = document.createElement('iframe');
         iframe.className = 'diagram-iframe';
-        // v7.5.22: Use inset:10px to constrain from all edges - avoids calc() percentage issues
-        iframe.style.cssText = 'position:absolute;inset:10px;border:none;';
+        // v7.5.25: Add explicit calc() dimensions alongside inset for proper sizing
+        iframe.style.cssText = 'position:absolute;inset:10px;width:calc(100% - 20px);height:calc(100% - 20px);border:none;';
 
+        // v7.5.25: Override fixed pixel dimensions with 100% to fill iframe viewport
         const diagramDoc = `<!DOCTYPE html>
 <html>
 <head>
   <style>
-    /* v7.5.24: Use absolute wrapper to force content fill */
     html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
+    body > div:first-child { width: 100% !important; height: 100% !important; }
   </style>
 </head>
 <body>
-  <div style="position:absolute;inset:0;overflow:hidden;">
-    ${config.htmlContent}
-  </div>
+  ${config.htmlContent}
 </body>
 </html>`;
 

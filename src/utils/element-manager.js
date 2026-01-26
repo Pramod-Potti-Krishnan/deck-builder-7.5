@@ -3482,7 +3482,8 @@
     if (typeof markContentChanged === 'function') {
       const slideSection = element.closest('section');
       const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
-      markContentChanged(slideIndex, 'diagram_kanban');
+      // v1.6.4: Force save in any mode for Kanban interactive changes
+      markContentChanged(slideIndex, 'diagram_kanban', true);
     }
   });
 

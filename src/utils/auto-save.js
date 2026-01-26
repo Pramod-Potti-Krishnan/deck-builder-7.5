@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.19
+ * Auto-Save System for Presentation Editor - v7.5.20
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,11 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.20 / v1.6.4 Changes (Jan 26, 2026):
+ * - Added forceInAnyMode parameter to markContentChanged() to bypass edit mode check
+ * - Kanban changes now auto-save in view mode (not just edit mode)
+ * - Interactive diagram changes (Kanban) trigger save regardless of mode
  *
  * v7.5.19 Changes (Jan 26, 2026):
  * - Added kanban_data collection in collectDiagrams() for Kanban board persistence
@@ -75,10 +80,11 @@
    * Mark content as changed and schedule save
    * @param {number} slideIndex - Index of the slide that changed (optional)
    * @param {string} field - The field that changed (optional)
+   * @param {boolean} forceInAnyMode - If true, bypass edit mode check (v1.6.4: for interactive diagrams like Kanban)
    */
-  function markContentChanged(slideIndex = null, field = null) {
-    // Only track in edit mode
-    if (document.body.getAttribute('data-mode') !== 'edit') return;
+  function markContentChanged(slideIndex = null, field = null, forceInAnyMode = false) {
+    // Only track in edit mode (unless forced for interactive diagrams like Kanban)
+    if (!forceInAnyMode && document.body.getAttribute('data-mode') !== 'edit') return;
 
     // Track the change
     if (slideIndex !== null) {

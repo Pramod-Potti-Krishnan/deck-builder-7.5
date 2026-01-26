@@ -1222,7 +1222,12 @@
         return;
       }
 
-      const { action, params } = event.data || {};
+      const { action, params, type } = event.data || {};
+
+      // v1.6.4: Skip messages with 'type' field - handled by specialized handlers (e.g., Kanban)
+      if (type) {
+        return;
+      }
 
       if (!action) {
         console.warn('⚠️ postMessage received without action:', event.data);

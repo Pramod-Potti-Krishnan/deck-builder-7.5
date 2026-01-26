@@ -1762,7 +1762,7 @@
         iframe.srcdoc = diagramDoc;
         contentDiv.appendChild(iframe);
 
-        // v1.6.2: Send initialization data for Kanban persistence
+        // v1.6.3: Send initialization data including saved state for Kanban persistence
         iframe.onload = function() {
           // Get presentation ID from URL
           const presentationId = window.location.pathname.match(/presentations\/([a-f0-9-]+)/i)?.[1]
@@ -1770,11 +1770,22 @@
             || window.presentationId  // Fallback to global
             || '';
 
-          // Send IDs to iframe (Kanban will use these, others ignore)
+          // Get saved kanban state from element dataset (set by auto-save restore)
+          let savedState = null;
+          try {
+            if (container.dataset.kanbanData) {
+              savedState = JSON.parse(container.dataset.kanbanData);
+            }
+          } catch (err) {
+            console.warn('[ElementManager] Could not parse saved kanban data:', err);
+          }
+
+          // Send IDs and saved state to iframe (Kanban will use these, others ignore)
           iframe.contentWindow.postMessage({
             type: 'kanban-init',
             presentation_id: presentationId,
-            element_id: id
+            element_id: id,
+            saved_state: savedState  // v1.6.3: Include saved state for restoration
           }, '*');
         };
 

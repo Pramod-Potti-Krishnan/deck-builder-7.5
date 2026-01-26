@@ -1660,6 +1660,11 @@
     if (config.parent_slide_id) {
       container.dataset.parentSlideId = config.parent_slide_id;
     }
+    // v1.6.5: Set kanban_data on container for iframe initialization
+    if (config.kanban_data) {
+      container.dataset.kanbanData = JSON.stringify(config.kanban_data);
+      console.log('[ElementManager] Restored kanban_data for:', id);
+    }
     // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `
       grid-row: ${position.gridRow};

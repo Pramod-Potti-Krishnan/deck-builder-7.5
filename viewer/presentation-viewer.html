@@ -534,7 +534,9 @@
                 visible: diagram.visible !== false,
                 // v7.5.13: Pass slot metadata for proper lookup by createElementsForTemplate
                 slot_name: diagram.slot_name || null,
-                parent_slide_id: diagram.parent_slide_id || null
+                parent_slide_id: diagram.parent_slide_id || null,
+                // v1.6.5: Pass kanban state for restoration
+                kanban_data: diagram.kanban_data || null
               };
 
               window.ElementManager.insertDiagram(slideIndex, config);

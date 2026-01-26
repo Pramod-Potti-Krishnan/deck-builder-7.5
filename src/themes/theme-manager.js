@@ -608,7 +608,7 @@ const ThemeManager = (function() {
                 '--card-bg': 'rgba(75, 85, 99, 0.85)',
                 '--card-border': 'rgba(107, 114, 128, 0.6)',
                 '--card-shadow': '0 1px 3px rgba(0,0,0,0.3)',
-                '--add-btn-border': 'rgba(107, 114, 128, 0.6)',
+                '--add-btn-border': '#FFFFFF',
                 '--add-btn-text': '#D1D5DB',
                 '--count-bg': 'rgba(75, 85, 99, 0.8)',
                 '--count-text': '#D1D5DB',

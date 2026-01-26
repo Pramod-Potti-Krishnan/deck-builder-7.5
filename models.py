@@ -593,6 +593,10 @@ class DiagramElement(BaseModel):
         default="default",
         description="Diagram theme: default, dark, forest, neutral"
     )
+    kanban_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Structured Kanban state: {columns: [{name, color, items: [{title, priority, assignee, status}]}]}"
+    )
     locked: bool = Field(
         default=False,
         description="Prevent accidental edits when True"

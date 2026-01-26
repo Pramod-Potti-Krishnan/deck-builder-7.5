@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.18
+ * Auto-Save System for Presentation Editor - v7.5.19
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,10 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.19 Changes (Jan 26, 2026):
+ * - Added kanban_data collection in collectDiagrams() for Kanban board persistence
+ * - Kanban state (add/edit/move cards) is now saved via postMessage from iframe
  *
  * v7.5.18 Changes (Jan 19, 2026):
  * - Added debug logging in collectCharts() for chart persistence troubleshooting
@@ -712,6 +716,15 @@
       // Get mermaid code if stored as data attribute
       if (el.dataset.mermaidCode) {
         diagram.mermaid_code = el.dataset.mermaidCode;
+      }
+
+      // v7.5.19: Get kanban_data if stored as data attribute (for Kanban board persistence)
+      if (el.dataset.kanbanData) {
+        try {
+          diagram.kanban_data = JSON.parse(el.dataset.kanbanData);
+        } catch (e) {
+          console.warn(`[AutoSave] Failed to parse kanban_data for ${el.id}:`, e);
+        }
       }
 
       diagrams.push(diagram);

@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5.23
+ * Element Manager for Layout Builder v7.5.24
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.24 Changes (Jan 26, 2026):
+ * - Add Kanban state persistence via postMessage handler
+ * - Listen for 'updateKanbanState' messages from Kanban iframes
+ * - Store kanban_data on element dataset for auto-save collection
  *
  * v7.5.23 Changes (Jan 24, 2026):
  * - Add context-aware auto-positioning integration
@@ -3400,6 +3405,58 @@
       }
     }
   }
+
+  // ===== v7.5.24: KANBAN STATE PERSISTENCE =====
+
+  /**
+   * Listen for Kanban state updates from iframes
+   * When a Kanban board is modified (add/edit/move cards), the iframe
+   * sends a postMessage with the updated state for persistence.
+   */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateKanbanState') return;
+
+    const { elementId, action, kanbanData, timestamp } = e.data;
+
+    // Find the element by ID (try both the provided ID and common diagram class patterns)
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // If not found by ID, try to find by searching for diagram elements containing the iframe
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] Kanban state update: element not found', elementId);
+      return;
+    }
+
+    // Store the kanban data on the element's dataset for auto-save collection
+    try {
+      element.dataset.kanbanData = JSON.stringify(kanbanData);
+      console.log(`[ElementManager] Kanban state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store kanban data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      markContentChanged(slideIndex, 'diagram_kanban');
+    }
+  });
 
   window.ElementManager = {
     // Insert methods

@@ -1723,9 +1723,9 @@
       const contentDiv = container.querySelector('.element-content');
 
       if (config.htmlContent) {
-        // v7.5.19: Use absolute positioning with inset:0 to escape flex layout
-        // This gives contentDiv explicit computed dimensions so iframe's inset:10px works
-        contentDiv.style.cssText = 'position:absolute;inset:0;';
+        // v7.5.21: Use explicit width/height instead of inset:0
+        // inset:0 positions via constraints but doesn't give explicit dimensions for calc()
+        contentDiv.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
 
         // Store htmlContent as data attribute for auto-save retrieval
         container.dataset.htmlContent = config.htmlContent;

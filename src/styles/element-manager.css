@@ -254,6 +254,13 @@ body:not([data-mode="edit"]) .inserted-diagram iframe {
   pointer-events: auto;
 }
 
+/* v7.5.29: Hide drag handle and delete button for diagrams in view mode */
+/* These controls don't function in view mode, so don't show them on hover */
+body:not([data-mode="edit"]) .inserted-diagram .element-drag-handle,
+body:not([data-mode="edit"]) .inserted-diagram .element-delete-button {
+  display: none !important;
+}
+
 /* ===== GRID DEBUG OVERLAY ===== */
 
 .grid-debug-overlay {

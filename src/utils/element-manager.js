@@ -756,7 +756,8 @@
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
   <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
+    /* v7.5.23: Use viewport units - in iframe, vw/vh refer to iframe's viewport */
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; }
     .atomic-chart-container { width: 100%; height: 100%; }
   </style>
 </head>
@@ -1739,7 +1740,8 @@
 <html>
 <head>
   <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
+    /* v7.5.23: Use viewport units - in iframe, vw/vh refer to iframe's viewport */
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; }
   </style>
 </head>
 <body>

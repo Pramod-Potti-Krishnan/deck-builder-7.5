@@ -1,8 +1,13 @@
 /**
- * Drag-Drop Module for Layout Builder v7.5.14
+ * Drag-Drop Module for Layout Builder v7.5.31
  *
  * Provides grid-snapped drag and drop functionality for dynamic elements.
  * Works with the 32×18 grid system (1920×1080 base resolution).
+ *
+ * v7.5.31 Changes (Jan 25, 2026):
+ * - FIX: Resize handle not working when dragging inward over diagram content
+ * - Extended pointer-events fix to resize operations (previously only drag had this)
+ * - Iframes no longer capture mousemove events during resize operations
  *
  * v7.5.14 Changes (Jan 24, 2026):
  * - Extended pointer-events fix to include iframes (for chart containers)
@@ -710,6 +715,13 @@
     element.classList.add('resizing');
     element.style.transition = 'none';
 
+    // v7.5.31: Disable pointer events on iframe/canvas during resize
+    // This prevents iframe from capturing mousemove events when resizing inward
+    element.querySelectorAll('canvas, iframe').forEach(el => {
+      el.style.pointerEvents = 'none';
+    });
+    element._contentDisabled = true;
+
     // Select the element
     if (typeof window.ElementManager !== 'undefined') {
       window.ElementManager.selectElement(elementId);
@@ -825,6 +837,14 @@
    */
   function finalizeResize() {
     if (!isResizing || !resizeElement) return;
+
+    // v7.5.31: Re-enable pointer events on canvas/iframe after resize
+    if (resizeElement._contentDisabled) {
+      resizeElement.querySelectorAll('canvas, iframe').forEach(el => {
+        el.style.pointerEvents = '';
+      });
+      delete resizeElement._contentDisabled;
+    }
 
     // Remove visual feedback
     resizeElement.classList.remove('resizing');

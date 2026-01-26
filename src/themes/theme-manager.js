@@ -573,7 +573,65 @@ const ThemeManager = (function() {
         }
 
         console.log(`[ThemeManager] Theme mode set to: ${normalizedMode}`);
+
+        // v7.5.6: Broadcast theme to all diagram/chart iframes
+        broadcastThemeToIframes(normalizedMode);
+
         return normalizedMode;
+    }
+
+    /**
+     * Broadcast theme mode change to all diagram/chart iframes
+     * v7.5.6: Enable live dark/light mode switching for embedded content
+     *
+     * @param {string} mode - Theme mode: 'light' or 'dark'
+     */
+    function broadcastThemeToIframes(mode) {
+        const themeVariables = {
+            light: {
+                '--text-primary': '#111827',
+                '--text-secondary': '#6B7280',
+                '--text-body': '#1F2937',
+                '--card-bg': 'rgba(255, 255, 255, 0.9)',
+                '--card-border': '#E5E7EB',
+                '--card-shadow': '0 1px 3px rgba(0,0,0,0.1)',
+                '--add-btn-border': '#D1D5DB',
+                '--add-btn-text': '#6B7280',
+                '--count-bg': 'rgba(229, 231, 235, 0.8)',
+                '--count-text': '#6B7280',
+                '--accent': '#8B5CF6'
+            },
+            dark: {
+                '--text-primary': '#FFFFFF',
+                '--text-secondary': '#D1D5DB',
+                '--text-body': '#F9FAFB',
+                '--card-bg': 'rgba(75, 85, 99, 0.85)',
+                '--card-border': 'rgba(107, 114, 128, 0.6)',
+                '--card-shadow': '0 1px 3px rgba(0,0,0,0.3)',
+                '--add-btn-border': 'rgba(107, 114, 128, 0.6)',
+                '--add-btn-text': '#D1D5DB',
+                '--count-bg': 'rgba(75, 85, 99, 0.8)',
+                '--count-text': '#D1D5DB',
+                '--accent': '#A78BFA'
+            }
+        };
+
+        const variables = themeVariables[mode] || themeVariables.light;
+        const iframes = document.querySelectorAll('.inserted-diagram iframe, .inserted-chart iframe');
+
+        iframes.forEach(iframe => {
+            try {
+                iframe.contentWindow.postMessage({
+                    type: 'deckster-theme-sync',
+                    mode: mode,
+                    variables: variables
+                }, '*');
+            } catch (e) {
+                console.warn('[ThemeManager] Failed to post theme to iframe:', e);
+            }
+        });
+
+        console.log(`[ThemeManager] Theme broadcast to ${iframes.length} iframes: ${mode}`);
     }
 
     /**
@@ -647,7 +705,9 @@ const ThemeManager = (function() {
         setThemeMode,
         getThemeMode,
         toggleThemeMode,
-        initThemeMode
+        initThemeMode,
+        // v7.5.6: Iframe theme synchronization
+        broadcastThemeToIframes
     };
 })();
 

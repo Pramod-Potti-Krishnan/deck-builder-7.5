@@ -756,13 +756,15 @@
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
   <style>
-    /* v7.5.23: Use viewport units - in iframe, vw/vh refer to iframe's viewport */
-    html, body { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; }
+    /* v7.5.24: Use absolute wrapper to force content fill */
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
     .atomic-chart-container { width: 100%; height: 100%; }
   </style>
 </head>
 <body>
-  ${config.chartHtml}
+  <div style="position:absolute;inset:0;overflow:hidden;">
+    ${config.chartHtml}
+  </div>
 </body>
 </html>`;
 
@@ -1740,12 +1742,14 @@
 <html>
 <head>
   <style>
-    /* v7.5.23: Use viewport units - in iframe, vw/vh refer to iframe's viewport */
-    html, body { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; }
+    /* v7.5.24: Use absolute wrapper to force content fill */
+    html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; }
   </style>
 </head>
 <body>
-  ${config.htmlContent}
+  <div style="position:absolute;inset:0;overflow:hidden;">
+    ${config.htmlContent}
+  </div>
 </body>
 </html>`;
 

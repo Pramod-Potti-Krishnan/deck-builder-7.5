@@ -1761,6 +1761,23 @@
 
         iframe.srcdoc = diagramDoc;
         contentDiv.appendChild(iframe);
+
+        // v1.6.2: Send initialization data for Kanban persistence
+        iframe.onload = function() {
+          // Get presentation ID from URL
+          const presentationId = window.location.pathname.match(/presentations\/([a-f0-9-]+)/i)?.[1]
+            || window.location.pathname.match(/\/p\/([a-f0-9-]+)/i)?.[1]
+            || window.presentationId  // Fallback to global
+            || '';
+
+          // Send IDs to iframe (Kanban will use these, others ignore)
+          iframe.contentWindow.postMessage({
+            type: 'kanban-init',
+            presentation_id: presentationId,
+            element_id: id
+          }, '*');
+        };
+
         console.log(`[ElementManager] Diagram ${id} rendered in isolated iframe`);
       } else if (config.svgContent) {
         contentDiv.innerHTML = config.svgContent;

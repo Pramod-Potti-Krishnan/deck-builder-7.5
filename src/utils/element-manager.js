@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5.24
+ * Element Manager for Layout Builder v7.5.26
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.26 Changes (Jan 27, 2026):
+ * - Complete Gantt persistence restoration pathway
+ * - insertDiagram() now restores gantt_data to container dataset
+ * - Works with presentation-viewer.html passing gantt_data from database
  *
  * v7.5.25 Changes (Jan 26, 2026):
  * - Add Gantt chart state persistence via postMessage handler
@@ -1669,6 +1674,11 @@
     if (config.kanban_data) {
       container.dataset.kanbanData = JSON.stringify(config.kanban_data);
       console.log('[ElementManager] Restored kanban_data for:', id);
+    }
+    // v7.5.26: Set gantt_data on container for iframe initialization
+    if (config.gantt_data) {
+      container.dataset.ganttData = JSON.stringify(config.gantt_data);
+      console.log('[ElementManager] Restored gantt_data for:', id);
     }
     // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `

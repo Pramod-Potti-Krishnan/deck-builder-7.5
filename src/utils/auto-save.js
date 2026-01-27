@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.21
+ * Auto-Save System for Presentation Editor - v7.5.27
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,13 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.27 Changes (Jan 27, 2026):
+ * - Fixed CSS class mismatch: status-dot -> status-icon in HTML
+ * - Fixed status indicator visibility in view mode for forced saves
+ * - Added forcedSaveInProgress flag to track forced save context
+ * - Status indicator now shows during Gantt/Kanban saves in view mode
+ * - Auto-hides indicator 3s after forced save completes in view mode
  *
  * v7.5.21 Changes (Jan 26, 2026):
  * - Added gantt_data collection in collectDiagrams() for Gantt chart persistence
@@ -53,6 +60,7 @@
   let lastSaveTime = null;
   let statusIndicator = null;
   let isInitialized = false;
+  let forcedSaveInProgress = false; // v7.5.27: Track forced saves for view mode indicator
 
   // Status states
   const STATUS = {
@@ -87,6 +95,11 @@
    * @param {boolean} forceInAnyMode - If true, bypass edit mode check (v1.6.4: for interactive diagrams like Kanban)
    */
   function markContentChanged(slideIndex = null, field = null, forceInAnyMode = false) {
+    // v7.5.27: Track that we're in a forced save scenario (for view mode indicator)
+    if (forceInAnyMode) {
+      forcedSaveInProgress = true;
+    }
+
     // Only track in edit mode (unless forced for interactive diagrams like Kanban)
     if (!forceInAnyMode && document.body.getAttribute('data-mode') !== 'edit') return;
 
@@ -153,9 +166,23 @@
       lastSaveTime = Date.now();
       pendingChanges.clear();
       updateStatus(STATUS.SAVED);
+
+      // v7.5.27: In view mode with forced save, hide indicator after 3s
+      const isEditMode = document.body.getAttribute('data-mode') === 'edit';
+      if (!isEditMode && forcedSaveInProgress) {
+        setTimeout(() => {
+          if (document.body.getAttribute('data-mode') !== 'edit' && statusIndicator) {
+            statusIndicator.style.display = 'none';
+          }
+          forcedSaveInProgress = false;
+        }, 3000);
+      } else {
+        forcedSaveInProgress = false;
+      }
     } catch (error) {
       console.error('Auto-save failed:', error);
       updateStatus(STATUS.ERROR, error.message);
+      forcedSaveInProgress = false; // v7.5.27: Clear flag on error too
     } finally {
       isSaving = false;
     }
@@ -875,9 +902,10 @@
       }
     }
 
-    // Show/hide indicator based on edit mode
+    // v7.5.27: Show indicator in edit mode OR during forced saves (Gantt/Kanban in view mode)
     const isEditMode = document.body.getAttribute('data-mode') === 'edit';
-    statusIndicator.style.display = isEditMode ? 'flex' : 'none';
+    const showIndicator = isEditMode || forcedSaveInProgress || status === STATUS.SAVING || status === STATUS.ERROR;
+    statusIndicator.style.display = showIndicator ? 'flex' : 'none';
   }
 
   /**

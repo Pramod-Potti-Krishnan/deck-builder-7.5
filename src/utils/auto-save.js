@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.27
+ * Auto-Save System for Presentation Editor - v7.5.28
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,10 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.28 Changes (Jan 27, 2026):
+ * - Added chevron_data collection in collectDiagrams() for Chevron Maturity persistence
+ * - Chevron state (add/edit/delete/resize rows/chevrons) is now saved via postMessage from iframe
  *
  * v7.5.27 Changes (Jan 27, 2026):
  * - Fixed CSS class mismatch: status-dot -> status-icon in HTML
@@ -770,6 +774,15 @@
           diagram.gantt_data = JSON.parse(el.dataset.ganttData);
         } catch (e) {
           console.warn(`[AutoSave] Failed to parse gantt_data for ${el.id}:`, e);
+        }
+      }
+
+      // v7.5.28: Get chevron_data if stored as data attribute (for Chevron Maturity persistence)
+      if (el.dataset.chevronData) {
+        try {
+          diagram.chevron_data = JSON.parse(el.dataset.chevronData);
+        } catch (e) {
+          console.warn(`[AutoSave] Failed to parse chevron_data for ${el.id}:`, e);
         }
       }
 

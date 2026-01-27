@@ -1,10 +1,16 @@
 /**
- * Element Manager for Layout Builder v7.5.27
+ * Element Manager for Layout Builder v7.5.28
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.28 Changes (Jan 27, 2026):
+ * - Complete Chevron Maturity persistence restoration pathway
+ * - insertDiagram() now restores chevron_data to container dataset
+ * - Send 'chevron-init' postMessage on iframe load for state restoration
+ * - Works with presentation-viewer.html passing chevron_data from database
  *
  * v7.5.27 Changes (Jan 27, 2026):
  * - Add Chevron Maturity state persistence via postMessage handler
@@ -1685,6 +1691,11 @@
       container.dataset.ganttData = JSON.stringify(config.gantt_data);
       console.log('[ElementManager] Restored gantt_data for:', id);
     }
+    // v7.5.28: Set chevron_data on container for iframe initialization
+    if (config.chevron_data) {
+      container.dataset.chevronData = JSON.stringify(config.chevron_data);
+      console.log('[ElementManager] Restored chevron_data for:', id);
+    }
     // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `
       grid-row: ${position.gridRow};
@@ -1829,6 +1840,24 @@
             presentation_id: presentationId,
             element_id: id,
             saved_state: ganttState  // Include saved state for restoration
+          }, '*');
+
+          // v7.5.28: Get saved chevron state from element dataset
+          let chevronState = null;
+          try {
+            if (container.dataset.chevronData) {
+              chevronState = JSON.parse(container.dataset.chevronData);
+            }
+          } catch (err) {
+            console.warn('[ElementManager] Could not parse saved chevron data:', err);
+          }
+
+          // v7.5.28: Send Chevron initialization (Chevron Maturity will use these, others ignore)
+          iframe.contentWindow.postMessage({
+            type: 'chevron-init',
+            presentation_id: presentationId,
+            element_id: id,
+            saved_state: chevronState  // Include saved state for restoration
           }, '*');
         };
 

@@ -1,10 +1,15 @@
 /**
- * Element Manager for Layout Builder v7.5.26
+ * Element Manager for Layout Builder v7.5.27
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.27 Changes (Jan 27, 2026):
+ * - Add Chevron Maturity state persistence via postMessage handler
+ * - Listen for 'updateChevronState' messages from Chevron iframes
+ * - Store chevron_data on element dataset for auto-save collection
  *
  * v7.5.26 Changes (Jan 27, 2026):
  * - Complete Gantt persistence restoration pathway
@@ -3573,6 +3578,57 @@
       const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
       // Force save in any mode for Gantt interactive changes
       markContentChanged(slideIndex, 'diagram_gantt', true);
+    }
+  });
+
+  /**
+   * v7.5.27: CHEVRON MATURITY STATE PERSISTENCE
+   * Listen for state updates from Chevron maturity chart iframes.
+   * Chevron charts send 'updateChevronState' messages when rows are added/edited/deleted.
+   */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateChevronState') return;
+
+    const { elementId, action, chevronData, timestamp } = e.data;
+
+    // Find the element by ID (try both the provided ID and common diagram class patterns)
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // If not found by ID, try to find by searching for diagram elements containing the iframe
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] Chevron state update: element not found', elementId);
+      return;
+    }
+
+    // Store the chevron data on the element's dataset for auto-save collection
+    try {
+      element.dataset.chevronData = JSON.stringify(chevronData);
+      console.log(`[ElementManager] Chevron state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store chevron data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      // Force save in any mode for Chevron interactive changes
+      markContentChanged(slideIndex, 'diagram_chevron', true);
     }
   });
 

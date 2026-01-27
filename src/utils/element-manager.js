@@ -6,6 +6,11 @@
  *
  * Exposed via window.ElementManager for postMessage handler access.
  *
+ * v7.5.25 Changes (Jan 26, 2026):
+ * - Add Gantt chart state persistence via postMessage handler
+ * - Listen for 'updateGanttState' messages from Gantt iframes
+ * - Store gantt_data on element dataset for auto-save collection
+ *
  * v7.5.24 Changes (Jan 26, 2026):
  * - Add Kanban state persistence via postMessage handler
  * - Listen for 'updateKanbanState' messages from Kanban iframes
@@ -1767,7 +1772,7 @@
         iframe.srcdoc = diagramDoc;
         contentDiv.appendChild(iframe);
 
-        // v1.6.3: Send initialization data including saved state for Kanban persistence
+        // v1.6.3/v7.5.25: Send initialization data including saved state for Kanban/Gantt persistence
         iframe.onload = function() {
           // Get presentation ID from URL
           const presentationId = window.location.pathname.match(/presentations\/([a-f0-9-]+)/i)?.[1]
@@ -1776,13 +1781,23 @@
             || '';
 
           // Get saved kanban state from element dataset (set by auto-save restore)
-          let savedState = null;
+          let kanbanState = null;
           try {
             if (container.dataset.kanbanData) {
-              savedState = JSON.parse(container.dataset.kanbanData);
+              kanbanState = JSON.parse(container.dataset.kanbanData);
             }
           } catch (err) {
             console.warn('[ElementManager] Could not parse saved kanban data:', err);
+          }
+
+          // v7.5.25: Get saved gantt state from element dataset
+          let ganttState = null;
+          try {
+            if (container.dataset.ganttData) {
+              ganttState = JSON.parse(container.dataset.ganttData);
+            }
+          } catch (err) {
+            console.warn('[ElementManager] Could not parse saved gantt data:', err);
           }
 
           // Send IDs and saved state to iframe (Kanban will use these, others ignore)
@@ -1790,7 +1805,15 @@
             type: 'kanban-init',
             presentation_id: presentationId,
             element_id: id,
-            saved_state: savedState  // v1.6.3: Include saved state for restoration
+            saved_state: kanbanState  // v1.6.3: Include saved state for restoration
+          }, '*');
+
+          // v7.5.25: Send Gantt initialization (Gantt charts will use these, others ignore)
+          iframe.contentWindow.postMessage({
+            type: 'gantt-init',
+            presentation_id: presentationId,
+            element_id: id,
+            saved_state: ganttState  // Include saved state for restoration
           }, '*');
         };
 
@@ -3489,6 +3512,57 @@
       const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
       // v1.6.4: Force save in any mode for Kanban interactive changes
       markContentChanged(slideIndex, 'diagram_kanban', true);
+    }
+  });
+
+  /**
+   * v7.5.25: GANTT CHART STATE PERSISTENCE
+   * Listen for state updates from Gantt chart iframes.
+   * Gantt charts send 'updateGanttState' messages when tasks are added/edited/deleted/resized.
+   */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateGanttState') return;
+
+    const { elementId, action, ganttData, timestamp } = e.data;
+
+    // Find the element by ID (try both the provided ID and common diagram class patterns)
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // If not found by ID, try to find by searching for diagram elements containing the iframe
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] Gantt state update: element not found', elementId);
+      return;
+    }
+
+    // Store the gantt data on the element's dataset for auto-save collection
+    try {
+      element.dataset.ganttData = JSON.stringify(ganttData);
+      console.log(`[ElementManager] Gantt state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store gantt data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      // Force save in any mode for Gantt interactive changes
+      markContentChanged(slideIndex, 'diagram_gantt', true);
     }
   });
 

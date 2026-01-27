@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.20
+ * Auto-Save System for Presentation Editor - v7.5.21
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,10 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.21 Changes (Jan 26, 2026):
+ * - Added gantt_data collection in collectDiagrams() for Gantt chart persistence
+ * - Gantt state (add/edit/delete/resize tasks) is now saved via postMessage from iframe
  *
  * v7.5.20 / v1.6.4 Changes (Jan 26, 2026):
  * - Added forceInAnyMode parameter to markContentChanged() to bypass edit mode check
@@ -730,6 +734,15 @@
           diagram.kanban_data = JSON.parse(el.dataset.kanbanData);
         } catch (e) {
           console.warn(`[AutoSave] Failed to parse kanban_data for ${el.id}:`, e);
+        }
+      }
+
+      // v7.5.21: Get gantt_data if stored as data attribute (for Gantt chart persistence)
+      if (el.dataset.ganttData) {
+        try {
+          diagram.gantt_data = JSON.parse(el.dataset.ganttData);
+        } catch (e) {
+          console.warn(`[AutoSave] Failed to parse gantt_data for ${el.id}:`, e);
         }
       }
 

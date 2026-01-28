@@ -538,7 +538,9 @@
                 // v1.6.5: Pass kanban state for restoration
                 kanban_data: diagram.kanban_data || null,
                 // v7.5.26: Pass gantt state for restoration
-                gantt_data: diagram.gantt_data || null
+                gantt_data: diagram.gantt_data || null,
+                // v7.5.29: Pass chevron state for restoration
+                chevron_data: diagram.chevron_data || null
               };
 
               window.ElementManager.insertDiagram(slideIndex, config);

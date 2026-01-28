@@ -1696,6 +1696,11 @@
       container.dataset.chevronData = JSON.stringify(config.chevron_data);
       console.log('[ElementManager] Restored chevron_data for:', id);
     }
+    // v7.5.XX: Set idea_board_data on container for iframe initialization
+    if (config.idea_board_data) {
+      container.dataset.ideaBoardData = JSON.stringify(config.idea_board_data);
+      console.log('[ElementManager] Restored idea_board_data for:', id);
+    }
     // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `
       grid-row: ${position.gridRow};
@@ -1858,6 +1863,24 @@
             presentation_id: presentationId,
             element_id: id,
             saved_state: chevronState  // Include saved state for restoration
+          }, '*');
+
+          // v7.5.XX: Get saved idea board state from element dataset
+          let ideaBoardState = null;
+          try {
+            if (container.dataset.ideaBoardData) {
+              ideaBoardState = JSON.parse(container.dataset.ideaBoardData);
+            }
+          } catch (err) {
+            console.warn('[ElementManager] Could not parse saved idea board data:', err);
+          }
+
+          // v7.5.XX: Send IdeaBoard initialization (IDEA_BOARD will use these, others ignore)
+          iframe.contentWindow.postMessage({
+            type: 'ideaboard-init',
+            presentation_id: presentationId,
+            element_id: id,
+            saved_state: ideaBoardState  // Include saved state for restoration
           }, '*');
         };
 
@@ -3658,6 +3681,53 @@
       const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
       // Force save in any mode for Chevron interactive changes
       markContentChanged(slideIndex, 'diagram_chevron', true);
+    }
+  });
+
+  // v7.5.XX: Listen for IdeaBoard state updates from iframe
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateIdeaBoardState') return;
+
+    const { elementId, action, ideaBoardData, timestamp } = e.data;
+
+    // Find the element by ID
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // Fallback: find by iframe source
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] IdeaBoard state update: element not found', elementId);
+      return;
+    }
+
+    // Store the idea board data on the element's dataset for auto-save collection
+    try {
+      element.dataset.ideaBoardData = JSON.stringify(ideaBoardData);
+      console.log(`[ElementManager] IdeaBoard state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store idea board data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      // Force save in any mode for IdeaBoard interactive changes
+      markContentChanged(slideIndex, 'diagram_ideaboard', true);
     }
   });
 

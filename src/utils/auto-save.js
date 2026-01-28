@@ -786,6 +786,15 @@
         }
       }
 
+      // v7.5.XX: Get idea_board_data if stored as data attribute (for IdeaBoard persistence)
+      if (el.dataset.ideaBoardData) {
+        try {
+          diagram.idea_board_data = JSON.parse(el.dataset.ideaBoardData);
+        } catch (e) {
+          console.warn(`[AutoSave] Failed to parse idea_board_data for ${el.id}:`, e);
+        }
+      }
+
       diagrams.push(diagram);
     });
 

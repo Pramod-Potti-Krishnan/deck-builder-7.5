@@ -597,6 +597,11 @@ class DiagramElement(BaseModel):
         default=None,
         description="Structured Kanban state: {columns: [{name, color, items: [{title, priority, assignee, status}]}]}"
     )
+    # v7.5.XX: IDEA_BOARD state persistence
+    idea_board_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="IDEA_BOARD state: {ideas: [{id, name, x_position, y_position, color, why, how, what, benefit_score}], axis_config: {...}}"
+    )
     locked: bool = Field(
         default=False,
         description="Prevent accidental edits when True"

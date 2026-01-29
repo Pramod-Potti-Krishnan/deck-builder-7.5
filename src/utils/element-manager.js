@@ -1887,6 +1887,20 @@
         console.log(`[ElementManager] Diagram ${id} rendered in isolated iframe`);
       } else if (config.svgContent) {
         contentDiv.innerHTML = config.svgContent;
+        // v7.5.30: Execute embedded scripts for interactive diagrams (IDEA_BOARD, etc.)
+        // Scripts inserted via innerHTML don't auto-execute - recreate them to trigger execution
+        const scripts = contentDiv.querySelectorAll('script');
+        if (scripts.length > 0) {
+          scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => {
+              newScript.setAttribute(attr.name, attr.value);
+            });
+            newScript.textContent = oldScript.textContent;
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+          });
+          console.log(`[ElementManager] Executed ${scripts.length} embedded script(s) for diagram ${id}`);
+        }
       } else if (config.mermaidCode && typeof mermaid !== 'undefined') {
         // Render Mermaid diagram
         const mermaidId = `mermaid-${id}`;

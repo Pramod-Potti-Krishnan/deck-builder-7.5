@@ -505,6 +505,29 @@
     }
 
     /**
+     * Execute scripts that were inserted via innerHTML (scripts don't auto-execute)
+     * Used for interactive diagrams like IDEA_BOARD, KANBAN (non-iframe), etc.
+     * @param {HTMLElement} container - Container element with script tags to execute
+     */
+    function executeEmbeddedScripts(container) {
+      const scripts = container.querySelectorAll('script');
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+
+        // Copy attributes (type, src, etc.)
+        Array.from(oldScript.attributes).forEach(attr => {
+          newScript.setAttribute(attr.name, attr.value);
+        });
+
+        // Copy content (inline script code)
+        newScript.textContent = oldScript.textContent;
+
+        // Replace old script with new one (triggers execution)
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
+    }
+
+    /**
      * Restore diagrams from saved slide data
      */
     function restoreDiagrams(slides) {
@@ -706,6 +729,19 @@
         restoreCharts(data.slides);
         restoreInfographics(data.slides);
         restoreDiagrams(data.slides);
+
+        // v7.5.30: Execute embedded scripts for interactive diagrams (IDEA_BOARD, etc.)
+        // Scripts inserted via innerHTML don't auto-execute - this fixes that
+        setTimeout(() => {
+          const diagramContainers = document.querySelectorAll('.inserted-diagram .element-content');
+          diagramContainers.forEach(container => {
+            const scripts = container.querySelectorAll('script');
+            if (scripts.length > 0) {
+              executeEmbeddedScripts(container);
+              console.log('[Viewer] Executed', scripts.length, 'embedded script(s) for diagram');
+            }
+          });
+        }, 100); // Small delay to ensure elements are fully rendered
 
         // Convert template slots to Element Type instances
         // This enables drag handles, resize handles, and format panel for all templates

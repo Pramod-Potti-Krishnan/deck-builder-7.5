@@ -1,10 +1,18 @@
 /**
- * Element Manager for Layout Builder v7.5.28
+ * Element Manager for Layout Builder v7.5.29
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.29 Changes (Jan 31, 2026):
+ * - Add Cloud Architecture state persistence via postMessage handler
+ * - Listen for 'updateCloudArchState' messages from Cloud Architecture iframes
+ * - Add Logical Architecture state persistence via postMessage handler
+ * - Listen for 'updateLogArchState' messages from Logical Architecture iframes
+ * - insertDiagram() now restores cloud_arch_data and log_arch_data to container dataset
+ * - Works with presentation-viewer.html passing architecture data from database
  *
  * v7.5.28 Changes (Jan 27, 2026):
  * - Complete Chevron Maturity persistence restoration pathway
@@ -1700,6 +1708,16 @@
     if (config.idea_board_data) {
       container.dataset.ideaBoardData = JSON.stringify(config.idea_board_data);
       console.log('[ElementManager] Restored idea_board_data for:', id);
+    }
+    // v7.5.29: Set cloud_arch_data on container for iframe initialization
+    if (config.cloud_arch_data) {
+      container.dataset.cloudArchData = JSON.stringify(config.cloud_arch_data);
+      console.log('[ElementManager] Restored cloud_arch_data for:', id);
+    }
+    // v7.5.29: Set log_arch_data on container for iframe initialization
+    if (config.log_arch_data) {
+      container.dataset.logArchData = JSON.stringify(config.log_arch_data);
+      console.log('[ElementManager] Restored log_arch_data for:', id);
     }
     // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `
@@ -3742,6 +3760,112 @@
       const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
       // Force save in any mode for IdeaBoard interactive changes
       markContentChanged(slideIndex, 'diagram_ideaboard', true);
+    }
+  });
+
+  /**
+   * v7.5.29: CLOUD_ARCHITECTURE STATE PERSISTENCE
+   * Listen for state updates from Cloud Architecture diagram iframes.
+   * Cloud Architecture diagrams send 'updateCloudArchState' messages when
+   * components are added/edited/deleted/moved, layers are added/edited/deleted/reordered,
+   * or connections are modified.
+   */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateCloudArchState') return;
+
+    const { elementId, action, cloudArchData, timestamp } = e.data;
+
+    // Find the element by ID
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // Fallback: find by iframe source
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] Cloud Architecture state update: element not found', elementId);
+      return;
+    }
+
+    // Store the cloud architecture data on the element's dataset for auto-save collection
+    try {
+      element.dataset.cloudArchData = JSON.stringify(cloudArchData);
+      console.log(`[ElementManager] Cloud Architecture state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store cloud architecture data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      // Force save in any mode for Cloud Architecture interactive changes
+      markContentChanged(slideIndex, 'diagram_cloud_architecture', true);
+    }
+  });
+
+  /**
+   * v7.5.29: LOGICAL_ARCHITECTURE STATE PERSISTENCE
+   * Listen for state updates from Logical Architecture diagram iframes.
+   * Logical Architecture diagrams send 'updateLogArchState' messages when
+   * components are added/edited/deleted/moved, groups are added/edited/deleted/moved/resized,
+   * or connections are modified.
+   */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateLogArchState') return;
+
+    const { elementId, action, logArchData, timestamp } = e.data;
+
+    // Find the element by ID
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // Fallback: find by iframe source
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] Logical Architecture state update: element not found', elementId);
+      return;
+    }
+
+    // Store the logical architecture data on the element's dataset for auto-save collection
+    try {
+      element.dataset.logArchData = JSON.stringify(logArchData);
+      console.log(`[ElementManager] Logical Architecture state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store logical architecture data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      // Force save in any mode for Logical Architecture interactive changes
+      markContentChanged(slideIndex, 'diagram_logical_architecture', true);
     }
   });
 

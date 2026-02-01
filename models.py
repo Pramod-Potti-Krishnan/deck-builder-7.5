@@ -602,6 +602,31 @@ class DiagramElement(BaseModel):
         default=None,
         description="IDEA_BOARD state: {ideas: [{id, name, x_position, y_position, color, why, how, what, benefit_score}], axis_config: {...}}"
     )
+    # v7.5.21: Gantt chart state persistence
+    gantt_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Gantt chart state: {tasks: [{id, name, start, end, progress, dependencies}]}"
+    )
+    # v7.5.27: Chevron Maturity state persistence
+    chevron_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Chevron Maturity state: {rows: [{label, chevrons: [{level, label}]}]}"
+    )
+    # v7.5.29: Cloud Architecture state persistence
+    cloud_arch_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Cloud Architecture state: {layers: [...], components: [...], connections: [...]}"
+    )
+    # v7.5.29: Logical Architecture state persistence
+    log_arch_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Logical Architecture state: {groups: [...], components: [...], connections: [...]}"
+    )
+    # v7.5.30: DATA_ARCHITECTURE state persistence
+    data_arch_data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="DATA_ARCHITECTURE state: {entities: [{id, name, type, fields, x_position, y_position}], relationships: [{id, from_entity, to_entity, cardinality}]}"
+    )
     locked: bool = Field(
         default=False,
         description="Prevent accidental edits when True"

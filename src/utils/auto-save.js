@@ -1,5 +1,5 @@
 /**
- * Auto-Save System for Presentation Editor - v7.5.29
+ * Auto-Save System for Presentation Editor - v7.5.30
  *
  * Provides debounced auto-save functionality that tracks changes
  * and saves them automatically after a period of inactivity.
@@ -10,6 +10,10 @@
  * - Visual status indicator (Unsaved/Saving/Saved/Error)
  * - Retry logic for failed saves
  * - Manual save trigger option
+ *
+ * v7.5.30 Changes (Feb 1, 2026):
+ * - Added data_arch_data collection in collectDiagrams() for DATA_ARCHITECTURE persistence
+ * - DATA_ARCHITECTURE state (entities, relationships) is now saved via postMessage from iframe
  *
  * v7.5.29 Changes (Jan 31, 2026):
  * - Added cloud_arch_data collection in collectDiagrams() for Cloud Architecture persistence
@@ -815,6 +819,16 @@
           diagram.log_arch_data = JSON.parse(el.dataset.logArchData);
         } catch (e) {
           console.warn(`[AutoSave] Failed to parse log_arch_data for ${el.id}:`, e);
+        }
+      }
+
+      // v7.5.30: Get data_arch_data if stored as data attribute (for DATA_ARCHITECTURE persistence)
+      if (el.dataset.dataArchData) {
+        try {
+          diagram.data_arch_data = JSON.parse(el.dataset.dataArchData);
+          console.log('[AutoSave] Collected DATA_ARCHITECTURE state for:', diagram.id);
+        } catch (e) {
+          console.warn(`[AutoSave] Failed to parse data_arch_data for ${el.id}:`, e);
         }
       }
 

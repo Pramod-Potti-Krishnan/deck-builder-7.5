@@ -1,10 +1,16 @@
 /**
- * Element Manager for Layout Builder v7.5.29
+ * Element Manager for Layout Builder v7.5.30
  *
  * Manages dynamic elements (shapes, tables, charts, images) in slides.
  * Provides CRUD operations, element registry, and selection state.
  *
  * Exposed via window.ElementManager for postMessage handler access.
+ *
+ * v7.5.30 Changes (Feb 1, 2026):
+ * - Add DATA_ARCHITECTURE state persistence via postMessage handler
+ * - Listen for 'updateDataArchitectureState' messages from DATA_ARCHITECTURE iframes
+ * - insertDiagram() now restores data_arch_data to container dataset
+ * - Send 'dataarch-init' postMessage on iframe load for state restoration
  *
  * v7.5.29 Changes (Jan 31, 2026):
  * - Add Cloud Architecture state persistence via postMessage handler
@@ -1719,6 +1725,11 @@
       container.dataset.logArchData = JSON.stringify(config.log_arch_data);
       console.log('[ElementManager] Restored log_arch_data for:', id);
     }
+    // v7.5.30: Set data_arch_data on container for iframe initialization
+    if (config.data_arch_data) {
+      container.dataset.dataArchData = JSON.stringify(config.data_arch_data);
+      console.log('[ElementManager] Restored data_arch_data for:', id);
+    }
     // v7.5.17: Add width/height: 100% to fill grid cell (matches chart container pattern)
     container.style.cssText = `
       grid-row: ${position.gridRow};
@@ -1899,6 +1910,24 @@
             presentation_id: presentationId,
             element_id: id,
             saved_state: ideaBoardState  // Include saved state for restoration
+          }, '*');
+
+          // v7.5.30: Get saved data architecture state from element dataset
+          let dataArchState = null;
+          try {
+            if (container.dataset.dataArchData) {
+              dataArchState = JSON.parse(container.dataset.dataArchData);
+            }
+          } catch (err) {
+            console.warn('[ElementManager] Could not parse saved data architecture data:', err);
+          }
+
+          // v7.5.30: Send DATA_ARCHITECTURE initialization (DATA_ARCHITECTURE will use these, others ignore)
+          iframe.contentWindow.postMessage({
+            type: 'dataarch-init',
+            presentation_id: presentationId,
+            element_id: id,
+            saved_state: dataArchState  // Include saved state for restoration
           }, '*');
         };
 
@@ -3866,6 +3895,58 @@
       const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
       // Force save in any mode for Logical Architecture interactive changes
       markContentChanged(slideIndex, 'diagram_logical_architecture', true);
+    }
+  });
+
+  /**
+   * v7.5.30: DATA_ARCHITECTURE STATE PERSISTENCE
+   * Listen for state updates from DATA_ARCHITECTURE (ER diagram) iframes.
+   * DATA_ARCHITECTURE diagrams send 'updateDataArchitectureState' messages when
+   * entities are added/edited/deleted/moved, relationships are modified, etc.
+   */
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'updateDataArchitectureState') return;
+
+    const { elementId, action, dataArchitectureData, timestamp } = e.data;
+
+    // Find the element by ID
+    let element = null;
+    if (elementId) {
+      element = document.getElementById(elementId);
+    }
+
+    // Fallback: find by iframe source
+    if (!element && e.source) {
+      const diagrams = document.querySelectorAll('.inserted-diagram');
+      for (const diag of diagrams) {
+        const iframe = diag.querySelector('iframe');
+        if (iframe && iframe.contentWindow === e.source) {
+          element = diag;
+          break;
+        }
+      }
+    }
+
+    if (!element) {
+      console.warn('[ElementManager] DATA_ARCHITECTURE state update: element not found', elementId);
+      return;
+    }
+
+    // Store the data architecture data on the element's dataset for auto-save collection
+    try {
+      element.dataset.dataArchData = JSON.stringify(dataArchitectureData);
+      console.log(`[ElementManager] DATA_ARCHITECTURE state updated (${action}):`, elementId || element.id);
+    } catch (err) {
+      console.error('[ElementManager] Failed to store data architecture data:', err);
+      return;
+    }
+
+    // Trigger auto-save by marking content as changed
+    if (typeof markContentChanged === 'function') {
+      const slideSection = element.closest('section');
+      const slideIndex = slideSection ? parseInt(slideSection.dataset.slideIndex || '0') : 0;
+      // Force save in any mode for DATA_ARCHITECTURE interactive changes
+      markContentChanged(slideIndex, 'diagram_data_architecture', true);
     }
   });
 

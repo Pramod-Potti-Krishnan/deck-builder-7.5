@@ -2550,17 +2550,9 @@ async def update_all_slides(
                 if "infographics" in slide_update:
                     presentation["slides"][i]["infographics"] = slide_update.pop("infographics")
 
-                # Diagrams - with protection against frontend collection failures
+                # Diagrams
                 if "diagrams" in slide_update:
-                    incoming_diagrams = slide_update.pop("diagrams")
-                    existing_diagrams = presentation["slides"][i].get("diagrams", [])
-
-                    # If incoming is empty but existing has data, preserve existing
-                    # (Protects against frontend DOM collection failures)
-                    if not incoming_diagrams and existing_diagrams:
-                        logger.warning(f"Slide {i}: Preserving {len(existing_diagrams)} existing diagrams (frontend sent empty)")
-                    else:
-                        presentation["slides"][i]["diagrams"] = incoming_diagrams
+                    presentation["slides"][i]["diagrams"] = slide_update.pop("diagrams")
 
                 # Deleted slot names - v7.5.15
                 # Tracks which template elements were deleted to prevent recreation on refresh
